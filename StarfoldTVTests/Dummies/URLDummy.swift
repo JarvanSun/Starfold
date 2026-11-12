@@ -8,7 +8,7 @@
 import Foundation
 
 extension URL {
-    nonisolated static var dummyConsoleArtwork: URL {
+    static var dummyConsoleArtwork: URL {
         .init(string: "https://example.com/last.jpg")!
     }
 }

@@ -12,9 +12,10 @@ import SwiftUI
 struct StreamMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dimensions) private var dimensions
-
     @Bindable var settings: SettingsViewModel
+
     let stream: StreamViewModel
+
     let onDisconnect: () -> Void
 
     var body: some View {

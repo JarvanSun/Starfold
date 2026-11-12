@@ -70,7 +70,11 @@ extension XboxServerStub {
     func signedInAccount(cloud: CloudEntitlement = .gamePass) async throws -> XboxAccount {
         installSignIn(cloud: cloud)
 
-        let store = AccountStore(secrets: InMemorySecretStore(), http: client)
+        let store = AccountStore(
+            microsoftClientID: .dummyClientID,
+            secrets: InMemorySecretStore(),
+            http: client
+        )
         return try await store.completeSignIn(try await store.beginSignIn())
     }
 

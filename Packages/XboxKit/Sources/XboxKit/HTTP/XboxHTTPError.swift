@@ -11,6 +11,7 @@ public struct XboxHTTPError: LocalizedError, Sendable, CustomStringConvertible {
     public let url: URL
     public let statusCode: Int
     public let body: String
+
     let headers: [String: String]
 
     public var description: String {

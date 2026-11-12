@@ -10,12 +10,13 @@ import Foundation
 
 public final class StreamRuntime: @unchecked Sendable {
     private let lock = NSLock()
-    private var factory: LKRTCPeerConnectionFactory?
     #if os(macOS)
     private let audioDevice = MacStereoAudioDevice()
     #else
     private let audioDevice = StereoAudioDevice()
     #endif
+
+    private var factory: LKRTCPeerConnectionFactory?
 
     public init() {}
 

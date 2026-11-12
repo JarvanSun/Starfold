@@ -14,6 +14,7 @@ struct ConsolesMessageCard: View {
     let title: LocalizedStringResource
     let message: Text
     let width: CGFloat
+
     let onRefresh: () -> Void
 
     var body: some View {
@@ -21,8 +22,8 @@ struct ConsolesMessageCard: View {
             title: title,
             message: message,
             actionLabel: "home.consoles.refresh",
-            onAction: onRefresh,
-            size: .compact
+            size: .compact,
+            onAction: onRefresh
         )
         .frame(width: width, height: dimensions.homeCardHeight(width: width))
         .cardSurface(cornerRadius: dimensions.cornerRadiusXLarge)

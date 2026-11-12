@@ -8,21 +8,21 @@
 import Foundation
 
 public nonisolated enum TopShelfLink: Equatable, Sendable {
-    private nonisolated enum Scheme: String {
+    private enum Scheme: String {
         case starfold
     }
 
-    private nonisolated enum Host: String {
+    private enum Host: String {
         case game
         case console
     }
 
-    private nonisolated enum QueryKey: String {
+    private enum QueryKey: String {
         case name
         case play
     }
 
-    private nonisolated enum PlayFlag: String {
+    private enum PlayFlag: String {
         case on = "1"
     }
 
@@ -63,13 +63,6 @@ public nonisolated enum TopShelfLink: Equatable, Sendable {
 }
 
 nonisolated private extension TopShelfLink {
-    private var host: Host {
-        switch self {
-        case .game: .game
-        case .console: .console
-        }
-    }
-
     var id: String {
         switch self {
         case .game(let id, _, _), .console(let id, _): id
@@ -89,6 +82,13 @@ nonisolated private extension TopShelfLink {
 
     var schemeOnlyURL: URL {
         .init(string: "starfold:")!
+    }
+
+    private var host: Host {
+        switch self {
+        case .game: .game
+        case .console: .console
+        }
     }
 
     func nameItem(_ name: String) -> URLQueryItem {

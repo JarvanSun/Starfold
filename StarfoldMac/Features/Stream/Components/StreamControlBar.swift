@@ -12,11 +12,12 @@ import SwiftUI
 
 struct StreamControlBar: View {
     @Environment(\.dimensions) private var dimensions
+    @Bindable var settings: SettingsViewModel
 
     let stream: StreamViewModel
-    @Bindable var settings: SettingsViewModel
     let pictureInPicture: StreamPictureInPicture?
     let isFullScreen: Bool
+
     let onClose: () -> Void
 
     var body: some View {
@@ -113,15 +114,15 @@ private extension StreamControlBar {
 #Preview {
     VStack {
         StreamControlBar(
-            stream: PreviewObjectPool.streamViewModel(phase: .streaming),
             settings: PreviewObjectPool.settingsViewModel,
+            stream: PreviewObjectPool.streamViewModel(phase: .streaming),
             pictureInPicture: nil,
             isFullScreen: false
         ) {}
 
         StreamControlBar(
-            stream: PreviewObjectPool.streamViewModel(phase: .streaming),
             settings: PreviewObjectPool.settingsViewModel,
+            stream: PreviewObjectPool.streamViewModel(phase: .streaming),
             pictureInPicture: nil,
             isFullScreen: true
         ) {}

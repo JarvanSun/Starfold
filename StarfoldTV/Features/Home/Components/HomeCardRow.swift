@@ -15,6 +15,7 @@ struct HomeCardRow: View {
     let home: HomeViewModel
     let library: LibraryViewModel
     let cardWidth: CGFloat
+
     let onBrowse: () -> Void
 
     var body: some View {

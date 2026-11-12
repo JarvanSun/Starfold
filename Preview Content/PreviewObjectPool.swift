@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
+#if DEBUG
 import Foundation
 import StarfoldShared
 import StreamKit
@@ -71,7 +72,7 @@ extension PreviewObjectPool {
 
 private extension PreviewObjectPool {
     static var userDefaults: UserDefaults {
-        .init(suiteName: "com.jarvansun.sunbox.previews")!
+        .init(suiteName: "Starfold.previews")!
     }
 
     static var controllers: ControllerHub {
@@ -100,3 +101,4 @@ private extension PreviewObjectPool {
         )
     }
 }
+#endif

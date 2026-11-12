@@ -14,6 +14,7 @@ struct ShelfRow: View {
 
     let shelf: LibraryShelf
     let games: [CloudGame]
+
     let onPlay: (CloudGame) -> Void
     let onOpen: (CloudGame) -> Void
 

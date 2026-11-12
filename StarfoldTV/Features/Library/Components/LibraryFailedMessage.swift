@@ -9,6 +9,7 @@ import SwiftUI
 
 struct LibraryFailedMessage: View {
     let reason: String
+
     let onRetry: () -> Void
 
     var body: some View {

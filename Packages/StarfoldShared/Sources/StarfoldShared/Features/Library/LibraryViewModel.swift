@@ -13,20 +13,23 @@ import os
 
 @Observable
 public final class LibraryViewModel {
+    public var searchText = ""
+
+    var onSignInRequired: () -> Void = {}
+    var onPlay: (StreamTarget) -> Void = { _ in }
+
+    public private(set) var games: [CloudGame] = []
+    public private(set) var recentGames: [CloudGame] = []
+    public private(set) var cloudAccess: CloudAccess = .unknown
+
+    let favorites: FavoritesStore
+    private(set) var curated: [CatalogClient.List: [CloudGame]] = [:]
+    private(set) var cloudState: LoadState = .idle
+
     private let accountID: String
     private let service: CloudLibraryService
     private let preferences: Preferences
     private let cache: LibraryCache
-    let favorites: FavoritesStore
-
-    public var searchText = ""
-    public private(set) var games: [CloudGame] = []
-    public private(set) var recentGames: [CloudGame] = []
-    public private(set) var cloudAccess: CloudAccess = .unknown
-    var onSignInRequired: () -> Void = {}
-    var onPlay: (StreamTarget) -> Void = { _ in }
-    private(set) var curated: [CatalogClient.List: [CloudGame]] = [:]
-    private(set) var cloudState: LoadState = .idle
     private let log = Logger(category: .library)
 
     public var sort: GameSort {

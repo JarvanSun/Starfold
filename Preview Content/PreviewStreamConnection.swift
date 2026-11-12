@@ -5,10 +5,11 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
+#if DEBUG
 import StarfoldShared
 import StreamKit
 
-nonisolated struct PreviewStreamConnection: StreamConnection {
+struct PreviewStreamConnection: StreamConnection {
     let updates: AsyncStream<StreamUpdate>
 
     init(updates: [StreamUpdate]) {
@@ -33,3 +34,4 @@ nonisolated struct PreviewStreamConnection: StreamConnection {
 
     func answerKeyboard(id: String, text: String?) async {}
 }
+#endif

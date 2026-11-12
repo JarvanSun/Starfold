@@ -9,7 +9,7 @@ import StreamKit
 
 @testable import StarfoldShared
 
-nonisolated struct StreamConnectionStub: StreamConnection {
+struct StreamConnectionStub: StreamConnection {
     let updates: AsyncStream<StreamUpdate>
 
     init(updates: [StreamUpdate]) {

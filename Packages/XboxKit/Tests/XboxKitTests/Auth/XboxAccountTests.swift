@@ -125,7 +125,12 @@ private extension XboxAccountTests {
         clock: ClockStub
     ) throws -> (XboxAccount, InMemorySecretStore) {
         let secrets = InMemorySecretStore()
-        let store = AccountStore(secrets: secrets, http: server.client, now: clock.nowProvider)
+        let store = AccountStore(
+            microsoftClientID: .dummyClientID,
+            secrets: secrets,
+            http: server.client,
+            now: clock.nowProvider
+        )
         let stored = StoredAccount(
             xuid: "2535",
             gamertag: "NovaPilot",

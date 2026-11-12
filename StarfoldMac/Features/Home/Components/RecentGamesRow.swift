@@ -13,6 +13,7 @@ struct RecentGamesRow: View {
     @Environment(\.dimensions) private var dimensions
 
     let games: [CloudGame]
+
     let onPlay: (CloudGame) -> Void
 
     var body: some View {

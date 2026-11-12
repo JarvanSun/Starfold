@@ -14,6 +14,7 @@ struct FavoriteButton: View {
 
     let action: FavoriteAction
     let isFavorite: Bool
+
     let onToggle: () -> Void
 
     var body: some View {

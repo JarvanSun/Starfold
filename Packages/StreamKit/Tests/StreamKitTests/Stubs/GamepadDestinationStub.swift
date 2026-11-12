@@ -11,6 +11,7 @@ import Foundation
 
 final class GamepadDestinationStub: @unchecked Sendable {
     private let lock = NSLock()
+
     private var deliveries: [(slot: UInt8, state: GamepadState?)] = []
 
     var recordedStates: [GamepadState?] {

@@ -12,18 +12,20 @@ import os
 
 @Observable
 final class StreamPresenter {
-    private let play: (StreamTarget) async -> Void
-    private let stop: () async -> Void
-    private let isControllerConnected: () -> Bool
-    private let isSignInExpired: () -> Bool
-
     var isMenuPresented = false
     var isControllerPromptPresented = false
+
     private(set) var isPresented = false
     private(set) var isEnding = false
     private(set) var presentationID = 0
     private(set) var isInForeground = true
+
+    private let play: (StreamTarget) async -> Void
+    private let stop: () async -> Void
+    private let isControllerConnected: () -> Bool
+    private let isSignInExpired: () -> Bool
     private let log = Logger(category: .tvRemote)
+
     private var target: StreamTarget?
     private var startTask: Task<Void, Never>?
     private var endTask: Task<Void, Never>?

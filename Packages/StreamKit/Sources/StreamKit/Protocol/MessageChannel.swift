@@ -9,6 +9,7 @@ import Foundation
 
 struct MessageChannel: Sendable {
     private let correlationBase: String
+
     private var correlationCount = 0
 
     init() {

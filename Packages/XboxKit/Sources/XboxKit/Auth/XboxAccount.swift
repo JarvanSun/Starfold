@@ -8,13 +8,14 @@
 import Foundation
 
 public actor XboxAccount {
-    private var stored: StoredAccount
+    public nonisolated let xuid: String
+
     private let deviceCodeFlow: DeviceCodeFlow
     private let tokenClient: XboxLiveTokenClient
     private let persist: @Sendable (StoredAccount) throws -> Void
     private let now: @Sendable () -> Date
 
-    public nonisolated let xuid: String
+    private var stored: StoredAccount
     private var userToken: XboxToken?
     private var refreshTask: Task<MicrosoftAccountToken, Error>?
 

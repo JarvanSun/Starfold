@@ -10,8 +10,10 @@ import UIKit
 
 struct StreamHost<Content: View>: UIViewControllerRepresentable {
     let isRawInputEnabled: Bool
+
     let onRemoteBack: @MainActor @Sendable () -> Void
     let onRemotePlayPause: @MainActor @Sendable () -> Void
+
     @ViewBuilder let content: () -> Content
 
     func makeUIViewController(context: Context) -> StreamEventViewController<Content> {

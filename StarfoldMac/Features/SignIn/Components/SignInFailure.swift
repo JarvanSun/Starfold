@@ -12,6 +12,7 @@ struct SignInFailure: View {
     @Environment(\.dimensions) private var dimensions
 
     let message: String
+
     let onRetry: () -> Void
 
     var body: some View {

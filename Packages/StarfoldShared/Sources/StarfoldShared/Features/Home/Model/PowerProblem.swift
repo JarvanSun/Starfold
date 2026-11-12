@@ -9,5 +9,6 @@ import Foundation
 
 public struct PowerProblem: Identifiable, Equatable {
     public let id = UUID()
+
     let consoleName: String
 }

@@ -13,6 +13,7 @@ struct ConsolePowerButton: View {
     @Environment(\.dimensions) private var dimensions
 
     let control: ConsolePowerControl
+
     let onToggle: () -> Void
 
     var body: some View {

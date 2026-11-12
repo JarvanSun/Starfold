@@ -15,66 +15,53 @@ public final class Preferences {
     var consoleQuality: QualityChoice {
         didSet { defaults.set(consoleQuality.storageValue, for: .consoleQuality) }
     }
-
     var cloudQuality: QualityChoice {
         didSet { defaults.set(cloudQuality.storageValue, for: .cloudQuality) }
     }
-
     var maxBitrateMbps: Int {
         didSet { defaults.set(maxBitrateMbps, for: .maxBitrate) }
     }
-
     var pacingMode: PacingMode {
         didSet { defaults.set(pacingMode.rawValue, for: .pacingMode) }
     }
-
     var isUpscalingEnabled: Bool {
         didSet { defaults.set(isUpscalingEnabled, for: .upscaling) }
     }
-
     var sharpening: Double {
         didSet { defaults.set(sharpening, for: .sharpening) }
     }
-
     var pictureFit: PictureFit {
         didSet { defaults.set(pictureFit.rawValue, for: .pictureFit) }
     }
-
     var isHDRToneMappingEnabled: Bool {
         didSet { defaults.set(isHDRToneMappingEnabled, for: .hdrToneMapping) }
     }
-
     var shouldShowStatistics: Bool {
         didSet { defaults.set(shouldShowStatistics, for: .showStatistics) }
     }
-
     var gameLanguage: String {
         didSet { defaults.set(gameLanguage, for: .gameLanguage) }
     }
-
     var isKeyboardControllerEnabled: Bool {
         didSet { defaults.set(isKeyboardControllerEnabled, for: .keyboardAsController) }
     }
-
     var isRumbleEnabled: Bool {
         didSet { defaults.set(isRumbleEnabled, for: .rumble) }
     }
-
     var soundStage: SoundStage {
         didSet { defaults.set(soundStage.rawValue, for: .soundStage) }
     }
-
     var palette: PaletteID {
         didSet { defaults.set(palette.rawValue, for: .palette) }
     }
-
     var shouldShowInMenuBar: Bool {
         didSet { defaults.set(shouldShowInMenuBar, for: .showInMenuBar) }
     }
-
     var librarySort: GameSort {
         didSet { defaults.set(librarySort.rawValue, for: .librarySort) }
     }
+
+    private let defaults: UserDefaults
 
     var lastAccountID: String? {
         get { defaults.string(for: .lastAccountID) }
@@ -94,8 +81,6 @@ public final class Preferences {
         case nil: makeInstallID()
         }
     }
-
-    private let defaults: UserDefaults
 
     public init(defaults: UserDefaults) {
         let factory = FactorySettings()
@@ -151,12 +136,19 @@ private enum PreferenceKey: String {
 
 private struct FactorySettings {
     var maxBitrateMbps: Int { 0 }
+
     var isUpscalingEnabled: Bool { true }
+
     var sharpening: Double { 0.3 }
+
     var isKeyboardControllerEnabled: Bool { true }
+
     var isRumbleEnabled: Bool { true }
+
     var shouldShowInMenuBar: Bool { true }
+
     var soundStage: SoundStage { .window }
+
     var librarySort: GameSort { .name }
 }
 

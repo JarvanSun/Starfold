@@ -12,6 +12,7 @@ public final class GamepadRouter: @unchecked Sendable {
 
     private let routing: ControllerRouting
     private let lock = NSLock()
+
     private var destination: Destination?
     private var pads: [UInt8: GamepadState] = [:]
     private var keyboard = GamepadState()

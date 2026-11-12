@@ -8,7 +8,7 @@
 import XboxKit
 
 extension CloudGame {
-    nonisolated static func dummyRecentGames(count: Int) -> [CloudGame] {
+    static func dummyRecentGames(count: Int) -> [CloudGame] {
         (1...count).map { number in
             .init(
                 title: .init(

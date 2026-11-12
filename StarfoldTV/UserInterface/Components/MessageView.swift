@@ -14,8 +14,9 @@ struct MessageView: View {
     let title: LocalizedStringResource
     let message: Text
     let actionLabel: LocalizedStringResource
-    let onAction: () -> Void
     var size = MessageSize.regular
+
+    let onAction: () -> Void
 
     var body: some View {
         VStack(spacing: dimensions.spaceXLarge) {
@@ -63,8 +64,8 @@ private extension MessageView {
             title: "home.consoles.empty.title",
             message: Text("home.consoles.empty.message"),
             actionLabel: "home.consoles.refresh",
-            onAction: {},
-            size: .compact
+            size: .compact,
+            onAction: {}
         )
     }
 }

@@ -115,7 +115,10 @@ public struct GSSVSession: Sendable {
 
     public func stop() async {
         #if os(tvOS)
-        let log = Logger(subsystem: "com.jarvansun.sunbox", category: "TVSessionCleanup")
+        let log = Logger(
+            subsystem: Bundle.main.bundleIdentifier ?? "Starfold",
+            category: "TVSessionCleanup"
+        )
 
         do {
             let response = try await client.send(to: url, method: "DELETE")

@@ -9,6 +9,6 @@ import Foundation
 
 extension UserDefaults {
     static var dummyEmpty: UserDefaults {
-        .init(suiteName: "com.jarvansun.sunbox.tests.\(UUID().uuidString)")!
+        .init(suiteName: "Starfold.tests.\(UUID().uuidString)")!
     }
 }

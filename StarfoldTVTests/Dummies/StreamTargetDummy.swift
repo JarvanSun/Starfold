@@ -8,11 +8,11 @@
 import StreamKit
 
 extension StreamTarget {
-    nonisolated static var dummyLivingRoom: StreamTarget {
+    static var dummyLivingRoom: StreamTarget {
         .console(id: "1", name: "Xbox")
     }
 
-    nonisolated static func dummy(named name: String) -> StreamTarget {
+    static func dummy(named name: String) -> StreamTarget {
         .console(id: name, name: name)
     }
 }

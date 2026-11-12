@@ -15,6 +15,7 @@ struct StreamStatusView: View {
 
     let name: String
     let status: StreamStatus
+
     let onRetry: () -> Void
     let onEnd: () -> Void
 

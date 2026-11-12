@@ -8,7 +8,7 @@
 import CoreGraphics
 
 extension CGImage {
-    nonisolated static var dummyRedPixels: CGImage {
+    static var dummyRedPixels: CGImage {
         let context = CGContext(
             data: nil,
             width: 2,

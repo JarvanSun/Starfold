@@ -7,7 +7,7 @@
 
 import StreamKit
 
-nonisolated struct LiveStreamConnection: StreamConnection {
+struct LiveStreamConnection: StreamConnection {
     private let controller: StreamController
     private let runtime: StreamRuntime
 

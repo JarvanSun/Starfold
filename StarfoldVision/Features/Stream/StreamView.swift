@@ -14,6 +14,7 @@ struct StreamView: View {
 
     let stream: StreamViewModel
     let settings: SettingsViewModel
+
     let onClose: () -> Void
 
     var body: some View {
@@ -43,9 +44,9 @@ struct StreamView: View {
             attachmentAnchor: .scene(.bottom),
             contentAlignment: .top
         ) {
-            StreamControlBar(stream: stream, settings: settings, onDisconnect: onClose)
+            StreamControlBar(settings: settings, stream: stream, onDisconnect: onClose)
         }
-        .sheet(item: presentedDialog) { SystemDialogView(dialog: $0, stream: stream) }
+        .sheet(item: presentedDialog) { SystemDialogView(stream: stream, dialog: $0) }
     }
 }
 

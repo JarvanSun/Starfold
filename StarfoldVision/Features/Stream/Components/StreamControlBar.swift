@@ -12,9 +12,10 @@ import SwiftUI
 struct StreamControlBar: View {
     @Environment(\.dimensions) private var dimensions
     @State private var isShowingOptions = false
+    @Bindable var settings: SettingsViewModel
 
     let stream: StreamViewModel
-    @Bindable var settings: SettingsViewModel
+
     let onDisconnect: () -> Void
 
     var body: some View {
@@ -71,8 +72,8 @@ private extension StreamControlBar {
 #if DEBUG
 #Preview("Control bar") {
     StreamControlBar(
-        stream: PreviewObjectPool.streamViewModel(phase: .streaming),
-        settings: PreviewObjectPool.settingsViewModel
+        settings: PreviewObjectPool.settingsViewModel,
+        stream: PreviewObjectPool.streamViewModel(phase: .streaming)
     ) {}
 }
 #endif

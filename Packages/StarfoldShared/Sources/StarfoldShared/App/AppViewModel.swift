@@ -13,13 +13,11 @@ import os
 
 @Observable
 public final class AppViewModel: SigningIn, SessionControlling {
-    private let accountService: AccountService
-    private let cache: LibraryCache
     public let settings: SettingsViewModel
-    private let streamDependencies: StreamDependencies
-
     public var isSignInExpired = false
+
     public var onPlayRequest: ((StreamTarget) -> Void)?
+
     public private(set) var sessionState: SessionState = .restoring
     public private(set) var accounts: [AccountSummary] = []
     public private(set) var activeAccountID: String?
@@ -28,7 +26,12 @@ public final class AppViewModel: SigningIn, SessionControlling {
     public private(set) var library: LibraryViewModel?
     public private(set) var stream: StreamViewModel?
     public private(set) var streamPresentationRequest = 0
+
+    private let accountService: AccountService
+    private let cache: LibraryCache
+    private let streamDependencies: StreamDependencies
     private let log = Logger(category: .app)
+
     private var signedInAccounts: [String: SignedInAccount] = [:]
     private var loadTask: Task<Void, Never>?
     private var isActive = false

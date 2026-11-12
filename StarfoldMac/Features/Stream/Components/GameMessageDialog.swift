@@ -14,6 +14,7 @@ struct GameMessageDialog: View {
     let title: String
     let text: String
     let buttons: [DialogButton]
+
     let onAnswer: (Int) -> Void
 
     var body: some View {

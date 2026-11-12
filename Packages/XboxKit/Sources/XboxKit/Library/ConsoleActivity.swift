@@ -13,10 +13,11 @@ public struct ConsoleActivity: Codable, Sendable, Hashable {
         case lastPlayedHere
     }
 
-    var titleID: String
     public var name: String
     public var imageURL: URL?
     public var kind: Kind
+
+    var titleID: String
 
     public init(titleID: String, name: String, imageURL: URL?, kind: Kind) {
         self.titleID = titleID

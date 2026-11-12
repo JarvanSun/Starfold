@@ -11,6 +11,7 @@ public struct DeviceCodePrompt: Sendable, Equatable {
     public let userCode: String
     public let verificationURL: URL
     public let verificationURLComplete: URL
+
     let expiresAt: Date
     let deviceCode: String
     let pollInterval: Duration

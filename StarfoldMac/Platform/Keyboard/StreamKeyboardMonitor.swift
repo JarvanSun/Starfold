@@ -41,7 +41,7 @@ final class StreamKeyboardMonitor {
     }
 }
 
-private nonisolated struct KeyEvent: Sendable {
+private struct KeyEvent: Sendable {
     enum Kind: Sendable {
         case down
         case up

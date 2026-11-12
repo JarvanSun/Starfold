@@ -8,7 +8,7 @@
 import Foundation
 
 extension Date {
-    nonisolated static var dummyTestStart: Date {
+    static var dummyTestStart: Date {
         .init(timeIntervalSince1970: 1_800_000_000)
     }
 }

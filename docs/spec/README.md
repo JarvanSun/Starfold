@@ -1,13 +1,11 @@
 # Starfold Spec
 
-How code in this repository is written. Someone who has read it can add a feature that looks like
-the code already there.
+How code in this repository is written.
 
 - **The spec wins.** When code and spec disagree, the code is wrong, or the spec changes in the
-  same change. Rules are current: a changed rule replaces the old text.
-- **Must / never / prefer.** *Must* and *never* block a review. *Prefer* allows a deviation when
-  the code is clearer for it.
-- **Samples are binding.** A code sample shows the expected shape.
+  same change.
+- *Must* and *never* block a review; *prefer* allows a deviation when the code is clearer for it.
+- Code samples are binding.
 
 | File | Answers |
 |---|---|
@@ -21,6 +19,4 @@ the code already there.
 | [decisions.md](decisions.md) | Why the code is the way it is: workarounds, measured timings, deliberate choices |
 | [localization.md](localization.md) | English and Simplified Chinese, String Catalogs, formatting |
 | [testing.md](testing.md) | Swift Testing, stubs and dummies, previews |
-| [workflow.md](workflow.md) | Adding a feature, and the definition of done |
-
-Commands are in [workflow.md](workflow.md#commands).
+| [workflow.md](workflow.md) | Commands, adding a feature, and the definition of done |

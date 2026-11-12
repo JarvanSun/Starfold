@@ -10,6 +10,7 @@ import Foundation
 public struct CloudTitle: Codable, Sendable, Hashable, Identifiable {
     public var id: String
     public var productID: String
+
     var hasEntitlement: Bool
     var isFreeInStore: Bool
     var supportedInputTypes: [String]

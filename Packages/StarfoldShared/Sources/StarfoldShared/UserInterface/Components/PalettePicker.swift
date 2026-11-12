@@ -9,7 +9,6 @@ import SwiftUI
 
 public struct PalettePicker: View {
     @Environment(\.dimensions) private var dimensions
-
     @Binding private var selection: PaletteID
 
     public init(selection: Binding<PaletteID>) {

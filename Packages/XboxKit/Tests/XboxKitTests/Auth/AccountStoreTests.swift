@@ -57,6 +57,10 @@ struct AccountStoreTests {
 
 private extension AccountStoreTests {
     func makeStore(server: XboxServerStub) -> AccountStore {
-        .init(secrets: InMemorySecretStore(), http: server.client)
+        .init(
+            microsoftClientID: .dummyClientID,
+            secrets: InMemorySecretStore(),
+            http: server.client
+        )
     }
 }

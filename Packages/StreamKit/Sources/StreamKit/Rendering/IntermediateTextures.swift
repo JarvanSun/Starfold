@@ -15,6 +15,7 @@ final class IntermediateTextures {
     }
 
     private let device: MTLDevice
+
     private var textures: [Role: MTLTexture] = [:]
 
     init(device: MTLDevice) {

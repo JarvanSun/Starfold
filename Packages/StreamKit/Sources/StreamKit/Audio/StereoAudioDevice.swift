@@ -16,6 +16,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
     private let playout = StereoPlayout(meter: PlayoutMeter())
     private let log = Logger(category: .audio)
     private let lock = NSLock()
+
     private var delegate: LKRTCAudioDeviceDelegate?
     private var engine: AVAudioEngine?
     private var isPlayoutReady = false

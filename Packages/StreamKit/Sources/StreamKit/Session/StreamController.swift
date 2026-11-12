@@ -22,6 +22,7 @@ public actor StreamController {
     private let sender: InputSender
     private let clockOrigin: CFTimeInterval
     private let log = Logger(category: .stream)
+
     private var session: GSSVSession?
     private var peer: PeerConnection?
     private var channels: HostChannels

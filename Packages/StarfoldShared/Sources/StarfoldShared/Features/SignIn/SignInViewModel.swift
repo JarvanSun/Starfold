@@ -12,12 +12,13 @@ import os
 
 @Observable
 public final class SignInViewModel {
-    private let service: SigningIn
-    private let clock: any Clock<Duration>
-
     public private(set) var attempt = 0
     public private(set) var shouldClose = false
+
     private(set) var phase = SignInPhase.requesting
+
+    private let service: SigningIn
+    private let clock: any Clock<Duration>
     private let log = Logger(category: .signIn)
 
     public var step: SignInStep {

@@ -10,6 +10,7 @@ import XboxKit
 struct CandidateGathering {
     private(set) var candidates: [LocalICECandidate] = []
     private(set) var isComplete = false
+
     private var lastCandidateAt: ContinuousClock.Instant?
 
     mutating func add(_ candidate: LocalICECandidate, at instant: ContinuousClock.Instant) {

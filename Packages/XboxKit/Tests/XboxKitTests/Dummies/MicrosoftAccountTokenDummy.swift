@@ -10,7 +10,7 @@ import Foundation
 @testable import XboxKit
 
 extension MicrosoftAccountToken {
-    nonisolated static var dummyExpiringInAnHour: MicrosoftAccountToken {
+    static var dummyExpiringInAnHour: MicrosoftAccountToken {
         .init(
             accessToken: "msa-access",
             refreshToken: "msa-refresh",

@@ -11,6 +11,7 @@ struct ControllerRow: View {
     let name: String
     let playerNumber: Int
     let batteryLevel: Double?
+
     let onTestVibration: () -> Void
 
     var body: some View {

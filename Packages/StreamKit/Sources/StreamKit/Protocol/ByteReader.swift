@@ -9,6 +9,7 @@ import Foundation
 
 struct ByteReader {
     private let bytes: [UInt8]
+
     private var offset = 0
 
     init(_ data: Data) {

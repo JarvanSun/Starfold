@@ -14,6 +14,8 @@ import os
 
 public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
     private struct PendingState {
+        var onFirstFrame: (@Sendable () -> Void)?
+
         var frames: [DecodedFrame] = []
         var isDrainScheduled = false
         var enhancements = RenderEnhancements(
@@ -23,17 +25,16 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
             isToneMappingHDR: false
         )
         var drawableSize = CGSize.zero
-        var onFirstFrame: (@Sendable () -> Void)?
         var displayMs: Double?
         var upscaledTo: CGSize?
         var lastFrame: LastFrame?
     }
 
-    private let keepsLastFrame: Bool
-
     public let systemVideo: SystemVideoPresenter
+
+    private let keepsLastFrame: Bool
     private let enhancer: FrameEnhancer
-    private let queue = DispatchQueue(label: "com.jarvansun.sunbox.render", qos: .userInteractive)
+    private let queue = DispatchQueue(label: "StreamKit.render", qos: .userInteractive)
     private let lock = OSAllocatedUnfairLock<PendingState>(initialState: PendingState())
 
     public var upscaledTo: CGSize? {

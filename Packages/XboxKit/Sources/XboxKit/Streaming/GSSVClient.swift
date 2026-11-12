@@ -15,6 +15,7 @@ public struct GSSVClient: Sendable {
 
     let kind: Kind
     let baseURL: URL
+
     private let http: HTTPClient
     private let token: @Sendable (TokenFreshness) async throws -> String
 

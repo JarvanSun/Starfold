@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
+#if DEBUG
 import StarfoldShared
 import StreamKit
 
@@ -17,3 +18,4 @@ struct PreviewStreamService: StreamService {
 
     func setDirectStereo(_ isEnabled: Bool) {}
 }
+#endif

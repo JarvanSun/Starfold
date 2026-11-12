@@ -13,10 +13,16 @@ struct XboxLiveTokenClient: Sendable {
         case gssv = "http://gssv.xboxlive.com/"
     }
 
+    private let identity: MicrosoftIdentity
     private let http: HTTPClient
     private let now: @Sendable () -> Date
 
-    init(http: HTTPClient, now: @escaping @Sendable () -> Date = Date.init) {
+    init(
+        identity: MicrosoftIdentity,
+        http: HTTPClient,
+        now: @escaping @Sendable () -> Date = Date.init
+    ) {
+        self.identity = identity
         self.http = http
         self.now = now
     }
@@ -71,7 +77,7 @@ struct XboxLiveTokenClient: Sendable {
 
     func transferToken(refreshToken: String) async throws -> String {
         let form = FormBody([
-            ("client_id", MicrosoftIdentity().clientID),
+            ("client_id", identity.clientID),
             ("grant_type", "refresh_token"),
             ("refresh_token", refreshToken),
             ("scope", transferTokenScope),

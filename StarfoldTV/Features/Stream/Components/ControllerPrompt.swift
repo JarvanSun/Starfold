@@ -13,6 +13,7 @@ struct ControllerPrompt: View {
     @Environment(\.dimensions) private var dimensions
 
     let hasController: Bool
+
     let onCheckAgain: () -> Void
     let onPlay: () -> Void
 

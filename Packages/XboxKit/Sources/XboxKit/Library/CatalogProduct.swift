@@ -20,8 +20,9 @@ public struct CatalogProduct: Codable, Sendable, Hashable, Identifiable {
     public var heroImage: URL?
     public var titledHeroImage: URL?
     public var screenshots: [URL]
-    var xCloudTitleID: String?
     public var releaseDate: Date?
+
+    var xCloudTitleID: String?
 
     public init(
         id: String,

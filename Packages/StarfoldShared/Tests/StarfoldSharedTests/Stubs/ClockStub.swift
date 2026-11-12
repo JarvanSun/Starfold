@@ -7,7 +7,7 @@
 
 import Synchronization
 
-nonisolated final class ClockStub: Clock {
+final class ClockStub: Clock {
     struct Instant: InstantProtocol {
         let offset: Duration
 
@@ -37,6 +37,8 @@ nonisolated final class ClockStub: Clock {
         var cancelledSleeperIDs: Set<Int> = []
     }
 
+    private let state = Mutex(State())
+
     var now: Instant {
         state.withLock { $0.now }
     }
@@ -48,8 +50,6 @@ nonisolated final class ClockStub: Clock {
     var sleeperCount: Int {
         state.withLock { $0.sleepers.count }
     }
-
-    private let state = Mutex(State())
 
     func sleep(until deadline: Instant, tolerance: Duration?) async throws {
         let id = state.withLock { state in

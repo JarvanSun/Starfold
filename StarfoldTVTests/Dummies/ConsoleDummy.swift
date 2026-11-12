@@ -8,7 +8,7 @@
 import XboxKit
 
 extension Console {
-    nonisolated static var dummyLivingRoom: Console {
+    static var dummyLivingRoom: Console {
         .init(
             id: "F4001ABCDEF",
             name: "Living room Xbox",

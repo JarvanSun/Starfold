@@ -13,6 +13,7 @@ struct LibraryPlaceholderView: View {
 
     let placeholder: LibraryPlaceholder
     let searchText: String
+
     let onRetry: () -> Void
 
     var body: some View {

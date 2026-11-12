@@ -9,6 +9,8 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/JarvanSun/Starfold/releases/latest"><b>Download for Mac</b></a>
+  ·
   <a href="#build-from-source"><b>Build from source</b></a>
   ·
   <a href="docs/spec/README.md">How the code is written</a>
@@ -73,6 +75,12 @@
   </tr>
 </table>
 
+## Download
+
+The Mac app is on the [Releases page](https://github.com/JarvanSun/Starfold/releases/latest),
+signed and notarized. Open the DMG and drag Starfold to Applications; it needs macOS 26 or later.
+The Apple Vision Pro and Apple TV apps are built from source.
+
 ## Requirements
 
 You need a Microsoft account, a fast and stable network, and for Remote Play an Xbox Series X|S
@@ -84,12 +92,18 @@ Requires Xcode 26 or later.
 
 1. Clone the repository and open `Starfold.xcodeproj`.
 2. Choose the `StarfoldMac`, `StarfoldVision` or `StarfoldTV` scheme.
-3. Select your own team under Signing & Capabilities, then run.
+3. Set `STARFOLD_BUNDLE_ID` in `Configuration/Starfold.xcconfig` to an identifier of your own,
+   choose your team under Signing & Capabilities, then run.
 
 ```sh
 scripts/build.sh   # builds all three apps
 scripts/test.sh    # runs every package's tests
 ```
+
+Sign-in uses the public client ID of Microsoft's own Xbox web player (`STARFOLD_MICROSOFT_CLIENT_ID`),
+the same one other open-source Xbox clients use. Microsoft may restrict it at any time, and
+streaming is only known to work with it: an ID you register yourself can sign in, but Xbox may
+refuse the token a stream needs.
 
 ## Code
 
@@ -109,6 +123,9 @@ Chinese. How the code is written — architecture, style, views, testing — is 
 
 - [webrtc-xcframework](https://github.com/livekit/webrtc-xcframework) by LiveKit (MIT), the WebRTC
   build Starfold streams with.
+
+The full licence texts of webrtc-xcframework (MIT) and WebRTC (BSD 3-Clause and patent grant) are
+in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## License
 

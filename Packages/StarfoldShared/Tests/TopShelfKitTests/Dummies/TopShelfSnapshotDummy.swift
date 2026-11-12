@@ -8,7 +8,7 @@
 @testable import TopShelfKit
 
 extension TopShelfSnapshot {
-    nonisolated static var dummyContinuePlaying: TopShelfSnapshot {
+    static var dummyContinuePlaying: TopShelfSnapshot {
         .init(gamesTitle: "Continue Playing", games: [.init(id: "A", title: "A", imageURL: nil)])
     }
 }

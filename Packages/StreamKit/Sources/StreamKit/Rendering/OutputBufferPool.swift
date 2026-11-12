@@ -12,6 +12,7 @@ import os
 final class OutputBufferPool {
     private let textureCache: CVMetalTextureCache
     private let log = Logger(category: .render)
+
     private var pool: CVPixelBufferPool?
     private var size = (width: 0, height: 0)
     private var isHDR = false

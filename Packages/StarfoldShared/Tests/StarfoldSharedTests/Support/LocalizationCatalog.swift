@@ -8,6 +8,8 @@
 import Foundation
 
 struct LocalizationCatalog: Decodable {
+    private let strings: [String: Entry]
+
     var isEmpty: Bool {
         strings.isEmpty
     }
@@ -15,8 +17,6 @@ struct LocalizationCatalog: Decodable {
     var languages: Set<String> {
         Set(strings.values.flatMap { $0.languages })
     }
-
-    private let strings: [String: Entry]
 
     init(contentsOf url: URL) throws {
         self = try JSONDecoder().decode(Self.self, from: Data(contentsOf: url))
@@ -73,11 +73,11 @@ private extension LocalizationCatalog {
             localizations.map { Array($0.keys) } ?? []
         }
 
+        private var staleState: String { "stale" }
+
         func translatedValues(for language: String) -> [String] {
             localizations?[language]?.values ?? []
         }
-
-        private var staleState: String { "stale" }
     }
 
     struct Localization: Decodable {

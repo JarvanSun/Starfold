@@ -11,5 +11,6 @@ struct HomeCardAction {
     let title: LocalizedStringResource
     let systemImage: String
     let isEnabled: Bool
+
     let onPerform: () -> Void
 }

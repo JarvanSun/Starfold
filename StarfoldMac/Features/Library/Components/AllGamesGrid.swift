@@ -11,8 +11,8 @@ import XboxKit
 
 struct AllGamesGrid: View {
     @Environment(\.dimensions) private var dimensions
-
     @Bindable var library: LibraryViewModel
+
     let onOpenGame: (CloudGame) -> Void
 
     var body: some View {

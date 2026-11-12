@@ -19,6 +19,7 @@ struct StatisticsCollector {
     }
 
     private let log = Logger(category: .stream)
+
     private var previousVideoTotals: VideoTotals?
     private var lastResolution: CGSize?
     private var diagnostics = NetworkDiagnostics()

@@ -8,15 +8,18 @@
 import Foundation
 
 public struct AccountStore: Sendable {
+    private let identity: MicrosoftIdentity
     private let secrets: SecretStoring
     private let http: HTTPClient
     private let now: @Sendable () -> Date
 
     public init(
+        microsoftClientID: String,
         secrets: SecretStoring,
         http: HTTPClient = HTTPClient(),
         now: @escaping @Sendable () -> Date = Date.init
     ) {
+        self.identity = MicrosoftIdentity(clientID: microsoftClientID)
         self.secrets = secrets
         self.http = http
         self.now = now
@@ -74,11 +77,11 @@ private extension AccountStore {
     }
 
     var deviceCodeFlow: DeviceCodeFlow {
-        .init(configuration: MicrosoftIdentity().deviceCodeConfiguration, http: http, now: now)
+        .init(configuration: identity.deviceCodeConfiguration, http: http, now: now)
     }
 
     var tokenClient: XboxLiveTokenClient {
-        .init(http: http, now: now)
+        .init(identity: identity, http: http, now: now)
     }
 
     func save(_ stored: StoredAccount) throws {

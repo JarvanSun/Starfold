@@ -33,8 +33,9 @@ public struct Console: Codable, Sendable, Hashable, Identifiable {
     public var name: String
     public var consoleType: String
     public var powerState: PowerState
-    var hasOutOfHomeWarning: Bool
     public var hasWirelessWarning: Bool
+
+    var hasOutOfHomeWarning: Bool
 
     public var isReachable: Bool {
         powerState == .on || powerState == .connectedStandby

@@ -18,6 +18,7 @@ final class MacStereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendabl
 
     private let log = Logger(category: .audio)
     private let lock = NSLock()
+
     private var delegate: LKRTCAudioDeviceDelegate?
     private var engine: AVAudioEngine?
     private var isPlayoutReady = false

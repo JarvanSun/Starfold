@@ -8,8 +8,8 @@
 import Foundation
 
 public nonisolated struct TopShelfStore: Sendable {
-    private enum AppGroupID: String {
-        case starfold = "group.com.jarvansun.sunbox"
+    private enum InfoKey: String {
+        case appGroup = "StarfoldAppGroup"
     }
 
     private let directory: URL?
@@ -19,9 +19,10 @@ public nonisolated struct TopShelfStore: Sendable {
     }
 
     public init() {
+        let appGroup = Bundle.main.infoDictionary?[InfoKey.appGroup.rawValue] as? String
         self.init(
-            directory: FileManager.default.containerURL(
-                forSecurityApplicationGroupIdentifier: AppGroupID.starfold.rawValue
+            directory: appGroup.flatMap(
+                FileManager.default.containerURL(forSecurityApplicationGroupIdentifier:)
             )
         )
     }

@@ -11,6 +11,7 @@ import XboxKit
 
 struct GameLink: View {
     let game: CloudGame
+
     let onPlay: () -> Void
 
     var body: some View {

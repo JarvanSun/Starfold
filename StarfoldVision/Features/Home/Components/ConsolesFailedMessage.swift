@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ConsolesFailedMessage: View {
     let message: String
+
     let onRetry: () -> Void
 
     var body: some View {

@@ -54,39 +54,44 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		57E89E12CCA6EAFCD7EDDB7B /* Starfold.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Starfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		57E89E12CCA6EAFCD7EDDB7B /* StarfoldVision.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = StarfoldVision.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A576C5A62ECBECB951C44CF /* StarfoldTopShelf.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = StarfoldTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		81E235ECC848196B8D46A3ED /* StarfoldTVTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = StarfoldTVTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B06E090DAD67A818D9CDEFAE /* Starfold.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Starfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B3EE75492399794E8DF18CB1 /* Starfold.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Starfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B06E090DAD67A818D9CDEFAE /* StarfoldMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StarfoldMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3EE75492399794E8DF18CB1 /* StarfoldTV.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = StarfoldTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA4455C3F01CE1393E6DF024 /* Starfold.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Starfold.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		160BA58A16F8166F7A730883 /* Exceptions for "StarfoldTopShelf" folder in "StarfoldTopShelf" target */ = {
+		160BA58A16F8166F7A730883 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Configuration/Info.plist,
+				Configuration/StarfoldTopShelf.entitlements,
 			);
 			target = E37DC3C1A47AD4DCDED0F2FB /* StarfoldTopShelf */;
 		};
-		8D1EE85092DC3C8863BA0A19 /* Exceptions for "StarfoldTV" folder in "StarfoldTV" target */ = {
+		8D1EE85092DC3C8863BA0A19 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Configuration/Info.plist,
+				Configuration/StarfoldTV.entitlements,
 			);
 			target = 5ACCD6FDEC0F495FB9AC891C /* StarfoldTV */;
 		};
-		B778379C17A00CEFCA55AB28 /* Exceptions for "StarfoldMac" folder in "StarfoldMac" target */ = {
+		B778379C17A00CEFCA55AB28 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Configuration/Info.plist,
+				Configuration/StarfoldMac.entitlements,
 			);
 			target = A05EB36146F2C3819DE3896D /* StarfoldMac */;
 		};
-		E639D8B1F728506975DF437A /* Exceptions for "StarfoldVision" folder in "StarfoldVision" target */ = {
+		E639D8B1F728506975DF437A /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Configuration/Info.plist,
+				Configuration/StarfoldVision.entitlements,
 			);
 			target = 7730693E34A5D3EBBB2CEA1C /* StarfoldVision */;
 		};
@@ -95,13 +100,21 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		165A7D5847D458AF6AEEE410 /* StarfoldTVTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = StarfoldTVTests;
 			sourceTree = "<group>";
 		};
 		2CA1805AE78371AA0B9F25B9 /* StarfoldTV */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				8D1EE85092DC3C8863BA0A19 /* Exceptions for "StarfoldTV" folder in "StarfoldTV" target */,
+				8D1EE85092DC3C8863BA0A19 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
 			);
 			path = StarfoldTV;
 			sourceTree = "<group>";
@@ -109,7 +122,11 @@
 		80E9C64C95530501964D451D /* StarfoldVision */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E639D8B1F728506975DF437A /* Exceptions for "StarfoldVision" folder in "StarfoldVision" target */,
+				E639D8B1F728506975DF437A /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
 			);
 			path = StarfoldVision;
 			sourceTree = "<group>";
@@ -117,20 +134,32 @@
 		DBD8A8436BF0C232DCC6195B /* StarfoldTopShelf */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				160BA58A16F8166F7A730883 /* Exceptions for "StarfoldTopShelf" folder in "StarfoldTopShelf" target */,
+				160BA58A16F8166F7A730883 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
 			);
 			path = StarfoldTopShelf;
 			sourceTree = "<group>";
 		};
 		F4C383C5743918A46D79E974 /* Preview Content */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		FD7099E37E484F59C913D3B0 /* StarfoldMac */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				B778379C17A00CEFCA55AB28 /* Exceptions for "StarfoldMac" folder in "StarfoldMac" target */,
+				B778379C17A00CEFCA55AB28 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
 			);
 			path = StarfoldMac;
 			sourceTree = "<group>";
@@ -188,14 +217,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		86ACE4252F2A1D2A01844D6C /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				EA4455C3F01CE1393E6DF024 /* Starfold.xcconfig */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
 		A9E2C5A632CF3597FCDEC140 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B06E090DAD67A818D9CDEFAE /* Starfold.app */,
+				B06E090DAD67A818D9CDEFAE /* StarfoldMac.app */,
 				5A576C5A62ECBECB951C44CF /* StarfoldTopShelf.appex */,
-				B3EE75492399794E8DF18CB1 /* Starfold.app */,
+				B3EE75492399794E8DF18CB1 /* StarfoldTV.app */,
 				81E235ECC848196B8D46A3ED /* StarfoldTVTests.xctest */,
-				57E89E12CCA6EAFCD7EDDB7B /* Starfold.app */,
+				57E89E12CCA6EAFCD7EDDB7B /* StarfoldVision.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -203,6 +240,7 @@
 		DE7D8F26B8F1DDF1B51EACCA = {
 			isa = PBXGroup;
 			children = (
+				86ACE4252F2A1D2A01844D6C /* Configuration */,
 				F4C383C5743918A46D79E974 /* Preview Content */,
 				FD7099E37E484F59C913D3B0 /* StarfoldMac */,
 				DBD8A8436BF0C232DCC6195B /* StarfoldTopShelf */,
@@ -234,8 +272,8 @@
 				CAB862F43ECC7163D1DD6F74 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				2CA1805AE78371AA0B9F25B9 /* StarfoldTV */,
 				F4C383C5743918A46D79E974 /* Preview Content */,
+				2CA1805AE78371AA0B9F25B9 /* StarfoldTV */,
 			);
 			name = StarfoldTV;
 			packageProductDependencies = (
@@ -245,7 +283,7 @@
 				2AFE8BCE02F0BF10841D3127 /* TopShelfKit */,
 			);
 			productName = StarfoldTV;
-			productReference = B3EE75492399794E8DF18CB1 /* Starfold.app */;
+			productReference = B3EE75492399794E8DF18CB1 /* StarfoldTV.app */;
 			productType = "com.apple.product-type.application";
 		};
 		7730693E34A5D3EBBB2CEA1C /* StarfoldVision */ = {
@@ -261,8 +299,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				80E9C64C95530501964D451D /* StarfoldVision */,
 				F4C383C5743918A46D79E974 /* Preview Content */,
+				80E9C64C95530501964D451D /* StarfoldVision */,
 			);
 			name = StarfoldVision;
 			packageProductDependencies = (
@@ -271,7 +309,7 @@
 				CCEE211D49BFDA4269EC379A /* StreamKit */,
 			);
 			productName = StarfoldVision;
-			productReference = 57E89E12CCA6EAFCD7EDDB7B /* Starfold.app */;
+			productReference = 57E89E12CCA6EAFCD7EDDB7B /* StarfoldVision.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A05EB36146F2C3819DE3896D /* StarfoldMac */ = {
@@ -297,7 +335,7 @@
 				EF4DD25A36FEE80AFBE78DA2 /* StreamKit */,
 			);
 			productName = StarfoldMac;
-			productReference = B06E090DAD67A818D9CDEFAE /* Starfold.app */;
+			productReference = B06E090DAD67A818D9CDEFAE /* StarfoldMac.app */;
 			productType = "com.apple.product-type.application";
 		};
 		BF7D789E085FDB6A041B5ED7 /* StarfoldTVTests */ = {
@@ -501,7 +539,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox.TopShelf;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID).TopShelf";
 				PRODUCT_NAME = StarfoldTopShelf;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -511,6 +549,7 @@
 		};
 		26E96BA19C15E380565B1AE5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EA4455C3F01CE1393E6DF024 /* Starfold.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=appletvsimulator*]" = arm64;
@@ -596,7 +635,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox.TVTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID).TVTests";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Starfold.app/Starfold";
@@ -612,11 +651,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
 				INFOPLIST_FILE = StarfoldMac/Configuration/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
 				PRODUCT_MODULE_NAME = Starfold;
 				PRODUCT_NAME = Starfold;
 				SDKROOT = macosx;
@@ -635,7 +671,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
 				PRODUCT_MODULE_NAME = Starfold;
 				PRODUCT_NAME = Starfold;
 				SDKROOT = appletvos;
@@ -652,11 +688,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
 				INFOPLIST_FILE = StarfoldMac/Configuration/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
 				PRODUCT_MODULE_NAME = Starfold;
 				PRODUCT_NAME = Starfold;
 				SDKROOT = macosx;
@@ -674,7 +707,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
 				PRODUCT_MODULE_NAME = Starfold;
 				PRODUCT_NAME = Starfold;
 				SDKROOT = xros;
@@ -693,7 +726,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
 				PRODUCT_MODULE_NAME = Starfold;
 				PRODUCT_NAME = Starfold;
 				SDKROOT = xros;
@@ -713,7 +746,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
 				PRODUCT_MODULE_NAME = Starfold;
 				PRODUCT_NAME = Starfold;
 				SDKROOT = appletvos;
@@ -723,6 +756,7 @@
 		};
 		B9CE933CB34505C0530B0965 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EA4455C3F01CE1393E6DF024 /* Starfold.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=appletvsimulator*]" = arm64;
@@ -801,7 +835,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox.TVTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID).TVTests";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Starfold.app/Starfold";
@@ -818,7 +852,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jarvansun.sunbox.TopShelf;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID).TopShelf";
 				PRODUCT_NAME = StarfoldTopShelf;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;

@@ -15,13 +15,14 @@ public struct StreamStatistics: Sendable, Equatable {
     public var jitterBufferMs: Double?
     public var decodeMs: Double?
     public var packetLossPercent: Double?
-    var framesDropped: Int?
     public var codec: String?
     public var displayMs: Double?
     public var upscaledTo: CGSize?
     public var isToneMapped = false
     public var path: NetworkPath?
     public var interface: String?
+
+    var framesDropped: Int?
 
     public var estimatedLatencyMs: Double? {
         guard let roundTripMs else { return nil }

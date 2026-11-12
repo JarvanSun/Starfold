@@ -9,6 +9,7 @@ import Foundation
 
 struct HostChannels {
     private let options: StreamOptions
+
     private var messageChannel: MessageChannel
     private var hasStartedHandshake = false
 

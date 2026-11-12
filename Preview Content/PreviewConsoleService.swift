@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
+#if DEBUG
 import StarfoldShared
 import XboxKit
 
@@ -25,3 +26,4 @@ struct PreviewConsoleService: ConsoleService {
         try await reply.answer(())
     }
 }
+#endif

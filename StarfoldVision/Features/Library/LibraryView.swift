@@ -10,7 +10,6 @@ import SwiftUI
 
 struct LibraryView: View {
     @Environment(\.dimensions) private var dimensions
-
     @Bindable var library: LibraryViewModel
 
     var body: some View {

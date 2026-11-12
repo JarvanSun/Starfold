@@ -17,7 +17,9 @@ struct HomeCard<Picture: View>: View {
     let status: Text
     let statusColor: Color
     let width: CGFloat
+
     let onSelect: () -> Void
+
     @ViewBuilder let picture: Picture
 
     var body: some View {

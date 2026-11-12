@@ -27,6 +27,8 @@
 		<key>NSExtensionPrincipalClass</key>
 		<string>$(PRODUCT_MODULE_NAME).ContentProvider</string>
 	</dict>
+	<key>StarfoldAppGroup</key>
+	<string>$(STARFOLD_APP_GROUP)</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>

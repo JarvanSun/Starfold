@@ -31,6 +31,9 @@ struct DeviceCodeFlowTests {
 
 private extension DeviceCodeFlowTests {
     func makeFlow(server: XboxServerStub) -> DeviceCodeFlow {
-        .init(configuration: MicrosoftIdentity().deviceCodeConfiguration, http: server.client)
+        .init(
+            configuration: MicrosoftIdentity(clientID: .dummyClientID).deviceCodeConfiguration,
+            http: server.client
+        )
     }
 }

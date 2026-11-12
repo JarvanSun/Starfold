@@ -14,6 +14,7 @@ struct GameGrid: View {
 
     let title: LocalizedStringResource
     let games: [CloudGame]
+
     let onPlay: (CloudGame) -> Void
 
     var body: some View {

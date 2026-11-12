@@ -6,13 +6,17 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.jarvansun.sunbox</string>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>starfold</string>
 			</array>
 		</dict>
 	</array>
+	<key>StarfoldAppGroup</key>
+	<string>$(STARFOLD_APP_GROUP)</string>
+	<key>StarfoldMicrosoftClientID</key>
+	<string>$(STARFOLD_MICROSOFT_CLIENT_ID)</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 </dict>

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct FavoriteButton: View {
     let action: FavoriteAction
+
     let onToggle: () -> Void
 
     var body: some View {

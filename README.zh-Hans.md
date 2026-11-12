@@ -9,6 +9,8 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/JarvanSun/Starfold/releases/latest"><b>下载 Mac 版</b></a>
+  ·
   <a href="#从源码构建"><b>从源码构建</b></a>
   ·
   <a href="docs/spec/README.md">代码是怎么写的</a>
@@ -67,6 +69,10 @@
   </tr>
 </table>
 
+## 下载
+
+Mac 版在 [Releases 页面](https://github.com/JarvanSun/Starfold/releases/latest)，已签名并经过 Apple 公证。打开 DMG，把 Starfold 拖到“应用程序”文件夹即可，需要 macOS 26 或更新版本。Apple Vision Pro 与 Apple TV 版需从源码构建。
+
 ## 使用要求
 
 需要一个微软账户和快速稳定的网络；远程游玩还需要已开启远程功能的 Xbox Series X|S 或 Xbox One。
@@ -77,12 +83,14 @@
 
 1. 克隆仓库，打开 `Starfold.xcodeproj`。
 2. 选择 `StarfoldMac`、`StarfoldVision` 或 `StarfoldTV` scheme。
-3. 在 Signing & Capabilities 中选择你自己的团队，然后运行。
+3. 把 `Configuration/Starfold.xcconfig` 里的 `STARFOLD_BUNDLE_ID` 改成你自己的标识符，在 Signing & Capabilities 中选择你的团队，然后运行。
 
 ```sh
 scripts/build.sh   # 构建三个应用
 scripts/test.sh    # 运行所有包的测试
 ```
+
+登录用的是微软自家 Xbox 网页版播放器公开的客户端 ID（`STARFOLD_MICROSOFT_CLIENT_ID`），其他开源 Xbox 客户端用的也是它，微软随时可能限制它的使用。目前只确认串流能用这个 ID：换成自己在 Azure 注册的 ID 可以登录，但串流所需的令牌可能会被 Xbox 拒绝。
 
 ## 代码
 
@@ -99,6 +107,8 @@ Swift 6 严格并发、基于 Observation 的 MVVM、Swift Testing，支持英�
 ## 致谢
 
 - LiveKit 的 [webrtc-xcframework](https://github.com/livekit/webrtc-xcframework)（MIT），Starfold 串流所用的 WebRTC 构建。
+
+webrtc-xcframework（MIT）与 WebRTC（BSD 3-Clause 及专利授权）的完整许可证文本见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 ## 许可证
 

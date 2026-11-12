@@ -10,9 +10,10 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.dimensions) private var dimensions
-
     @Bindable var home: HomeViewModel
+
     let library: LibraryViewModel
+
     let onBrowse: () -> Void
 
     var body: some View {

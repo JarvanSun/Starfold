@@ -11,6 +11,7 @@ import os
 
 final class RumblePlayer {
     private let log = Logger(category: .controllers)
+
     private var engines: [GCHapticsLocality: CHHapticEngine] = [:]
     private var players: [GCHapticsLocality: CHHapticPatternPlayer] = [:]
 

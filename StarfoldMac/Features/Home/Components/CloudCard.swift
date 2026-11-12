@@ -13,6 +13,7 @@ struct CloudCard: View {
     @Environment(\.dimensions) private var dimensions
 
     let library: LibraryViewModel
+
     let onOpen: () -> Void
 
     var body: some View {

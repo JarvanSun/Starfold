@@ -11,6 +11,7 @@ import XboxKit
 
 struct RecentGamesShelf: View {
     let games: [CloudGame]
+
     let onPlay: (CloudGame) -> Void
 
     var body: some View {

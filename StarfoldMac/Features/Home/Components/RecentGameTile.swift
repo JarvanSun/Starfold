@@ -13,6 +13,7 @@ struct RecentGameTile: View {
     @Environment(\.dimensions) private var dimensions
 
     let game: CloudGame
+
     let onPlay: () -> Void
 
     var body: some View {

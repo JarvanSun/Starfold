@@ -13,9 +13,9 @@ import SwiftUI
 struct StreamCommands: Commands {
     @FocusedValue(\.activeStream) private var stream
     @FocusedValue(\.activePictureInPicture) private var pictureInPicture
+    @Bindable private var settings: SettingsViewModel
 
     private let app: AppViewModel
-    @Bindable private var settings: SettingsViewModel
 
     init(app: AppViewModel) {
         self.app = app

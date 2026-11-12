@@ -18,6 +18,7 @@ struct StreamView: View {
 
     let stream: StreamViewModel
     let settings: SettingsViewModel
+
     let onClose: () -> Void
 
     var body: some View {
@@ -59,8 +60,8 @@ struct StreamView: View {
 
             if stream.isShowingControls {
                 StreamControlBar(
-                    stream: stream,
                     settings: settings,
+                    stream: stream,
                     pictureInPicture: pictureInPicture,
                     isFullScreen: isFullScreen,
                     onClose: onClose
@@ -76,7 +77,7 @@ struct StreamView: View {
             hidePointer(whenControlsAreHidden: areRevealed)
         }
         .onChange(of: activeState) { _, state in releaseKeyboard(unlessKey: state) }
-        .sheet(item: presentedDialog) { SystemDialogView(dialog: $0, stream: stream) }
+        .sheet(item: presentedDialog) { SystemDialogView(stream: stream, dialog: $0) }
         .focusedSceneValue(\.activeStream, stream)
         .focusedSceneValue(\.activePictureInPicture, pictureInPicture)
         .onAppear(perform: preparePictureInPicture)

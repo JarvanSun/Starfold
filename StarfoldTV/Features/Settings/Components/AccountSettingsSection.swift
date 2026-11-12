@@ -10,6 +10,7 @@ import SwiftUI
 
 struct AccountSettingsSection: View {
     let accounts: [AccountChoice]
+
     let onSwitch: (AccountChoice) -> Void
     let onAdd: () -> Void
     let onSignOut: () -> Void

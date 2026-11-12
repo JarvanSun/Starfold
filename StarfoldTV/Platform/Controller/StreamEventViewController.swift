@@ -15,9 +15,6 @@ final class StreamEventViewController<Content: View>: GCEventViewController {
         case playPause
     }
 
-    var onBack: @MainActor @Sendable () -> Void
-    var onPlayPause: @MainActor @Sendable () -> Void
-
     let host: UIHostingController<Content>
     var isRawInputEnabled = false {
         didSet {
@@ -26,6 +23,10 @@ final class StreamEventViewController<Content: View>: GCEventViewController {
             applyRawInput()
         }
     }
+
+    var onBack: @MainActor @Sendable () -> Void
+    var onPlayPause: @MainActor @Sendable () -> Void
+
     private var controllerConnectionObserver: NSObjectProtocol?
     private var remotes: [GCController] = []
 

@@ -13,6 +13,7 @@ struct HomeView: View {
 
     let home: HomeViewModel
     let library: LibraryViewModel
+
     let onOpenCloudLibrary: () -> Void
 
     var body: some View {

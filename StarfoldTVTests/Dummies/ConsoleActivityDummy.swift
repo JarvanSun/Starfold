@@ -9,7 +9,7 @@ import Foundation
 import XboxKit
 
 extension ConsoleActivity {
-    nonisolated static var dummyLastPlayedHere: ConsoleActivity {
+    static var dummyLastPlayedHere: ConsoleActivity {
         .init(titleID: "T", name: "Last", imageURL: .dummyConsoleArtwork, kind: .lastPlayedHere)
     }
 }

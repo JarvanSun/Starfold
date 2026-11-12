@@ -5,7 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
-public nonisolated enum PaletteID: String, CaseIterable, Sendable {
+public enum PaletteID: String, CaseIterable, Sendable {
     case nebula
     case aurora
     case sunrise

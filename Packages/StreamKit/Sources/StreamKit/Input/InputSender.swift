@@ -13,6 +13,7 @@ final class InputSender: @unchecked Sendable {
     private let clockOrigin: CFTimeInterval
     private let condition = NSCondition()
     private let sendLock = NSLock()
+
     private var isSignalled = false
     private var isRunning = false
     private var peer: PeerConnection?

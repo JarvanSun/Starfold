@@ -11,6 +11,7 @@ import SwiftUI
 struct CloudCard: View {
     let library: LibraryViewModel
     let width: CGFloat
+
     let onBrowse: () -> Void
 
     var body: some View {

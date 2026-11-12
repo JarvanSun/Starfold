@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
+#if DEBUG
 import CoreGraphics
 import StarfoldShared
 import StreamKit
@@ -175,3 +176,4 @@ private extension PreviewObjectPool {
         return stream
     }
 }
+#endif

@@ -11,6 +11,7 @@ import XboxKit
 
 struct ConsolePowerButton: View {
     let control: ConsolePowerControl
+
     let onToggle: () -> Void
 
     var body: some View {

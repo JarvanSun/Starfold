@@ -8,9 +8,7 @@
 import Foundation
 
 struct MicrosoftIdentity: Sendable {
-    var clientID: String {
-        "1f907974-e22b-4810-a9de-d9647380c97e"
-    }
+    let clientID: String
 
     var scope: String {
         "xboxlive.signin openid profile offline_access"

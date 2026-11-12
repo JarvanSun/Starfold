@@ -14,6 +14,7 @@ final class FrameReceiver: NSObject, LKRTCVideoRenderer, @unchecked Sendable {
     typealias FrameTimingHandler = @Sendable (DecodedFrameTiming) -> Void
 
     private let lock = NSLock()
+
     private weak var sink: VideoFrameReceiving?
     private var onFrame: FrameTimingHandler?
 

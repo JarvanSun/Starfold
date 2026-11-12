@@ -23,13 +23,13 @@ final class FrameEnhancer {
     }
 
     private let device: MTLDevice
-
     private let commandQueue: MTLCommandQueue
     private let pipelines: RenderPipelines
     private let textureCache: CVMetalTextureCache
     private let outputPool: OutputBufferPool
     private let textures: IntermediateTextures
     private let log = Logger(category: .render)
+
     #if canImport(MetalFX)
     private var scaler: MTLFXSpatialScaler?
     #endif

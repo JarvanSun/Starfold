@@ -14,6 +14,7 @@ struct StreamEndedStatus: View {
 
     let reason: StreamEndReason
     let advice: StreamFailureAdvice?
+
     let onClose: () -> Void
     let onTryAgain: () -> Void
 

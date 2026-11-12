@@ -10,6 +10,7 @@ import Foundation
 public actor HTTPClient {
     public struct Request: Sendable {
         public var url: URL
+
         var method: String
         var headers: [String: String]
         var body: Data?

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SignInPanel: View {
     let step: SignInStep
+
     let onRetry: () -> Void
 
     var body: some View {

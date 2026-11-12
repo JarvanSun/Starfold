@@ -12,6 +12,7 @@ import XboxKit
 struct GameShelf: View {
     let shelf: LibraryShelf
     let games: [CloudGame]
+
     let onPlay: (CloudGame) -> Void
 
     var body: some View {

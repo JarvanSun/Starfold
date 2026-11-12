@@ -8,11 +8,11 @@
 import Foundation
 
 extension UserDefaults {
-    nonisolated static var dummyEmpty: UserDefaults {
+    static var dummyEmpty: UserDefaults {
         .init(suiteName: dummySuiteName())!
     }
 
-    nonisolated static func dummySuiteName() -> String {
+    static func dummySuiteName() -> String {
         "StarfoldTests.\(UUID().uuidString)"
     }
 }

@@ -6,13 +6,17 @@
 //
 
 extension String {
-    nonisolated static func dummyDeviceCodeResponse(userCode: String = "ABCD1234") -> String {
+    static var dummyClientID: String {
+        "00000000-0000-4000-8000-000000000000"
+    }
+
+    static func dummyDeviceCodeResponse(userCode: String = "ABCD1234") -> String {
         """
         {"user_code":"\(userCode)","device_code":"dev","verification_uri":"https://www.microsoft.com/link","expires_in":900,"interval":0}
         """
     }
 
-    nonisolated static func dummyXboxTokenResponse(
+    static func dummyXboxTokenResponse(
         token: String,
         notAfter: String = "2030-01-01T00:00:00.1234567Z",
         gamertag: String? = nil,
@@ -26,7 +30,7 @@ extension String {
             """
     }
 
-    nonisolated static func dummyStreamingLoginResponse(token: String) -> String {
+    static func dummyStreamingLoginResponse(token: String) -> String {
         """
         {"offeringSettings":{"allowRegionSelection":false,"regions":[
           {"name":"WestUS2","baseUri":"https://wus2.core.gssv-play-prodxhome.xboxlive.com","networkTestHostname":null,"isDefault":false,"fallbackPriority":1},
@@ -35,7 +39,7 @@ extension String {
         """
     }
 
-    nonisolated static func dummySessionState(
+    static func dummySessionState(
         _ state: String,
         code: String? = nil,
         message: String? = nil
@@ -46,7 +50,7 @@ extension String {
         return #"{"state":"\#(state)","errorDetails":\#(details)}"#
     }
 
-    nonisolated static var dummyTitleHistory: String {
+    static var dummyTitleHistory: String {
         """
         {"titles":[
           {"titleId":"100","name":"Phone Game","displayImage":"http://store-images.s-microsoft.com/phone","devices":["Mobile"]},
@@ -56,7 +60,7 @@ extension String {
         """
     }
 
-    nonisolated static var dummyFortniteProducts: String {
+    static var dummyFortniteProducts: String {
         #"{"Products":{"BT5P2X999VH2":{"ProductTitle":"Fortnite","StoreId":"BT5P2X999VH2"}}}"#
     }
 }

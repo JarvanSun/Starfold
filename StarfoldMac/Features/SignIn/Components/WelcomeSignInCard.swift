@@ -13,6 +13,7 @@ struct WelcomeSignInCard: View {
     @Environment(\.dimensions) private var dimensions
 
     let step: SignInStep
+
     let onRetry: () -> Void
 
     var body: some View {

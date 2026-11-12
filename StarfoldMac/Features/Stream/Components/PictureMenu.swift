@@ -11,7 +11,6 @@ import SwiftUI
 
 struct PictureMenu: View {
     @Environment(\.dimensions) private var dimensions
-
     @Bindable var settings: SettingsViewModel
     @Bindable var stream: StreamViewModel
 

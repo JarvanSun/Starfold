@@ -16,7 +16,10 @@ streaming session. It knows nothing about the apps: no strings, no views, no set
 | `Streaming/` | The streaming session REST API (`GSSVClient`, `GSSVSession`): start, provisioning, SDP and ICE exchange, keep-alive |
 
 ```swift
-let store = AccountStore(secrets: KeychainStore(service: "com.jarvansun.sunbox.accounts"))
+let store = AccountStore(
+    microsoftClientID: "<your client ID>",
+    secrets: KeychainStore(service: "com.example.starfold.accounts")
+)
 let prompt = try await store.beginSignIn()
 let account = try await store.completeSignIn(prompt)
 let consoles = try await account.homeClient(http: HTTPClient()).consoles()

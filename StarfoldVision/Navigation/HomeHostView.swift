@@ -11,6 +11,7 @@ import SwiftUI
 struct HomeHostView: View {
     let home: HomeViewModel
     let library: LibraryViewModel
+
     let onAddAccount: () -> Void
 
     var body: some View {

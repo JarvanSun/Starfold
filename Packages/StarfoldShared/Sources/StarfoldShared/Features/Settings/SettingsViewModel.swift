@@ -12,11 +12,11 @@ import XboxKit
 
 @Observable
 public final class SettingsViewModel {
+    weak var session: SessionControlling?
+
     private let preferences: Preferences
     private let controllers: ControllerHub
     private let picture: PictureCapabilities
-
-    weak var session: SessionControlling?
 
     public var consoleQuality: QualityChoice {
         get { preferences.consoleQuality }

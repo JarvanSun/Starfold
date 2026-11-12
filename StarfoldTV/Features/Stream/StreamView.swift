@@ -11,8 +11,8 @@ import SwiftUI
 
 struct StreamView: View {
     @Environment(\.dimensions) private var dimensions
-
     @Bindable var presenter: StreamPresenter
+
     let stream: StreamViewModel?
     let settings: SettingsViewModel
     let controllers: ControllerHub
@@ -93,7 +93,7 @@ private extension StreamView {
     func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
         switch stream {
         case let stream?:
-            SystemDialogView(dialog: dialog, stream: stream)
+            SystemDialogView(stream: stream, dialog: dialog)
                 .interactiveDismissDisabled()
         case nil: EmptyView()
         }

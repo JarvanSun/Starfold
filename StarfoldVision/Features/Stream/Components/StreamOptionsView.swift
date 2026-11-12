@@ -10,7 +10,6 @@ import SwiftUI
 
 struct StreamOptionsView: View {
     @Environment(\.dimensions) private var dimensions
-
     @Bindable var settings: SettingsViewModel
 
     var body: some View {

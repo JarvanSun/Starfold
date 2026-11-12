@@ -17,6 +17,7 @@ struct GameTile: View {
 
     let game: CloudGame
     let badge: LocalizedStringResource?
+
     let onPlay: () -> Void
     let onOpen: () -> Void
 

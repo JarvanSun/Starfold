@@ -13,22 +13,22 @@ import os
 @MainActor
 @Observable
 public final class ControllerHub {
-    public nonisolated let router: GamepadRouter
+    public let router: GamepadRouter
+
     public private(set) var connected: [ConnectedController] = []
     public private(set) var isRoutingToGame: Bool
+
     private let destination: ControllerInputDestination
     private let inputQueue: DispatchQueue
     private let log = Logger(category: .controllers)
+
     private var slots: [ObjectIdentifier: UInt8] = [:]
     private var rumblePlayers: [ObjectIdentifier: RumblePlayer] = [:]
     private var observers: [NSObjectProtocol] = []
 
     public init(routing: ControllerRouting) {
         let router = GamepadRouter(routing: routing)
-        let inputQueue = DispatchQueue(
-            label: "com.jarvansun.sunbox.controllers",
-            qos: .userInteractive
-        )
+        let inputQueue = DispatchQueue(label: "StreamKit.controllers", qos: .userInteractive)
         self.router = router
         self.inputQueue = inputQueue
 

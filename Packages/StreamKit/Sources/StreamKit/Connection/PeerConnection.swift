@@ -20,6 +20,7 @@ final class PeerConnection: NSObject, @unchecked Sendable {
     private let events: @Sendable (PeerEvent) -> Void
     private let lock = NSLock()
     private let log = Logger(category: .webRTC)
+
     private var channels: [DataChannelLabel: LKRTCDataChannel] = [:]
     private var videoTrack: LKRTCVideoTrack?
     private var hasAudio = false

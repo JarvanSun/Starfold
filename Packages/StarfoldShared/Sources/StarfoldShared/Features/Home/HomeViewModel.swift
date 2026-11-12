@@ -15,22 +15,26 @@ import os
 
 @Observable
 public final class HomeViewModel {
-    private let accountID: String
-    private let service: ConsoleService
-    private let cache: LibraryCache
-    private let clock: any Clock<Duration>
-
     public var powerProblem: PowerProblem?
-    public private(set) var consoles: [Console] = []
+
     var onSignInRequired: () -> Void = {}
     var onPlay: (StreamTarget) -> Void = { _ in }
     var onRefreshAccount: () async -> Void = {}
+
+    public private(set) var consoles: [Console] = []
+
     private(set) var consolesState: LoadState = .idle
     private(set) var pendingPowerCommands: Set<String> = []
     private(set) var nowPlaying: ConsoleActivity?
     private(set) var lastPlayedHere: [String: ConsoleActivity] = [:]
     private(set) var lastFrames: [String: CGImage] = [:]
+
+    private let accountID: String
+    private let service: ConsoleService
+    private let cache: LibraryCache
+    private let clock: any Clock<Duration>
     private let log = Logger(category: .library)
+
     private var lastConsolesRefresh: (any InstantProtocol<Duration>)?
 
     public var isPowerProblemPresented: Bool {

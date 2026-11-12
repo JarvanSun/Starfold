@@ -17,27 +17,31 @@ import os
 public final class StreamViewModel {
     public let target: StreamTarget
     public let backdrop: StreamBackdrop
-    private let qualityOverride: StreamQuality?
-    private let service: StreamService
-    private let dependencies: StreamDependencies
-
     public let renderer: StreamRenderer?
     public var dialogText = "" {
         didSet { limitDialogText() }
     }
+
     public var onStop: () -> Void = {}
     public var onEnd: () -> Void = {}
     var onSignInRequired: () -> Void = {}
     var onRestart: () async -> Void = {}
+
     public private(set) var phase: StreamPhase = .provisioning
     public private(set) var dialogs: [SystemDialogRequest] = []
     public private(set) var hasFirstFrame = false
     public private(set) var areControlsRevealed = true
+
     private(set) var statistics = StreamStatistics()
     private(set) var startedSettings: StreamSettings?
     private(set) var quality: StreamQuality?
     private(set) var isResolutionLowered = false
+
+    private let qualityOverride: StreamQuality?
+    private let service: StreamService
+    private let dependencies: StreamDependencies
     private let log = Logger(category: .stream)
+
     private var connection: StreamConnection?
     private var connectTask: Task<Void, Never>?
     private var updatesTask: Task<Void, Never>?

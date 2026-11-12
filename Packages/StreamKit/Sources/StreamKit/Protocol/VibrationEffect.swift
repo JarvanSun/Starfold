@@ -9,6 +9,7 @@ public struct VibrationEffect: Equatable, Sendable {
     public var gamepadIndex: UInt8
     public var leftMotor: Float
     public var rightMotor: Float
+
     var leftTrigger: Float
     var rightTrigger: Float
     var duration: Duration

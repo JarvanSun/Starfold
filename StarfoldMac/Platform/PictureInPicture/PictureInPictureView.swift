@@ -11,10 +11,10 @@ import StreamKit
 import SwiftUI
 
 final class PictureInPictureView: NSView {
-    private let renderer: StreamRenderer
-    private let dimensions: Dimensions
     private let onReturnToWindow: () -> Void
 
+    private let renderer: StreamRenderer
+    private let dimensions: Dimensions
     private let controls: NSHostingView<PictureInPictureControls>
 
     override var mouseDownCanMoveWindow: Bool {

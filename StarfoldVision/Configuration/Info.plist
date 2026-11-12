@@ -16,6 +16,8 @@
 	<string>Starfold connects to your Xbox on the local network to stream games from it.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Starfold uses the microphone for voice chat while you stream a game.</string>
+	<key>StarfoldMicrosoftClientID</key>
+	<string>$(STARFOLD_MICROSOFT_CLIENT_ID)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

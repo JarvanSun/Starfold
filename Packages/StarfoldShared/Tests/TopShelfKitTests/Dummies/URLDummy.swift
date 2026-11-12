@@ -20,7 +20,7 @@ extension URL {
         .init(string: "starfold://game/")!
     }
 
-    nonisolated static func dummyTemporaryDirectory() throws -> URL {
+    static func dummyTemporaryDirectory() throws -> URL {
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory

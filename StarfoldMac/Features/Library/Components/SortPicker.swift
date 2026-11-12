@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SortPicker: View {
     @Binding var sort: GameSort
+
     let choices: [GameSort]
 
     var body: some View {

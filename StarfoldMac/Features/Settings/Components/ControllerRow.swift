@@ -13,6 +13,7 @@ struct ControllerRow: View {
 
     let name: String
     let playerNumber: Int
+
     let onTestVibration: () -> Void
 
     var body: some View {

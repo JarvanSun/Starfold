@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var isConfirmingSignOut = false
 
     let settings: SettingsViewModel
+
     let onAddAccount: () -> Void
 
     var body: some View {

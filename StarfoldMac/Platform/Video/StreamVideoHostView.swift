@@ -10,6 +10,7 @@ import StreamKit
 
 final class StreamVideoHostView: NSView {
     private let renderer: StreamRenderer
+
     private var refreshLink: CADisplayLink?
 
     init(renderer: StreamRenderer) {

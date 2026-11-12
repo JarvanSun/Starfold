@@ -21,7 +21,11 @@ public struct AppDependencies {
         let preferences = Preferences(defaults: .standard)
         let controllers = ControllerHub(routing: streamPlatform.controllerRouting)
         let accountService = LiveAccountService(
-            store: .init(secrets: KeychainStore(service: accountsKeychainService), http: http),
+            store: .init(
+                microsoftClientID: microsoftClientID,
+                secrets: KeychainStore(service: accountsKeychainService),
+                http: http
+            ),
             http: http,
             streamRuntime: StreamRuntime()
         )
@@ -44,8 +48,16 @@ public struct AppDependencies {
 }
 
 private extension AppDependencies {
+    var bundleID: String {
+        Bundle.main.bundleIdentifier ?? "Starfold"
+    }
+
+    var microsoftClientID: String {
+        Bundle.main.infoDictionary?["StarfoldMicrosoftClientID"] as? String ?? ""
+    }
+
     var accountsKeychainService: String {
-        "com.jarvansun.sunbox.accounts"
+        "\(bundleID).accounts"
     }
 
     var savedLibrariesDirectory: URL {

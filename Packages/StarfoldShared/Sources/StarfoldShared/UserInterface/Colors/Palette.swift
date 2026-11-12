@@ -7,22 +7,16 @@
 
 import SwiftUI
 
-public nonisolated struct Palette: Identifiable, Equatable, Sendable {
+public struct Palette: Identifiable, Equatable, Sendable {
     public let id: PaletteID
-    let sky: SkyStyle
-    let primary: [RGBColor]
-    let primaryLabel: RGBColor
-    let hasPrimaryGlow: Bool
     public let accent: RGBColor
     public let night: RGBColor
     public let nightRaised: RGBColor
 
-    var primaryLabelColor: Color {
-        switch id {
-        case .sunrise: .black.opacity(0.85)
-        case .nebula, .aurora: primaryLabel.color
-        }
-    }
+    let sky: SkyStyle
+    let primary: [RGBColor]
+    let primaryLabel: RGBColor
+    let hasPrimaryGlow: Bool
 
     public var primaryTint: Color {
         (primary.last ?? accent).color
@@ -30,6 +24,13 @@ public nonisolated struct Palette: Identifiable, Equatable, Sendable {
 
     public var primaryFill: LinearGradient {
         .init(colors: primary.map(\.color), startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
+    var primaryLabelColor: Color {
+        switch id {
+        case .sunrise: .black.opacity(0.85)
+        case .nebula, .aurora: primaryLabel.color
+        }
     }
 
     public init(_ id: PaletteID) {

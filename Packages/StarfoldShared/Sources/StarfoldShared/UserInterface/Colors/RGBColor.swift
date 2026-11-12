@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-public nonisolated struct RGBColor: Equatable, Sendable {
+public struct RGBColor: Equatable, Sendable {
     let red: Double
     let green: Double
     let blue: Double
@@ -41,7 +41,7 @@ public nonisolated struct RGBColor: Equatable, Sendable {
 }
 
 private extension RGBColor {
-    nonisolated func linear(_ component: Double) -> Double {
+    func linear(_ component: Double) -> Double {
         switch component <= 0.04045 {
         case true: component / 12.92
         case false: pow((component + 0.055) / 1.055, 2.4)

@@ -9,6 +9,7 @@ import AppKit
 
 final class FullScreenObserverView: NSView {
     private let report: (Bool) -> Void
+
     private var observers: [NSObjectProtocol] = []
 
     init(report: @escaping (Bool) -> Void) {

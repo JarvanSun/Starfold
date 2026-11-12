@@ -11,6 +11,7 @@ import GameController
 final class TVControllerInput: @unchecked Sendable {
     private let queue: DispatchQueue
     private let router: GamepadRouter
+
     private var policy = TVGamepadPolicy()
     private var gamepads: [UInt8: GCExtendedGamepad] = [:]
 

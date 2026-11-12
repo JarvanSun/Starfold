@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
+#if DEBUG
 import Foundation
 import StarfoldShared
 
@@ -31,3 +32,4 @@ private extension PreviewReply {
         .seconds(86_400)
     }
 }
+#endif

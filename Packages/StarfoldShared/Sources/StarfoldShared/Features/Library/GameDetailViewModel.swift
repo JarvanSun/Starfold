@@ -12,6 +12,7 @@ import XboxKit
 @Observable
 public final class GameDetailViewModel {
     public let game: CloudGame
+
     private let favorites: FavoritesStore
     private let onPlay: () -> Void
 

@@ -61,7 +61,11 @@ private extension LiveAccountServiceTests {
     func makeService() -> (XboxServerStub, LiveAccountService) {
         let server = XboxServerStub()
         let service = LiveAccountService(
-            store: .init(secrets: InMemorySecretStore(), http: server.client),
+            store: .init(
+                microsoftClientID: .dummyClientID,
+                secrets: InMemorySecretStore(),
+                http: server.client
+            ),
             http: server.client,
             streamRuntime: StreamRuntime()
         )

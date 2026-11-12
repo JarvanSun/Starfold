@@ -18,6 +18,7 @@ final class InputState: @unchecked Sendable {
     private let lock = NSLock()
     private let clockOrigin = CACurrentMediaTime()
     private let heartbeatMs: Double
+
     private var pads: [UInt8: GamepadState] = [:]
     private var latched: [UInt8: GamepadButtons] = [:]
     private var lastSent: [UInt8: (state: GamepadState, at: Double)] = [:]

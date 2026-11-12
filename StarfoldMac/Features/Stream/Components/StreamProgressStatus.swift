@@ -12,6 +12,7 @@ struct StreamProgressStatus: View {
     @Environment(\.dimensions) private var dimensions
 
     let title: LocalizedStringResource
+
     let onCancel: () -> Void
 
     var body: some View {

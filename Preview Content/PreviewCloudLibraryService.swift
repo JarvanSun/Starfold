@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
+#if DEBUG
 import StarfoldShared
 
 struct PreviewCloudLibraryService: CloudLibraryService {
@@ -15,3 +16,4 @@ struct PreviewCloudLibraryService: CloudLibraryService {
         try await reply.answer(content)
     }
 }
+#endif

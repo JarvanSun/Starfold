@@ -10,10 +10,11 @@ import SwiftUI
 
 struct GameTextPrompt: View {
     @Environment(\.dimensions) private var dimensions
+    @Binding var text: String
 
     let title: String
     let description: String
-    @Binding var text: String
+
     let onSubmit: () -> Void
     let onCancel: () -> Void
 
@@ -46,9 +47,9 @@ struct GameTextPrompt: View {
 #Preview {
     @Previewable @State var text = PreviewObjectPool.textPromptText
     GameTextPrompt(
+        text: $text,
         title: PreviewObjectPool.textPromptTitle,
         description: PreviewObjectPool.textPromptDescription,
-        text: $text,
         onSubmit: {},
         onCancel: {}
     )

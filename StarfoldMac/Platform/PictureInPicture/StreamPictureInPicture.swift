@@ -11,10 +11,11 @@ import StarfoldShared
 import StreamKit
 
 final class StreamPictureInPicture {
+    weak var host: StreamVideoHostView?
+
     private let renderer: StreamRenderer
     private let dimensions: Dimensions
 
-    weak var host: StreamVideoHostView?
     private var panel: NSPanel?
     private var isActive = false
 
