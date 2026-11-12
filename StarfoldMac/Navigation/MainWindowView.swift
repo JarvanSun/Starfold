@@ -17,9 +17,9 @@ struct MainWindowView: View {
     var body: some View {
         NavigationStack(path: $path) {
             sessionContent
-                .navigationDestination(for: HomeRoute.self, destination: destination(for:))
+                .navigationDestination(for: HomeRoute.self) { destination(for: $0) }
                 .background { SkyBackground() }
-                .toolbar { MainToolbar(onShowSignIn: showSignIn) }
+                .toolbar { MainToolbar(onShowSignIn: { showSignIn() }) }
         }
         .preferredColorScheme(.dark)
         .hiddenTitleWindowChrome()
@@ -75,7 +75,7 @@ private extension MainWindowView {
 
     @ViewBuilder
     var signInExpiredActions: some View {
-        Button(String(localized: "mainWindow.signInExpired.signIn"), action: showSignIn)
+        Button(String(localized: "mainWindow.signInExpired.signIn")) { showSignIn() }
 
         Button(String(localized: "mainWindow.signInExpired.notNow"), role: .cancel) {}
     }

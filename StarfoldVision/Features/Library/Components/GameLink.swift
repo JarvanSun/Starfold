@@ -20,7 +20,7 @@ struct GameLink: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
-            Button("library.game.play", systemImage: "play.fill", action: onPlay)
+            Button("library.game.play", systemImage: "play.fill") { onPlay() }
         }
     }
 }

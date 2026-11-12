@@ -38,11 +38,11 @@ struct HomeCard<Artwork: View, Actions: View>: View {
         .animation(.easeOut(duration: 0.15), value: isFocused)
         .contentShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
         .onHover { isHovering = $0 }
-        .onTapGesture(perform: performPrimaryActionIfEnabled)
+        .onTapGesture { performPrimaryActionIfEnabled() }
         .focusable()
         .focusEffectDisabled()
         .focused($isFocused)
-        .onKeyPress(.return, action: pressReturn)
+        .onKeyPress(.return) { pressReturn() }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(
             Text("home.card.accessibilityLabel \(heading.title) \(heading.status.text)")
@@ -112,7 +112,9 @@ private extension HomeCard {
     }
 
     var primaryButton: some View {
-        Button(action: primaryAction.onPerform) {
+        Button {
+            primaryAction.onPerform()
+        } label: {
             Label(primaryAction.title, systemImage: primaryAction.systemImage)
                 .font(.callout.weight(.semibold))
         }

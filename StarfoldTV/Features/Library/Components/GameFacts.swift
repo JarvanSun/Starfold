@@ -15,7 +15,7 @@ struct GameFacts: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: dimensions.spaceHuge) {
-            ForEach(facts, content: column(_:))
+            ForEach(facts) { column($0) }
         }
     }
 }

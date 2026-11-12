@@ -35,7 +35,9 @@ private extension ConsolePowerButton {
     }
 
     func button(for command: XboxLiveClient.PowerCommand) -> some View {
-        Button(action: onToggle) {
+        Button {
+            onToggle()
+        } label: {
             Label(command.title, systemImage: "power")
         }
         .labelStyle(.iconOnly)

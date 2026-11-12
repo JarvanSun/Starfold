@@ -46,7 +46,7 @@ struct StreamView: View {
                     status: stream.status,
                     backdrop: stream.backdrop,
                     onClose: onClose,
-                    onTryAgain: stream.tryAgain
+                    onTryAgain: { stream.tryAgain() }
                 )
                 .ignoresSafeArea()
             }
@@ -72,7 +72,7 @@ struct StreamView: View {
             }
         }
         .animation(.easeOut(duration: 0.25), value: stream.isShowingControls)
-        .onContinuousHover(perform: movePointer)
+        .onContinuousHover { movePointer($0) }
         .onChange(of: stream.areControlsRevealed) { _, areRevealed in
             hidePointer(whenControlsAreHidden: areRevealed)
         }
@@ -80,7 +80,7 @@ struct StreamView: View {
         .sheet(item: presentedDialog) { SystemDialogView(stream: stream, dialog: $0) }
         .focusedSceneValue(\.activeStream, stream)
         .focusedSceneValue(\.activePictureInPicture, pictureInPicture)
-        .onAppear(perform: preparePictureInPicture)
+        .onAppear { preparePictureInPicture() }
         .navigationTitle(stream.target.name)
     }
 }

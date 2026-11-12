@@ -27,7 +27,7 @@ struct AllGamesGrid: View {
             }
 
             LazyVGrid(columns: columns, spacing: dimensions.spaceXLarge) {
-                ForEach(library.visibleGames, content: tile(for:))
+                ForEach(library.visibleGames) { tile(for: $0) }
             }
             .padding(.horizontal, dimensions.spaceXXLarge)
         }

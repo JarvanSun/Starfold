@@ -19,7 +19,7 @@ struct LibraryView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
                 if !library.isSearching {
-                    ForEach(library.shelves, content: shelfRow(_:))
+                    ForEach(library.shelves) { shelfRow($0) }
                 }
 
                 if !library.visibleGames.isEmpty {
@@ -29,7 +29,7 @@ struct LibraryView: View {
             .padding(.vertical, dimensions.spaceXLarge)
             .animation(.smooth(duration: 0.3), value: library.isSearching)
         }
-        .overlay(if: library.placeholder, content: placeholderView(_:))
+        .overlay(if: library.placeholder) { placeholderView($0) }
         .searchable(
             text: $library.searchText,
             placement: .toolbar,
@@ -45,7 +45,7 @@ private extension LibraryView {
         ShelfRow(
             shelf: shelf,
             games: library.games(on: shelf),
-            onPlay: library.play(_:),
+            onPlay: { library.play($0) },
             onOpen: onOpenGame
         )
     }
@@ -54,7 +54,7 @@ private extension LibraryView {
         LibraryPlaceholderView(
             placeholder: placeholder,
             searchText: library.searchText,
-            onRetry: refresh
+            onRetry: { refresh() }
         )
     }
 

@@ -21,7 +21,7 @@ struct ConsoleCard: View {
             status: Text(console.powerStateDescription),
             statusColor: home.status(of: console).color,
             width: width,
-            onSelect: play
+            onSelect: { play() }
         ) {
             picture
         }
@@ -57,7 +57,9 @@ private extension ConsoleCard {
     }
 
     func powerButton(for command: XboxLiveClient.PowerCommand) -> some View {
-        Button(action: togglePower) {
+        Button {
+            togglePower()
+        } label: {
             Label(command.title, systemImage: "power")
         }
     }

@@ -40,7 +40,9 @@ struct StreamControlBar: View {
 
 private extension StreamControlBar {
     var guideButton: some View {
-        Button(action: stream.openGuide) {
+        Button {
+            stream.openGuide()
+        } label: {
             Label("stream.controls.guide", systemImage: "logo.xbox")
         }
     }
@@ -63,7 +65,9 @@ private extension StreamControlBar {
     }
 
     var disconnectButton: some View {
-        Button(role: .destructive, action: onDisconnect) {
+        Button(role: .destructive) {
+            onDisconnect()
+        } label: {
             Label("stream.controls.disconnect", systemImage: "xmark")
         }
     }

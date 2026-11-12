@@ -55,8 +55,8 @@ private extension RootView {
         .sheet(isPresented: $presenter.isControllerPromptPresented) {
             ControllerPrompt(
                 hasController: presenter.hasController,
-                onCheckAgain: app.controllers.checkControllers,
-                onPlay: presenter.startPromptedStream
+                onCheckAgain: { app.controllers.checkControllers() },
+                onPlay: { presenter.startPromptedStream() }
             )
         }
         .alert("signIn.expired.title", isPresented: signInExpiredAlert(presenter)) {

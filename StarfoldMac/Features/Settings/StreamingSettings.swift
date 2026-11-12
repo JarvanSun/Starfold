@@ -14,7 +14,7 @@ struct StreamingSettings: View {
     var body: some View {
         Form {
             if settings.needsStreamRestart {
-                RestartStreamSection(onRestart: restartStream)
+                RestartStreamSection(onRestart: { restartStream() })
             }
 
             QualitySettingsSection(settings: settings)

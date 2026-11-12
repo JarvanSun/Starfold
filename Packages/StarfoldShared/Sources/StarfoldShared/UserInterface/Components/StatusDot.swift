@@ -29,7 +29,7 @@ public struct StatusDot: View {
                     pulse
                 }
             }
-            .onAppear(perform: startPulsing)
+            .onAppear { startPulsing() }
             .accessibilityHidden(true)
     }
 }

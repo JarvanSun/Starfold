@@ -21,16 +21,16 @@ struct SystemDialogView: View {
                 title: title,
                 text: text,
                 buttons: stream.buttons(of: dialog),
-                onAnswer: answer(buttonIndex:),
-                onCancel: cancel
+                onAnswer: { answer(buttonIndex: $0) },
+                onCancel: { cancel() }
             )
         case .keyboard(_, let description, _, _):
             GameTextPrompt(
                 text: $stream.dialogText,
                 title: stream.textFieldTitle(of: dialog),
                 description: description,
-                onSubmit: submitText,
-                onCancel: cancel
+                onSubmit: { submitText() },
+                onCancel: { cancel() }
             )
         }
     }

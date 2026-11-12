@@ -21,7 +21,7 @@ struct SignInHostView<Screen: View>: View {
             case nil: Color.clear
             }
         }
-        .onAppear(perform: createSignIn)
+        .onAppear { createSignIn() }
     }
 }
 

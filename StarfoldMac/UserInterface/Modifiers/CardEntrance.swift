@@ -27,7 +27,7 @@ private struct CardEntrance: ViewModifier {
             .opacity(isVisible ? 1 : 0)
             .offset(y: isInPlace ? 0 : dimensions.spaceXLarge)
             .scaleEffect(isInPlace ? 1 : startScale)
-            .onAppear(perform: enter)
+            .onAppear { enter() }
     }
 }
 

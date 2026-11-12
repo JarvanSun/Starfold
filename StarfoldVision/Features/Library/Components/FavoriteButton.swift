@@ -14,7 +14,9 @@ struct FavoriteButton: View {
     let onToggle: () -> Void
 
     var body: some View {
-        Button(action: onToggle) {
+        Button {
+            onToggle()
+        } label: {
             Label(action.title, systemImage: action.symbol)
                 .contentTransition(.symbolEffect(.replace))
         }

@@ -31,12 +31,12 @@ struct GameTile: View {
                 .foregroundStyle(nameStyle)
         }
         .contentShape(.rect)
-        .onHover(perform: hover)
-        .onTapGesture(perform: onOpen)
+        .onHover { hover($0) }
+        .onTapGesture { onOpen() }
         .contextMenu {
-            Button(String(localized: "library.tile.play"), action: onPlay)
+            Button(String(localized: "library.tile.play")) { onPlay() }
 
-            Button(String(localized: "library.tile.showDetails"), action: onOpen)
+            Button(String(localized: "library.tile.showDetails")) { onOpen() }
         }
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
@@ -62,7 +62,7 @@ private extension GameTile {
 
     var artwork: some View {
         GameArtwork(url: game.tileArtwork, aspectRatio: 1)
-            .overlay(if: badge, alignment: .topLeading, content: badgeLabel(_:))
+            .overlay(if: badge, alignment: .topLeading) { badgeLabel($0) }
             .overlay(alignment: .bottomTrailing) {
                 if isHovering {
                     playButton
@@ -80,7 +80,9 @@ private extension GameTile {
     }
 
     var playButton: some View {
-        Button(action: onPlay) {
+        Button {
+            onPlay()
+        } label: {
             Label(String(localized: "library.tile.play"), systemImage: "play.fill")
                 .labelStyle(.iconOnly)
                 .frame(

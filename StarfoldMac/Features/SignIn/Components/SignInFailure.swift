@@ -25,7 +25,7 @@ struct SignInFailure: View {
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
 
-            Button(String(localized: "signIn.failure.retry"), action: onRetry)
+            Button(String(localized: "signIn.failure.retry")) { onRetry() }
                 .buttonStyle(.primary)
         }
         .frame(minHeight: dimensions.signInStatusMinimumHeight)

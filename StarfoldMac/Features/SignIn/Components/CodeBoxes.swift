@@ -15,7 +15,7 @@ struct CodeBoxes: View {
 
     var body: some View {
         HStack(spacing: dimensions.spaceXSmall) {
-            ForEach(code.characters, content: box(for:))
+            ForEach(code.characters) { box(for: $0) }
         }
         .textSelection(.enabled)
         .accessibilityElement(children: .ignore)

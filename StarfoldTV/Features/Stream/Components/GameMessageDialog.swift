@@ -32,13 +32,13 @@ struct GameMessageDialog: View {
             }
 
             HStack(spacing: dimensions.spaceLarge) {
-                ForEach(buttons, content: answerButton(_:))
+                ForEach(buttons) { answerButton($0) }
             }
             .focusScope(focusScope)
         }
         .padding(dimensions.spaceXXLarge)
         .frame(minWidth: dimensions.gameDialogMinimumWidth)
-        .onExitCommand(perform: onCancel)
+        .onExitCommand { onCancel() }
     }
 }
 

@@ -37,7 +37,7 @@ struct WelcomeFeatureRow: View {
 #if DEBUG
 #Preview {
     VStack(alignment: .leading) {
-        ForEach(WelcomeFeature.allCases, content: WelcomeFeatureRow.init(feature:))
+        ForEach(WelcomeFeature.allCases) { WelcomeFeatureRow(feature: $0) }
     }
 }
 #endif

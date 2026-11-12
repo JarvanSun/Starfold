@@ -40,8 +40,8 @@ private extension ControllerPrompt {
     @ViewBuilder
     var primaryButton: some View {
         switch hasController {
-        case true: Button("controller.prompt.play", action: play)
-        case false: Button("controller.missing.checkAgain", action: onCheckAgain)
+        case true: Button("controller.prompt.play") { play() }
+        case false: Button("controller.missing.checkAgain") { onCheckAgain() }
         }
     }
 

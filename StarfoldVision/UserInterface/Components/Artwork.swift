@@ -16,7 +16,7 @@ struct Artwork: View {
         Color.clear
             .aspectRatio(aspectRatio, contentMode: .fit)
             .overlay {
-                AsyncImage(url: url, transaction: .init(animation: fadeIn), content: image(for:))
+                AsyncImage(url: url, transaction: .init(animation: fadeIn)) { image(for: $0) }
             }
             .clipped()
             .accessibilityHidden(true)

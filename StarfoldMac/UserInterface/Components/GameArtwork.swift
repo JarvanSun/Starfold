@@ -19,11 +19,9 @@ struct GameArtwork: View {
             .fill(.white.opacity(0.06))
             .aspectRatio(aspectRatio, contentMode: .fit)
             .overlay {
-                AsyncImage(
-                    url: url,
-                    transaction: .init(animation: .easeOut(duration: 0.3)),
-                    content: image(for:)
-                )
+                AsyncImage(url: url, transaction: .init(animation: .easeOut(duration: 0.3))) {
+                    image(for: $0)
+                }
             }
             .clipShape(.rect(cornerRadius: dimensions.cornerRadiusMedium))
     }

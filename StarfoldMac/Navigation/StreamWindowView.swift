@@ -22,7 +22,7 @@ struct StreamWindowView: View {
             )
             .background(.black)
             .preferredColorScheme(.dark)
-            .onDisappear(perform: endStream)
+            .onDisappear { endStream() }
     }
 }
 
@@ -31,7 +31,7 @@ private extension StreamWindowView {
     var streamContent: some View {
         switch app.stream {
         case let stream?:
-            StreamView(stream: stream, settings: app.settings, onClose: closeWindow)
+            StreamView(stream: stream, settings: app.settings, onClose: { closeWindow() })
                 .id(ObjectIdentifier(stream))
         case nil: noStream
         }

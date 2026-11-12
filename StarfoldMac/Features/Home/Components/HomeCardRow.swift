@@ -26,7 +26,7 @@ struct HomeCardRow: View {
                 switch home.consolesContent {
                 case .loading: SkeletonCard().cardEntrance(index: 1)
                 case .failed(let message): failedCard(message).cardEntrance(index: 1)
-                case .empty: NoConsolesCard(onRefresh: refreshConsoles).cardEntrance(index: 1)
+                case .empty: NoConsolesCard(onRefresh: { refreshConsoles() }).cardEntrance(index: 1)
                 case .consoles: consoleCards
                 }
             }
@@ -42,7 +42,7 @@ struct HomeCardRow: View {
 
 private extension HomeCardRow {
     func failedCard(_ message: String) -> some View {
-        ConsolesFailedCard(message: message, onRetry: refreshConsoles)
+        ConsolesFailedCard(message: message, onRetry: { refreshConsoles() })
     }
 
     var consoleCards: some View {

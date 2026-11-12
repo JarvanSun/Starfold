@@ -20,7 +20,7 @@ struct SignInSheetHeader: View {
 
             Spacer()
 
-            Button(String(localized: "signIn.sheet.cancel"), action: onCancel)
+            Button(String(localized: "signIn.sheet.cancel")) { onCancel() }
                 .keyboardShortcut(.cancelAction)
         }
         .padding(.horizontal, dimensions.spaceXLarge)

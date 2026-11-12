@@ -59,17 +59,17 @@ private extension MenuBarMenu {
     var controllers: some View {
         if !app.settings.connectedControllers.isEmpty {
             Section(String(localized: "menuBar.controllers.title")) {
-                ForEach(app.settings.connectedControllers, content: controllerLine(for:))
+                ForEach(app.settings.connectedControllers) { controllerLine(for: $0) }
             }
         }
     }
 
     var openAppButton: some View {
-        Button(String(localized: "menuBar.open \(AppInfo().displayName)"), action: openApp)
+        Button(String(localized: "menuBar.open \(AppInfo().displayName)")) { openApp() }
     }
 
     var settingsButton: some View {
-        Button(String(localized: "menuBar.settings"), action: showSettings)
+        Button(String(localized: "menuBar.settings")) { showSettings() }
             .keyboardShortcut(",")
     }
 

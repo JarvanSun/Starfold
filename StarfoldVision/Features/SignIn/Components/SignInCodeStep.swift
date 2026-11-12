@@ -28,7 +28,9 @@ struct SignInCodeStep: View {
 
 private extension SignInCodeStep {
     var signInButton: some View {
-        Button(action: copyCodeAndOpenPage) {
+        Button {
+            copyCodeAndOpenPage()
+        } label: {
             HStack(alignment: .center, spacing: dimensions.spaceSmall) {
                 Image(systemName: "safari")
 

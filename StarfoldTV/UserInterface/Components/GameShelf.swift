@@ -22,7 +22,7 @@ struct GameShelf: View {
 
             ScrollView(.horizontal) {
                 LazyHStack(spacing: dimensions.spaceXXLarge) {
-                    ForEach(games, content: tile(_:))
+                    ForEach(games) { tile($0) }
                 }
                 .padding(.vertical, dimensions.spaceLarge)
             }

@@ -27,7 +27,7 @@ struct StreamView: View {
                     status: stream.status,
                     backdrop: stream.backdrop,
                     onClose: onClose,
-                    onTryAgain: stream.tryAgain
+                    onTryAgain: { stream.tryAgain() }
                 )
             }
 

@@ -87,7 +87,7 @@ private extension StreamCommands {
     }
 
     var copyStatisticsButton: some View {
-        Button(String(localized: "menu.stream.copyStatistics"), action: copyStatistics)
+        Button(String(localized: "menu.stream.copyStatistics")) { copyStatistics() }
             .keyboardShortcut("c", modifiers: [.command, .option])
             .disabled(!isStreaming)
     }
@@ -146,7 +146,7 @@ private extension StreamCommands {
     }
 
     var refreshLibraryButton: some View {
-        Button(String(localized: "menu.view.refreshLibrary"), action: refreshLibrary)
+        Button(String(localized: "menu.view.refreshLibrary")) { refreshLibrary() }
             .keyboardShortcut("r")
             .disabled(app.library == nil)
     }

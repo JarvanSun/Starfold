@@ -59,7 +59,8 @@ private extension StreamView {
     @ViewBuilder
     var menu: some View {
         switch stream {
-        case let stream?: StreamMenuView(settings: settings, stream: stream, onDisconnect: end)
+        case let stream?:
+            StreamMenuView(settings: settings, stream: stream, onDisconnect: { end() })
         case nil: EmptyView()
         }
     }
@@ -72,8 +73,8 @@ private extension StreamView {
             StreamStatusView(
                 name: stream.target.name,
                 status: stream.status,
-                onRetry: restart,
-                onEnd: end
+                onRetry: { restart() },
+                onEnd: { end() }
             )
         }
 
@@ -85,7 +86,7 @@ private extension StreamView {
         }
 
         if stream.needsController {
-            ControllerMissingStatus(onCheckAgain: controllers.checkControllers)
+            ControllerMissingStatus(onCheckAgain: { controllers.checkControllers() })
         }
     }
 

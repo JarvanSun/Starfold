@@ -24,7 +24,7 @@ struct RestartStreamSection: View {
 
                 Spacer(minLength: dimensions.spaceSmall)
 
-                Button(String(localized: "settings.streaming.restart.button"), action: onRestart)
+                Button(String(localized: "settings.streaming.restart.button")) { onRestart() }
                     .buttonStyle(.borderedProminent)
             }
         }

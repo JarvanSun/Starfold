@@ -23,7 +23,7 @@ struct WelcomeView: View {
             case false: stacked
             }
         }
-        .onAppear(perform: enter)
+        .onAppear { enter() }
         .task(id: signIn.attempt) { await signIn.run() }
     }
 }
@@ -77,7 +77,7 @@ private extension WelcomeView {
     }
 
     var signInCard: some View {
-        WelcomeSignInCard(step: signIn.step, onRetry: signIn.retry)
+        WelcomeSignInCard(step: signIn.step, onRetry: { signIn.retry() })
             .opacity(isVisible ? 1 : 0)
     }
 

@@ -30,16 +30,16 @@ struct GameTextPrompt: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("common.cancel", action: onCancel)
+                    Button("common.cancel") { onCancel() }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("stream.dialog.done", action: onSubmit)
+                    Button("stream.dialog.done") { onSubmit() }
                 }
             }
         }
         .frame(width: dimensions.gameTextPromptWidth, height: dimensions.gameTextPromptHeight)
-        .onExitCommand(perform: onCancel)
+        .onExitCommand { onCancel() }
     }
 }
 

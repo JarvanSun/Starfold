@@ -31,11 +31,11 @@ struct GameTextPrompt: View {
         .frame(minWidth: dimensions.gameDialogMinimumWidth)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button(String(localized: "stream.textPrompt.cancel"), action: onCancel)
+                Button(String(localized: "stream.textPrompt.cancel")) { onCancel() }
             }
 
             ToolbarItem(placement: .confirmationAction) {
-                Button(String(localized: "stream.textPrompt.done"), action: onSubmit)
+                Button(String(localized: "stream.textPrompt.done")) { onSubmit() }
             }
         }
     }

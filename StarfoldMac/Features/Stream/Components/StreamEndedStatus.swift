@@ -44,14 +44,16 @@ struct StreamEndedStatus: View {
 
 private extension StreamEndedStatus {
     var closeButton: some View {
-        Button(String(localized: "stream.status.close"), action: onClose)
+        Button(String(localized: "stream.status.close")) { onClose() }
             .buttonStyle(.bordered)
             .controlSize(.large)
             .keyboardShortcut(.cancelAction)
     }
 
     var tryAgainButton: some View {
-        Button(action: onTryAgain) {
+        Button {
+            onTryAgain()
+        } label: {
             Label(String(localized: "stream.status.tryAgain"), systemImage: "arrow.clockwise")
         }
         .buttonStyle(.primary)

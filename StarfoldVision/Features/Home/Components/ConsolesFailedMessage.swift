@@ -18,7 +18,7 @@ struct ConsolesFailedMessage: View {
             title: "home.consoles.failed.title",
             message: Text(message)
         ) {
-            Button("home.consoles.failed.retry", action: onRetry)
+            Button("home.consoles.failed.retry") { onRetry() }
         }
     }
 }

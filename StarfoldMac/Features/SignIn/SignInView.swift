@@ -21,7 +21,7 @@ struct SignInView: View {
 
             Divider().opacity(0.4)
 
-            SignInPanel(step: signIn.step, onRetry: signIn.retry)
+            SignInPanel(step: signIn.step, onRetry: { signIn.retry() })
                 .padding(dimensions.spaceXXLarge)
         }
         .frame(width: dimensions.signInSheetWidth)

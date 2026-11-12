@@ -16,11 +16,9 @@ struct GameHero: View {
     var body: some View {
         GeometryReader { proxy in
             let minY = proxy.frame(in: .scrollView).minY
-            AsyncImage(
-                url: artwork,
-                transaction: .init(animation: .easeOut(duration: 0.4)),
-                content: image(for:)
-            )
+            AsyncImage(url: artwork, transaction: .init(animation: .easeOut(duration: 0.4))) {
+                image(for: $0)
+            }
             .frame(width: proxy.size.width, height: proxy.size.height + max(0, minY))
             .offset(y: offset(scrolledBy: minY))
             .clipped()

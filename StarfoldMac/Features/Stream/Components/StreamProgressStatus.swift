@@ -26,7 +26,7 @@ struct StreamProgressStatus: View {
                 .contentTransition(.opacity)
                 .multilineTextAlignment(.center)
 
-            Button(String(localized: "stream.status.cancel"), action: onCancel)
+            Button(String(localized: "stream.status.cancel")) { onCancel() }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .keyboardShortcut(.cancelAction)

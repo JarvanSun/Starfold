@@ -21,7 +21,7 @@ struct StreamProgressStatus: View {
 
             ProgressView()
 
-            Button("common.cancel", action: onCancel)
+            Button("common.cancel") { onCancel() }
         }
     }
 }

@@ -20,7 +20,9 @@ struct StreamMenuView: View {
 
     var body: some View {
         VStack(spacing: dimensions.spaceLarge) {
-            Button(action: openGuide) {
+            Button {
+                openGuide()
+            } label: {
                 row("stream.menu.guide", symbol: "xbox.logo")
             }
 
@@ -28,7 +30,9 @@ struct StreamMenuView: View {
                 row("stream.menu.statistics", symbol: "chart.bar.fill")
             }
 
-            Button(action: stream.showNextPictureFit) {
+            Button {
+                stream.showNextPictureFit()
+            } label: {
                 HStack {
                     row("stream.menu.pictureMode", symbol: "rectangle.arrowtriangle.2.outward")
 
@@ -37,7 +41,9 @@ struct StreamMenuView: View {
                 }
             }
 
-            Button(role: .destructive, action: disconnect) {
+            Button(role: .destructive) {
+                disconnect()
+            } label: {
                 row("stream.menu.disconnect", symbol: "xmark.circle")
             }
         }

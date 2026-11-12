@@ -17,7 +17,9 @@ struct RecentGameTile: View {
     let onPlay: () -> Void
 
     var body: some View {
-        Button(action: onPlay) {
+        Button {
+            onPlay()
+        } label: {
             VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
                 GameArtwork(url: game.tileArtwork, aspectRatio: 1)
 

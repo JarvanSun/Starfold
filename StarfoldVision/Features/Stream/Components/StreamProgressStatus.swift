@@ -25,7 +25,7 @@ struct StreamProgressStatus: View {
                 .foregroundStyle(.secondary)
                 .contentTransition(.opacity)
 
-            Button("stream.status.cancel", action: onCancel)
+            Button("stream.status.cancel") { onCancel() }
                 .controlSize(.large)
         }
     }

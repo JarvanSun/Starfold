@@ -20,8 +20,9 @@ struct ConsoleShelf: View {
 
             switch home.consolesContent {
             case .loading: ConsoleSkeletons()
-            case .failed(let message): ConsolesFailedMessage(message: message, onRetry: refresh)
-            case .empty: NoConsolesMessage(onRefresh: refresh)
+            case .failed(let message):
+                ConsolesFailedMessage(message: message, onRetry: { refresh() })
+            case .empty: NoConsolesMessage(onRefresh: { refresh() })
             case .consoles: cards
             }
         }
