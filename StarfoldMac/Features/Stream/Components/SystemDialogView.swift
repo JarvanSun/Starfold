@@ -10,8 +10,7 @@ import StreamKit
 import SwiftUI
 
 struct SystemDialogView: View {
-    @Bindable var dialogs: SystemDialogsViewModel
-
+    let dialogs: SystemDialogsViewModel
     let dialog: SystemDialogRequest
 
     var body: some View {
@@ -25,7 +24,7 @@ struct SystemDialogView: View {
             )
         case .keyboard(_, let description, _, _):
             GameTextPrompt(
-                text: $dialogs.text,
+                text: draftText,
                 title: dialogs.textFieldTitle(of: dialog),
                 description: description,
                 onSubmit: { submitText() },
@@ -36,6 +35,10 @@ struct SystemDialogView: View {
 }
 
 private extension SystemDialogView {
+    var draftText: Binding<String> {
+        .init(get: { dialogs.text }, set: { dialogs.changeText(to: $0) })
+    }
+
     func answer(buttonIndex: Int) {
         dialogs.answer(dialog, buttonIndex: buttonIndex)
     }

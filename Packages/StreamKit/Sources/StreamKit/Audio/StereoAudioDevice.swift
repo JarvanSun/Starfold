@@ -60,7 +60,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
     }
 
     func terminateDevice() -> Bool {
-        _ = stopPlayout()
+        stopPlayout()
 
         let observers = lock.withLock {
             defer {
@@ -90,11 +90,12 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
         startWatchdog()
 
-        _ = startEngine()
+        startEngine()
 
         return true
     }
 
+    @discardableResult
     func stopPlayout() -> Bool {
         let engine = lock.withLock {
             defer {
@@ -140,6 +141,7 @@ private extension StereoAudioDevice {
 
     var watchdogInterval: Int { 5 }
 
+    @discardableResult
     func startEngine() -> Bool {
         guard let delegate = lock.withLock({ self.delegate }) else { return false }
 
@@ -231,7 +233,7 @@ private extension StereoAudioDevice {
         }
         previous?.cancel()
 
-        _ = playout.meter.take()
+        playout.meter.take()
 
         timer.resume()
     }

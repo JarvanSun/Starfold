@@ -148,7 +148,7 @@ struct HomeViewModelTests {
         let refreshing = Task { await home.keepConsolesFresh() }
         defer { refreshing.cancel() }
 
-        _ = await Eventually().holds { clock.sleeperCount == 1 }
+        await Eventually().holds { clock.sleeperCount == 1 }
 
         // When
         clock.advance(by: .seconds(30))
@@ -171,12 +171,12 @@ struct HomeViewModelTests {
         }
         defer { refreshing.cancel() }
 
-        _ = await Eventually().holds { clock.sleeperCount == 1 }
+        await Eventually().holds { clock.sleeperCount == 1 }
 
         // When
         clock.advance(by: .seconds(59))
 
-        _ = await Eventually().holds { clock.sleeperCount == 1 }
+        await Eventually().holds { clock.sleeperCount == 1 }
 
         let readsBeforeInterval = service.consoleReads
 

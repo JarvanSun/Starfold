@@ -11,10 +11,7 @@ import StreamKit
 
 @Observable
 public final class SystemDialogsViewModel {
-    public var text = "" {
-        didSet { limitText() }
-    }
-
+    public private(set) var text = ""
     public private(set) var queue: [SystemDialogRequest] = []
 
     private var connection: StreamConnection?
@@ -22,6 +19,10 @@ public final class SystemDialogsViewModel {
 
     public var presentedDialog: SystemDialogRequest? {
         queue.first
+    }
+
+    public func changeText(to newText: String) {
+        text = String(newText.prefix(maxTextLength ?? newText.count))
     }
 
     public func answer(_ dialog: SystemDialogRequest, buttonIndex: Int) {
@@ -89,6 +90,12 @@ public final class SystemDialogsViewModel {
 }
 
 private extension SystemDialogsViewModel {
+    var maxTextLength: Int? {
+        guard case .keyboard(_, _, _, let maxLength) = presentedDialog?.kind else { return nil }
+
+        return maxLength
+    }
+
     var acknowledgeButton: DialogButton {
         .init(
             index: 0,
@@ -109,17 +116,6 @@ private extension SystemDialogsViewModel {
         case .keyboard(_, _, let defaultText, _): defaultText
         case .message: ""
         }
-    }
-
-    func limitText() {
-        guard
-            case .keyboard(_, _, _, let maxLength?) = presentedDialog?.kind,
-            text.count > maxLength
-        else {
-            return
-        }
-
-        text = String(text.prefix(maxLength))
     }
 
     func answerKeyboard(_ dialog: SystemDialogRequest, text: String?) {

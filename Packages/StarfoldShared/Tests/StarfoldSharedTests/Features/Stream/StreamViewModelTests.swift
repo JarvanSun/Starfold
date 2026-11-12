@@ -13,6 +13,18 @@ import XboxKit
 @testable import StarfoldShared
 
 struct StreamViewModelTests {
+    let livingRoom: StreamTarget = .console(id: "X", name: "Living room")
+    let dialog = SystemDialogRequest(
+        id: "save",
+        kind: .message(
+            title: "Save?",
+            text: "",
+            buttons: ["Yes", "No"],
+            defaultIndex: 0,
+            cancelIndex: 1
+        )
+    )
+
     @Test
     func startThenShowsThePhasesTheConnectionReports() async {
         // Given
@@ -116,7 +128,7 @@ struct StreamViewModelTests {
         preferences.soundStage = stage
 
         // When
-        _ = makeStream(service: service, preferences: preferences)
+        makeStream(service: service, preferences: preferences)
 
         // Then
         #expect(service.directStereoChanges == [stage == .direct])
@@ -144,7 +156,7 @@ struct StreamViewModelTests {
         let preferences = Preferences(defaults: .dummyEmpty)
         let stream = makeStream(service: service, preferences: preferences)
         preferences.soundStage = .direct
-        _ = await Eventually().holds { service.directStereoChanges.count == 2 }
+        await Eventually().holds { service.directStereoChanges.count == 2 }
 
         // When
         preferences.soundStage = .window
@@ -242,7 +254,7 @@ struct StreamViewModelTests {
     func revealControlsAfterTheyHidThenShowsThemAgain() async {
         // Given
         let stream = await makeStreamingStream()
-        _ = await Eventually().holds { !stream.isShowingControls }
+        await Eventually().holds { !stream.isShowingControls }
 
         // When
         stream.revealControls()
@@ -318,7 +330,7 @@ struct StreamViewModelTests {
         service.updates = [.phase(.streaming), .dialog(dialog)]
         let stream = makeStream(service: service)
         stream.start()
-        _ = await Eventually().holds { stream.dialogs.presentedDialog != nil }
+        await Eventually().holds { stream.dialogs.presentedDialog != nil }
 
         // Then
         #expect(!stream.canOpenMenu)
@@ -404,7 +416,7 @@ struct StreamViewModelTests {
         service.updates = [.phase(.streaming)]
         let stream = makeStream(service: service)
         stream.start()
-        _ = await Eventually().holds { stream.isStreaming }
+        await Eventually().holds { stream.isStreaming }
 
         // When
         await stream.stop()
@@ -415,23 +427,6 @@ struct StreamViewModelTests {
 }
 
 private extension StreamViewModelTests {
-    var livingRoom: StreamTarget {
-        .console(id: "X", name: "Living room")
-    }
-
-    var dialog: SystemDialogRequest {
-        .init(
-            id: "save",
-            kind: .message(
-                title: "Save?",
-                text: "",
-                buttons: ["Yes", "No"],
-                defaultIndex: 0,
-                cancelIndex: 1
-            )
-        )
-    }
-
     func makeStreamingStream(
         preferences: Preferences = .init(defaults: .dummyEmpty)
     ) async -> StreamViewModel {
@@ -440,11 +435,12 @@ private extension StreamViewModelTests {
         let stream = makeStream(service: service, preferences: preferences)
 
         stream.start()
-        _ = await Eventually().holds { stream.isStreaming }
+        await Eventually().holds { stream.isStreaming }
 
         return stream
     }
 
+    @discardableResult
     func makeStream(
         service: StreamServiceStub,
         preferences: Preferences = .init(defaults: .dummyEmpty)

@@ -65,7 +65,7 @@ struct MessageChannelTests {
     func completeMessageDialogThenAnswersWithTheRequestID() throws {
         // Given
         var channel = MessageChannel(correlationBase: "abc")
-        _ = channel.receive(try messageDialogRequest())
+        channel.receive(try messageDialogRequest())
 
         // When
         let reply = try object(channel.completeMessageDialog(id: "42", buttonIndex: 1))

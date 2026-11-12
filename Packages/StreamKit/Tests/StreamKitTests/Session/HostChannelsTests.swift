@@ -58,7 +58,7 @@ struct HostChannelsTests {
         // Given
         var channels = makeChannels()
         let acknowledgement = try envelope(type: "HandshakeAck")
-        _ = channels.received(acknowledgement, on: .message, timestamp: 0)
+        channels.received(acknowledgement, on: .message, timestamp: 0)
 
         // When
         let actions = channels.received(acknowledgement, on: .message, timestamp: 0)

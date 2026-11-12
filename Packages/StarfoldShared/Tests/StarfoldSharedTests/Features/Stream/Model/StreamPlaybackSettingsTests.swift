@@ -65,7 +65,7 @@ struct StreamPlaybackSettingsTests {
         #expect(settings.dynamicRange == (isToneMapping ? .high : .standard))
         #expect(
             settings.enhancements
-                == .init(
+                == RenderEnhancements(
                     isUpscaling: preferences.isUpscalingEnabled,
                     sharpening: Float(preferences.sharpening),
                     fit: preferences.pictureFit,
@@ -99,7 +99,7 @@ struct StreamPlaybackSettingsTests {
         // Then
         #expect(
             settings.enhancements
-                == .init(
+                == RenderEnhancements(
                     isUpscaling: true,
                     sharpening: 0.5,
                     fit: preferences.pictureFit,

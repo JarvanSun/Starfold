@@ -69,6 +69,7 @@ struct MessageChannel: Sendable {
         ])
     }
 
+    @discardableResult
     mutating func receive(_ data: Data) -> [MessageChannelEvent] {
         let withoutPadding = Data(data.filter { $0 != 0 })
         guard

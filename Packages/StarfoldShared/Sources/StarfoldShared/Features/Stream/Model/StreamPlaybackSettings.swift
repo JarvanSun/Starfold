@@ -9,49 +9,63 @@ import AVFoundation
 import QuartzCore
 import StreamKit
 
-struct StreamPlaybackSettings: Equatable {
+struct StreamPlaybackSettings: Equatable, Sendable {
     let pacing: PacingMode
-    let videoGravity: AVLayerVideoGravity
-    let dynamicRange: CALayer.DynamicRange?
-    let enhancements: RenderEnhancements?
-    let isDirectStereo: Bool
+    let fit: PictureFit
+    let isUpscalingEnabled: Bool
+    let sharpening: Double
+    let isToneMappingEnabled: Bool
+    let soundStage: SoundStage
+    let canFit: Bool
+    let canEnhance: Bool
+    let isHDRDisplay: Bool?
 
-    init(preferences: Preferences, picture: PictureCapabilities) {
-        let fit = picture.canFit ? preferences.pictureFit : .fit
-        let isToneMappingHDR =
-            preferences.isHDRToneMappingEnabled && (picture.isHDRDisplayAvailable?() ?? false)
-
-        pacing = preferences.pacingMode
-        videoGravity = fit.videoGravity
-        isDirectStereo = preferences.soundStage == .direct
-
-        dynamicRange =
-            if picture.isHDRDisplayAvailable == nil {
-                nil
-            } else {
-                isToneMappingHDR ? .high : .standard
-            }
-
-        enhancements =
-            if picture.canEnhance {
-                .init(
-                    isUpscaling: preferences.isUpscalingEnabled,
-                    sharpening: Float(preferences.sharpening),
-                    fit: preferences.pictureFit,
-                    isToneMappingHDR: isToneMappingHDR
-                )
-            } else {
-                nil
-            }
+    var shownFit: PictureFit {
+        canFit ? fit : .fit
     }
-}
 
-private extension PictureFit {
     var videoGravity: AVLayerVideoGravity {
-        switch self {
+        switch shownFit {
         case .fit: .resizeAspect
         case .fill: .resizeAspectFill
         case .scale: .resize
         }
+    }
+
+    var isToneMappingHDR: Bool {
+        isToneMappingEnabled && isHDRDisplay == true
+    }
+
+    var dynamicRange: CALayer.DynamicRange? {
+        guard isHDRDisplay != nil else { return nil }
+
+        return isToneMappingHDR ? .high : .standard
+    }
+
+    var enhancements: RenderEnhancements? {
+        guard canEnhance else { return nil }
+
+        return .init(
+            isUpscaling: isUpscalingEnabled,
+            sharpening: Float(sharpening),
+            fit: fit,
+            isToneMappingHDR: isToneMappingHDR
+        )
+    }
+
+    var isDirectStereo: Bool {
+        soundStage == .direct
+    }
+
+    init(preferences: Preferences, picture: PictureCapabilities) {
+        pacing = preferences.pacingMode
+        fit = preferences.pictureFit
+        isUpscalingEnabled = preferences.isUpscalingEnabled
+        sharpening = preferences.sharpening
+        isToneMappingEnabled = preferences.isHDRToneMappingEnabled
+        soundStage = preferences.soundStage
+        canFit = picture.canFit
+        canEnhance = picture.canEnhance
+        isHDRDisplay = picture.isHDRDisplayAvailable?()
     }
 }

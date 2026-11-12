@@ -85,7 +85,7 @@ private extension StreamKeyboardMonitor {
         case .up: return stream.handleKey(key.keyCode, isDown: false)
         case .modifiers(let isShiftPressed):
             if key.keyCode == leftShiftKeyCode {
-                _ = stream.handleKey(leftShiftKeyCode, isDown: isShiftPressed)
+                stream.handleKey(leftShiftKeyCode, isDown: isShiftPressed)
             }
 
             return false

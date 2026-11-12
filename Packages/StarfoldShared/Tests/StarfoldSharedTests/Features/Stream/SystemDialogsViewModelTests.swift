@@ -11,6 +11,25 @@ import Testing
 @testable import StarfoldShared
 
 struct SystemDialogsViewModelTests {
+    let message = SystemDialogRequest(
+        id: "save",
+        kind: .message(
+            title: "Save?",
+            text: "",
+            buttons: ["Yes", "No"],
+            defaultIndex: 0,
+            cancelIndex: 1
+        )
+    )
+    let notice = SystemDialogRequest(
+        id: "notice",
+        kind: .message(title: "Saved", text: "", buttons: [], defaultIndex: 0, cancelIndex: nil)
+    )
+    let textPrompt = SystemDialogRequest(
+        id: "name",
+        kind: .keyboard(title: "Name", description: "", defaultText: "Nova", maxLength: 8)
+    )
+
     @Test
     func addThenPresentsTheFirstDialog() {
         // Given
@@ -78,12 +97,12 @@ struct SystemDialogsViewModelTests {
     }
 
     @Test
-    func textLongerThanTheHostAllowsThenIsCutToTheLimit() {
+    func changeTextLongerThanTheHostAllowsThenIsCutToTheLimit() {
         // Given
         let dialogs = makeDialogs(showing: textPrompt)
 
         // When
-        dialogs.text = "Nova Squadron"
+        dialogs.changeText(to: "Nova Squadron")
 
         // Then
         #expect(dialogs.text == "Nova Squ")
@@ -142,33 +161,6 @@ struct SystemDialogsViewModelTests {
 }
 
 private extension SystemDialogsViewModelTests {
-    var message: SystemDialogRequest {
-        .init(
-            id: "save",
-            kind: .message(
-                title: "Save?",
-                text: "",
-                buttons: ["Yes", "No"],
-                defaultIndex: 0,
-                cancelIndex: 1
-            )
-        )
-    }
-
-    var notice: SystemDialogRequest {
-        .init(
-            id: "notice",
-            kind: .message(title: "Saved", text: "", buttons: [], defaultIndex: 0, cancelIndex: nil)
-        )
-    }
-
-    var textPrompt: SystemDialogRequest {
-        .init(
-            id: "name",
-            kind: .keyboard(title: "Name", description: "", defaultText: "Nova", maxLength: 8)
-        )
-    }
-
     func makeDialogs(showing dialog: SystemDialogRequest) -> SystemDialogsViewModel {
         let dialogs = SystemDialogsViewModel()
 

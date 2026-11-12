@@ -17,6 +17,7 @@ struct TVGamepadPolicy {
     private var physical: [UInt8: GamepadState] = [:]
     private var blocked: [UInt8: GamepadState] = [:]
 
+    @discardableResult
     mutating func setPlaying(_ isPlaying: Bool) -> Output {
         guard self.isPlaying != isPlaying else { return Output() }
 
@@ -27,6 +28,7 @@ struct TVGamepadPolicy {
         return Output(states: neutral, shouldClearPendingInput: true)
     }
 
+    @discardableResult
     mutating func update(slot: UInt8, state: GamepadState?) -> Output {
         guard let state else {
             physical[slot] = nil

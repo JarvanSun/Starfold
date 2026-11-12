@@ -52,7 +52,7 @@ struct InputStateTests {
         // Given
         let state = InputState()
         state.setGamepad(0, state: GamepadState())
-        _ = state.drain(now: 0)
+        state.drain(now: 0)
 
         // When
         state.setGamepad(0, state: GamepadState(buttons: [.a]))

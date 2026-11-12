@@ -45,6 +45,8 @@ public final class StreamViewModel {
     private var runTask: Task<Void, Never>?
     private var restartTask: Task<Void, Never>?
     private var hideControlsTask: Task<Void, Never>?
+    private var settingsTask: Task<Void, Never>?
+    private var appliedSettings: StreamPlaybackSettings?
     private var keyboard = KeyboardGamepad()
     private var hasLoggedFirstRumble = false
     private var statisticsTicks = 0
@@ -135,7 +137,7 @@ public final class StreamViewModel {
         self.dependencies = dependencies
         renderer = StreamRenderer(keepsLastFrame: dependencies.picture.shouldKeepLastFrame)
 
-        applySettings()
+        apply(playbackSettings)
 
         observeSettings()
     }
@@ -173,6 +175,7 @@ public final class StreamViewModel {
         connectTask?.cancel()
         runTask?.cancel()
         hideControlsTask?.cancel()
+        settingsTask?.cancel()
 
         if let connection {
             await connection.stop(reason: .userStopped)
@@ -222,6 +225,7 @@ public final class StreamViewModel {
         preferences.pictureFit = fits[(index + 1) % fits.count]
     }
 
+    @discardableResult
     public func handleKey(_ keyCode: UInt16, isDown: Bool) -> Bool {
         guard preferences.isKeyboardControllerEnabled, isStreaming else { return false }
 
@@ -273,8 +277,10 @@ private extension StreamViewModel {
         .init(preferences: preferences, picture: dependencies.picture)
     }
 
-    func applySettings() {
-        let settings = playbackSettings
+    func apply(_ settings: StreamPlaybackSettings) {
+        guard settings != appliedSettings else { return }
+
+        appliedSettings = settings
 
         service.setDirectStereo(settings.isDirectStereo)
 
@@ -293,19 +299,13 @@ private extension StreamViewModel {
     }
 
     func observeSettings() {
-        withObservationTracking {
-            _ = playbackSettings
-        } onChange: { [weak self] in
-            Task { @MainActor in self?.applyChangedSettings() }
+        settingsTask = Task { [weak self] in
+            for await settings in Observations({ self?.playbackSettings }) {
+                guard let self, let settings, !hasEnded else { return }
+
+                apply(settings)
+            }
         }
-    }
-
-    func applyChangedSettings() {
-        guard !hasEnded else { return }
-
-        applySettings()
-
-        observeSettings()
     }
 
     func fail(_ message: String) {
@@ -381,6 +381,7 @@ private extension StreamViewModel {
 
     func finishAfterEnd() {
         hideControlsTask?.cancel()
+        settingsTask?.cancel()
 
         controllers.stopRumble()
 

@@ -53,6 +53,7 @@ final class AudioDeviceDelegateStub: NSObject, LKRTCAudioDeviceDelegate, @unchec
         queue.setSpecific(key: queueKey, value: true)
     }
 
+    @discardableResult
     func onQueue<Result>(_ body: () -> Result) -> Result {
         guard DispatchQueue.getSpecific(key: queueKey) != true else { return body() }
 
