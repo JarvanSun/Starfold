@@ -19,7 +19,7 @@ struct SignInView: View {
         VStack(spacing: dimensions.spaceXXLarge) {
             Text("signIn.sheet.title").font(.largeTitle.bold())
 
-            SignInPanel(step: signIn.step, onRetry: signIn.retry)
+            SignInPanel(step: signIn.step, onRetry: { signIn.retry() })
 
             Button("common.cancel") { dismiss() }
         }

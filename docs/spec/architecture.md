@@ -9,6 +9,8 @@ packages; what a person sees and touches is written per platform.
 
 ## Modules
 
+![Modules: three platform apps over StarfoldShared, which uses XboxKit and StreamKit](images/modules.svg)
+
 ```text
 Starfold.xcodeproj
 ├── Configuration/          Starfold.xcconfig: bundle identifier, App Group, Microsoft client ID
@@ -148,7 +150,8 @@ StarfoldShared/Sources/StarfoldShared/
 │   ├── Home/           HomeViewModel, Model/ (ConsolesContent, ConsoleCover, …), Presentation/
 │   ├── Library/        LibraryViewModel, GameDetailViewModel, Model/, Presentation/
 │   ├── Settings/       SettingsViewModel, SessionControlling, Model/, Presentation/
-│   └── Stream/         StreamViewModel, StreamPlatform, StreamOverlays, Model/, Presentation/
+│   └── Stream/         StreamViewModel, SystemDialogsViewModel, StreamPlatform, StreamOverlays,
+│                       Model/, Presentation/
 ├── Services/           AccountService, ConsoleService, CloudLibraryService, StreamService and
 │                       their Live… implementations; Preferences, FavoritesStore, LibraryCache
 ├── Model/              values the services and storage exchange (CloudLibrary, LoadState, …)

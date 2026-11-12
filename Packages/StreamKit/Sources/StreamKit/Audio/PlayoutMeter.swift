@@ -31,6 +31,7 @@ final class PlayoutMeter: Sendable {
         peak.max(loudest, ordering: .relaxed)
     }
 
+    @discardableResult
     func take() -> (pulls: Int, frames: Int, peak: Int) {
         (
             pulls.exchange(0, ordering: .relaxed),

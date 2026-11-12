@@ -24,7 +24,7 @@ struct HomeView: View {
                 if !library.recentGames.isEmpty {
                     RecentGamesRow(
                         games: library.recentGames(limit: recentGameLimit),
-                        onPlay: library.play(_:)
+                        onPlay: { library.play($0) }
                     )
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }

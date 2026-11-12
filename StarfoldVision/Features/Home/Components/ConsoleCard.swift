@@ -65,7 +65,10 @@ private extension ConsoleCard {
         HStack(spacing: dimensions.spaceMedium) {
             playButton
 
-            ConsolePowerButton(control: home.powerControl(for: console), onToggle: togglePower)
+            ConsolePowerButton(
+                control: home.powerControl(for: console),
+                onToggle: { togglePower() }
+            )
 
             Spacer(minLength: 0)
 
@@ -76,7 +79,9 @@ private extension ConsoleCard {
     }
 
     var playButton: some View {
-        Button(action: play) {
+        Button {
+            play()
+        } label: {
             HStack(alignment: .center, spacing: dimensions.spaceSmall) {
                 Image(systemName: "play.fill")
 

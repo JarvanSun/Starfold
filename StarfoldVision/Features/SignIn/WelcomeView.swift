@@ -20,7 +20,7 @@ struct WelcomeView: View {
 
             Spacer(minLength: 0)
 
-            WelcomeSignInCard(step: signIn.step, onRetry: signIn.retry)
+            WelcomeSignInCard(step: signIn.step, onRetry: { signIn.retry() })
         }
         .padding(.horizontal, dimensions.spaceHuge)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

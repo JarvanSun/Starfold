@@ -18,7 +18,7 @@ struct ControllerSettingsSection: View {
                 Text("controller.missing.instructions").foregroundStyle(.secondary)
             }
 
-            ForEach(settings.connectedControllers, content: row(for:))
+            ForEach(settings.connectedControllers) { row(for: $0) }
 
             Toggle("settings.controllers.rumble", isOn: $settings.isRumbleEnabled)
         }

@@ -14,7 +14,7 @@ struct TVGamepadPolicyTests {
     func updateWhenPlayingThenMenuPressHoldAndReleasePassThrough() {
         // Given
         var policy = TVGamepadPolicy()
-        _ = policy.setPlaying(true)
+        policy.setPlaying(true)
 
         let down = GamepadState(buttons: [.menu])
         let held = GamepadState(buttons: [.menu, .a])
@@ -37,19 +37,19 @@ struct TVGamepadPolicyTests {
     func setPlayingWhenStoppedThenSendsNeutralAndQuarantinesHeldControlsUntilRelease() {
         // Given
         var policy = TVGamepadPolicy()
-        _ = policy.setPlaying(true)
+        policy.setPlaying(true)
 
         let held = GamepadState(buttons: [.a, .menu], leftStick: SIMD2(1, 0), leftTrigger: 1)
-        _ = policy.update(slot: 0, state: held)
-        _ = policy.update(slot: 1, state: GamepadState(buttons: [.b]))
+        policy.update(slot: 0, state: held)
+        policy.update(slot: 1, state: GamepadState(buttons: [.b]))
 
         // When
         let stopped = policy.setPlaying(false)
 
-        _ = policy.setPlaying(true)
+        policy.setPlaying(true)
         let stillHeld = policy.update(slot: 0, state: held)
 
-        _ = policy.update(slot: 0, state: GamepadState())
+        policy.update(slot: 0, state: GamepadState())
         let pressedAgain = policy.update(slot: 0, state: held)
 
         // Then
@@ -64,8 +64,8 @@ struct TVGamepadPolicyTests {
     func updateWhenDisconnectedThenRemovesPlayerOnceAndForgetsHeldState() {
         // Given
         var policy = TVGamepadPolicy()
-        _ = policy.setPlaying(true)
-        _ = policy.update(slot: 0, state: GamepadState(buttons: [.menu]))
+        policy.setPlaying(true)
+        policy.update(slot: 0, state: GamepadState(buttons: [.menu]))
 
         // When
         let removed = policy.update(slot: 0, state: nil)

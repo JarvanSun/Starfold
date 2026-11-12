@@ -80,6 +80,7 @@ final class InputState: @unchecked Sendable {
         }
     }
 
+    @discardableResult
     func drain(now: Double) -> InputSnapshot {
         lock.withLock {
             var snapshot = InputSnapshot()

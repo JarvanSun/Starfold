@@ -35,7 +35,7 @@ struct MacStereoAudioDeviceTests {
             )
         }
 
-        _ = delegate.onQueue { device.stopPlayout() && device.terminateDevice() }
+        delegate.onQueue { device.stopPlayout() && device.terminateDevice() }
 
         // Then
         #expect(didStart)

@@ -101,7 +101,7 @@ extension PreviewObjectPool {
     }
 
     static var messageDialogButtons: [DialogButton] {
-        streamViewModel(phase: .streaming).buttons(of: messageDialog)
+        streamViewModel(phase: .streaming).dialogs.buttons(of: messageDialog)
     }
 
     static var textPromptTitle: String {

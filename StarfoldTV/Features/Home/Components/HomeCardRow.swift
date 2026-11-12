@@ -32,7 +32,7 @@ struct HomeCardRow: View {
                 case .loading: SkeletonCard(width: cardWidth)
                 case .failed(let reason): failedMessage(reason)
                 case .empty: emptyMessage
-                case .consoles: ForEach(home.otherConsoles, content: consoleCard(_:))
+                case .consoles: ForEach(home.otherConsoles) { consoleCard($0) }
                 }
             }
             .padding(.vertical, dimensions.spaceMedium)
@@ -49,7 +49,7 @@ private extension HomeCardRow {
             title: "home.consoles.empty.title",
             message: Text("home.consoles.empty.message"),
             width: cardWidth,
-            onRefresh: refreshConsoles
+            onRefresh: { refreshConsoles() }
         )
     }
 
@@ -58,7 +58,7 @@ private extension HomeCardRow {
             title: "home.consoles.failed.title",
             message: Text(reason),
             width: cardWidth,
-            onRefresh: refreshConsoles
+            onRefresh: { refreshConsoles() }
         )
     }
 

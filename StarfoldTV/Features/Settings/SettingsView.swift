@@ -27,9 +27,9 @@ struct SettingsView: View {
 
             AccountSettingsSection(
                 accounts: settings.accountChoices,
-                onSwitch: switchAccount(to:),
+                onSwitch: { switchAccount(to: $0) },
                 onAdd: onAddAccount,
-                onSignOut: confirmSignOut
+                onSignOut: { confirmSignOut() }
             )
 
             AppearanceSettingsSection(settings: settings)
@@ -38,7 +38,7 @@ struct SettingsView: View {
             "settings.signOut.confirmation \(settings.signOutSubject)",
             isPresented: $isConfirmingSignOut
         ) {
-            Button("settings.signOut.confirm", role: .destructive, action: settings.signOut)
+            Button("settings.signOut.confirm", role: .destructive) { settings.signOut() }
 
             Button("common.cancel", role: .cancel) {}
         }

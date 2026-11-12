@@ -15,7 +15,7 @@ struct LibraryHostView: View {
     var body: some View {
         NavigationStack {
             LibraryView(library: library)
-                .navigationDestination(for: CloudGame.self, destination: gameDetail(_:))
+                .navigationDestination(for: CloudGame.self) { gameDetail($0) }
         }
     }
 }

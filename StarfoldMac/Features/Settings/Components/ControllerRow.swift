@@ -21,10 +21,9 @@ struct ControllerRow: View {
             HStack(spacing: dimensions.spaceMedium) {
                 Text("settings.controls.controller.player \(playerNumber)")
 
-                Button(
-                    String(localized: "settings.controls.controller.testVibration"),
-                    action: onTestVibration
-                )
+                Button(String(localized: "settings.controls.controller.testVibration")) {
+                    onTestVibration()
+                }
             }
         }
     }

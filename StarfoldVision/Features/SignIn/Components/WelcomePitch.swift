@@ -18,7 +18,7 @@ struct WelcomePitch: View {
             headline
 
             VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
-                ForEach(features, content: WelcomeFeatureRow.init(feature:))
+                ForEach(features) { WelcomeFeatureRow(feature: $0) }
             }
         }
     }

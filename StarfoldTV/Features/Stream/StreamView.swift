@@ -53,13 +53,14 @@ struct StreamView: View {
 
 private extension StreamView {
     var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream?.presentedDialog }, set: { _ in })
+        .init(get: { stream?.dialogs.presentedDialog }, set: { _ in })
     }
 
     @ViewBuilder
     var menu: some View {
         switch stream {
-        case let stream?: StreamMenuView(settings: settings, stream: stream, onDisconnect: end)
+        case let stream?:
+            StreamMenuView(settings: settings, stream: stream, onDisconnect: { end() })
         case nil: EmptyView()
         }
     }
@@ -72,8 +73,8 @@ private extension StreamView {
             StreamStatusView(
                 name: stream.target.name,
                 status: stream.status,
-                onRetry: restart,
-                onEnd: end
+                onRetry: { restart() },
+                onEnd: { end() }
             )
         }
 
@@ -85,7 +86,7 @@ private extension StreamView {
         }
 
         if stream.needsController {
-            ControllerMissingStatus(onCheckAgain: controllers.checkControllers)
+            ControllerMissingStatus(onCheckAgain: { controllers.checkControllers() })
         }
     }
 
@@ -93,7 +94,7 @@ private extension StreamView {
     func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
         switch stream {
         case let stream?:
-            SystemDialogView(stream: stream, dialog: dialog)
+            SystemDialogView(dialogs: stream.dialogs, dialog: dialog)
                 .interactiveDismissDisabled()
         case nil: EmptyView()
         }

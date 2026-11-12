@@ -47,7 +47,7 @@ struct FramePacerTests {
         for index in 0..<600 {
             let isHeldByStall = (120..<129).contains(index)
             let arrival = isHeldByStall ? Double(129) / 60 + 0.010 : Double(index) / 60 + 0.010
-            _ = pacer.presentationTime(arrival: 1000 + arrival, rtp: UInt32(index * 1500))
+            pacer.presentationTime(arrival: 1000 + arrival, rtp: UInt32(index * 1500))
         }
 
         // Then

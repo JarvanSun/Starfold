@@ -15,7 +15,9 @@ struct ConsolePowerButton: View {
     let onToggle: () -> Void
 
     var body: some View {
-        Button(action: onToggle) {
+        Button {
+            onToggle()
+        } label: {
             label
         }
         .buttonStyle(.circleIcon)

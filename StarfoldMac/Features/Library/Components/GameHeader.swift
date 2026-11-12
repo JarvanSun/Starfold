@@ -36,7 +36,7 @@ struct GameHeader: View {
                 FavoriteButton(
                     action: detail.favoriteAction,
                     isFavorite: detail.isFavorite,
-                    onToggle: detail.toggleFavorite
+                    onToggle: { detail.toggleFavorite() }
                 )
             }
         }
@@ -70,7 +70,9 @@ private extension GameHeader {
     }
 
     var playButton: some View {
-        Button(action: detail.play) {
+        Button {
+            detail.play()
+        } label: {
             Label(String(localized: "gameDetail.play"), systemImage: "play.fill")
                 .frame(minWidth: dimensions.gamePlayButtonMinimumWidth)
         }

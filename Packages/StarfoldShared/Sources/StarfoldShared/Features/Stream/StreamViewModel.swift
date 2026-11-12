@@ -18,9 +18,7 @@ public final class StreamViewModel {
     public let target: StreamTarget
     public let backdrop: StreamBackdrop
     public let renderer: StreamRenderer?
-    public var dialogText = "" {
-        didSet { limitDialogText() }
-    }
+    public let dialogs = SystemDialogsViewModel()
 
     public var onStop: () -> Void = {}
     public var onEnd: () -> Void = {}
@@ -28,7 +26,6 @@ public final class StreamViewModel {
     var onRestart: () async -> Void = {}
 
     public private(set) var phase: StreamPhase = .provisioning
-    public private(set) var dialogs: [SystemDialogRequest] = []
     public private(set) var hasFirstFrame = false
     public private(set) var areControlsRevealed = true
 
@@ -48,8 +45,9 @@ public final class StreamViewModel {
     private var runTask: Task<Void, Never>?
     private var restartTask: Task<Void, Never>?
     private var hideControlsTask: Task<Void, Never>?
+    private var settingsTask: Task<Void, Never>?
+    private var appliedSettings: StreamPlaybackSettings?
     private var keyboard = KeyboardGamepad()
-    private var draftedDialogID: String?
     private var hasLoggedFirstRumble = false
     private var statisticsTicks = 0
     private var startedAt = ContinuousClock.now
@@ -84,11 +82,11 @@ public final class StreamViewModel {
     }
 
     public var canOpenMenu: Bool {
-        isStreaming && dialogs.isEmpty
+        isStreaming && dialogs.queue.isEmpty
     }
 
     public var isPlayable: Bool {
-        !isWaitingForPicture && dialogs.isEmpty && !controllers.connected.isEmpty
+        !isWaitingForPicture && dialogs.queue.isEmpty && !controllers.connected.isEmpty
     }
 
     public var needsController: Bool {
@@ -106,10 +104,6 @@ public final class StreamViewModel {
             usesAutomaticQuality: usesAutomaticQuality,
             loweredFrom: isResolutionLowered ? quality : nil
         )
-    }
-
-    public var presentedDialog: SystemDialogRequest? {
-        dialogs.first
     }
 
     public var needsRestartForSettings: Bool {
@@ -143,7 +137,7 @@ public final class StreamViewModel {
         self.dependencies = dependencies
         renderer = StreamRenderer(keepsLastFrame: dependencies.picture.shouldKeepLastFrame)
 
-        applySettings()
+        apply(playbackSettings)
 
         observeSettings()
     }
@@ -181,6 +175,7 @@ public final class StreamViewModel {
         connectTask?.cancel()
         runTask?.cancel()
         hideControlsTask?.cancel()
+        settingsTask?.cancel()
 
         if let connection {
             await connection.stop(reason: .userStopped)
@@ -230,26 +225,7 @@ public final class StreamViewModel {
         preferences.pictureFit = fits[(index + 1) % fits.count]
     }
 
-    public func answer(_ dialog: SystemDialogRequest, buttonIndex: Int) {
-        remove(dialogID: dialog.id)
-
-        guard let connection else { return }
-
-        Task { await connection.answerDialog(id: dialog.id, buttonIndex: buttonIndex) }
-    }
-
-    public func submitText(for dialog: SystemDialogRequest) {
-        answerKeyboard(dialog, text: dialogText)
-    }
-
-    public func cancel(_ dialog: SystemDialogRequest) {
-        switch dialog.kind {
-        case .message(_, _, _, _, let cancelIndex?): answer(dialog, buttonIndex: cancelIndex)
-        case .message(_, _, _, _, nil): break
-        case .keyboard: answerKeyboard(dialog, text: nil)
-        }
-    }
-
+    @discardableResult
     public func handleKey(_ keyCode: UInt16, isDown: Bool) -> Bool {
         guard preferences.isKeyboardControllerEnabled, isStreaming else { return false }
 
@@ -265,33 +241,6 @@ public final class StreamViewModel {
     public func releaseKeyboard() {
         keyboard.releaseAll()
         controllers.router.setKeyboard(keyboard.state)
-    }
-
-    public func buttons(of dialog: SystemDialogRequest) -> [DialogButton] {
-        switch dialog.kind {
-        case .message(_, _, let titles, _, _) where titles.isEmpty: [acknowledgeButton]
-        case .message(_, _, let titles, let defaultIndex, let cancelIndex):
-            titles.enumerated().map { index, title in
-                .init(
-                    index: index,
-                    title: title,
-                    role: role(
-                        ofButtonAt: index,
-                        defaultIndex: defaultIndex,
-                        cancelIndex: cancelIndex
-                    )
-                )
-            }
-        case .keyboard: []
-        }
-    }
-
-    public func textFieldTitle(of dialog: SystemDialogRequest) -> String {
-        switch dialog.kind {
-        case .keyboard(let title, _, _, _) where !title.isEmpty: title
-        case .keyboard, .message:
-            String(localized: "stream.dialog.textFieldTitle", bundle: .module)
-        }
     }
 
     public func statisticsReport(device: String) -> String {
@@ -324,100 +273,39 @@ private extension StreamViewModel {
         .seconds(60)
     }
 
-    var shownFit: PictureFit {
-        dependencies.picture.canFit ? preferences.pictureFit : .fit
+    var playbackSettings: StreamPlaybackSettings {
+        .init(preferences: preferences, picture: dependencies.picture)
     }
 
-    var videoGravity: AVLayerVideoGravity {
-        switch shownFit {
-        case .fit: .resizeAspect
-        case .fill: .resizeAspectFill
-        case .scale: .resize
-        }
-    }
+    func apply(_ settings: StreamPlaybackSettings) {
+        guard settings != appliedSettings else { return }
 
-    var canChooseDynamicRange: Bool {
-        dependencies.picture.isHDRDisplayAvailable != nil
-    }
+        appliedSettings = settings
 
-    var isToneMappingHDR: Bool {
-        guard let isHDRDisplayAvailable = dependencies.picture.isHDRDisplayAvailable else {
-            return false
-        }
+        service.setDirectStereo(settings.isDirectStereo)
 
-        return preferences.isHDRToneMappingEnabled && isHDRDisplayAvailable()
-    }
-
-    var acknowledgeButton: DialogButton {
-        .init(
-            index: 0,
-            title: String(localized: "stream.dialog.ok", bundle: .module),
-            role: .primary
-        )
-    }
-
-    func applySettings() {
-        applyPacing()
-
-        applyEnhancements()
-
-        applySoundStage()
-    }
-
-    func applyPacing() {
-        renderer?.systemVideo.setPacing(preferences.pacingMode)
-    }
-
-    func applyEnhancements() {
         guard let renderer else { return }
 
-        renderer.systemVideo.layer.videoGravity = videoGravity
+        renderer.systemVideo.setPacing(settings.pacing)
+        renderer.systemVideo.layer.videoGravity = settings.videoGravity
 
-        let isToneMapping = isToneMappingHDR
-
-        if canChooseDynamicRange {
-            renderer.systemVideo.layer.preferredDynamicRange = isToneMapping ? .high : .standard
+        if let dynamicRange = settings.dynamicRange {
+            renderer.systemVideo.layer.preferredDynamicRange = dynamicRange
         }
 
-        if dependencies.picture.canEnhance {
-            renderer.setEnhancements(
-                .init(
-                    isUpscaling: preferences.isUpscalingEnabled,
-                    sharpening: Float(preferences.sharpening),
-                    fit: preferences.pictureFit,
-                    isToneMappingHDR: isToneMapping
-                )
-            )
+        if let enhancements = settings.enhancements {
+            renderer.setEnhancements(enhancements)
         }
-    }
-
-    func applySoundStage() {
-        service.setDirectStereo(preferences.soundStage == .direct)
     }
 
     func observeSettings() {
-        withObservationTracking {
-            readAppliedSettings()
-        } onChange: { [weak self] in
-            Task { @MainActor in self?.applyChangedSettings() }
+        settingsTask = Task { [weak self] in
+            for await settings in Observations({ self?.playbackSettings }) {
+                guard let self, let settings, !hasEnded else { return }
+
+                apply(settings)
+            }
         }
-    }
-
-    func readAppliedSettings() {
-        _ = preferences.pacingMode
-        _ = preferences.pictureFit
-        _ = preferences.isUpscalingEnabled
-        _ = preferences.sharpening
-        _ = preferences.isHDRToneMappingEnabled
-        _ = preferences.soundStage
-    }
-
-    func applyChangedSettings() {
-        guard !hasEnded else { return }
-
-        applySettings()
-
-        observeSettings()
     }
 
     func fail(_ message: String) {
@@ -454,6 +342,8 @@ private extension StreamViewModel {
             }
         }
 
+        dialogs.attach(connection)
+
         wireInput(to: connection)
 
         runTask = Task { await connection.start(sink: renderer) }
@@ -472,8 +362,8 @@ private extension StreamViewModel {
         switch update {
         case .phase(let phase): apply(phase)
         case .statistics(let statistics): apply(statistics)
-        case .dialog(let request): add(request)
-        case .dialogDismissed(let id): remove(dialogID: id)
+        case .dialog(let request): dialogs.add(request)
+        case .dialogDismissed(let id): dialogs.remove(id: id)
         case .vibration(let effect): play(effect)
         case .videoSize: break
         }
@@ -491,6 +381,7 @@ private extension StreamViewModel {
 
     func finishAfterEnd() {
         hideControlsTask?.cancel()
+        settingsTask?.cancel()
 
         controllers.stopRumble()
 
@@ -537,59 +428,6 @@ private extension StreamViewModel {
 
         isResolutionLowered = AdaptiveQuality(target: target)
             .isLoweredByHost(received: received, requested: quality)
-    }
-
-    func add(_ dialog: SystemDialogRequest) {
-        dialogs.append(dialog)
-
-        draftTextForPresentedDialog()
-    }
-
-    func remove(dialogID: String) {
-        dialogs.removeAll { $0.id == dialogID }
-
-        draftTextForPresentedDialog()
-    }
-
-    func draftTextForPresentedDialog() {
-        guard draftedDialogID != presentedDialog?.id else { return }
-
-        draftedDialogID = presentedDialog?.id
-        dialogText = presentedDialog.map(defaultText(of:)) ?? ""
-    }
-
-    func defaultText(of dialog: SystemDialogRequest) -> String {
-        switch dialog.kind {
-        case .keyboard(_, _, let defaultText, _): defaultText
-        case .message: ""
-        }
-    }
-
-    func limitDialogText() {
-        guard
-            case .keyboard(_, _, _, let maxLength?) = presentedDialog?.kind,
-            dialogText.count > maxLength
-        else {
-            return
-        }
-
-        dialogText = String(dialogText.prefix(maxLength))
-    }
-
-    func answerKeyboard(_ dialog: SystemDialogRequest, text: String?) {
-        remove(dialogID: dialog.id)
-
-        guard let connection else { return }
-
-        Task { await connection.answerKeyboard(id: dialog.id, text: text) }
-    }
-
-    func role(ofButtonAt index: Int, defaultIndex: Int, cancelIndex: Int?) -> DialogButtonRole {
-        switch (index == defaultIndex, index == cancelIndex) {
-        case (true, _): .primary
-        case (false, true): .cancel
-        case (false, false): .plain
-        }
     }
 
     func play(_ effect: VibrationEffect) {

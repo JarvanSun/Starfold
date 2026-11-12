@@ -26,6 +26,7 @@ struct HostChannels {
         }
     }
 
+    @discardableResult
     mutating func received(
         _ data: Data,
         on label: DataChannelLabel,

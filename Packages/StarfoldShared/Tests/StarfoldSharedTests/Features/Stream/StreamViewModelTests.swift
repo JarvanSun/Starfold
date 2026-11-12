@@ -13,6 +13,18 @@ import XboxKit
 @testable import StarfoldShared
 
 struct StreamViewModelTests {
+    let livingRoom: StreamTarget = .console(id: "X", name: "Living room")
+    let dialog = SystemDialogRequest(
+        id: "save",
+        kind: .message(
+            title: "Save?",
+            text: "",
+            buttons: ["Yes", "No"],
+            defaultIndex: 0,
+            cancelIndex: 1
+        )
+    )
+
     @Test
     func startThenShowsThePhasesTheConnectionReports() async {
         // Given
@@ -85,23 +97,27 @@ struct StreamViewModelTests {
         stream.start()
 
         // Then
-        #expect(await Eventually().holds { stream.dialogs.map(\.id) == ["save"] })
+        #expect(await Eventually().holds { stream.dialogs.queue.map(\.id) == ["save"] })
     }
 
     @Test
-    func answerThenRemovesTheDialog() async {
+    func startWhenHostDismissesADialogThenRemovesIt() async {
         // Given
+        let notice = SystemDialogRequest(
+            id: "notice",
+            kind: .message(title: "Saved", text: "", buttons: [], defaultIndex: 0, cancelIndex: nil)
+        )
         let service = StreamServiceStub()
-        service.updates = [.phase(.streaming), .dialog(dialog)]
+        service.updates = [
+            .phase(.streaming), .dialog(dialog), .dialog(notice), .dialogDismissed(id: "save"),
+        ]
         let stream = makeStream(service: service)
-        stream.start()
-        _ = await Eventually().holds { !stream.dialogs.isEmpty }
 
         // When
-        stream.answer(dialog, buttonIndex: 0)
+        stream.start()
 
         // Then
-        #expect(stream.dialogs.isEmpty)
+        #expect(await Eventually().holds { stream.dialogs.queue.map(\.id) == ["notice"] })
     }
 
     @Test(arguments: [SoundStage.direct, .window])
@@ -112,7 +128,7 @@ struct StreamViewModelTests {
         preferences.soundStage = stage
 
         // When
-        _ = makeStream(service: service, preferences: preferences)
+        makeStream(service: service, preferences: preferences)
 
         // Then
         #expect(service.directStereoChanges == [stage == .direct])
@@ -140,7 +156,7 @@ struct StreamViewModelTests {
         let preferences = Preferences(defaults: .dummyEmpty)
         let stream = makeStream(service: service, preferences: preferences)
         preferences.soundStage = .direct
-        _ = await Eventually().holds { service.directStereoChanges.count == 2 }
+        await Eventually().holds { service.directStereoChanges.count == 2 }
 
         // When
         preferences.soundStage = .window
@@ -238,7 +254,7 @@ struct StreamViewModelTests {
     func revealControlsAfterTheyHidThenShowsThemAgain() async {
         // Given
         let stream = await makeStreamingStream()
-        _ = await Eventually().holds { !stream.isShowingControls }
+        await Eventually().holds { !stream.isShowingControls }
 
         // When
         stream.revealControls()
@@ -314,7 +330,7 @@ struct StreamViewModelTests {
         service.updates = [.phase(.streaming), .dialog(dialog)]
         let stream = makeStream(service: service)
         stream.start()
-        _ = await Eventually().holds { stream.presentedDialog != nil }
+        await Eventually().holds { stream.dialogs.presentedDialog != nil }
 
         // Then
         #expect(!stream.canOpenMenu)
@@ -394,120 +410,13 @@ struct StreamViewModelTests {
     }
 
     @Test
-    func buttonsOfAMessageThenMarkTheDefaultAndTheCancelButton() {
-        // Given
-        let stream = makeStream(service: StreamServiceStub())
-
-        // When
-        let buttons = stream.buttons(of: dialog)
-
-        // Then
-        #expect(buttons.map(\.title) == ["Yes", "No"])
-        #expect(buttons.map(\.role) == [.primary, .cancel])
-    }
-
-    @Test
-    func buttonsOfAMessageWithoutButtonsThenOfferOneToAcknowledge() {
-        // Given
-        let stream = makeStream(service: StreamServiceStub())
-        let notice = SystemDialogRequest(
-            id: "notice",
-            kind: .message(title: "Saved", text: "", buttons: [], defaultIndex: 0, cancelIndex: nil)
-        )
-
-        // When
-        let buttons = stream.buttons(of: notice)
-
-        // Then
-        #expect(buttons.map(\.index) == [0])
-        #expect(buttons.map(\.role) == [.primary])
-        #expect(buttons.first?.title.isEmpty == false)
-    }
-
-    @Test
-    func keyboardDialogThenDraftsItsDefaultText() async {
-        // Given
-        let stream = await makeStream(showing: textPrompt)
-
-        // Then
-        #expect(stream.dialogText == "Nova")
-    }
-
-    @Test
-    func dialogTextLongerThanTheHostAllowsThenIsCutToTheLimit() async {
-        // Given
-        let stream = await makeStream(showing: textPrompt)
-
-        // When
-        stream.dialogText = "Nova Squadron"
-
-        // Then
-        #expect(stream.dialogText == "Nova Squ")
-    }
-
-    @Test
-    func submitTextThenClosesTheDialogAndClearsTheDraft() async {
-        // Given
-        let stream = await makeStream(showing: textPrompt)
-
-        // When
-        stream.submitText(for: textPrompt)
-
-        // Then
-        #expect(stream.presentedDialog == nil)
-        #expect(stream.dialogText.isEmpty)
-    }
-
-    @Test
-    func cancelThenClosesAMessageThatCanBeCancelled() async {
-        // Given
-        let stream = await makeStream(showing: dialog)
-
-        // When
-        stream.cancel(dialog)
-
-        // Then
-        #expect(stream.dialogs.isEmpty)
-    }
-
-    @Test
-    func cancelWhenTheMessageHasNoCancelButtonThenKeepsIt() async {
-        // Given
-        let notice = SystemDialogRequest(
-            id: "notice",
-            kind: .message(title: "Saved", text: "", buttons: [], defaultIndex: 0, cancelIndex: nil)
-        )
-        let stream = await makeStream(showing: notice)
-
-        // When
-        stream.cancel(notice)
-
-        // Then
-        #expect(stream.dialogs == [notice])
-    }
-
-    @Test
-    func textFieldTitleWhenTheGameGivesNoneThenIsNotEmpty() {
-        // Given
-        let stream = makeStream(service: StreamServiceStub())
-        let untitled = SystemDialogRequest(
-            id: "untitled",
-            kind: .keyboard(title: "", description: "", defaultText: "", maxLength: nil)
-        )
-
-        // Then
-        #expect(stream.textFieldTitle(of: textPrompt) == "Name")
-        #expect(!stream.textFieldTitle(of: untitled).isEmpty)
-    }
-
-    @Test
     func stopThenEndsAsStoppedByThePlayer() async {
         // Given
         let service = StreamServiceStub()
         service.updates = [.phase(.streaming)]
         let stream = makeStream(service: service)
         stream.start()
-        _ = await Eventually().holds { stream.isStreaming }
+        await Eventually().holds { stream.isStreaming }
 
         // When
         await stream.stop()
@@ -518,30 +427,6 @@ struct StreamViewModelTests {
 }
 
 private extension StreamViewModelTests {
-    var livingRoom: StreamTarget {
-        .console(id: "X", name: "Living room")
-    }
-
-    var dialog: SystemDialogRequest {
-        .init(
-            id: "save",
-            kind: .message(
-                title: "Save?",
-                text: "",
-                buttons: ["Yes", "No"],
-                defaultIndex: 0,
-                cancelIndex: 1
-            )
-        )
-    }
-
-    var textPrompt: SystemDialogRequest {
-        .init(
-            id: "name",
-            kind: .keyboard(title: "Name", description: "", defaultText: "Nova", maxLength: 8)
-        )
-    }
-
     func makeStreamingStream(
         preferences: Preferences = .init(defaults: .dummyEmpty)
     ) async -> StreamViewModel {
@@ -550,22 +435,12 @@ private extension StreamViewModelTests {
         let stream = makeStream(service: service, preferences: preferences)
 
         stream.start()
-        _ = await Eventually().holds { stream.isStreaming }
+        await Eventually().holds { stream.isStreaming }
 
         return stream
     }
 
-    func makeStream(showing dialog: SystemDialogRequest) async -> StreamViewModel {
-        let service = StreamServiceStub()
-        service.updates = [.phase(.streaming), .dialog(dialog)]
-        let stream = makeStream(service: service)
-
-        stream.start()
-        _ = await Eventually().holds { stream.presentedDialog == dialog }
-
-        return stream
-    }
-
+    @discardableResult
     func makeStream(
         service: StreamServiceStub,
         preferences: Preferences = .init(defaults: .dummyEmpty)

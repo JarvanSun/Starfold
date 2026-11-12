@@ -23,7 +23,9 @@ struct HomeCard<Picture: View>: View {
     @ViewBuilder let picture: Picture
 
     var body: some View {
-        Button(action: onSelect) {
+        Button {
+            onSelect()
+        } label: {
             VStack(alignment: .leading, spacing: 0) {
                 picture
                     .frame(width: width, height: dimensions.homeCardPictureHeight(width: width))

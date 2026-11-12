@@ -23,7 +23,7 @@ struct SignInFailure: View {
 
             Text(message).foregroundStyle(.secondary).multilineTextAlignment(.center)
 
-            Button("signIn.failure.retry", action: onRetry)
+            Button("signIn.failure.retry") { onRetry() }
         }
         .frame(minHeight: dimensions.signInStatusMinimumHeight)
     }

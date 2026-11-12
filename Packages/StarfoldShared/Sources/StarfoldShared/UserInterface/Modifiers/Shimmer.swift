@@ -26,7 +26,7 @@ private struct Shimmer: ViewModifier {
                         .allowsHitTesting(false)
                 }
             }
-            .onAppear(perform: sweep)
+            .onAppear { sweep() }
     }
 }
 

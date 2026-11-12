@@ -16,7 +16,7 @@ struct NoConsolesMessage: View {
             title: "home.consoles.empty.title",
             message: Text("home.consoles.empty.message")
         ) {
-            Button("home.consoles.empty.refresh", action: onRefresh)
+            Button("home.consoles.empty.refresh") { onRefresh() }
         }
     }
 }

@@ -25,7 +25,7 @@ struct SignInFailure: View {
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
 
-            Button("signIn.failure.retry", action: onRetry)
+            Button("signIn.failure.retry") { onRetry() }
                 .buttonStyle(.borderedProminent)
         }
     }

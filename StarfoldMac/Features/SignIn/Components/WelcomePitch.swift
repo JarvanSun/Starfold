@@ -19,7 +19,7 @@ struct WelcomePitch: View {
             headline
 
             VStack(alignment: .leading, spacing: dimensions.spaceLarge) {
-                ForEach(features, content: WelcomeFeatureRow.init(feature:))
+                ForEach(features) { WelcomeFeatureRow(feature: $0) }
             }
         }
         .offset(y: isInPlace ? 0 : dimensions.spaceMedium)

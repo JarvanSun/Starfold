@@ -22,7 +22,7 @@ struct HomeView: View {
                 if !library.recentGames.isEmpty {
                     RecentGamesShelf(
                         games: library.recentGames(limit: recentGameLimit),
-                        onPlay: library.play(_:)
+                        onPlay: { library.play($0) }
                     )
                 }
             }

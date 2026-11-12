@@ -25,7 +25,7 @@ struct ControllerRow: View {
 
             battery
 
-            Button("settings.controllers.testVibration", action: onTestVibration)
+            Button("settings.controllers.testVibration") { onTestVibration() }
         }
     }
 }

@@ -45,7 +45,9 @@ private extension SignInCodeStep {
     }
 
     var openLinkButton: some View {
-        Button(action: copyCodeAndOpenPage) {
+        Button {
+            copyCodeAndOpenPage()
+        } label: {
             Label(String(localized: "signIn.openLink"), systemImage: "safari")
         }
         .buttonStyle(.primary)

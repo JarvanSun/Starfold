@@ -25,7 +25,7 @@ struct ConnectingIndicator: View {
             width: dimensions.connectingIndicatorDiameter,
             height: dimensions.connectingIndicatorDiameter
         )
-        .onAppear(perform: startSpinning)
+        .onAppear { startSpinning() }
         .accessibilityHidden(true)
     }
 }

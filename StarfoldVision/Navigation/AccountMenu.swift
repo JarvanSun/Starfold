@@ -20,11 +20,9 @@ struct AccountMenu: View {
         Menu {
             accountSwitcher
 
-            Button(
-                "home.account.addAccount",
-                systemImage: "person.badge.plus",
-                action: onAddAccount
-            )
+            Button("home.account.addAccount", systemImage: "person.badge.plus") {
+                onAddAccount()
+            }
 
             Button(
                 "home.account.signOut",
@@ -42,11 +40,9 @@ struct AccountMenu: View {
             isPresented: $isConfirmingSignOut,
             titleVisibility: .visible
         ) {
-            Button(
-                "home.account.signOutConfirmation.signOut",
-                role: .destructive,
-                action: app.signOut
-            )
+            Button("home.account.signOutConfirmation.signOut", role: .destructive) {
+                app.signOut()
+            }
         }
     }
 }
@@ -60,7 +56,7 @@ private extension AccountMenu {
     var accountSwitcher: some View {
         if app.accounts.count > 1 {
             Section("home.account.switchAccount") {
-                ForEach(app.accounts, content: accountButton(_:))
+                ForEach(app.accounts) { accountButton($0) }
             }
         }
     }

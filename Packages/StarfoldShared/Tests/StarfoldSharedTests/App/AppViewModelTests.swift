@@ -365,7 +365,7 @@ private extension AppViewModelTests {
         let harness = makeHarness(streams: StreamServiceStub(), phase: phase)
         await harness.app.restore()
         await harness.app.play(target)
-        _ = await Eventually().holds { harness.app.stream?.phase == phase }
+        await Eventually().holds { harness.app.stream?.phase == phase }
         return harness.app
     }
 }

@@ -14,6 +14,7 @@ struct Eventually {
         self.pollInterval = pollInterval
     }
 
+    @discardableResult
     func holds(_ condition: () -> Bool) async -> Bool {
         let clock = ContinuousClock()
         let deadline = clock.now + timeout

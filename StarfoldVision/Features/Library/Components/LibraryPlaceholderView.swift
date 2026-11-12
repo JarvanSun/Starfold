@@ -33,7 +33,7 @@ private extension LibraryPlaceholderView {
             title: "library.failed.title",
             message: Text(message)
         ) {
-            Button("library.failed.retry", action: onRetry)
+            Button("library.failed.retry") { onRetry() }
         }
         .padding(dimensions.spaceXXLarge)
     }
@@ -44,7 +44,7 @@ private extension LibraryPlaceholderView {
             title: "library.unavailable.title",
             message: Text("library.unavailable.message")
         ) {
-            Button("library.unavailable.retry", action: onRetry)
+            Button("library.unavailable.retry") { onRetry() }
         }
         .padding(dimensions.spaceXXLarge)
     }

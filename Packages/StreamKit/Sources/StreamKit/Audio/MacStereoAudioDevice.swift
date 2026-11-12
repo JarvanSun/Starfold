@@ -69,7 +69,7 @@ final class MacStereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendabl
     }
 
     func terminateDevice() -> Bool {
-        _ = stopPlayout()
+        stopPlayout()
 
         let observer = lock.withLock {
             defer {
@@ -99,11 +99,12 @@ final class MacStereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendabl
 
         startWatchdog()
 
-        _ = startEngine()
+        startEngine()
 
         return true
     }
 
+    @discardableResult
     func stopPlayout() -> Bool {
         let engine = lock.withLock {
             defer {
@@ -133,6 +134,7 @@ private extension MacStereoAudioDevice {
 
     var watchdogInterval: Int { 5 }
 
+    @discardableResult
     func startEngine() -> Bool {
         guard let delegate = lock.withLock({ self.delegate }),
             let engine = makeEngine(pulling: delegate.getPlayoutData)
@@ -237,7 +239,7 @@ private extension MacStereoAudioDevice {
         }
         previous?.cancel()
 
-        _ = playout.meter.take()
+        playout.meter.take()
 
         timer.resume()
     }

@@ -16,7 +16,7 @@ struct SignInView: View {
 
     var body: some View {
         NavigationStack {
-            SignInPanel(step: signIn.step, onRetry: signIn.retry)
+            SignInPanel(step: signIn.step, onRetry: { signIn.retry() })
                 .padding(dimensions.spaceXXLarge)
                 .frame(width: dimensions.signInSheetWidth, height: dimensions.signInSheetHeight)
                 .navigationTitle("signIn.sheet.title")

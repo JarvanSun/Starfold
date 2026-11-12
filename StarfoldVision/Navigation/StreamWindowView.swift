@@ -22,7 +22,7 @@ struct StreamWindowView: View {
                 minHeight: dimensions.streamWindowMinimumHeight,
                 idealHeight: dimensions.streamWindowHeight
             )
-            .onDisappear(perform: endStream)
+            .onDisappear { endStream() }
     }
 }
 

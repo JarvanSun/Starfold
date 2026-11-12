@@ -17,7 +17,7 @@ public struct PalettePicker: View {
 
     public var body: some View {
         Picker(selection: $selection) {
-            ForEach(palettes, content: option(for:))
+            ForEach(palettes) { option(for: $0) }
         } label: {
             Text("palette.picker.title", bundle: .module)
         }

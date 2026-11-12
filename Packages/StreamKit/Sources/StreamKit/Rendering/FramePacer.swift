@@ -70,6 +70,7 @@ struct FramePacer: Sendable {
         delay = configuration.minimumDelay
     }
 
+    @discardableResult
     mutating func presentationTime(arrival: Double, rtp: UInt32) -> Double {
         let capture = captureTime(rtp: rtp)
         let transit = arrival - capture

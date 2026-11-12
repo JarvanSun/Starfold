@@ -24,7 +24,7 @@ struct ShelfRow: View {
 
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top, spacing: dimensions.spaceLarge) {
-                    ForEach(games, content: tile(for:))
+                    ForEach(games) { tile(for: $0) }
                 }
                 .padding(.horizontal, dimensions.spaceXXLarge)
                 .padding(.vertical, dimensions.spaceSmall)

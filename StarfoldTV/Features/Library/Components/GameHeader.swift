@@ -23,9 +23,11 @@ struct GameHeader: View {
             }
 
             HStack(spacing: dimensions.spaceXXLarge) {
-                Button("game.play", action: detail.play).buttonStyle(.borderedProminent)
+                Button("game.play") { detail.play() }.buttonStyle(.borderedProminent)
 
-                Button(action: detail.toggleFavorite) {
+                Button {
+                    detail.toggleFavorite()
+                } label: {
                     Text(detail.favoriteAction.title)
                 }
             }

@@ -31,7 +31,7 @@ private extension LibraryPlaceholderView {
             title: String(localized: "library.failed.title"),
             message: message
         ) {
-            Button(String(localized: "library.failed.retry"), action: onRetry)
+            Button(String(localized: "library.failed.retry")) { onRetry() }
         }
     }
 
@@ -41,7 +41,7 @@ private extension LibraryPlaceholderView {
             title: String(localized: "library.unavailable.title"),
             message: String(localized: "library.unavailable.message")
         ) {
-            Button(String(localized: "library.unavailable.retry"), action: onRetry)
+            Button(String(localized: "library.unavailable.retry")) { onRetry() }
         }
     }
 }

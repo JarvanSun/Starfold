@@ -15,7 +15,7 @@ struct GameFacts: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceLarge) {
-            ForEach(facts, content: row(_:))
+            ForEach(facts) { row($0) }
         }
         .frame(width: dimensions.gameFactsWidth, alignment: .leading)
     }

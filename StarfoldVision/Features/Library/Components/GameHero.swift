@@ -67,12 +67,14 @@ private extension GameHero {
         HStack(spacing: dimensions.spaceMedium) {
             playButton
 
-            FavoriteButton(action: detail.favoriteAction, onToggle: detail.toggleFavorite)
+            FavoriteButton(action: detail.favoriteAction, onToggle: { detail.toggleFavorite() })
         }
     }
 
     var playButton: some View {
-        Button(action: detail.play) {
+        Button {
+            detail.play()
+        } label: {
             HStack(alignment: .center, spacing: dimensions.spaceSmall) {
                 Image(systemName: "play.fill")
 

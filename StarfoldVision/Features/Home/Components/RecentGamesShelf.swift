@@ -16,7 +16,7 @@ struct RecentGamesShelf: View {
 
     var body: some View {
         Shelf(title: "home.recentGames.title") {
-            ForEach(games, content: button(for:))
+            ForEach(games) { button(for: $0) }
         }
     }
 }

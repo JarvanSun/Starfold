@@ -64,10 +64,14 @@ public protocol StreamService {
   `answerKeyboard`), backed by StreamKit's `StreamController`. `StreamViewModel.start()` connects
   in a `Task` it owns and reads updates until the stream ends.
 - `StreamViewModel` answers every question its screens ask (`status`, `isShowingControls`,
-  `statisticsReadout`, `presentedDialog`, `canOpenMenu`, `needsController`, …) and applies picture,
-  buffer and sound settings itself whenever `Preferences` changes, so no screen forwards a
-  setting. `tryAgain()` asks `AppViewModel` for a new stream through `onRestart`; closing stays
-  with `Navigation/`, which owns the window or cover.
+  `statisticsReadout`, `canOpenMenu`, `needsController`, …) and applies picture, buffer and sound
+  settings itself whenever `Preferences` changes, so no screen forwards a setting. What to apply
+  is `StreamPlaybackSettings`, a value computed from `Preferences` and `PictureCapabilities`.
+  `tryAgain()` asks `AppViewModel` for a new stream through `onRestart`; closing stays with
+  `Navigation/`, which owns the window or cover.
+- The console's system dialogs are `StreamViewModel.dialogs`, a `SystemDialogsViewModel` it
+  creates and feeds from the connection's updates: the queue, the presented dialog, the drafted
+  text and the answers. `SystemDialogView` talks to it, not to the stream.
 - Live services hold protocol quirks (SmartGlass fallback, cloud access, catalogue joins);
   ViewModels hold state, order (by name) and saved snapshots: each per-account ViewModel restores
   and saves its part through `LibraryCache` (`HomeSnapshot`, `LibrarySnapshot`).

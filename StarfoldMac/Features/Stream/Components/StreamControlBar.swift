@@ -48,7 +48,9 @@ struct StreamControlBar: View {
 
 private extension StreamControlBar {
     var guideButton: some View {
-        Button(action: stream.openGuide) {
+        Button {
+            stream.openGuide()
+        } label: {
             Label(String(localized: "stream.controlBar.guide.label"), systemImage: "logo.xbox")
         }
         .help(Text("stream.controlBar.guide.tooltip"))
@@ -66,7 +68,9 @@ private extension StreamControlBar {
     }
 
     var fullScreenButton: some View {
-        Button(action: toggleFullScreen) {
+        Button {
+            toggleFullScreen()
+        } label: {
             fullScreenLabel
         }
     }
@@ -88,14 +92,18 @@ private extension StreamControlBar {
     }
 
     var disconnectButton: some View {
-        Button(role: .destructive, action: onClose) {
+        Button(role: .destructive) {
+            onClose()
+        } label: {
             Label(String(localized: "stream.controlBar.disconnect.label"), systemImage: "xmark")
         }
         .help(Text("stream.controlBar.disconnect.tooltip"))
     }
 
     func pictureInPictureButton(_ pictureInPicture: StreamPictureInPicture) -> some View {
-        Button(action: pictureInPicture.toggle) {
+        Button {
+            pictureInPicture.toggle()
+        } label: {
             Label(
                 String(localized: "stream.controlBar.pictureInPicture.label"),
                 systemImage: "pip.enter"

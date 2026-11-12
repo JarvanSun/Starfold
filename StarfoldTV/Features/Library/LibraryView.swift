@@ -18,8 +18,9 @@ struct LibraryView: View {
             VStack(alignment: .leading, spacing: dimensions.spaceXXXLarge) {
                 switch library.placeholder {
                 case .loading: LoadingView()
-                case .failed(let reason): LibraryFailedMessage(reason: reason, onRetry: refresh)
-                case .unavailable: LibraryUnavailableMessage(onRefresh: refresh)
+                case .failed(let reason):
+                    LibraryFailedMessage(reason: reason, onRetry: { refresh() })
+                case .unavailable: LibraryUnavailableMessage(onRefresh: { refresh() })
                 case .noResults, nil: LibraryShelves(library: library)
                 }
             }

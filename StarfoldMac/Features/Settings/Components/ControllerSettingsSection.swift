@@ -19,7 +19,7 @@ struct ControllerSettingsSection: View {
                     .foregroundStyle(.secondary)
             }
 
-            ForEach(settings.connectedControllers, content: row(for:))
+            ForEach(settings.connectedControllers) { row(for: $0) }
 
             Toggle(String(localized: "settings.controls.rumble"), isOn: $settings.isRumbleEnabled)
         }

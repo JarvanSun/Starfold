@@ -98,7 +98,7 @@ struct SignInViewModelTests {
         harness.accountService.prompts = [.success(.dummy(userCode: "ONLY"))]
         harness.accountService.completions = [.success(.dummy(id: "2535", gamertag: "NovaPilot"))]
         let running = Task { await signIn.run() }
-        _ = await Eventually().holds { clock.sleeperCount == 1 }
+        await Eventually().holds { clock.sleeperCount == 1 }
 
         // When
         clock.advance(by: .milliseconds(900))
@@ -115,7 +115,7 @@ struct SignInViewModelTests {
         harness.accountService.prompts = [.success(.dummy(userCode: "ONLY"))]
         harness.accountService.completions = [.success(.dummy(id: "2535", gamertag: "NovaPilot"))]
         let running = Task { await signIn.run() }
-        _ = await Eventually().holds { clock.sleeperCount == 1 }
+        await Eventually().holds { clock.sleeperCount == 1 }
 
         // When
         running.cancel()

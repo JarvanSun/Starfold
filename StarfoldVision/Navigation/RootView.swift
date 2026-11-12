@@ -17,7 +17,7 @@ struct RootView: View {
         content
             .sheet(isPresented: $isSignInPresented) { SignInHostView { SignInView(signIn: $0) } }
             .alert("app.signInExpired.title", isPresented: Bindable(app).isSignInExpired) {
-                Button("app.signInExpired.signIn", action: presentSignIn)
+                Button("app.signInExpired.signIn") { presentSignIn() }
 
                 Button("app.signInExpired.notNow", role: .cancel) {}
             } message: {
@@ -38,7 +38,7 @@ private extension RootView {
     }
 
     func signedInTabs(home: HomeViewModel, library: LibraryViewModel) -> some View {
-        SignedInTabView(home: home, library: library, onAddAccount: presentSignIn)
+        SignedInTabView(home: home, library: library, onAddAccount: { presentSignIn() })
     }
 
     var signedOutTabs: some View {

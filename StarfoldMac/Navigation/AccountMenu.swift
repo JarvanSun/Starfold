@@ -61,9 +61,10 @@ private extension AccountMenu {
     var addAccountButton: some View {
         Button(
             String(localized: "account.menu.addAccount"),
-            systemImage: "person.crop.circle.badge.plus",
-            action: onShowSignIn
-        )
+            systemImage: "person.crop.circle.badge.plus"
+        ) {
+            onShowSignIn()
+        }
     }
 
     var signOutButton: some View {

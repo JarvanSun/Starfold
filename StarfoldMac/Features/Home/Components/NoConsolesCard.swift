@@ -16,7 +16,7 @@ struct NoConsolesCard: View {
             title: String(localized: "home.consoles.empty.title"),
             message: String(localized: "home.consoles.empty.message")
         ) {
-            Button(String(localized: "home.consoles.empty.refresh"), action: onRefresh)
+            Button(String(localized: "home.consoles.empty.refresh")) { onRefresh() }
         }
     }
 }

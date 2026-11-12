@@ -17,11 +17,11 @@ struct AccountSettingsSection: View {
 
     var body: some View {
         Section("settings.account.header") {
-            ForEach(accounts, content: accountButton(_:))
+            ForEach(accounts) { accountButton($0) }
 
-            Button("settings.account.add", action: onAdd)
+            Button("settings.account.add") { onAdd() }
 
-            Button("settings.account.signOut", role: .destructive, action: onSignOut)
+            Button("settings.account.signOut", role: .destructive) { onSignOut() }
         }
     }
 }

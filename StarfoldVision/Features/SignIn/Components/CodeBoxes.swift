@@ -15,7 +15,7 @@ struct CodeBoxes: View {
 
     var body: some View {
         HStack(spacing: dimensions.spaceSmall) {
-            ForEach(code.characters, content: box(for:))
+            ForEach(code.characters) { box(for: $0) }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("signIn.code.accessibilityLabel \(code.spelledOut)"))

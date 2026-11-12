@@ -27,7 +27,7 @@ struct MessageView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
-            Button(actionLabel, action: onAction).buttonStyle(.borderedProminent)
+            Button(actionLabel) { onAction() }.buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity)
         .padding(padding)

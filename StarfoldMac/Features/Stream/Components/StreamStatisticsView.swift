@@ -24,7 +24,7 @@ struct StreamStatisticsView: View {
             case nil: EmptyView()
             }
 
-            ForEach(readout.rows, content: row(_:))
+            ForEach(readout.rows) { row($0) }
         }
         .font(.caption.monospacedDigit())
         .fixedSize()

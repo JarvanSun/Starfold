@@ -33,7 +33,7 @@ private extension KeyboardSettingsSection {
             horizontalSpacing: dimensions.spaceLarge,
             verticalSpacing: dimensions.spaceXSmall
         ) {
-            ForEach(settings.keyBindings, id: \.key, content: row(for:))
+            ForEach(settings.keyBindings, id: \.key) { row(for: $0) }
         }
     }
 

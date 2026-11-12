@@ -19,7 +19,10 @@ struct ConsoleCard: View {
         } actions: {
             SettingsShortcutButton()
 
-            ConsolePowerButton(control: home.powerControl(for: console), onToggle: togglePower)
+            ConsolePowerButton(
+                control: home.powerControl(for: console),
+                onToggle: { togglePower() }
+            )
 
             if console.hasWirelessWarning {
                 wirelessHint
@@ -48,7 +51,7 @@ private extension ConsoleCard {
             title: "home.console.play",
             systemImage: "play.fill",
             isEnabled: true,
-            onPerform: play
+            onPerform: { play() }
         )
     }
 

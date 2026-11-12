@@ -30,7 +30,7 @@ struct GameMessageDialog: View {
             }
 
             HStack(spacing: dimensions.spaceMedium) {
-                ForEach(buttons, content: answerButton(_:))
+                ForEach(buttons) { answerButton($0) }
             }
         }
         .padding(dimensions.spaceXXLarge)

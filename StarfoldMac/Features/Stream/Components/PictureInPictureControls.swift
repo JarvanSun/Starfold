@@ -16,7 +16,9 @@ struct PictureInPictureControls: View {
 
     var body: some View {
         HStack(spacing: dimensions.spaceSmall) {
-            Button(action: onReturnToWindow) {
+            Button {
+                onReturnToWindow()
+            } label: {
                 Label(
                     String(localized: "stream.pictureInPicture.backToWindow"),
                     systemImage: "pip.exit"
@@ -24,7 +26,9 @@ struct PictureInPictureControls: View {
             }
             .help(Text("stream.pictureInPicture.backToWindow"))
 
-            Button(action: onClose) {
+            Button {
+                onClose()
+            } label: {
                 Label(
                     String(localized: "stream.pictureInPicture.disconnect.label"),
                     systemImage: "xmark"

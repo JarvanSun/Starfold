@@ -18,7 +18,7 @@ struct ConsolesFailedCard: View {
             title: String(localized: "home.consoles.failed.title"),
             message: message
         ) {
-            Button(String(localized: "home.consoles.failed.retry"), action: onRetry)
+            Button(String(localized: "home.consoles.failed.retry")) { onRetry() }
         }
     }
 }

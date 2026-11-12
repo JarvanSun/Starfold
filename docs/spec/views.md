@@ -37,6 +37,11 @@ struct HomeView: View {
 - `private` computed views are only for small details inside one component (a badge, a label),
   never a section.
 - Closure properties are named for the event (`onPlay`, `onRetry`).
+- Actions and content builders are written as closures, never passed by name (a method, an
+  initializer or a closure property): `Button("retry") { onRetry() }`, `onPlay: { play() }`,
+  `ForEach(games) { tile(for: $0) }`. Previews wrap every argument in a generic function, which
+  breaks the conversion to SwiftUI's main-actor closure types. Forwarding a closure property to a
+  child view's property of the same type (`onRetry: onRetry`) is fine.
 
 ## Siblings
 

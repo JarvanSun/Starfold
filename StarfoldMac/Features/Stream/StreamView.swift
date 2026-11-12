@@ -46,7 +46,7 @@ struct StreamView: View {
                     status: stream.status,
                     backdrop: stream.backdrop,
                     onClose: onClose,
-                    onTryAgain: stream.tryAgain
+                    onTryAgain: { stream.tryAgain() }
                 )
                 .ignoresSafeArea()
             }
@@ -72,22 +72,22 @@ struct StreamView: View {
             }
         }
         .animation(.easeOut(duration: 0.25), value: stream.isShowingControls)
-        .onContinuousHover(perform: movePointer)
+        .onContinuousHover { movePointer($0) }
         .onChange(of: stream.areControlsRevealed) { _, areRevealed in
             hidePointer(whenControlsAreHidden: areRevealed)
         }
         .onChange(of: activeState) { _, state in releaseKeyboard(unlessKey: state) }
-        .sheet(item: presentedDialog) { SystemDialogView(stream: stream, dialog: $0) }
+        .sheet(item: presentedDialog) { SystemDialogView(dialogs: stream.dialogs, dialog: $0) }
         .focusedSceneValue(\.activeStream, stream)
         .focusedSceneValue(\.activePictureInPicture, pictureInPicture)
-        .onAppear(perform: preparePictureInPicture)
+        .onAppear { preparePictureInPicture() }
         .navigationTitle(stream.target.name)
     }
 }
 
 private extension StreamView {
     var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream.presentedDialog }, set: { _ in })
+        .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
     }
 
     func movePointer(_ phase: HoverPhase) {

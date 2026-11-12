@@ -30,11 +30,11 @@ struct GameTextPrompt: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("stream.dialog.cancel", action: onCancel)
+                    Button("stream.dialog.cancel") { onCancel() }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("stream.dialog.done", action: onSubmit)
+                    Button("stream.dialog.done") { onSubmit() }
                 }
             }
         }

@@ -16,21 +16,21 @@ struct LibraryView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
                 if !library.isSearching {
-                    ForEach(library.shelves, content: shelf(_:))
+                    ForEach(library.shelves) { shelf($0) }
                 }
 
                 if !library.visibleGames.isEmpty {
                     GameGrid(
                         title: library.gamesTitle,
                         games: library.visibleGames,
-                        onPlay: library.play(_:)
+                        onPlay: { library.play($0) }
                     )
                 }
             }
             .padding(.horizontal, dimensions.spaceXXLarge)
             .padding(.vertical, dimensions.spaceXLarge)
         }
-        .overlay(if: library.placeholder, content: placeholderView(_:))
+        .overlay(if: library.placeholder) { placeholderView($0) }
         .navigationTitle("library.title")
         .searchable(text: $library.searchText, prompt: Text("library.search.prompt"))
         .toolbar {
@@ -44,14 +44,14 @@ struct LibraryView: View {
 
 private extension LibraryView {
     func shelf(_ shelf: LibraryShelf) -> some View {
-        GameShelf(shelf: shelf, games: library.games(on: shelf), onPlay: library.play(_:))
+        GameShelf(shelf: shelf, games: library.games(on: shelf), onPlay: { library.play($0) })
     }
 
     func placeholderView(_ placeholder: LibraryPlaceholder) -> some View {
         LibraryPlaceholderView(
             placeholder: placeholder,
             searchText: library.searchText,
-            onRetry: refresh
+            onRetry: { refresh() }
         )
     }
 

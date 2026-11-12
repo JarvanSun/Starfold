@@ -28,10 +28,10 @@ struct StreamEndedStatus: View {
             case nil: EmptyView()
             }
 
-            Button("stream.ended.retry", action: onRetry)
+            Button("stream.ended.retry") { onRetry() }
                 .buttonStyle(.borderedProminent)
 
-            Button("stream.ended.back", action: onEnd)
+            Button("stream.ended.back") { onEnd() }
         }
     }
 }
