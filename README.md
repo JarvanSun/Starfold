@@ -91,6 +91,8 @@ Microsoft may restrict it at any time; an ID of your own signs in but may not be
 
 Three thin platform apps share one app layer and two protocol packages:
 
+![Modules: three platform apps over StarfoldShared, which uses XboxKit and StreamKit](docs/spec/images/modules.svg)
+
 | Module | Responsibility |
 |---|---|
 | [`StarfoldShared`](Packages/StarfoldShared) | The ViewModels every platform shares, their services and storage, and the shared interface pieces |

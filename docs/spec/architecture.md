@@ -9,6 +9,8 @@ packages; what a person sees and touches is written per platform.
 
 ## Modules
 
+![Modules: three platform apps over StarfoldShared, which uses XboxKit and StreamKit](images/modules.svg)
+
 ```text
 Starfold.xcodeproj
 ├── Configuration/          Starfold.xcconfig: bundle identifier, App Group, Microsoft client ID
