@@ -46,13 +46,13 @@ struct StreamView: View {
         ) {
             StreamControlBar(settings: settings, stream: stream, onDisconnect: onClose)
         }
-        .sheet(item: presentedDialog) { SystemDialogView(stream: stream, dialog: $0) }
+        .sheet(item: presentedDialog) { SystemDialogView(dialogs: stream.dialogs, dialog: $0) }
     }
 }
 
 private extension StreamView {
     var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream.presentedDialog }, set: { _ in })
+        .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
     }
 }
 

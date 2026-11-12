@@ -53,7 +53,7 @@ struct StreamView: View {
 
 private extension StreamView {
     var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream?.presentedDialog }, set: { _ in })
+        .init(get: { stream?.dialogs.presentedDialog }, set: { _ in })
     }
 
     @ViewBuilder
@@ -94,7 +94,7 @@ private extension StreamView {
     func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
         switch stream {
         case let stream?:
-            SystemDialogView(stream: stream, dialog: dialog)
+            SystemDialogView(dialogs: stream.dialogs, dialog: dialog)
                 .interactiveDismissDisabled()
         case nil: EmptyView()
         }

@@ -10,7 +10,7 @@ import StreamKit
 import SwiftUI
 
 struct SystemDialogView: View {
-    @Bindable var stream: StreamViewModel
+    @Bindable var dialogs: SystemDialogsViewModel
 
     let dialog: SystemDialogRequest
 
@@ -20,14 +20,14 @@ struct SystemDialogView: View {
             GameMessageDialog(
                 title: title,
                 text: text,
-                buttons: stream.buttons(of: dialog),
+                buttons: dialogs.buttons(of: dialog),
                 onAnswer: { answer(buttonIndex: $0) },
                 onCancel: { cancel() }
             )
         case .keyboard(_, let description, _, _):
             GameTextPrompt(
-                text: $stream.dialogText,
-                title: stream.textFieldTitle(of: dialog),
+                text: $dialogs.text,
+                title: dialogs.textFieldTitle(of: dialog),
                 description: description,
                 onSubmit: { submitText() },
                 onCancel: { cancel() }
@@ -38,23 +38,25 @@ struct SystemDialogView: View {
 
 private extension SystemDialogView {
     func answer(buttonIndex: Int) {
-        stream.answer(dialog, buttonIndex: buttonIndex)
+        dialogs.answer(dialog, buttonIndex: buttonIndex)
     }
 
     func submitText() {
-        stream.submitText(for: dialog)
+        dialogs.submitText(for: dialog)
     }
 
     func cancel() {
-        stream.cancel(dialog)
+        dialogs.cancel(dialog)
     }
 }
 
 #if DEBUG
 #Preview("Game dialog", arguments: PreviewObjectPool.systemDialogs) { dialog in
-    SystemDialogView(
-        stream: PreviewObjectPool.streamViewModel(phase: .streaming, dialogs: [dialog]),
-        dialog: dialog
+    @Previewable @State var stream = PreviewObjectPool.streamViewModel(
+        phase: .streaming,
+        dialogs: [dialog]
     )
+
+    SystemDialogView(dialogs: stream.dialogs, dialog: dialog)
 }
 #endif

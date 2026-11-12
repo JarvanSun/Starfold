@@ -77,7 +77,7 @@ struct StreamView: View {
             hidePointer(whenControlsAreHidden: areRevealed)
         }
         .onChange(of: activeState) { _, state in releaseKeyboard(unlessKey: state) }
-        .sheet(item: presentedDialog) { SystemDialogView(stream: stream, dialog: $0) }
+        .sheet(item: presentedDialog) { SystemDialogView(dialogs: stream.dialogs, dialog: $0) }
         .focusedSceneValue(\.activeStream, stream)
         .focusedSceneValue(\.activePictureInPicture, pictureInPicture)
         .onAppear { preparePictureInPicture() }
@@ -87,7 +87,7 @@ struct StreamView: View {
 
 private extension StreamView {
     var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream.presentedDialog }, set: { _ in })
+        .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
     }
 
     func movePointer(_ phase: HoverPhase) {
