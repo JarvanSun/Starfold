@@ -9,19 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/JarvanSun/Starfold/releases/latest"><b>下载 Mac 版</b></a>
+  <a href="../../releases/latest"><b>下载 Mac 版</b></a>
   ·
   <a href="#从源码构建"><b>从源码构建</b></a>
-  ·
-  <a href="docs/spec/README.md">代码是怎么写的</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/macOS-26-black" alt="macOS 26">
-  <img src="https://img.shields.io/badge/visionOS-26-black" alt="visionOS 26">
-  <img src="https://img.shields.io/badge/tvOS-26-black" alt="tvOS 26">
-  <img src="https://img.shields.io/badge/Swift-6-F05138" alt="Swift 6">
-  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT 许可证">
 </p>
 
 <p align="center">
@@ -69,17 +59,13 @@
   </tr>
 </table>
 
-## 下载
-
-Mac 版在 [Releases 页面](https://github.com/JarvanSun/Starfold/releases/latest)，已签名并经过 Apple 公证。打开 DMG，把 Starfold 拖到“应用程序”文件夹即可，需要 macOS 26 或更新版本。Apple Vision Pro 与 Apple TV 版需从源码构建。
-
 ## 使用要求
 
-需要一个微软账户和快速稳定的网络；远程游玩还需要已开启远程功能的 Xbox Series X|S 或 Xbox One。
+需要 macOS 26、visionOS 26 或 tvOS 26 及以上版本，一个微软账户和快速稳定的网络；远程游玩还需要已开启远程功能的 Xbox Series X|S 或 Xbox One。
 
 ## 从源码构建
 
-需要 Xcode 26 或更新版本。
+需要 Xcode 27 或更新版本。
 
 1. 克隆仓库，打开 `Starfold.xcodeproj`。
 2. 选择 `StarfoldMac`、`StarfoldVision` 或 `StarfoldTV` scheme。
@@ -90,7 +76,7 @@ scripts/build.sh   # 构建三个应用
 scripts/test.sh    # 运行所有包的测试
 ```
 
-登录用的是微软自家 Xbox 网页版播放器公开的客户端 ID（`STARFOLD_MICROSOFT_CLIENT_ID`），其他开源 Xbox 客户端用的也是它，微软随时可能限制它的使用。目前只确认串流能用这个 ID：换成自己在 Azure 注册的 ID 可以登录，但串流所需的令牌可能会被 Xbox 拒绝。
+登录用的是微软 Xbox 网页版的公开客户端 ID（`STARFOLD_MICROSOFT_CLIENT_ID`）。微软随时可能限制它；换成自己的 ID 能登录，但可能无法串流。
 
 ## 代码
 
@@ -106,16 +92,10 @@ Swift 6 严格并发、基于 Observation 的 MVVM、Swift Testing，支持英�
 
 ## 致谢
 
-- LiveKit 的 [webrtc-xcframework](https://github.com/livekit/webrtc-xcframework)（MIT），Starfold 串流所用的 WebRTC 构建。
-
-webrtc-xcframework（MIT）与 WebRTC（BSD 3-Clause 及专利授权）的完整许可证文本见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+Starfold 用 LiveKit 的 [webrtc-xcframework](https://github.com/livekit/webrtc-xcframework)（MIT）串流，它基于 WebRTC（BSD 3-Clause）构建。许可证全文见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 ## 许可证
 
 Starfold 以 [MIT 许可证](LICENSE) 发布。
 
 Starfold 是一款独立应用，与 Microsoft Corporation 无关联，亦未获其认可或赞助。Xbox、Xbox Game Pass 和 Xbox Cloud Gaming 是 Microsoft Corporation 的商标，此处仅用于识别。截图中的游戏画面版权归各自发行商所有。
-
----
-
-作者：Jiawen Sun · [sunapp24.com](https://sunapp24.com)

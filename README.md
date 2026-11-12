@@ -9,19 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/JarvanSun/Starfold/releases/latest"><b>Download for Mac</b></a>
+  <a href="../../releases/latest"><b>Download for Mac</b></a>
   ·
   <a href="#build-from-source"><b>Build from source</b></a>
-  ·
-  <a href="docs/spec/README.md">How the code is written</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/macOS-26-black" alt="macOS 26">
-  <img src="https://img.shields.io/badge/visionOS-26-black" alt="visionOS 26">
-  <img src="https://img.shields.io/badge/tvOS-26-black" alt="tvOS 26">
-  <img src="https://img.shields.io/badge/Swift-6-F05138" alt="Swift 6">
-  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License">
 </p>
 
 <p align="center">
@@ -75,20 +65,14 @@
   </tr>
 </table>
 
-## Download
-
-The Mac app is on the [Releases page](https://github.com/JarvanSun/Starfold/releases/latest),
-signed and notarized. Open the DMG and drag Starfold to Applications; it needs macOS 26 or later.
-The Apple Vision Pro and Apple TV apps are built from source.
-
 ## Requirements
 
-You need a Microsoft account, a fast and stable network, and for Remote Play an Xbox Series X|S
-or Xbox One with remote features turned on.
+macOS 26, visionOS 26 or tvOS 26 or later, a Microsoft account and a fast, stable network. Remote
+Play also needs an Xbox Series X|S or Xbox One with remote features turned on.
 
 ## Build from source
 
-Requires Xcode 26 or later.
+Requires Xcode 27 or later.
 
 1. Clone the repository and open `Starfold.xcodeproj`.
 2. Choose the `StarfoldMac`, `StarfoldVision` or `StarfoldTV` scheme.
@@ -100,10 +84,8 @@ scripts/build.sh   # builds all three apps
 scripts/test.sh    # runs every package's tests
 ```
 
-Sign-in uses the public client ID of Microsoft's own Xbox web player (`STARFOLD_MICROSOFT_CLIENT_ID`),
-the same one other open-source Xbox clients use. Microsoft may restrict it at any time, and
-streaming is only known to work with it: an ID you register yourself can sign in, but Xbox may
-refuse the token a stream needs.
+Sign-in uses the public client ID of Microsoft's Xbox web player (`STARFOLD_MICROSOFT_CLIENT_ID`).
+Microsoft may restrict it at any time; an ID of your own signs in but may not be allowed to stream.
 
 ## Code
 
@@ -121,11 +103,9 @@ Chinese. How the code is written — architecture, style, views, testing — is 
 
 ## Acknowledgements
 
-- [webrtc-xcframework](https://github.com/livekit/webrtc-xcframework) by LiveKit (MIT), the WebRTC
-  build Starfold streams with.
-
-The full licence texts of webrtc-xcframework (MIT) and WebRTC (BSD 3-Clause and patent grant) are
-in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Starfold streams with LiveKit's [webrtc-xcframework](https://github.com/livekit/webrtc-xcframework)
+(MIT), built from WebRTC (BSD 3-Clause). Full licence texts are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## License
 
@@ -134,7 +114,3 @@ Starfold is released under the [MIT License](LICENSE).
 Starfold is an independent app and is not affiliated with, endorsed by, or sponsored by Microsoft
 Corporation. Xbox, Xbox Game Pass and Xbox Cloud Gaming are trademarks of Microsoft Corporation,
 used for identification only. Game artwork in the screenshots belongs to its publishers.
-
----
-
-Made by Jiawen Sun · [sunapp24.com](https://sunapp24.com)
