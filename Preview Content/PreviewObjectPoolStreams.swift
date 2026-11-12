@@ -20,13 +20,36 @@ extension PreviewObjectPool {
         return streamViewModel(
             target: .console(id: console.id, name: console.name),
             backdrop: .console(type: console.consoleType),
-            service: streamService(phase: phase, dialogs: dialogs)
+            service: streamService(phase: phase, dialogs: dialogs),
+            dependencies: streamDependencies
         )
     }
 
     static func cloudStreamViewModel(phase: StreamPhase) -> StreamViewModel {
         let game = cloudGames[1]
         return streamViewModel(
+            target: .cloud(titleID: game.id, name: game.name),
+            backdrop: .game(heroImage: game.product?.heroImage),
+            service: streamService(phase: phase, dialogs: []),
+            dependencies: streamDependencies
+        )
+    }
+
+    static func streamPreview(
+        phase: StreamPhase,
+        dialogs: [SystemDialogRequest] = []
+    ) -> StreamPreview {
+        let console = consoles[0]
+        return streamPreview(
+            target: .console(id: console.id, name: console.name),
+            backdrop: .console(type: console.consoleType),
+            service: streamService(phase: phase, dialogs: dialogs)
+        )
+    }
+
+    static func cloudStreamPreview(phase: StreamPhase) -> StreamPreview {
+        let game = cloudGames[1]
+        return streamPreview(
             target: .cloud(titleID: game.id, name: game.name),
             backdrop: .game(heroImage: game.product?.heroImage),
             service: streamService(phase: phase, dialogs: [])
@@ -158,17 +181,37 @@ extension PreviewObjectPool {
 }
 
 private extension PreviewObjectPool {
-    static func streamViewModel(
+    static func streamPreview(
         target: StreamTarget,
         backdrop: StreamBackdrop,
         service: PreviewStreamService
+    ) -> StreamPreview {
+        let preferences = Self.preferences
+        let controllers = Self.controllers
+
+        return .init(
+            stream: streamViewModel(
+                target: target,
+                backdrop: backdrop,
+                service: service,
+                dependencies: streamDependencies(preferences: preferences, controllers: controllers)
+            ),
+            settings: settingsViewModel(preferences: preferences, controllers: controllers)
+        )
+    }
+
+    static func streamViewModel(
+        target: StreamTarget,
+        backdrop: StreamBackdrop,
+        service: PreviewStreamService,
+        dependencies: StreamDependencies
     ) -> StreamViewModel {
         let stream = StreamViewModel(
             target: target,
             backdrop: backdrop,
             qualityOverride: nil,
             service: service,
-            dependencies: streamDependencies
+            dependencies: dependencies
         )
 
         stream.start()

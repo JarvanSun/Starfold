@@ -74,10 +74,8 @@ private extension StreamMenuView {
 
 #if DEBUG
 #Preview {
-    StreamMenuView(
-        settings: PreviewObjectPool.settingsViewModel,
-        stream: PreviewObjectPool.cloudStreamViewModel(phase: .streaming),
-        onDisconnect: {}
-    )
+    let preview = PreviewObjectPool.cloudStreamPreview(phase: .streaming)
+
+    StreamMenuView(settings: preview.settings, stream: preview.stream, onDisconnect: {})
 }
 #endif

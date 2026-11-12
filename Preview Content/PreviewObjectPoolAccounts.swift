@@ -35,17 +35,14 @@ extension PreviewObjectPool {
     }
 
     static func signInViewModel(phase: SignInPhase) -> SignInViewModel {
-        let app = AppViewModel(
+        appViewModel(
             accountService: PreviewAccountService(
                 accounts: [],
                 profile: profile,
                 signInPhase: phase
-            ),
-            cache: libraryCache,
-            settings: settingsViewModel,
-            streamDependencies: streamDependencies
+            )
         )
-        return app.makeSignInViewModel()
+        .makeSignInViewModel()
     }
 }
 #endif

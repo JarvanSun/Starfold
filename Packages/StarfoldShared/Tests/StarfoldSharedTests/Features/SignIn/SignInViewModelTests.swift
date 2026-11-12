@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/10/01.
 //
 
+import CoreGraphics
 import Foundation
 import Testing
 import XboxKit
@@ -34,6 +35,23 @@ struct SignInViewModelTests {
         // Then
         #expect(await Eventually().holds { waitingCode(of: signIn) == "FIRST" })
         #expect(signIn.step == .code(.init(prompt: .dummy(userCode: "FIRST"))))
+    }
+
+    @Test
+    func stepWhileShowingACodeThenKeepsTheSameQRImage() async throws {
+        // Given
+        let (harness, _, signIn) = makeSignIn()
+        harness.accountService.prompts = [.success(.dummy(userCode: "FIRST"))]
+        let running = Task { await signIn.run() }
+        defer { running.cancel() }
+        await Eventually().holds { waitingCode(of: signIn) == "FIRST" }
+
+        // When
+        let first = try #require(qrImage(of: signIn))
+        let second = try #require(qrImage(of: signIn))
+
+        // Then
+        #expect(first === second)
     }
 
     @Test
@@ -175,10 +193,17 @@ private extension SignInViewModelTests {
         return (harness, clock, .init(service: harness.app, clock: clock))
     }
 
+    func qrImage(of signIn: SignInViewModel) -> CGImage? {
+        switch signIn.step {
+        case .code(let code): code.qrCode.image
+        case .preparing, .progress, .failure: nil
+        }
+    }
+
     func waitingCode(of signIn: SignInViewModel) -> String? {
-        switch signIn.phase {
-        case .waiting(let prompt): prompt.userCode
-        case .requesting, .finishing, .done, .failed: nil
+        switch signIn.step {
+        case .code(let code): code.text
+        case .preparing, .progress, .failure: nil
         }
     }
 }

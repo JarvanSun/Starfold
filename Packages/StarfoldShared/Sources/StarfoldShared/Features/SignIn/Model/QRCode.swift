@@ -9,9 +9,25 @@ import CoreImage.CIFilterBuiltins
 import Foundation
 
 public struct QRCode: Equatable {
+    public let image: CGImage?
+
     let url: URL
 
-    public var image: CGImage? {
+    init(url: URL) {
+        self.url = url
+        image = QRCodeRenderer().image(for: url)
+    }
+
+    public static func == (lhs: QRCode, rhs: QRCode) -> Bool {
+        lhs.url == rhs.url
+    }
+}
+
+private struct QRCodeRenderer {
+    let correctionLevel = "M"
+    let scale = CGAffineTransform(scaleX: 8, y: 8)
+
+    func image(for url: URL) -> CGImage? {
         let filter = CIFilter.qrCodeGenerator()
         filter.message = Data(url.absoluteString.utf8)
         filter.correctionLevel = correctionLevel
@@ -19,15 +35,5 @@ public struct QRCode: Equatable {
         guard let output = filter.outputImage?.transformed(by: scale) else { return nil }
 
         return CIContext().createCGImage(output, from: output.extent)
-    }
-}
-
-private extension QRCode {
-    var correctionLevel: String {
-        "M"
-    }
-
-    var scale: CGAffineTransform {
-        .init(scaleX: 8, y: 8)
     }
 }

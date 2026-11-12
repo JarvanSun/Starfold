@@ -58,29 +58,26 @@ private extension StreamView {
 
 #if DEBUG
 #Preview("Streaming", windowStyle: .plain) {
-    StreamView(
-        stream: PreviewObjectPool.streamViewModel(phase: .streaming),
-        settings: PreviewObjectPool.settingsViewModel
-    ) {}
-    .frame(width: 1280, height: 720)
+    let preview = PreviewObjectPool.streamPreview(phase: .streaming)
+
+    StreamView(stream: preview.stream, settings: preview.settings) {}
+        .frame(width: 1280, height: 720)
 }
 
 #Preview("Connecting", windowStyle: .plain) {
-    StreamView(
-        stream: PreviewObjectPool.cloudStreamViewModel(phase: .connecting),
-        settings: PreviewObjectPool.settingsViewModel
-    ) {}
-    .frame(width: 1280, height: 720)
+    let preview = PreviewObjectPool.cloudStreamPreview(phase: .connecting)
+
+    StreamView(stream: preview.stream, settings: preview.settings) {}
+        .frame(width: 1280, height: 720)
 }
 
 #Preview("Game dialog", windowStyle: .plain) {
-    StreamView(
-        stream: PreviewObjectPool.streamViewModel(
-            phase: .streaming,
-            dialogs: [PreviewObjectPool.messageDialog]
-        ),
-        settings: PreviewObjectPool.settingsViewModel
-    ) {}
-    .frame(width: 1280, height: 720)
+    let preview = PreviewObjectPool.streamPreview(
+        phase: .streaming,
+        dialogs: [PreviewObjectPool.messageDialog]
+    )
+
+    StreamView(stream: preview.stream, settings: preview.settings) {}
+        .frame(width: 1280, height: 720)
 }
 #endif
