@@ -1,0 +1,1980 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "home.cloud.status.available" : {
+      "comment" : "Home: cloud card status when cloud gaming is available",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可用"
+          }
+        }
+      }
+    },
+    "home.cloud.status.freeToPlay" : {
+      "comment" : "Home: cloud card status without Game Pass",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free to play"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费游戏"
+          }
+        }
+      }
+    },
+    "home.cloud.status.loading" : {
+      "comment" : "Home: cloud card status while access is loading",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在加载…"
+          }
+        }
+      }
+    },
+    "home.cloud.status.unavailable" : {
+      "comment" : "Home: cloud card status when cloud gaming is unavailable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unavailable"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不可用"
+          }
+        }
+      }
+    },
+    "home.cloud.subtitle.freeToPlay" : {
+      "comment" : "Home: cloud card subtitle without Game Pass",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free-to-play games"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费游戏"
+          }
+        }
+      }
+    },
+    "home.cloud.subtitle.gameCount %lld" : {
+      "comment" : "Home: cloud card subtitle with the number of cloud games",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld game"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld games"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 款游戏"
+          }
+        }
+      }
+    },
+    "home.cloud.subtitle.unavailable" : {
+      "comment" : "Home: cloud card subtitle when cloud gaming is unavailable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not available"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不可用"
+          }
+        }
+      }
+    },
+    "home.powerCommand.turnOff" : {
+      "comment" : "Home: console card button that turns the console off",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn Off"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关机"
+          }
+        }
+      }
+    },
+    "home.powerCommand.wakeUp" : {
+      "comment" : "Home: console card button that wakes the console from sleep",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake Up"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "唤醒"
+          }
+        }
+      }
+    },
+    "library.console.powerState.off" : {
+      "comment" : "Console power state shown on a console card: the console is off",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "library.console.powerState.on" : {
+      "comment" : "Console power state shown on a console card: the console is on",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开机"
+          }
+        }
+      }
+    },
+    "library.console.powerState.sleeping" : {
+      "comment" : "Console power state shown on a console card: instant-on standby",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleeping"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡眠中"
+          }
+        }
+      }
+    },
+    "library.console.powerState.unknown" : {
+      "comment" : "Console power state shown on a console card when it is unknown",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unavailable"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不可用"
+          }
+        }
+      }
+    },
+    "library.game.fact.developer" : {
+      "comment" : "Game page: label of the developer fact",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开发商"
+          }
+        }
+      }
+    },
+    "library.game.fact.genres" : {
+      "comment" : "Game page: label of the genres fact",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genres"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "类型"
+          }
+        }
+      }
+    },
+    "library.game.fact.released" : {
+      "comment" : "Game page: label of the release date fact",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Released"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发行日期"
+          }
+        }
+      }
+    },
+    "library.game.favorite.add" : {
+      "comment" : "Game page: label of the button that adds the game to favourites",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to Favorites"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "加入收藏"
+          }
+        }
+      }
+    },
+    "library.game.favorite.remove" : {
+      "comment" : "Game page: label of the button that removes the game from favourites",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove from Favorites"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消收藏"
+          }
+        }
+      }
+    },
+    "library.game.input.controller" : {
+      "comment" : "Game page: input badge for controller support",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controller"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手柄"
+          }
+        }
+      }
+    },
+    "library.game.input.mouseAndKeyboard" : {
+      "comment" : "Game page: input badge for mouse and keyboard support",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mouse & Keyboard"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鼠标和键盘"
+          }
+        }
+      }
+    },
+    "library.game.input.touch" : {
+      "comment" : "Game page: input badge for touch support",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "触控"
+          }
+        }
+      }
+    },
+    "library.games.all.title" : {
+      "comment" : "Library: title of the section with every cloud game",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Games"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有游戏"
+          }
+        }
+      }
+    },
+    "library.games.results.title" : {
+      "comment" : "Library: title of the section with search results",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Results"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索结果"
+          }
+        }
+      }
+    },
+    "library.powerProblem.message" : {
+      "comment" : "Alert message when a wake or turn-off command was rejected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check that Remote features are on, then try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请确认已开启远程功能，然后重试。"
+          }
+        }
+      }
+    },
+    "library.powerProblem.title %@" : {
+      "comment" : "Alert title when a wake or turn-off command was rejected; the argument is the console name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t reach %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法连接%@"
+          }
+        }
+      }
+    },
+    "library.shelf.continuePlaying.title" : {
+      "comment" : "Library: title of the row of recently played cloud games",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue Playing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续游玩"
+          }
+        }
+      }
+    },
+    "library.shelf.favorites.title" : {
+      "comment" : "Library: title of the row of favourite cloud games",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收藏"
+          }
+        }
+      }
+    },
+    "library.shelf.leavingSoon.badge" : {
+      "comment" : "Library: badge on the tile of a game leaving Game Pass",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leaving"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即将下架"
+          }
+        }
+      }
+    },
+    "library.shelf.leavingSoon.title" : {
+      "comment" : "Library: title of the row of games leaving Game Pass",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leaving Soon"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "即将下架"
+          }
+        }
+      }
+    },
+    "library.shelf.recentlyAdded.title" : {
+      "comment" : "Library: title of the row of games new to Game Pass",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recently Added"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近上新"
+          }
+        }
+      }
+    },
+    "library.sort.name" : {
+      "comment" : "Library: sort option that orders games by name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名称"
+          }
+        }
+      }
+    },
+    "library.sort.recentlyPlayed" : {
+      "comment" : "Library: sort option that orders games by when they were last played",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recently Played"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近游玩"
+          }
+        }
+      }
+    },
+    "palette.aurora.name" : {
+      "comment" : "Name of the teal colour palette in the palette picker in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aurora"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "极光"
+          }
+        }
+      }
+    },
+    "palette.nebula.name" : {
+      "comment" : "Name of the violet colour palette in the palette picker in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nebula"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星云"
+          }
+        }
+      }
+    },
+    "palette.picker.title" : {
+      "comment" : "Label of the colour palette picker in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配色"
+          }
+        }
+      }
+    },
+    "palette.sunrise.name" : {
+      "comment" : "Name of the amber colour palette in the palette picker in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sunrise"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日出"
+          }
+        }
+      }
+    },
+    "settings.bitrate.automatic" : {
+      "comment" : "Settings: maximum bitrate option that lets the host decide",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动"
+          }
+        }
+      }
+    },
+    "settings.bitrate.option %lld" : {
+      "comment" : "Settings: maximum bitrate option; the argument is the bitrate in megabits per second",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Mbps"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Mbps"
+          }
+        }
+      }
+    },
+    "settings.gameLanguage.system" : {
+      "comment" : "Settings: game language option that follows the system language",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统"
+          }
+        }
+      }
+    },
+    "settings.quality.automatic" : {
+      "comment" : "Settings: option of both stream quality pickers where the app picks the resolution",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic (recommended)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动（推荐）"
+          }
+        }
+      }
+    },
+    "settings.quality.cloud.highest" : {
+      "comment" : "Settings: highest option of the cloud stream quality picker; only Ultimate members get it",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1440p (Game Pass Ultimate)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1440p（Game Pass Ultimate）"
+          }
+        }
+      }
+    },
+    "settings.quality.console.highest" : {
+      "comment" : "Settings: highest option of the console stream quality picker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1080p High Bitrate"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1080p 高码率"
+          }
+        }
+      }
+    },
+    "settings.quality.high" : {
+      "comment" : "Settings: 1080p option of both stream quality pickers",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1080p"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1080p"
+          }
+        }
+      }
+    },
+    "settings.quality.standard" : {
+      "comment" : "Settings: 720p option of both stream quality pickers",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "720p"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "720p"
+          }
+        }
+      }
+    },
+    "signIn.failure.declined" : {
+      "comment" : "Sign-in screen error when the person declines the request on the Microsoft sign-in page",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign-in was declined."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录已被拒绝。"
+          }
+        }
+      }
+    },
+    "signIn.failure.generic %@" : {
+      "comment" : "Sign-in screen error for any other failure; the argument is the system's description of the error",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t sign in: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法登录：%@"
+          }
+        }
+      }
+    },
+    "signIn.progress.signedIn" : {
+      "comment" : "Sign-in panel: title once sign-in succeeded",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signed in"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已登录"
+          }
+        }
+      }
+    },
+    "signIn.progress.signingIn" : {
+      "comment" : "Sign-in panel: status after the code was entered in the browser",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signing in…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在登录…"
+          }
+        }
+      }
+    },
+    "signIn.welcome.cloudGaming.detail" : {
+      "comment" : "Detail under the cloud gaming feature on the welcome screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hundreds of games, nothing to download."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数百款游戏，无需下载。"
+          }
+        }
+      }
+    },
+    "signIn.welcome.cloudGaming.title" : {
+      "comment" : "Title of the cloud gaming feature on the welcome screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox Cloud Gaming"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox 云游戏"
+          }
+        }
+      }
+    },
+    "stream.advice.consoleNotAnswering" : {
+      "comment" : "Stream error when a console never becomes ready for a stream",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your console didn’t answer. Make sure it’s on or asleep, not in Energy-saving mode, then try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机没有响应。请确认它已开机或处于睡眠模式（不是节能模式），然后重试。"
+          }
+        }
+      }
+    },
+    "stream.advice.consoleOffline" : {
+      "comment" : "Stream error when the console has not registered with Xbox servers",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your console is offline. Make sure it’s on or asleep and signed in."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机不在线。请确认它已开机或处于睡眠状态，并已登录。"
+          }
+        }
+      }
+    },
+    "stream.advice.consoleStillClosingLastStream" : {
+      "comment" : "Stream error when a console stream is started again too soon after the last one",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your console is still closing the last stream. Try again in a few seconds."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机还在结束上一次串流，请几秒后重试。"
+          }
+        }
+      }
+    },
+    "stream.advice.gameStillStarting" : {
+      "comment" : "Stream error when the host rejects a second start of a cloud game that is still starting",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This game is still starting from your last try. Wait a moment, then try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上一次的串流还在启动。请稍候片刻，再重试。"
+          }
+        }
+      }
+    },
+    "stream.advice.needsGamePass" : {
+      "comment" : "Stream error when the host refuses to start a cloud game without Game Pass",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This game needs Xbox Game Pass."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这款游戏需要 Xbox Game Pass。"
+          }
+        }
+      }
+    },
+    "stream.advice.networkDropped" : {
+      "comment" : "Stream advice after the network connection to the host was lost",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your network, then try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请检查网络后重试。"
+          }
+        }
+      }
+    },
+    "stream.advice.remotePlayOff" : {
+      "comment" : "Stream error when remote play is turned off on the console",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remote play is off. Turn on Remote features on your Xbox."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "远程游玩已关闭。请在 Xbox 上开启远程功能。"
+          }
+        }
+      }
+    },
+    "stream.advice.unrecognized %@" : {
+      "comment" : "Stream advice when the host's failure is not one the app knows; the argument is the host's own message, shown as it is",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "stream.dialog.ok" : {
+      "comment" : "Game dialog: default button when the game gave no buttons",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
+          }
+        }
+      }
+    },
+    "stream.dialog.textFieldTitle" : {
+      "comment" : "Game text prompt: title and placeholder of the text field when the game gave no title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文本"
+          }
+        }
+      }
+    },
+    "stream.end.connectionLost.title" : {
+      "comment" : "Stream status: title when the network connection drops",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection lost"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接已断开"
+          }
+        }
+      }
+    },
+    "stream.end.failed.title" : {
+      "comment" : "Stream status: title when a stream fails to start",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection failed"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接失败"
+          }
+        }
+      }
+    },
+    "stream.end.hostEnded.title" : {
+      "comment" : "Stream status: title when the console or cloud host ends the stream",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session ended"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会话已结束"
+          }
+        }
+      }
+    },
+    "stream.end.userStopped.title" : {
+      "comment" : "Stream status: title after the player stops a stream",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stream ended"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "串流已结束"
+          }
+        }
+      }
+    },
+    "stream.failure.metalUnavailable" : {
+      "comment" : "Stream error when the GPU renderer can't be created",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This Mac can’t display the stream (Metal is unavailable)."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这台 Mac 无法显示串流画面（Metal 不可用）。"
+          }
+        }
+      }
+    },
+    "stream.failure.signInExpired" : {
+      "comment" : "Stream error when the Microsoft sign-in is no longer valid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your sign-in expired. Sign in again to keep playing."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的登录已过期。请重新登录以继续游玩。"
+          }
+        }
+      }
+    },
+    "stream.keyboardKey.delete" : {
+      "comment" : "Name of the Delete key in the keyboard-as-controller mapping in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "stream.keyboardKey.escape" : {
+      "comment" : "Name of the Escape key in the keyboard-as-controller mapping in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esc"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esc"
+          }
+        }
+      }
+    },
+    "stream.keyboardKey.leftShift" : {
+      "comment" : "Name of the left Shift key in the keyboard-as-controller mapping in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shift"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shift"
+          }
+        }
+      }
+    },
+    "stream.keyboardKey.return" : {
+      "comment" : "Name of the Return key in the keyboard-as-controller mapping in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Return"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Return"
+          }
+        }
+      }
+    },
+    "stream.keyboardKey.space" : {
+      "comment" : "Name of the Space key in the keyboard-as-controller mapping in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Space"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空格"
+          }
+        }
+      }
+    },
+    "stream.keyboardKey.tab" : {
+      "comment" : "Name of the Tab key in the keyboard-as-controller mapping in Settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tab"
+          }
+        }
+      }
+    },
+    "stream.pacing.lowLatency" : {
+      "comment" : "Buffer option in stream settings: show frames as they come",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low Latency"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低延迟"
+          }
+        }
+      }
+    },
+    "stream.pacing.standard" : {
+      "comment" : "Buffer option in stream settings: buffer for recent network hiccups, shrinking when the network is steady",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标准"
+          }
+        }
+      }
+    },
+    "stream.pictureFit.fill" : {
+      "comment" : "Picture mode option: fill the view, cropping the edges",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fill"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "填充"
+          }
+        }
+      }
+    },
+    "stream.pictureFit.fit" : {
+      "comment" : "Picture mode option: show the whole picture with bars",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fit"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适应"
+          }
+        }
+      }
+    },
+    "stream.pictureFit.scale" : {
+      "comment" : "Picture mode option: scale the picture up or down to the view's shape, without cropping",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scale"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缩放"
+          }
+        }
+      }
+    },
+    "stream.sharpening.high" : {
+      "comment" : "Sharpening strength in the stream's picture options: high",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高"
+          }
+        }
+      }
+    },
+    "stream.sharpening.low" : {
+      "comment" : "Sharpening strength in the stream's picture options: low",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低"
+          }
+        }
+      }
+    },
+    "stream.sharpening.medium" : {
+      "comment" : "Sharpening strength in the stream's picture options: medium",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medium"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中"
+          }
+        }
+      }
+    },
+    "stream.sharpening.off" : {
+      "comment" : "Sharpening strength in the stream's picture options: off",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "stream.soundStage.direct" : {
+      "comment" : "Sound option on Vision Pro: stereo straight to both ears, like headphones",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direct Stereo"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直接立体声"
+          }
+        }
+      }
+    },
+    "stream.soundStage.window" : {
+      "comment" : "Sound option on Vision Pro: the stream's sound comes from its window",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow Window"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随窗口"
+          }
+        }
+      }
+    },
+    "stream.statistics.bitrate.value %@" : {
+      "comment" : "Stream statistics: bitrate value, e.g. 18.4 Mbps",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Mbps"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Mbps"
+          }
+        }
+      }
+    },
+    "stream.statistics.frameRate.value %@" : {
+      "comment" : "Stream statistics: frame rate value, e.g. 60 fps",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ fps"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ fps"
+          }
+        }
+      }
+    },
+    "stream.statistics.latency.value %@" : {
+      "comment" : "Stream statistics: estimated latency value; the argument is the duration, e.g. 34 ms",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %@"
+          }
+        }
+      }
+    },
+    "stream.statistics.loweredFrom %@" : {
+      "comment" : "Stream statistics: the host lowered the resolution; the argument is the requested one, e.g. 1080p",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lowered from %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已从 %@ 降低"
+          }
+        }
+      }
+    },
+    "stream.statistics.network.ethernet" : {
+      "comment" : "Stream statistics: wired network interface",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ethernet"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以太网"
+          }
+        }
+      }
+    },
+    "stream.statistics.network.internet" : {
+      "comment" : "Stream statistics: network value when the stream goes over the internet",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "互联网"
+          }
+        }
+      }
+    },
+    "stream.statistics.network.local" : {
+      "comment" : "Stream statistics: network value when the stream stays on the home network",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Local network"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "局域网"
+          }
+        }
+      }
+    },
+    "stream.statistics.network.relay" : {
+      "comment" : "Stream statistics: network value when the stream goes through a relay server",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relay"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中继"
+          }
+        }
+      }
+    },
+    "stream.statistics.resolution.automatic %@" : {
+      "comment" : "Stream statistics: resolution picked by Automatic quality; the argument is the size, e.g. 1920×1080",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Automatic"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · 自动"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.bitrate" : {
+      "comment" : "Stream statistics: row label of the bitrate",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitrate"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "码率"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.codec" : {
+      "comment" : "Stream statistics: row label of the video codec, e.g. H.264",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codec"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编码"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.decode" : {
+      "comment" : "Stream statistics: row label of the time to decode a frame",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decode"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解码"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.display" : {
+      "comment" : "Stream statistics: row label of the time from a decoded frame to it appearing on screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.dynamicRange" : {
+      "comment" : "Stream statistics: row label of the dynamic range",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamic range"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "动态范围"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.frameRate" : {
+      "comment" : "Stream statistics: row label of the frame rate",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frame rate"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "帧率"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.jitterBuffer" : {
+      "comment" : "Stream statistics: row label of the jitter buffer delay",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jitter buffer"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "抖动缓冲"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.network" : {
+      "comment" : "Stream statistics: row label of how the stream reaches this device",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.packetLoss" : {
+      "comment" : "Stream statistics: row label of the packet loss",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Packet loss"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "丢包率"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.resolution" : {
+      "comment" : "Stream statistics: row label of the picture resolution",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resolution"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分辨率"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.roundTrip" : {
+      "comment" : "Stream statistics: row label of the network round-trip latency",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round trip"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "往返延迟"
+          }
+        }
+      }
+    },
+    "stream.statistics.row.upscaled" : {
+      "comment" : "Stream statistics: row label of the size MetalFX upscaled the picture to",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upscaled"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "超分后"
+          }
+        }
+      }
+    },
+    "stream.statistics.toneMapping" : {
+      "comment" : "Stream statistics: dynamic range value when the SDR stream is tone mapped for an HDR screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SDR → HDR tone mapping"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SDR → HDR 色调映射"
+          }
+        }
+      }
+    },
+    "stream.status.connecting" : {
+      "comment" : "Stream status: while the video connection is negotiated",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在连接…"
+          }
+        }
+      }
+    },
+    "stream.status.queued %@" : {
+      "comment" : "Stream status: in the cloud queue; the argument is the estimated wait, e.g. 3 minutes",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In line — about %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "排队中，大约还需 %@"
+          }
+        }
+      }
+    },
+    "stream.status.waitingInLine" : {
+      "comment" : "Stream status: in the cloud queue without an estimate",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting in line…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在排队…"
+          }
+        }
+      }
+    },
+    "theme.clock.accessibilityLabel" : {
+      "comment" : "VoiceOver label of the clock in the toolbar",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current time"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前时间"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

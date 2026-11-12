@@ -1,0 +1,55 @@
+//
+//  WelcomePitch.swift
+//  Starfold
+//
+//  Created by Jiawen Sun on 2026/11/12.
+//
+
+import StarfoldShared
+import SwiftUI
+
+struct WelcomePitch: View {
+    @Environment(\.dimensions) private var dimensions
+
+    let features: [WelcomeFeature]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: dimensions.spaceXXXLarge) {
+            headline
+
+            VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
+                ForEach(features, content: WelcomeFeatureRow.init(feature:))
+            }
+        }
+    }
+}
+
+private extension WelcomePitch {
+    var headline: some View {
+        VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
+            Image(systemName: "gamecontroller.fill")
+                .font(.system(size: dimensions.welcomeAppSymbolPointSize))
+                .frame(
+                    width: dimensions.welcomeAppSymbolBackgroundSize,
+                    height: dimensions.welcomeAppSymbolBackgroundSize
+                )
+                .background(Color.cardFill, in: .circle)
+                .accessibilityHidden(true)
+
+            Text("welcome.headline")
+                .font(.system(size: dimensions.welcomeHeadlinePointSize, weight: .bold))
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text("welcome.subtitle")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+#if DEBUG
+#Preview {
+    WelcomePitch(features: WelcomeFeature.allCases)
+}
+#endif

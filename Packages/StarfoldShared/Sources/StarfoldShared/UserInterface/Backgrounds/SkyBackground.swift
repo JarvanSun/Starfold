@@ -1,0 +1,89 @@
+//
+//  SkyBackground.swift
+//  StarfoldShared
+//
+//  Created by Jiawen Sun on 2026/09/30.
+//
+
+import SwiftUI
+
+public struct SkyBackground: View {
+    @Environment(\.palette) private var palette
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    #if os(macOS)
+    @Environment(\.controlActiveState) private var activeState
+    #endif
+    @State private var start = Date.now
+
+    public init() {}
+
+    public var body: some View {
+        TimelineView(.animation(minimumInterval: frameInterval, paused: isPaused)) { context in
+            GeometryReader { proxy in
+                Rectangle()
+                    .colorEffect(sky(size: proxy.size, time: shaderTime(at: context.date)))
+            }
+        }
+        .ignoresSafeArea()
+        .accessibilityHidden(true)
+    }
+}
+
+private extension SkyBackground {
+    var frameInterval: Double {
+        1 / 30
+    }
+
+    var stillFrameTime: Float {
+        12
+    }
+
+    var isPaused: Bool {
+        #if os(macOS)
+        reduceMotion || activeState == .inactive
+        #else
+        reduceMotion
+        #endif
+    }
+
+    func shaderTime(at date: Date) -> Float {
+        switch reduceMotion {
+        case true: stillFrameTime
+        case false: Float(date.timeIntervalSince(start))
+        }
+    }
+
+    func sky(size: CGSize, time: Float) -> Shader {
+        let sky = palette.sky
+        return ShaderLibrary.bundle(.module).paletteSky(
+            .float2(size),
+            .float(time),
+            sky.top.shaderArgument,
+            sky.bottom.shaderArgument,
+            sky.glow.tint.shaderArgument,
+            .float(sky.glow.strength),
+            sky.ribbons.first.shaderArgument,
+            sky.ribbons.second.shaderArgument,
+            sky.ribbons.third.shaderArgument,
+            .float(sky.ribbons.strength)
+        )
+    }
+}
+
+private extension RGBColor {
+    var shaderArgument: Shader.Argument {
+        .float3(Float(red), Float(green), Float(blue))
+    }
+}
+
+#if DEBUG
+#Preview("Palettes") {
+    VStack(spacing: 0) {
+        ForEach(PaletteID.allCases, id: \.self) { id in
+            SkyBackground()
+                .frame(width: 900, height: 600)
+                .palette(Palette(id))
+        }
+    }
+}
+#endif

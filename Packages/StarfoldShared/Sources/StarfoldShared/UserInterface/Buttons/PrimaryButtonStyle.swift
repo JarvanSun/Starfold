@@ -1,0 +1,154 @@
+//
+//  PrimaryButtonStyle.swift
+//  StarfoldShared
+//
+//  Created by Jiawen Sun on 2026/11/12.
+//
+
+import SwiftUI
+
+public struct PrimaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.palette) private var palette
+    @Environment(\.dimensions) private var dimensions
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isHovering = false
+
+    private let size: PrimaryButtonSize
+
+    public init(size: PrimaryButtonSize) {
+        self.size = size
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(size.font)
+            .foregroundStyle(palette.primaryLabelColor)
+            .padding(.horizontal, size.horizontalPadding(in: dimensions))
+            .padding(.vertical, size.verticalPadding(in: dimensions))
+            .background(palette.primaryFill, in: .capsule)
+            .overlay(hoverLight(isPressed: configuration.isPressed))
+            .overlay(rim)
+            .shadow(
+                color: glow(isPressed: configuration.isPressed),
+                radius: glowRadius(isPressed: configuration.isPressed),
+                y: dimensions.spaceXSmall
+            )
+            .scaleEffect(configuration.isPressed ? pressedScale : 1)
+            .opacity(isEnabled ? 1 : disabledOpacity)
+            .saturation(isEnabled ? 1 : 0)
+            .scaleEffect(hoverScale(isPressed: configuration.isPressed))
+            .animation(pressAnimation, value: configuration.isPressed)
+            .animation(hoverAnimation, value: isHovering)
+            #if !os(tvOS)
+        .onHover { isHovering = $0 }
+            #endif
+            .contentShape(.capsule)
+    }
+}
+
+// MARK: - Private
+
+private extension PrimaryButtonStyle {
+    var hoverLightOpacity: Double {
+        0.14
+    }
+
+    var rimOpacity: Double {
+        0.35
+    }
+
+    var glowOpacity: Double {
+        0.45
+    }
+
+    var pressedGlowOpacity: Double {
+        0.2
+    }
+
+    var shadowOpacity: Double {
+        0.6
+    }
+
+    var pressedScale: CGFloat {
+        0.96
+    }
+
+    var disabledOpacity: Double {
+        0.4
+    }
+
+    var hoverGrowth: CGFloat {
+        1.03
+    }
+
+    var pressAnimation: Animation {
+        .spring(duration: 0.25, bounce: 0.4)
+    }
+
+    var hoverAnimation: Animation {
+        .easeOut(duration: 0.15)
+    }
+
+    var rim: some View {
+        Capsule()
+            .strokeBorder(.white.opacity(rimOpacity), lineWidth: dimensions.hairline)
+            .blendMode(.overlay)
+    }
+
+    var glowColor: Color {
+        switch palette.hasPrimaryGlow {
+        case true: palette.primaryTint
+        case false: .black.opacity(shadowOpacity)
+        }
+    }
+
+    func hoverLight(isPressed: Bool) -> some View {
+        Capsule().fill(.white.opacity(isHoverLit(isPressed: isPressed) ? hoverLightOpacity : 0))
+    }
+
+    func glow(isPressed: Bool) -> Color {
+        glowColor.opacity(isPressed ? pressedGlowOpacity : glowOpacity)
+    }
+
+    func glowRadius(isPressed: Bool) -> CGFloat {
+        isPressed ? dimensions.shadowRadiusSmall : dimensions.shadowRadiusMedium
+    }
+
+    func hoverScale(isPressed: Bool) -> CGFloat {
+        let growsUnderPointer = isHoverLit(isPressed: isPressed) && !reduceMotion
+        return growsUnderPointer ? hoverGrowth : 1
+    }
+
+    func isHoverLit(isPressed: Bool) -> Bool {
+        isHovering && isEnabled && !isPressed
+    }
+}
+
+// MARK: - Previews
+
+#if DEBUG
+#Preview("Sizes and palettes") {
+    HStack {
+        ForEach(PaletteID.allCases, id: \.self) { id in
+            VStack {
+                ForEach([PrimaryButtonSize.compact, .regular, .large], id: \.self) { size in
+                    Button(action: {}) {
+                        Text(verbatim: "\(id) \(size)")
+                    }
+                    .buttonStyle(PrimaryButtonStyle(size: size))
+                }
+
+                Button(action: {}) {
+                    Text(verbatim: "\(id) disabled")
+                }
+                .buttonStyle(.primary)
+                .disabled(true)
+            }
+            .padding()
+            .background(Palette(id).night.color)
+            .palette(Palette(id))
+        }
+    }
+}
+#endif

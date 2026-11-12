@@ -1,0 +1,248 @@
+//
+//  MessageChannel.swift
+//  StreamKit
+//
+//  Created by Jiawen Sun on 2026/09/28.
+//
+
+import Foundation
+
+struct MessageChannel: Sendable {
+    private let correlationBase: String
+    private var correlationCount = 0
+
+    init() {
+        self.init(
+            correlationBase: UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
+        )
+    }
+
+    init(correlationBase: String) {
+        self.correlationBase = correlationBase
+    }
+
+    mutating func handshake() -> Data {
+        encode([
+            "type": MessageEnvelopeType.handshake.rawValue,
+            "version": "messageV1",
+            "id": newMessageID(),
+            "cv": nextCorrelationVector(),
+        ])
+    }
+
+    mutating func initialConfiguration(
+        videoWidth: Int,
+        videoHeight: Int,
+        clientAppInstallID: UUID,
+        isTouchEnabled: Bool
+    ) -> [Data] {
+        [
+            message(
+                .systemUIConfiguration,
+                ["version": [0, 2, 0], "systemUis": supportedSystemUIs]
+            ),
+            message(
+                .clientAppInstallIDChanged,
+                ["clientAppInstallId": clientAppInstallID.uuidString.lowercased()]
+            ),
+            message(.orientationChanged, ["orientation": 0]),
+            message(.touchInputEnabledChanged, ["touchInputEnabled": isTouchEnabled]),
+            message(.clientDeviceCapabilities, [:]),
+            dimensionsChanged(width: videoWidth, height: videoHeight),
+        ]
+    }
+
+    mutating func completeMessageDialog(id: String, buttonIndex: Int) -> Data {
+        transactionComplete(id: id, content: ["Result": buttonIndex])
+    }
+
+    mutating func completeKeyboard(id: String, text: String) -> Data {
+        transactionComplete(id: id, content: ["Text": text])
+    }
+
+    mutating func cancel(id: String) -> Data {
+        encode([
+            "type": MessageEnvelopeType.receiverCancel.rawValue,
+            "id": id,
+            "cv": nextCorrelationVector(),
+        ])
+    }
+
+    mutating func receive(_ data: Data) -> [MessageChannelEvent] {
+        let withoutPadding = Data(data.filter { $0 != 0 })
+        guard
+            let envelope = try? JSONSerialization.jsonObject(with: withoutPadding)
+                as? [String: Any],
+            let type = (envelope["type"] as? String).flatMap(MessageEnvelopeType.init(rawValue:))
+        else { return [] }
+
+        let id = envelope["id"] as? String ?? ""
+        let target = envelope["target"] as? String ?? ""
+        return switch type {
+        case .handshakeAcknowledgement: [.handshakeAcknowledged]
+        case .senderCancel: [.dialogCancelled(id: id)]
+        case .message, .transactionStart:
+            receiveMessage(
+                target: target,
+                id: id,
+                content: content(of: envelope["content"]),
+                isTransaction: type == .transactionStart
+            )
+        case .handshake, .transactionComplete, .receiverCancel, .unhandled: []
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension MessageChannel {
+    var supportedSystemUIs: [Int] { [10, 19] }
+
+    var touchControlsPrefix: String { "/streaming/touchcontrols/" }
+
+    func newMessageID() -> String {
+        UUID().uuidString.lowercased()
+    }
+
+    mutating func nextCorrelationVector() -> String {
+        correlationCount += 1
+        return "\(correlationBase).\(correlationCount)"
+    }
+
+    func encode(_ object: [String: Any]) -> Data {
+        let options: JSONSerialization.WritingOptions = [.sortedKeys, .withoutEscapingSlashes]
+        return (try? JSONSerialization.data(withJSONObject: object, options: options)) ?? Data()
+    }
+
+    mutating func message(_ target: MessageTarget, _ content: [String: Any]) -> Data {
+        encode([
+            "type": MessageEnvelopeType.message.rawValue,
+            "id": newMessageID(),
+            "target": target.rawValue,
+            "content": jsonString(content),
+            "cv": nextCorrelationVector(),
+        ])
+    }
+
+    func jsonString(_ content: [String: Any]) -> String {
+        let options: JSONSerialization.WritingOptions = [.sortedKeys, .withoutEscapingSlashes]
+        let data = try? JSONSerialization.data(withJSONObject: content, options: options)
+        return data.map { String(decoding: $0, as: UTF8.self) } ?? "{}"
+    }
+
+    mutating func dimensionsChanged(width: Int, height: Int) -> Data {
+        message(
+            .dimensionsChanged,
+            [
+                "horizontal": width,
+                "vertical": height,
+                "preferredWidth": width,
+                "preferredHeight": height,
+                "safeAreaLeft": 0,
+                "safeAreaTop": 0,
+                "safeAreaRight": width,
+                "safeAreaBottom": height,
+                "supportsCustomResolution": true,
+            ]
+        )
+    }
+
+    mutating func transactionComplete(id: String, content: [String: Any]) -> Data {
+        encode([
+            "type": MessageEnvelopeType.transactionComplete.rawValue,
+            "id": id,
+            "content": jsonString(content),
+            "cv": nextCorrelationVector(),
+        ])
+    }
+
+    func content(of value: Any?) -> [String: Any] {
+        switch value {
+        case let object as [String: Any]:
+            return object
+        case let text as String:
+            guard let data = text.data(using: .utf8),
+                let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+            else { return [:] }
+
+            return object
+        default:
+            return [:]
+        }
+    }
+
+    mutating func receiveMessage(
+        target: String,
+        id: String,
+        content: [String: Any],
+        isTransaction: Bool
+    ) -> [MessageChannelEvent] {
+        switch MessageTarget(rawValue: target) {
+        case .showMessageDialog:
+            [.dialog(messageDialog(id: id, content: content))]
+        case .showVirtualKeyboard:
+            [.dialog(keyboardDialog(id: id, content: content))]
+        case .serverInitiatedDisconnect where isTransaction:
+            [.reply(transactionComplete(id: id, content: [:])), .serverDisconnect]
+        case .serverInitiatedDisconnect:
+            [.serverDisconnect]
+        case .titleInfo:
+            []
+        case .systemUIConfiguration, .clientAppInstallIDChanged, .orientationChanged,
+            .touchInputEnabledChanged, .clientDeviceCapabilities, .dimensionsChanged, nil:
+            receiveUnknownMessage(target: target, id: id, isTransaction: isTransaction)
+        }
+    }
+
+    func messageDialog(id: String, content: [String: Any]) -> SystemDialogRequest {
+        let buttons = ["CommandLabel1", "CommandLabel2", "CommandLabel3"]
+            .compactMap { content[$0] as? String }
+            .filter { !$0.isEmpty }
+        let kind = SystemDialogRequest.Kind.message(
+            title: content["TitleText"] as? String ?? "",
+            text: content["ContentText"] as? String ?? "",
+            buttons: buttons,
+            defaultIndex: integer(content["DefaultIndex"]) ?? 0,
+            cancelIndex: integer(content["CancelIndex"])
+        )
+        return .init(id: id, kind: kind)
+    }
+
+    func keyboardDialog(id: String, content: [String: Any]) -> SystemDialogRequest {
+        let kind = SystemDialogRequest.Kind.keyboard(
+            title: content["TitleText"] as? String ?? "",
+            description: content["DescriptionText"] as? String ?? "",
+            defaultText: content["DefaultText"] as? String ?? "",
+            maxLength: integer(content["MaxLength"])
+        )
+        return .init(id: id, kind: kind)
+    }
+
+    func integer(_ value: Any?) -> Int? {
+        switch value {
+        case let number as NSNumber: number.intValue
+        case let text as String: Int(text)
+        default: nil
+        }
+    }
+
+    mutating func receiveUnknownMessage(target: String, id: String, isTransaction: Bool)
+        -> [MessageChannelEvent]
+    {
+        let isTouchControls = target.hasPrefix(touchControlsPrefix)
+        return switch (isTouchControls, isTransaction) {
+        case (true, true): [.reply(cancel(id: id))]
+        case (true, false): []
+        case (false, _): [.reply(unhandled(id: id, target: target))]
+        }
+    }
+
+    mutating func unhandled(id: String, target: String) -> Data {
+        encode([
+            "type": MessageEnvelopeType.unhandled.rawValue,
+            "id": id,
+            "target": target,
+            "cv": nextCorrelationVector(),
+        ])
+    }
+}

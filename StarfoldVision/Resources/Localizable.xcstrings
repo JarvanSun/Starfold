@@ -1,0 +1,1519 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "app.powerProblem.ok" : {
+      "comment" : "Console power alert: button that dismisses it",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
+          }
+        }
+      }
+    },
+    "app.signInExpired.message" : {
+      "comment" : "Alert message when the saved sign-in expired",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in again to see your consoles and games."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新登录以查看你的主机和游戏。"
+          }
+        }
+      }
+    },
+    "app.signInExpired.notNow" : {
+      "comment" : "Sign-in expired alert: button that dismisses it",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Now"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以后再说"
+          }
+        }
+      }
+    },
+    "app.signInExpired.signIn" : {
+      "comment" : "Sign-in expired alert: button that opens sign-in",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录"
+          }
+        }
+      }
+    },
+    "app.signInExpired.title" : {
+      "comment" : "Alert title when the saved sign-in expired",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign-in expired"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录已过期"
+          }
+        }
+      }
+    },
+    "app.tab.cloudGaming" : {
+      "comment" : "Tab bar, signed in: the cloud game library",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud Gaming"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "云游戏"
+          }
+        }
+      }
+    },
+    "app.tab.home" : {
+      "comment" : "Tab bar, signed in: consoles and recently played games",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主页"
+          }
+        }
+      }
+    },
+    "app.tab.settings" : {
+      "comment" : "Tab bar, signed in and signed out: Settings",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        }
+      }
+    },
+    "app.tab.signIn" : {
+      "comment" : "Tab bar, signed out: the welcome screen with sign-in",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录"
+          }
+        }
+      }
+    },
+    "game.about.title" : {
+      "comment" : "Game page: title above the description",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简介"
+          }
+        }
+      }
+    },
+    "game.play" : {
+      "comment" : "Game page: primary button that starts the cloud game",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始游戏"
+          }
+        }
+      }
+    },
+    "game.screenshots.title" : {
+      "comment" : "Game page: title above the screenshot row",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screenshots"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "截图"
+          }
+        }
+      }
+    },
+    "home.account.addAccount" : {
+      "comment" : "Account menu: item that signs in another account",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Account…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加账户…"
+          }
+        }
+      }
+    },
+    "home.account.gamerscore %@" : {
+      "comment" : "Home toolbar account menu: gamerscore under the gamertag, e.g. 5,865 G",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ G"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ G"
+          }
+        }
+      }
+    },
+    "home.account.signOut" : {
+      "comment" : "Account menu: item that asks to sign out",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出登录…"
+          }
+        }
+      }
+    },
+    "home.account.signOutConfirmation.signOut" : {
+      "comment" : "Sign-out confirmation dialog: button that signs out",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出登录"
+          }
+        }
+      }
+    },
+    "home.account.signOutConfirmation.title %@" : {
+      "comment" : "Sign-out confirmation dialog title; the argument is the gamertag",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out of “%@”?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要退出“%@”吗？"
+          }
+        }
+      }
+    },
+    "home.account.switchAccount" : {
+      "comment" : "Account menu: section listing the signed-in accounts",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch Account"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切换账户"
+          }
+        }
+      }
+    },
+    "home.account.title" : {
+      "comment" : "Home toolbar: VoiceOver label of the account menu",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账户"
+          }
+        }
+      }
+    },
+    "home.console.play" : {
+      "comment" : "Home console card: button that starts remote play",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始游戏"
+          }
+        }
+      }
+    },
+    "home.console.wirelessWarning" : {
+      "comment" : "Home console card: VoiceOver label of the Wi-Fi icon when the console uses a wireless network",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On Wi-Fi. A wired connection is steadier."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 Wi-Fi，有线连接更稳定。"
+          }
+        }
+      }
+    },
+    "home.consoles.empty.message" : {
+      "comment" : "Home: message card text explaining how to make a console appear",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on Remote features on your Xbox."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请在 Xbox 上开启远程功能。"
+          }
+        }
+      }
+    },
+    "home.consoles.empty.refresh" : {
+      "comment" : "Home: button on the no-consoles card that reloads consoles",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刷新"
+          }
+        }
+      }
+    },
+    "home.consoles.empty.title" : {
+      "comment" : "Home: message card title when the account has no consoles",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No consoles"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有主机"
+          }
+        }
+      }
+    },
+    "home.consoles.failed.retry" : {
+      "comment" : "Home: button on the console error card that reloads consoles",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
+    "home.consoles.failed.title" : {
+      "comment" : "Home: message card title when the console list fails to load",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t load consoles"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法加载主机"
+          }
+        }
+      }
+    },
+    "home.consoles.loading" : {
+      "comment" : "Home: VoiceOver label of a console card placeholder while consoles load",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在加载"
+          }
+        }
+      }
+    },
+    "home.consoles.title" : {
+      "comment" : "Home: title above the console cards",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consoles"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机"
+          }
+        }
+      }
+    },
+    "home.recentGames.play %@" : {
+      "comment" : "Home: VoiceOver label of a recently played game; the argument is the game name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始游戏：%@"
+          }
+        }
+      }
+    },
+    "home.recentGames.title" : {
+      "comment" : "Home: title above the recently played cloud games",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue Playing"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续游玩"
+          }
+        }
+      }
+    },
+    "library.failed.retry" : {
+      "comment" : "Cloud library: button on the error card that reloads games",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
+    "library.failed.title" : {
+      "comment" : "Cloud library: message card title when the games fail to load",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t load games"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法加载游戏"
+          }
+        }
+      }
+    },
+    "library.game.play" : {
+      "comment" : "Cloud library: context menu item on a game tile that starts the game",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始游戏"
+          }
+        }
+      }
+    },
+    "library.search.prompt" : {
+      "comment" : "Cloud library: search field placeholder",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search games"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索游戏"
+          }
+        }
+      }
+    },
+    "library.sort.title" : {
+      "comment" : "Cloud library toolbar: sort picker",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "排序"
+          }
+        }
+      }
+    },
+    "library.title" : {
+      "comment" : "Cloud library: navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud Gaming"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "云游戏"
+          }
+        }
+      }
+    },
+    "library.unavailable.message" : {
+      "comment" : "Cloud library: message card text when the account can’t use cloud gaming",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs Xbox Game Pass in a supported region."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要在支持的地区订阅 Xbox Game Pass。"
+          }
+        }
+      }
+    },
+    "library.unavailable.retry" : {
+      "comment" : "Cloud library: button on the unavailable card that reloads games",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
+    "library.unavailable.title" : {
+      "comment" : "Cloud library: message card title when the account can’t use cloud gaming",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud gaming isn’t available"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "云游戏不可用"
+          }
+        }
+      }
+    },
+    "settings.bitrate.title" : {
+      "comment" : "Settings quality section: maximum bitrate picker",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum bitrate"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最高码率"
+          }
+        }
+      }
+    },
+    "settings.cloud.footer" : {
+      "comment" : "Settings: footnote under the cloud gaming section",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not every game offers every language."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不是每款游戏都支持所有语言。"
+          }
+        }
+      }
+    },
+    "settings.cloud.gameLanguage" : {
+      "comment" : "Settings cloud gaming section: picker for the cloud game language",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Game language"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "游戏语言"
+          }
+        }
+      }
+    },
+    "settings.cloud.title" : {
+      "comment" : "Settings: section header for cloud gaming options",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud Gaming"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "云游戏"
+          }
+        }
+      }
+    },
+    "settings.controllers.empty" : {
+      "comment" : "Settings controllers section: text when no controller is connected",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No controller. Pair one in Settings > Bluetooth."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未连接手柄。可在“设置 > 蓝牙”中配对。"
+          }
+        }
+      }
+    },
+    "settings.controllers.player %lld" : {
+      "comment" : "Settings controllers section: the player slot a connected controller uses",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Player %lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "玩家 %lld"
+          }
+        }
+      }
+    },
+    "settings.controllers.rumble" : {
+      "comment" : "Settings controllers section: toggle for controller vibration",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rumble"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "震动"
+          }
+        }
+      }
+    },
+    "settings.controllers.testVibration" : {
+      "comment" : "Settings controllers section: button that makes a controller vibrate briefly",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test Vibration"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "测试震动"
+          }
+        }
+      }
+    },
+    "settings.controllers.title" : {
+      "comment" : "Settings: section header for game controllers",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controllers"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手柄"
+          }
+        }
+      }
+    },
+    "settings.picture.buffer" : {
+      "comment" : "Settings picture section: picker for how much the stream buffers for smoothness",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buffer"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缓冲"
+          }
+        }
+      }
+    },
+    "settings.picture.footer" : {
+      "comment" : "Settings: footnote under the picture section",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard keeps the picture smooth and buffers only as much as your network needs. Low Latency shows frames sooner but stutters when Wi-Fi is uneven."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“标准”画面流畅，只按网络需要缓冲；“低延迟”画面更快，但 Wi-Fi 不稳时会卡顿。"
+          }
+        }
+      }
+    },
+    "settings.picture.statistics" : {
+      "comment" : "Settings picture section: toggle for the statistics overlay",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show statistics while streaming"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "串流时显示统计信息"
+          }
+        }
+      }
+    },
+    "settings.picture.title" : {
+      "comment" : "Settings: section header for buffer and statistics",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picture"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面"
+          }
+        }
+      }
+    },
+    "settings.quality.cloud" : {
+      "comment" : "Settings quality section: picker for cloud streams",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud quality"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "云游戏画质"
+          }
+        }
+      }
+    },
+    "settings.quality.console" : {
+      "comment" : "Settings quality section: picker for console streams",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Console quality"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机串流画质"
+          }
+        }
+      }
+    },
+    "settings.quality.footer" : {
+      "comment" : "Settings: footnote under the quality section",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic lowers the resolution when the network can’t keep up. Changes apply to the next stream."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络跟不上时自动降低分辨率。更改在下次串流时生效。"
+          }
+        }
+      }
+    },
+    "settings.quality.title" : {
+      "comment" : "Settings: section header for stream quality",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quality"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画质"
+          }
+        }
+      }
+    },
+    "settings.sound.footer" : {
+      "comment" : "Settings: footnote under the sound section",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow Window plays the game’s sound from the stream window. Direct Stereo plays it straight to both ears, like headphones."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“跟随窗口”让游戏声音从串流窗口发出；“直接立体声”直接送到双耳，像戴耳机一样。"
+          }
+        }
+      }
+    },
+    "settings.sound.stage" : {
+      "comment" : "Settings sound section: picker for where the stream’s sound comes from",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sound"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声音"
+          }
+        }
+      }
+    },
+    "settings.sound.title" : {
+      "comment" : "Settings: section header for where the stream’s sound comes from",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sound"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声音"
+          }
+        }
+      }
+    },
+    "settings.title" : {
+      "comment" : "Settings tab: navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        }
+      }
+    },
+    "signIn.code.accessibilityLabel %@" : {
+      "comment" : "Sign-in panel: VoiceOver label reading the code letter by letter",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Code %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "验证码 %@"
+          }
+        }
+      }
+    },
+    "signIn.code.instructions %@" : {
+      "comment" : "Sign-in panel: text above the code; the argument is microsoft.com/link",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "or enter the code at %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "或在 %@ 输入验证码"
+          }
+        }
+      }
+    },
+    "signIn.code.signIn" : {
+      "comment" : "Sign-in panel: button that copies the code and opens the Microsoft sign-in page",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录"
+          }
+        }
+      }
+    },
+    "signIn.code.waiting" : {
+      "comment" : "Sign-in panel: status under the code while waiting for the browser",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for sign in…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在等待登录…"
+          }
+        }
+      }
+    },
+    "signIn.failure.retry" : {
+      "comment" : "Sign-in panel: button under a sign-in error that requests a new code",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get a New Code"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "获取新验证码"
+          }
+        }
+      }
+    },
+    "signIn.outline.preparing" : {
+      "comment" : "Sign-in panel: VoiceOver label of the placeholder while a code is requested",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing sign-in…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在准备登录…"
+          }
+        }
+      }
+    },
+    "signIn.sheet.cancel" : {
+      "comment" : "Add account sheet: toolbar button that closes it",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "signIn.sheet.title" : {
+      "comment" : "Add account sheet: navigation title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Account"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加账户"
+          }
+        }
+      }
+    },
+    "stream.controls.disconnect" : {
+      "comment" : "Stream control bar: button that ends the stream",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "断开连接"
+          }
+        }
+      }
+    },
+    "stream.controls.guide" : {
+      "comment" : "Stream control bar: button that opens the Xbox Guide",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox Guide"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox 指南"
+          }
+        }
+      }
+    },
+    "stream.controls.options" : {
+      "comment" : "Stream control bar: button that opens the buffer and sound options",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stream Options"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "串流选项"
+          }
+        }
+      }
+    },
+    "stream.controls.statistics" : {
+      "comment" : "Stream control bar: toggle for the statistics overlay",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistics"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "统计信息"
+          }
+        }
+      }
+    },
+    "stream.dialog.cancel" : {
+      "comment" : "Game text prompt: toolbar button that cancels it",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "stream.dialog.done" : {
+      "comment" : "Game text prompt: toolbar button that sends the text",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
+        }
+      }
+    },
+    "stream.empty.title" : {
+      "comment" : "Stream window: title when nothing is streaming",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Stream"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有串流"
+          }
+        }
+      }
+    },
+    "stream.ended.close" : {
+      "comment" : "Stream window, after a stream ended: button that closes the window",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "stream.ended.tryAgain" : {
+      "comment" : "Stream window, after a stream ended: button that starts it again",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
+    "stream.options.buffer" : {
+      "comment" : "Stream options popover: title and picker for how much the stream buffers",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buffer"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缓冲"
+          }
+        }
+      }
+    },
+    "stream.options.sound" : {
+      "comment" : "Stream options popover: title and picker for where the sound comes from",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sound"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声音"
+          }
+        }
+      }
+    },
+    "stream.statistics.latency" : {
+      "comment" : "Statistics overlay: headline row with the estimated input-to-picture latency",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latency"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "延迟"
+          }
+        }
+      }
+    },
+    "stream.status.cancel" : {
+      "comment" : "Stream window status: button that cancels a stream that is starting",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "welcome.features.console.detail" : {
+      "comment" : "Welcome screen: first feature detail",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play your Xbox on a screen as big as the room."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在和房间一样大的屏幕上玩 Xbox。"
+          }
+        }
+      }
+    },
+    "welcome.features.console.title" : {
+      "comment" : "Welcome screen: first feature title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your console, in your space"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机就在你的空间里"
+          }
+        }
+      }
+    },
+    "welcome.features.visionPro.detail" : {
+      "comment" : "Welcome screen: last feature detail",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smooth at 90 Hz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90 Hz，流畅不卡。"
+          }
+        }
+      }
+    },
+    "welcome.features.visionPro.title" : {
+      "comment" : "Welcome screen: last feature title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Made for Vision Pro"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为 Vision Pro 打造"
+          }
+        }
+      }
+    },
+    "welcome.headline" : {
+      "comment" : "Welcome screen: headline; keep the line break",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Xbox,\nin your space"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的 Xbox，\n就在你的空间里"
+          }
+        }
+      }
+    },
+    "welcome.signIn.title" : {
+      "comment" : "Welcome screen: title of the sign-in card",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in with Xbox"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 Xbox 登录"
+          }
+        }
+      }
+    },
+    "welcome.subtitle" : {
+      "comment" : "Welcome screen: subtitle under the headline",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stream games from your console or the cloud."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从主机或云端串流游戏。"
+          }
+        }
+      }
+    },
+    "welcome.trademark %@" : {
+      "comment" : "Welcome screen: trademark notice at the bottom; the argument is the app name",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ isn’t affiliated with or endorsed by Microsoft. Xbox is a trademark of the Microsoft group of companies."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 与 Microsoft 无关联，也未获其认可。Xbox 是 Microsoft 集团公司的商标。"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
