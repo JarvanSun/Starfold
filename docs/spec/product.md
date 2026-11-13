@@ -251,11 +251,11 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
 - **Tabs:** Home, Cloud Gaming, Settings and the system search tab, signed in. The tab bar floats
   at the bottom on iPhone and at the top on iPad. The account menu is in Home's toolbar.
 - **Signed out** there are no tabs: the welcome page, with Settings behind a gear at the top right
-  (a sheet). In compact width it shows the app icon at the top left and three steps (sign in, pick
-  a console or a cloud game, play with touch or a controller) above a sign-in sheet fixed to the
-  bottom: the code, a full-width Sign In, the other-device line, the waiting status and the
-  trademark line. The same layout serves landscape: the sheet (at most 480 pt wide) covers the
-  steps, which fade under it and scroll. In regular width it
+  (a sheet). In compact portrait it shows the app icon at the top left and three steps (sign in,
+  pick a console or a cloud game, play with touch or a controller) above a sign-in sheet fixed to
+  the bottom: the code, a full-width Sign In, the other-device line and the waiting status. In
+  compact landscape the same content is a blurred backdrop and the sign-in card (at most 480 pt
+  wide) sits in the middle. The iPhone welcome page carries no trademark line. In regular width it
   keeps the pitch beside the sign-in card.
 - **Home:** console cards, then Continue Playing (up to 10); no cloud card. On iPhone one card fills
   the width and the cards page sideways; on iPad they are Mac-sized and sit in a row. **Cloud

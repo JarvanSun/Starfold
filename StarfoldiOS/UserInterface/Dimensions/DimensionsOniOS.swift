@@ -48,6 +48,7 @@ extension Dimensions {
     var welcomeCompactGlyphSize: CGFloat { 56 }
     var welcomePanelWidth: CGFloat { 420 }
     var welcomeSheetMaxWidth: CGFloat { 480 }
+    var welcomeBackdropBlur: CGFloat { 18 }
     var welcomeFeatureSymbolSize: CGFloat { 44 }
 
     var signInStatusMinimumHeight: CGFloat { 300 }

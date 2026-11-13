@@ -30,9 +30,12 @@ struct WelcomeView: View {
 
     @ViewBuilder
     private func layout(in size: CGSize) -> some View {
-        switch hasRoomSideBySide(in: size) {
-        case true: sideBySide
-        case false: stacked
+        if hasRoomSideBySide(in: size) {
+            sideBySide
+        } else if size.width > size.height {
+            landscape
+        } else {
+            stacked
         }
     }
 
@@ -61,21 +64,41 @@ struct WelcomeView: View {
 
     private var stacked: some View {
         ScrollView {
-            glyphAndSteps
+            glyphAndSteps(glyphSize: dimensions.welcomeGlyphSize)
                 .padding(.horizontal, dimensions.spaceXXLarge)
                 .padding(.bottom, dimensions.spaceXXLarge)
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollEdgeEffectStyle(.soft, for: .bottom)
         .safeAreaBar(edge: .bottom) {
-            WelcomeSignInSheet(step: signIn.step, onRetry: { signIn.retry() })
-                .frame(maxWidth: dimensions.welcomeSheetMaxWidth)
+            signInSheet(placement: .bottom)
         }
     }
 
-    private var glyphAndSteps: some View {
+    private var landscape: some View {
+        glyphAndSteps(glyphSize: dimensions.welcomeCompactGlyphSize)
+            .padding(.horizontal, dimensions.spaceXXLarge)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .blur(radius: dimensions.welcomeBackdropBlur)
+            .accessibilityHidden(true)
+            .overlay {
+                ScrollView {
+                    signInSheet(placement: .center)
+                        .containerRelativeFrame(.vertical)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+                .scrollIndicators(.hidden)
+            }
+    }
+
+    private func signInSheet(placement: WelcomeSignInPlacement) -> some View {
+        WelcomeSignInSheet(step: signIn.step, placement: placement, onRetry: { signIn.retry() })
+            .frame(maxWidth: dimensions.welcomeSheetMaxWidth)
+    }
+
+    private func glyphAndSteps(glyphSize: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: dimensions.spaceHuge) {
-            AppGlyph(size: dimensions.welcomeCompactGlyphSize)
+            AppGlyph(size: glyphSize)
 
             WelcomeSteps()
         }
