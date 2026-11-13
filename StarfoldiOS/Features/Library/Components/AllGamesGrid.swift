@@ -11,23 +11,16 @@ import XboxKit
 
 struct AllGamesGrid: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var library: LibraryViewModel
+    let library: LibraryViewModel
 
     let onOpenGame: (CloudGame) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
-            HStack {
-                LibrarySectionHeader(
-                    title: "library.allGames.title",
-                    count: library.sortedGames.count
-                )
-
-                Spacer()
-
-                SortPicker(sort: $library.sort, choices: library.sortChoices)
-                    .pageMargins()
-            }
+            LibrarySectionHeader(
+                title: "library.allGames.title",
+                count: library.sortedGames.count
+            )
 
             GameGrid(
                 games: library.sortedGames,

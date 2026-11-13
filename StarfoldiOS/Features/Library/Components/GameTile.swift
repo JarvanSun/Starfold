@@ -27,7 +27,7 @@ struct GameTile: View {
 
             Text(game.name)
                 .font(.callout.weight(.medium))
-                .lineLimit(1)
+                .lineLimit(2, reservesSpace: true)
                 .foregroundStyle(nameStyle)
         }
         .contentShape(.rect)

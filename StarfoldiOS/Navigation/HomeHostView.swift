@@ -44,6 +44,11 @@ struct HomeHostView: View {
         cloudGamingContent
             .background { SkyBackground() }
             .navigationTitle(Text("library.title"))
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    SortPicker(sort: $library.sort, choices: library.sortChoices)
+                }
+            }
             .searchable(
                 text: $library.searchText,
                 placement: .navigationBarDrawer(displayMode: .always),

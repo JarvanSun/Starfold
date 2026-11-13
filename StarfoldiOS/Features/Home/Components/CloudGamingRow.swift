@@ -60,17 +60,16 @@ struct CloudGamingRow: View {
         .accessibilityHidden(true)
     }
 
+    private var statusLine: LocalizedStringResource {
+        library.cloudAccess.cardSubtitle(gameCount: library.games.count)
+            ?? library.cloudAccess.statusText
+    }
+
     private var status: some View {
         HStack(spacing: dimensions.spaceXSmall) {
             StatusDot(color: library.cloudAccess.statusColor, pulsing: false)
 
-            Text(library.cloudAccess.statusText)
-
-            if let subtitle = library.cloudAccess.cardSubtitle(gameCount: library.games.count) {
-                Text(verbatim: "·")
-
-                Text(subtitle)
-            }
+            Text(statusLine)
         }
         .font(.subheadline)
         .foregroundStyle(.secondary)

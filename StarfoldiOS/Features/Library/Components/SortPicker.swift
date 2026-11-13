@@ -14,17 +14,19 @@ struct SortPicker: View {
     let choices: [GameSort]
 
     var body: some View {
-        Picker(selection: $sort) {
-            ForEach(choices, id: \.self) { choice in
-                Label(choice.title, systemImage: choice.symbol)
-                    .tag(choice)
+        Menu {
+            Picker(selection: $sort) {
+                ForEach(choices, id: \.self) { choice in
+                    Label(choice.title, systemImage: choice.symbol)
+                        .tag(choice)
+                }
+            } label: {
+                Text("library.sort.title")
             }
+            .pickerStyle(.inline)
         } label: {
-            Text("library.sort.title")
+            Label("library.sort.title", systemImage: "arrow.up.arrow.down")
         }
-        .pickerStyle(.menu)
-        .labelsHidden()
-        .fixedSize()
     }
 }
 

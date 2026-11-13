@@ -261,8 +261,10 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
   count), then Continue Playing (up to 10). On iPhone one console card fills the width and the
   cards page sideways; on iPad they are Mac-sized and sit in a row. With no cloud access the row
   says why and does not open.
-- **Cloud Gaming** opens from that row on Home's stack: the Mac's rows and All Games with a sort
-  menu, and a search field under the title that searches the same cloud library (no search tab).
+- **Cloud Gaming** opens from that row on Home's stack: the Mac's rows and All Games, a sort
+  button at the top right (a menu: Name, Recently Played) and a search field under the title that
+  searches the same cloud library (no search tab). Game names wrap to two lines, with two lines
+  reserved so tiles stay aligned.
 - **Game page:** as on Mac; Touch shows among the input badges when the title has a touch layout.
 - **Stream:** full screen, status bar and Home indicator hidden, system edge gestures deferred so a
   stray swipe needs a second one. iPhone streams in landscape only (either way round) while

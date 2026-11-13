@@ -26,7 +26,7 @@ struct RecentGameTile: View {
                 Text(game.name)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                    .lineLimit(2, reservesSpace: true)
             }
             .frame(width: dimensions.recentGameTileWidth)
         }
