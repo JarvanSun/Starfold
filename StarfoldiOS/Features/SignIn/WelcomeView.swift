@@ -22,13 +22,18 @@ struct WelcomeView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            switch hasRoomSideBySide(in: geometry.size) {
-            case true: sideBySide
-            case false: stacked
-            }
+            layout(in: geometry.size)
         }
         .onAppear { enter() }
         .task(id: signIn.attempt) { await signIn.run() }
+    }
+
+    @ViewBuilder
+    private func layout(in size: CGSize) -> some View {
+        switch hasRoomSideBySide(in: size) {
+        case true: sideBySide
+        case false: stacked
+        }
     }
 
     private func hasRoomSideBySide(in size: CGSize) -> Bool {
@@ -55,13 +60,28 @@ struct WelcomeView: View {
     }
 
     private var stacked: some View {
-        WelcomeSteps()
-            .padding(.horizontal, dimensions.spaceXXLarge)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .opacity(isVisible ? 1 : 0)
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                WelcomeSignInSheet(step: signIn.step, onRetry: { signIn.retry() })
-            }
+        ScrollView {
+            glyphAndSteps
+                .padding(.horizontal, dimensions.spaceXXLarge)
+                .padding(.bottom, dimensions.spaceXXLarge)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
+        .safeAreaBar(edge: .bottom) {
+            WelcomeSignInSheet(step: signIn.step, onRetry: { signIn.retry() })
+                .frame(maxWidth: dimensions.welcomeSheetMaxWidth)
+        }
+    }
+
+    private var glyphAndSteps: some View {
+        VStack(alignment: .leading, spacing: dimensions.spaceHuge) {
+            AppGlyph(size: dimensions.welcomeCompactGlyphSize)
+
+            WelcomeSteps()
+        }
+        .padding(.top, dimensions.spaceLarge)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .opacity(isVisible ? 1 : 0)
     }
 
     private var pitch: some View {
