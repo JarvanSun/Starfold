@@ -2,10 +2,11 @@
   <b>English</b> · <a href="README.zh-Hans.md">简体中文</a>
 </p>
 
-<h1 align="center">Starfold — Xbox streaming for Mac, Apple Vision Pro and Apple TV</h1>
+<h1 align="center">Starfold — free, open-source Xbox Remote Play and Cloud Gaming for Mac, iPhone, iPad, Apple Vision Pro and Apple TV</h1>
 
 <p align="center">
-  Stream your own Xbox console or play Xbox Cloud Gaming in a native, open-source app built with SwiftUI.
+  Stream your own Xbox console, or play Xbox Cloud Gaming — a native SwiftUI app, not a browser wrapper.
+  Free and MIT-licensed, with no subscription needed for free-to-play titles.
 </p>
 
 <p align="center">
@@ -25,12 +26,16 @@
   played.
 - **Cloud Gaming.** Play Xbox Cloud Gaming titles with no console. Free-to-play games need no
   subscription; other cloud games need your own Game Pass membership.
-- **Built for each Apple platform.** Not a web wrapper: a native app for Mac, Apple Vision Pro and
-  Apple TV, each in its platform's own idiom.
+- **Built for each Apple platform.** Not a web wrapper: a native app for Mac, iPhone, iPad, Apple
+  Vision Pro and Apple TV, each in its platform's own idiom.
 - **Sharp and responsive.** Up to 80 Mbps, a low-latency mode, MetalFX upscaling and sharpening,
   HDR tone mapping and frame pacing on Mac.
 - **Your controller.** Game controllers on every platform, and the keyboard as a controller on
-  Mac.
+  Mac, and on iPhone and iPad with a hardware keyboard.
+- **Touch controls.** No controller on iPhone or iPad? Play with on-screen controls from Apple's
+  [Touch Controller](https://developer.apple.com/documentation/touchcontroller). Games with their
+  own touch layout get it automatically; the standard layout can be rearranged, resized and faded,
+  and each stick can show always, only on touch, or not at all.
 
 ## Mac
 
@@ -66,21 +71,22 @@
 
 ## Requirements
 
-macOS 26, visionOS 26 or tvOS 26 or later, a Microsoft account and a fast, stable network. Remote
-Play also needs an Xbox Series X|S or Xbox One with remote features turned on.
+macOS 26, iOS 26, iPadOS 26, visionOS 26 or tvOS 26 or later, a Microsoft account and a fast,
+stable network. Remote Play also needs an Xbox Series X|S or Xbox One with remote features turned
+on.
 
 ## Build from source
 
 Requires Xcode 27 or later.
 
 1. Clone the repository and open `Starfold.xcodeproj`.
-2. Choose the `StarfoldMac`, `StarfoldVision` or `StarfoldTV` scheme.
+2. Choose the `StarfoldMac`, `StarfoldiOS`, `StarfoldVision` or `StarfoldTV` scheme.
 
 ## Code
 
-Three thin platform apps share one app layer and two protocol packages:
+Four thin platform apps share one app layer and two protocol packages:
 
-![Modules: three platform apps over StarfoldShared, which uses XboxKit and StreamKit](docs/spec/images/modules.svg)
+![Modules: four platform apps over StarfoldShared, which uses XboxKit and StreamKit](docs/spec/images/modules.svg)
 
 | Module | Responsibility |
 |---|---|
