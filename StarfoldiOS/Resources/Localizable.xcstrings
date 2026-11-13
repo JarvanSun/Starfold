@@ -69,23 +69,6 @@
         }
       }
     },
-    "app.tab.cloudGaming" : {
-      "comment" : "Tab bar, signed in: the cloud game library",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cloud Gaming"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "云游戏"
-          }
-        }
-      }
-    },
     "app.tab.home" : {
       "comment" : "Tab bar: the home tab with consoles, cloud gaming and recent games",
       "localizations" : {
@@ -320,6 +303,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@，%2$@"
+          }
+        }
+      }
+    },
+    "home.cloud.title" : {
+      "comment" : "Home: the row that opens Xbox Cloud Gaming",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox Cloud Gaming"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox 云游戏"
           }
         }
       }
@@ -694,23 +694,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "搜索游戏"
-          }
-        }
-      }
-    },
-    "search.title" : {
-      "comment" : "Search tab: navigation title",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "搜索"
           }
         }
       }

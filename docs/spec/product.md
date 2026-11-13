@@ -248,8 +248,8 @@ One app for both. Layout follows the size class of the space the app has, never 
 compact width is the iPhone layout, regular width the iPad layout, so iPad Split View, Stage
 Manager windows and an unfolded iPhone Duo each get the layout that fits.
 
-- **Tabs:** Home, Cloud Gaming, Settings and the system search tab, signed in. The tab bar floats
-  at the bottom on iPhone and at the top on iPad. The account menu is in Home's toolbar.
+- **Tabs:** Home and Settings, signed in. The tab bar floats at the bottom on iPhone and at the
+  top on iPad. The account menu is in Home's toolbar.
 - **Signed out** there are no tabs: the welcome page, with Settings behind a gear at the top right
   (a sheet). In compact portrait it shows the app icon at the top left and three steps (sign in,
   pick a console or a cloud game, play with touch or a controller) above a sign-in sheet fixed to
@@ -257,9 +257,12 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
   compact landscape the same content is a blurred backdrop and the sign-in card (at most 480 pt
   wide) sits in the middle. The iPhone welcome page carries no trademark line. In regular width it
   keeps the pitch beside the sign-in card.
-- **Home:** console cards, then Continue Playing (up to 10); no cloud card. On iPhone one card fills
-  the width and the cards page sideways; on iPad they are Mac-sized and sit in a row. **Cloud
-  Gaming** has the Mac's rows and All Games, with a sort menu; search lives in the search tab.
+- **Home:** console cards, then an Xbox Cloud Gaming row (three covers, availability and game
+  count), then Continue Playing (up to 10). On iPhone one console card fills the width and the
+  cards page sideways; on iPad they are Mac-sized and sit in a row. With no cloud access the row
+  says why and does not open.
+- **Cloud Gaming** opens from that row on Home's stack: the Mac's rows and All Games with a sort
+  menu, and a search field under the title that searches the same cloud library (no search tab).
 - **Game page:** as on Mac; Touch shows among the input badges when the title has a touch layout.
 - **Stream:** full screen, status bar and Home indicator hidden, system edge gestures deferred so a
   stray swipe needs a second one. iPhone streams in landscape only (either way round) while

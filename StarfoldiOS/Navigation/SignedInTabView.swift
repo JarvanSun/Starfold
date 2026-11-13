@@ -22,16 +22,8 @@ struct SignedInTabView: View {
                 HomeHostView(home: home, library: library, onAddAccount: onAddAccount)
             }
 
-            Tab("app.tab.cloudGaming", systemImage: "cloud", value: SignedInTab.library) {
-                LibraryHostView(library: library)
-            }
-
             Tab("app.tab.settings", systemImage: "gear", value: SignedInTab.settings) {
                 SettingsHostView(onAddAccount: onAddAccount)
-            }
-
-            Tab(value: SignedInTab.search, role: .search) {
-                SearchHostView(library: library)
             }
         }
         .tabViewStyle(.sidebarAdaptable)

@@ -14,12 +14,17 @@ struct HomeView: View {
     let home: HomeViewModel
     let library: LibraryViewModel
 
+    let onOpenCloudGaming: () -> Void
+
     var body: some View {
         let recentGameLimit = 10
 
         ScrollView {
             VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
                 HomeCardRow(home: home)
+
+                CloudGamingRow(library: library, onOpen: onOpenCloudGaming)
+                    .pageMargins()
 
                 if !library.recentGames.isEmpty {
                     RecentGamesRow(
@@ -46,7 +51,7 @@ struct HomeView: View {
         HomeView(
             home: PreviewObjectPool.homeViewModel(state: state),
             library: PreviewObjectPool.libraryViewModel(state: state)
-        )
+        ) {}
         .background { SkyBackground() }
     }
     .environment(\.skipsEntranceAnimations, true)
@@ -58,7 +63,7 @@ struct HomeView: View {
         HomeView(
             home: PreviewObjectPool.homeViewModel(consoles: []),
             library: PreviewObjectPool.libraryViewModel(access: .unavailable)
-        )
+        ) {}
         .background { SkyBackground() }
     }
     .environment(\.skipsEntranceAnimations, true)

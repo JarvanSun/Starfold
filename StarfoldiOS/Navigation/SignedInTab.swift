@@ -7,7 +7,5 @@
 
 enum SignedInTab: Hashable {
     case home
-    case library
     case settings
-    case search
 }
