@@ -39,7 +39,16 @@ struct GameMessageDialog: View {
         .padding(dimensions.spaceXLarge)
         .frame(minWidth: dimensions.gameDialogMinimumWidth)
     }
+}
 
+private extension DialogButtonRole {
+    var keyboardShortcut: KeyboardShortcut? {
+        switch self {
+        case .primary: .defaultAction
+        case .cancel: .cancelAction
+        case .plain: nil
+        }
+    }
 }
 
 #if DEBUG

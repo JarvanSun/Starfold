@@ -129,5 +129,4 @@ final class InputSender: @unchecked Sendable {
             condition.signal()
         }
     }
-
 }

@@ -56,9 +56,17 @@ public final class SystemDialogsViewModel {
     public func buttons(of dialog: SystemDialogRequest) -> [DialogButton] {
         switch dialog.kind {
         case .message(_, _, let titles, _, _) where titles.isEmpty: [acknowledgeButton]
-        case .message(_, _, let titles, _, _):
+        case .message(_, _, let titles, let defaultIndex, let cancelIndex):
             titles.enumerated().map { index, title in
-                .init(index: index, title: title, role: dialog.role(ofButtonAt: index))
+                .init(
+                    index: index,
+                    title: title,
+                    role: .init(
+                        buttonAt: index,
+                        defaultIndex: defaultIndex,
+                        cancelIndex: cancelIndex
+                    )
+                )
             }
         case .keyboard: []
         }
@@ -102,7 +110,6 @@ public final class SystemDialogsViewModel {
         draftedDialogID = presentedDialog?.id
         text = presentedDialog?.defaultText ?? ""
     }
-
 }
 
 private extension SystemDialogRequest {
@@ -117,17 +124,5 @@ private extension SystemDialogRequest {
         guard case .keyboard(_, _, _, let maxLength) = kind else { return nil }
 
         return maxLength
-    }
-
-    func role(ofButtonAt index: Int) -> DialogButtonRole {
-        guard case .message(_, _, _, let defaultIndex, let cancelIndex) = kind else {
-            return .plain
-        }
-
-        return switch (index == defaultIndex, index == cancelIndex) {
-        case (true, _): .primary
-        case (false, true): .cancel
-        case (false, false): .plain
-        }
     }
 }

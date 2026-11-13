@@ -72,7 +72,7 @@ public final class SignInViewModel {
     }
 
     private func show(_ phase: SignInPhase) {
-        step = phase.step
+        step = phase.makeStep()
     }
 
     private func closeAfterShowingSuccess() async {

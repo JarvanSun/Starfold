@@ -52,12 +52,15 @@ struct MenuBarMenu: View {
         if !home.consoles.isEmpty {
             Section(String(localized: "menuBar.consoles.title")) {
                 ForEach(home.consoles) { console in
-                    let title = console.menuBarTitle(activity: home.activity(for: console))
+                    let playingTitle = console.playingTitle(activity: home.activity(for: console))
 
                     Button {
                         play(.console(id: console.id, name: console.name))
                     } label: {
-                        Label(String(localized: title), systemImage: "play.fill")
+                        Label(
+                            playingTitle.map { String(localized: $0) } ?? console.name,
+                            systemImage: "play.fill"
+                        )
                     }
                 }
             }

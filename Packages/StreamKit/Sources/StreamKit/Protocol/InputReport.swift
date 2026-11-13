@@ -79,7 +79,6 @@ struct InputReport {
 
         return UInt16((max(0, min(1, value)) * 65535).rounded(.towardZero))
     }
-
 }
 
 private extension GamepadState {

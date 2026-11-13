@@ -14,7 +14,7 @@ public enum SignInPhase: Equatable {
     case done
     case failed(String)
 
-    var step: SignInStep {
+    func makeStep() -> SignInStep {
         switch self {
         case .requesting: .preparing
         case .waiting(let prompt): .code(.init(prompt: prompt))

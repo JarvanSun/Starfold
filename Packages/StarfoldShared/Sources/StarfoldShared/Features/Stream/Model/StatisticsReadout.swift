@@ -132,5 +132,4 @@ public struct StatisticsReadout {
     private func percent(_ value: Double) -> String {
         (value / 100).formatted(.percent.precision(.fractionLength(1)))
     }
-
 }

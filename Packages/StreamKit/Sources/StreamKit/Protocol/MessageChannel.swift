@@ -196,7 +196,7 @@ struct MessageChannel: Sendable {
     }
 
     private mutating func dimensionsChanged(width: Int, height: Int) -> Data {
-        return message(
+        message(
             .dimensionsChanged,
             [
                 "horizontal": width,
@@ -215,7 +215,6 @@ struct MessageChannel: Sendable {
     private mutating func receiveUnknownMessage(target: String, id: String, isTransaction: Bool)
         -> [MessageChannelEvent]
     {
-
         let touchControlsPrefix = "/streaming/touchcontrols/"
         let isTouchControls = target.hasPrefix(touchControlsPrefix)
         return switch (isTouchControls, isTransaction) {

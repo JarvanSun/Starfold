@@ -118,5 +118,4 @@ private struct URLSessionTransport: Sendable {
             body: body
         )
     }
-
 }

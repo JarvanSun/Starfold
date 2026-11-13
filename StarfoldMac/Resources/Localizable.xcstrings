@@ -885,23 +885,6 @@
         }
       }
     },
-    "menuBar.console.idle %@" : {
-      "comment" : "Menu bar extra: console item when no game is running; the argument is the console name",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        }
-      }
-    },
     "menuBar.console.playing %@ %@" : {
       "comment" : "Menu bar extra: console item; the arguments are the console name and the game running on it",
       "localizations" : {

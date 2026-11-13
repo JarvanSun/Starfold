@@ -88,5 +88,4 @@ final class StreamVideoHostView: NSView {
 
 private extension StreamVideoHostView {
     @objc func compositeFrame(_ link: CADisplayLink) {}
-
 }
