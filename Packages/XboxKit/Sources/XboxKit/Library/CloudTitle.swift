@@ -8,8 +8,20 @@
 import Foundation
 
 public struct CloudTitle: Codable, Sendable, Hashable, Identifiable {
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case productID
+        case touchBundleIDs
+        case hasEntitlement
+        case isFreeInStore
+        case supportedInputTypes
+        case lastPlayed
+        case userSubscriptions
+    }
+
     public var id: String
     public var productID: String
+    public var touchBundleIDs: [String]
 
     var hasEntitlement: Bool
     var isFreeInStore: Bool
@@ -39,15 +51,29 @@ public struct CloudTitle: Codable, Sendable, Hashable, Identifiable {
         hasEntitlement: Bool,
         isFreeInStore: Bool,
         supportedInputTypes: [String],
+        touchBundleIDs: [String] = [],
         lastPlayed: Date? = nil,
         userSubscriptions: [String] = []
     ) {
         self.id = id
         self.productID = productID
+        self.touchBundleIDs = touchBundleIDs
         self.hasEntitlement = hasEntitlement
         self.isFreeInStore = isFreeInStore
         self.supportedInputTypes = supportedInputTypes
         self.lastPlayed = lastPlayed
         self.userSubscriptions = userSubscriptions
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        productID = try container.decode(String.self, forKey: .productID)
+        touchBundleIDs = try container.decodeIfPresent([String].self, forKey: .touchBundleIDs) ?? []
+        hasEntitlement = try container.decode(Bool.self, forKey: .hasEntitlement)
+        isFreeInStore = try container.decode(Bool.self, forKey: .isFreeInStore)
+        supportedInputTypes = try container.decode([String].self, forKey: .supportedInputTypes)
+        lastPlayed = try container.decodeIfPresent(Date.self, forKey: .lastPlayed)
+        userSubscriptions = try container.decode([String].self, forKey: .userSubscriptions)
     }
 }

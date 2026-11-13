@@ -29,8 +29,12 @@ final class XboxServerStub: Sendable {
     }
 
     func on(_ url: String, status: Int = 200, json: String) {
+        on(url, status: status, body: Data(json.utf8))
+    }
+
+    func on(_ url: String, status: Int = 200, body: Data) {
         state.withLock { state in
-            state.routes[url, default: []].append(.init(statusCode: status, body: Data(json.utf8)))
+            state.routes[url, default: []].append(.init(statusCode: status, body: body))
         }
     }
 
