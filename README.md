@@ -2,7 +2,7 @@
   <b>English</b> · <a href="README.zh-Hans.md">简体中文</a>
 </p>
 
-<h1 align="center">Starfold — free, open-source Xbox Remote Play and Cloud Gaming for Mac, iPhone, iPad, Apple Vision Pro and Apple TV</h1>
+<h1 align="center">Starfold — free, open-source Xbox Remote Play and Cloud Gaming for Apple devices</h1>
 
 <p align="center">
   Stream your own Xbox console, or play Xbox Cloud Gaming — a native SwiftUI app, not a browser wrapper.
