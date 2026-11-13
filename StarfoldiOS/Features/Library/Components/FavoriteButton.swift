@@ -27,6 +27,7 @@ struct FavoriteButton: View {
         }
         .buttonStyle(CircleIconButtonStyle(size: dimensions.gameFavoriteButtonSize))
         .help(Text(action.title))
+        .sensoryFeedback(.impact(weight: .light), trigger: isFavorite)
     }
 
     private func toggle() {

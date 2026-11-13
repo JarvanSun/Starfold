@@ -101,6 +101,7 @@ struct TouchLayoutEditorView: View {
             )
         ) {
             TouchLayoutInspector(editor: editor)
+                .id(placement.id)
         }
         .opacity(chromeOpacity)
         .animation(.easeOut(duration: fadeDuration), value: editor.isMoving)

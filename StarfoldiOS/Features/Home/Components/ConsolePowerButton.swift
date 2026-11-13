@@ -23,6 +23,8 @@ struct ConsolePowerButton: View {
         .buttonStyle(.circleIcon)
         .disabled(isDisabled)
         .help(help)
+        .sensoryFeedback(trigger: control) { previous, control in control.feedback(after: previous)
+        }
     }
 
     @ViewBuilder

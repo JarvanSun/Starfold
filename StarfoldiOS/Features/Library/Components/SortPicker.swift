@@ -27,6 +27,7 @@ struct SortPicker: View {
         } label: {
             Label("library.sort.title", systemImage: "arrow.up.arrow.down")
         }
+        .sensoryFeedback(.selection, trigger: sort)
     }
 }
 

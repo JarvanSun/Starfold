@@ -53,6 +53,11 @@ struct StreamView: View {
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
         .defersSystemGestures(on: .all)
+        .sensoryFeedback(trigger: stream.phase) { _, phase in phase.arrivalFeedback }
+        .sensoryFeedback(.impact(weight: .light), trigger: controllers.connected.count)
+        .sensoryFeedback(.impact(weight: .light), trigger: stream.isMenuOpen) { _, isOpen in
+            isOpen
+        }
         .landscapeOnPhone()
         .streamKeyboardInput(stream)
         .onAppear { stream.revealControls() }

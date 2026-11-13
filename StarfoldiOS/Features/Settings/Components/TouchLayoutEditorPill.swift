@@ -11,6 +11,7 @@ import SwiftUI
 struct TouchLayoutEditorPill: View {
     @Environment(\.dimensions) private var dimensions
     @State private var isShowingOpacity = false
+    @State private var resets = 0
 
     @Bindable var editor: TouchLayoutEditorViewModel
 
@@ -29,7 +30,7 @@ struct TouchLayoutEditorPill: View {
             }
             .popover(isPresented: $isShowingOpacity) { opacity }
 
-            Button("touchEditor.reset", systemImage: "arrow.counterclockwise") { editor.reset() }
+            Button("touchEditor.reset", systemImage: "arrow.counterclockwise") { reset() }
         }
         .labelStyle(.iconOnly)
         .buttonStyle(.borderless)
@@ -38,6 +39,12 @@ struct TouchLayoutEditorPill: View {
         .padding(dimensions.spaceXSmall)
         .padding(.leading, dimensions.spaceXSmall)
         .glassEffect(in: .capsule)
+        .sensoryFeedback(.impact(weight: .medium), trigger: resets)
+    }
+
+    private func reset() {
+        editor.reset()
+        resets += 1
     }
 
     private var minimumTitleScale: CGFloat {

@@ -39,6 +39,7 @@ struct TouchLayoutInspector: View {
         }
         .pickerStyle(.segmented)
         .labelsHidden()
+        .sensoryFeedback(.selection, trigger: editor.selectedStickVisibility)
     }
 }
 

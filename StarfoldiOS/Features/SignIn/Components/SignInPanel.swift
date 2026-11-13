@@ -17,6 +17,7 @@ struct SignInPanel: View {
         content
             .frame(maxWidth: .infinity)
             .animation(.smooth(duration: 0.35), value: step)
+            .sensoryFeedback(trigger: step) { _, step in step.arrivalFeedback }
     }
 
     @ViewBuilder

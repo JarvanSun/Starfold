@@ -333,6 +333,14 @@ Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
   sticks.
 - **Rumble** plays on the controller when there is one; with only touch controls it plays as
   haptics on iPhone while Touch haptics is on.
+- **Haptics** mark outcomes and direct manipulation only, and follow the system's haptics setting:
+  success when a stream starts playing, warning when the host ends it, error when it drops or
+  fails (none when the player ends it); success when sign-in completes, error when it fails;
+  success when a power command takes effect; a light tap when a controller connects or
+  disconnects mid-stream, when the stream menu opens and when a favourite is toggled; a
+  selection tick when the sort order or a stick's visibility changes; a firm tap when a control
+  is selected or dropped in Edit Layout and a medium one on Reset. Touch buttons tick on press
+  while Touch haptics is on.
 
 ### iPhone Duo
 
