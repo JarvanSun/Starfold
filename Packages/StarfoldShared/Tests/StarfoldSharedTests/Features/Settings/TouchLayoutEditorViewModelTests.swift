@@ -31,6 +31,21 @@ struct TouchLayoutEditorViewModelTests {
     }
 
     @Test
+    func moveThenIsMovingUntilTheMoveEnds() throws {
+        // Given
+        let editor = TouchLayoutEditorViewModel(preferences: .init(defaults: .dummyEmpty))
+        let a = try control(.button(.a), in: editor)
+
+        // When
+        editor.move(a, by: CGSize(width: 10, height: 0))
+
+        // Then
+        #expect(editor.isMoving)
+        editor.endMove()
+        #expect(!editor.isMoving)
+    }
+
+    @Test
     func moveWhenAnotherControlsDragNeverEndedThenStartsFromItsOwnOffset() throws {
         // Given
         let preferences = Preferences(defaults: .dummyEmpty)

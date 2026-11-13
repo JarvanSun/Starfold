@@ -63,6 +63,10 @@ public final class TouchLayoutEditorViewModel {
         selectedID != nil
     }
 
+    public var isMoving: Bool {
+        movingFrom != nil
+    }
+
     init(preferences: Preferences) {
         self.preferences = preferences
         adjustments = preferences.touchLayoutAdjustments(for: orientation)

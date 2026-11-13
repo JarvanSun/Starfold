@@ -317,7 +317,12 @@ Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
 - **Edit Layout** (Settings, and the stream menu) adjusts the standard layout only: drag a control
   to move it, select it and use the Size slider to resize it, and set the layout's opacity; Reset
   restores the default. Edits are kept per device and orientation. A title's own layout is never
-  edited.
+  edited. Nothing stays over the controls: a close button sits at the top left, and a small pill
+  at the top centre shows the hint (or the selected control's name), Opacity (a popover) and
+  Reset. Selecting a control opens a small inspector beside it, on the side towards the middle of
+  the screen, with Size and, for a stick, when it shows. While a control is being dragged the pill
+  and the inspector fade out, so nothing hides where it is going. Selecting a control and dropping
+  it give a firm haptic.
 - **Sticks.** Selecting a stick in Edit Layout adds a choice of when it shows: Always, On Touch
   (not drawn until a thumb lands on its half of the screen, then drawn under the thumb until it
   lifts) or Off (not drawn, and its half does nothing). Every other control keeps its place, so

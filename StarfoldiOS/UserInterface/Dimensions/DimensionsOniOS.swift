@@ -69,7 +69,8 @@ extension Dimensions {
     var streamMenuHandleWidth: CGFloat { 44 }
     var streamMenuHandleHeight: CGFloat { 22 }
     var highlightLineWidth: CGFloat { 2 }
-    var touchEditorPanelWidth: CGFloat { 360 }
+    var touchInspectorWidth: CGFloat { 260 }
+    var touchInspectorTopInset: CGFloat { 72 }
     var touchEditorSliderWidth: CGFloat { 160 }
     var touchPlaceholderDash: CGFloat { 6 }
 
