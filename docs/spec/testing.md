@@ -69,6 +69,11 @@ unit-tested.
 | Presentation extensions | Every `switch` branch that maps host output to advice |
 | String Catalogs | [localization.md](localization.md#testing) |
 
+A test whose result depends on the machine's hardware (an audio output, a paired controller) is
+gated with `.enabled(if:)` or `.disabled(if:)`, a reason, and a check in `Support/`
+(`AudioOutputAvailability`, `ControllerAvailability`), so it is skipped rather than failing on that
+machine.
+
 ## Test doubles
 
 No mocking frameworks and no shared test library: a double two test targets need exists in each.

@@ -142,7 +142,12 @@ struct SettingsViewModelTests {
         #expect(settings.batteryLevel(of: controller) == nil)
     }
 
-    @Test
+    @Test(
+        .disabled(
+            if: ControllerAvailability().hasConnectedController,
+            "needs no connected controller"
+        )
+    )
     func isControllerMissingWhenNoneIsConnectedThenIsTrue() {
         // Given
         let settings = makeSettings()

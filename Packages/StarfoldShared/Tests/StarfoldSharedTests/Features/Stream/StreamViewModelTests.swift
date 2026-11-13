@@ -435,7 +435,12 @@ struct StreamViewModelTests {
         #expect(!stream.needsController)
     }
 
-    @Test
+    @Test(
+        .disabled(
+            if: ControllerAvailability().hasConnectedController,
+            "needs no connected controller"
+        )
+    )
     func needsControllerWhenNoControllerAndNoTouchThenIsTrue() async {
         // Given / When
         let stream = await makeStreamingStream()
