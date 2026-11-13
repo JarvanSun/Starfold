@@ -77,14 +77,6 @@ Requires Xcode 27 or later.
 1. Clone the repository and open `Starfold.xcodeproj`.
 2. Choose the `StarfoldMac`, `StarfoldVision` or `StarfoldTV` scheme.
 
-```sh
-scripts/build.sh   # builds all three apps
-scripts/test.sh    # runs every package's tests
-```
-
-Sign-in uses the public client ID of Microsoft's Xbox web player (`STARFOLD_MICROSOFT_CLIENT_ID`).
-Microsoft may restrict it at any time; an ID of your own signs in but may not be allowed to stream.
-
 ## Code
 
 Three thin platform apps share one app layer and two protocol packages:
