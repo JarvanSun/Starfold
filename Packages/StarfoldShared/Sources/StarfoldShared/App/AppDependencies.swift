@@ -20,6 +20,7 @@ public struct AppDependencies {
         let http = HTTPClient()
         let preferences = Preferences(defaults: .standard)
         let controllers = ControllerHub(routing: streamPlatform.controllerRouting)
+        let accountsKeychainService = "\(bundleID).accounts"
         let accountService = LiveAccountService(
             store: .init(
                 microsoftClientID: microsoftClientID,
@@ -54,10 +55,6 @@ private extension AppDependencies {
 
     var microsoftClientID: String {
         Bundle.main.infoDictionary?["StarfoldMicrosoftClientID"] as? String ?? ""
-    }
-
-    var accountsKeychainService: String {
-        "\(bundleID).accounts"
     }
 
     var savedLibrariesDirectory: URL {

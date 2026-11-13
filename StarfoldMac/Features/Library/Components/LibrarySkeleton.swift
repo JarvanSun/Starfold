@@ -12,6 +12,8 @@ struct LibrarySkeleton: View {
     @Environment(\.dimensions) private var dimensions
 
     var body: some View {
+        let tileCount = 6
+
         VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
             RoundedRectangle(cornerRadius: dimensions.cornerRadiusSmall)
                 .fill(.white.opacity(0.10))
@@ -29,11 +31,5 @@ struct LibrarySkeleton: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .shimmering()
         .accessibilityLabel(Text("skeleton.loading.accessibilityLabel"))
-    }
-}
-
-private extension LibrarySkeleton {
-    var tileCount: Int {
-        6
     }
 }

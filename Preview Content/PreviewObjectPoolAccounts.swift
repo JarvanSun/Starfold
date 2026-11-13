@@ -27,25 +27,20 @@ extension PreviewObjectPool {
     }
 
     static var signInPhases: [SignInPhase] {
-        [.requesting, .waiting(deviceCodePrompt), .finishing, .done, failedSignInPhase]
-    }
+        let failedSignInPhase: SignInPhase = .failed("The sign-in code expired.")
 
-    static var failedSignInPhase: SignInPhase {
-        .failed("The sign-in code expired.")
+        return [.requesting, .waiting(deviceCodePrompt), .finishing, .done, failedSignInPhase]
     }
 
     static func signInViewModel(phase: SignInPhase) -> SignInViewModel {
-        let app = AppViewModel(
+        appViewModel(
             accountService: PreviewAccountService(
                 accounts: [],
                 profile: profile,
                 signInPhase: phase
-            ),
-            cache: libraryCache,
-            settings: settingsViewModel,
-            streamDependencies: streamDependencies
+            )
         )
-        return app.makeSignInViewModel()
+        .makeSignInViewModel()
     }
 }
 #endif

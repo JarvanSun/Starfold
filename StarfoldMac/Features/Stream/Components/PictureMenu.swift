@@ -90,9 +90,11 @@ private extension PictureMenu {
 
 #if DEBUG
 #Preview {
+    let preview = PreviewObjectPool.streamPreview(phase: .streaming)
+
     PictureMenu(
-        settings: PreviewObjectPool.settingsViewModel,
-        stream: PreviewObjectPool.streamViewModel(phase: .streaming)
+        settings: preview.settings,
+        stream: preview.stream
     )
     .padding()
     .background(.black)

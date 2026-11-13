@@ -35,28 +35,16 @@ public struct StatusDot: View {
 }
 
 private extension StatusDot {
-    var pulseOpacity: Double {
-        0.5
-    }
-
-    var pulseStartOpacity: Double {
-        0.8
-    }
-
-    var pulseGrowth: CGFloat {
-        2.4
-    }
-
-    var pulseAnimation: Animation {
-        .easeOut(duration: 1.6).repeatForever(autoreverses: false)
-    }
-
     var showsPulse: Bool {
         isPulsing && !reduceMotion
     }
 
     var pulse: some View {
-        Circle()
+        let pulseOpacity = 0.5
+        let pulseStartOpacity = 0.8
+        let pulseGrowth: CGFloat = 2.4
+
+        return Circle()
             .fill(color.opacity(pulseOpacity))
             .scaleEffect(isExpanded ? pulseGrowth : 1)
             .opacity(isExpanded ? 0 : pulseStartOpacity)
@@ -64,6 +52,8 @@ private extension StatusDot {
 
     func startPulsing() {
         guard showsPulse else { return }
+
+        let pulseAnimation: Animation = .easeOut(duration: 1.6).repeatForever(autoreverses: false)
 
         withAnimation(pulseAnimation) {
             isExpanded = true

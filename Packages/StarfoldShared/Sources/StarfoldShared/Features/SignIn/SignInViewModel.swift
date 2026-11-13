@@ -14,22 +14,11 @@ import os
 public final class SignInViewModel {
     public private(set) var attempt = 0
     public private(set) var shouldClose = false
-
-    private(set) var phase = SignInPhase.requesting
+    public private(set) var step = SignInStep.preparing
 
     private let service: SigningIn
     private let clock: any Clock<Duration>
     private let log = Logger(category: .signIn)
-
-    public var step: SignInStep {
-        switch phase {
-        case .requesting: .preparing
-        case .waiting(let prompt): .code(.init(prompt: prompt))
-        case .finishing: .progress(.signingIn)
-        case .done: .progress(.signedIn)
-        case .failed(let message): .failure(message)
-        }
-    }
 
     public var welcomeFeatures: [WelcomeFeature] {
         WelcomeFeature.allCases
@@ -41,16 +30,16 @@ public final class SignInViewModel {
     }
 
     public func run() async {
-        phase = .requesting
+        show(.requesting)
 
         while !Task.isCancelled {
             do {
                 let prompt = try await service.beginSignIn()
-                phase = .waiting(prompt)
+                show(.waiting(prompt))
 
-                try await service.completeSignIn(prompt) { [weak self] in self?.phase = .finishing }
+                try await service.completeSignIn(prompt) { [weak self] in self?.show(.finishing) }
 
-                phase = .done
+                show(.done)
 
                 await closeAfterShowingSuccess()
 
@@ -60,7 +49,7 @@ public final class SignInViewModel {
             } catch DeviceCodeError.expired {
                 continue
             } catch DeviceCodeError.declined {
-                phase = .failed(String(localized: "signIn.failure.declined", bundle: .module))
+                show(.failed(String(localized: "signIn.failure.declined", bundle: .module)))
 
                 return
             } catch {
@@ -68,10 +57,12 @@ public final class SignInViewModel {
 
                 log.error("Sign-in failed: \(String(describing: error), privacy: .public)")
 
-                phase = .failed(
-                    String(
-                        localized: "signIn.failure.generic \(error.localizedDescription)",
-                        bundle: .module
+                show(
+                    .failed(
+                        String(
+                            localized: "signIn.failure.generic \(error.localizedDescription)",
+                            bundle: .module
+                        )
                     )
                 )
 
@@ -86,11 +77,23 @@ public final class SignInViewModel {
 }
 
 private extension SignInViewModel {
-    var successPause: Duration {
-        .milliseconds(900)
+    func show(_ phase: SignInPhase) {
+        step = makeStep(for: phase)
+    }
+
+    func makeStep(for phase: SignInPhase) -> SignInStep {
+        switch phase {
+        case .requesting: .preparing
+        case .waiting(let prompt): .code(.init(prompt: prompt))
+        case .finishing: .progress(.signingIn)
+        case .done: .progress(.signedIn)
+        case .failed(let message): .failure(message)
+        }
     }
 
     func closeAfterShowingSuccess() async {
+        let successPause: Duration = .milliseconds(900)
+
         try? await clock.sleep(for: successPause)
 
         guard !Task.isCancelled else { return }

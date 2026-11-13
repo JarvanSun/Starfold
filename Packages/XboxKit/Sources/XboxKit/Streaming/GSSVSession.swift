@@ -56,9 +56,15 @@ public struct GSSVSession: Sendable {
         let response = try await client.send(to: url.appending(path: "configuration"))
         let configuration =
             (try JSONSerialization.jsonObject(with: response.body) as? [String: Any]) ?? [:]
+
+        let defaultKeepAlivePulse = 20
         let pulse =
             (configuration["keepAlivePulseInSeconds"] as? NSNumber)?.intValue
             ?? defaultKeepAlivePulse
+
+        let shortestKeepAlivePulse = 5
+        let longestKeepAlivePulse = 30
+
         return .seconds(max(shortestKeepAlivePulse, min(longestKeepAlivePulse, pulse)))
     }
 
@@ -137,18 +143,6 @@ public struct GSSVSession: Sendable {
 private extension GSSVSession {
     var backoff: PollingBackoff {
         .init()
-    }
-
-    var defaultKeepAlivePulse: Int {
-        20
-    }
-
-    var shortestKeepAlivePulse: Int {
-        5
-    }
-
-    var longestKeepAlivePulse: Int {
-        30
     }
 
     func state() async throws -> SessionState {

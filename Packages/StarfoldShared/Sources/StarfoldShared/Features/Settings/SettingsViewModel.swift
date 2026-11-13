@@ -17,6 +17,8 @@ public final class SettingsViewModel {
     private let preferences: Preferences
     private let controllers: ControllerHub
     private let picture: PictureCapabilities
+    private let automaticBitrate = 0
+    private let systemGameLanguage = ""
 
     public var consoleQuality: QualityChoice {
         get { preferences.consoleQuality }
@@ -231,17 +233,5 @@ public final class SettingsViewModel {
 
     func isSystem(gameLanguage code: String) -> Bool {
         code == systemGameLanguage
-    }
-}
-
-// MARK: - Private
-
-private extension SettingsViewModel {
-    var automaticBitrate: Int {
-        0
-    }
-
-    var systemGameLanguage: String {
-        ""
     }
 }

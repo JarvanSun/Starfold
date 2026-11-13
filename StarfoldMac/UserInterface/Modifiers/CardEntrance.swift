@@ -23,7 +23,10 @@ private struct CardEntrance: ViewModifier {
     let index: Int
 
     func body(content: Content) -> some View {
-        content
+        let startScale: CGFloat = 0.96
+
+        return
+            content
             .opacity(isVisible ? 1 : 0)
             .offset(y: isInPlace ? 0 : dimensions.spaceXLarge)
             .scaleEffect(isInPlace ? 1 : startScale)
@@ -32,14 +35,6 @@ private struct CardEntrance: ViewModifier {
 }
 
 private extension CardEntrance {
-    var startScale: CGFloat {
-        0.96
-    }
-
-    var staggerInterval: Double {
-        0.08
-    }
-
     var isVisible: Bool {
         hasEntered || skipsEntranceAnimations
     }
@@ -49,7 +44,9 @@ private extension CardEntrance {
     }
 
     var delay: Double {
-        reduceMotion ? 0 : Double(index) * staggerInterval
+        let staggerInterval = 0.08
+
+        return reduceMotion ? 0 : Double(index) * staggerInterval
     }
 
     func enter() {

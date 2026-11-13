@@ -15,6 +15,7 @@ final class StreamPictureInPicture {
 
     private let renderer: StreamRenderer
     private let dimensions: Dimensions
+    private let panelAspectRatio: NSSize = .init(width: 16, height: 9)
 
     private var panel: NSPanel?
     private var isActive = false
@@ -49,10 +50,6 @@ final class StreamPictureInPicture {
 }
 
 private extension StreamPictureInPicture {
-    var panelAspectRatio: NSSize {
-        .init(width: 16, height: 9)
-    }
-
     var window: NSWindow? {
         host?.window
     }
@@ -66,17 +63,16 @@ private extension StreamPictureInPicture {
     }
 
     var panelFrame: NSRect {
+        let fallbackVisibleFrame = NSRect(origin: .zero, size: panelSize).insetBy(
+            dx: -dimensions.spaceXLarge,
+            dy: -dimensions.spaceXLarge
+        )
         let visibleFrame = (window?.screen ?? NSScreen.main)?.visibleFrame ?? fallbackVisibleFrame
         let origin = NSPoint(
             x: visibleFrame.maxX - panelSize.width - dimensions.spaceXLarge,
             y: visibleFrame.minY + dimensions.spaceXLarge
         )
         return .init(origin: origin, size: panelSize)
-    }
-
-    var fallbackVisibleFrame: NSRect {
-        NSRect(origin: .zero, size: panelSize)
-            .insetBy(dx: -dimensions.spaceXLarge, dy: -dimensions.spaceXLarge)
     }
 
     func size(width: CGFloat) -> NSSize {

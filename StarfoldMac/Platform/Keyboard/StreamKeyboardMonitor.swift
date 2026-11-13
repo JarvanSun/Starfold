@@ -9,6 +9,8 @@ import AppKit
 import StarfoldShared
 
 final class StreamKeyboardMonitor {
+    private let leftShiftKeyCode: UInt16 = 56
+
     var stream: StreamViewModel
 
     private var monitor: Any?
@@ -67,10 +69,6 @@ private struct KeyEvent: Sendable {
 }
 
 private extension StreamKeyboardMonitor {
-    var leftShiftKeyCode: UInt16 {
-        56
-    }
-
     func consume(_ key: KeyEvent, inWindowNumber windowNumber: Int) -> Bool {
         guard let window = view?.window, window.windowNumber == windowNumber else { return false }
 

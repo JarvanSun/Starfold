@@ -8,6 +8,8 @@
 import Foundation
 
 struct XboxDateParser: Sendable {
+    private let fractionalSecondsFormat = Date.ISO8601FormatStyle(includingFractionalSeconds: true)
+
     func date(from text: String) -> Date? {
         (try? fractionalSecondsFormat.parse(text))
             ?? textTrimmedToMilliseconds(text).flatMap { try? fractionalSecondsFormat.parse($0) }
@@ -16,10 +18,6 @@ struct XboxDateParser: Sendable {
 }
 
 private extension XboxDateParser {
-    var fractionalSecondsFormat: Date.ISO8601FormatStyle {
-        .init(includingFractionalSeconds: true)
-    }
-
     func textTrimmedToMilliseconds(_ text: String) -> String? {
         guard
             let dot = text.firstIndex(of: "."),

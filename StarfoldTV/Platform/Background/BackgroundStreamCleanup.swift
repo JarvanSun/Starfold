@@ -17,6 +17,8 @@ final class BackgroundStreamCleanup {
     func end(_ presenter: StreamPresenter) {
         guard presenter.isPresented, task == .invalid else { return }
 
+        let taskName = "End Xbox session"
+
         task = UIApplication.shared.beginBackgroundTask(withName: taskName) { [weak self] in
             self?.log.warning("Background cleanup time expired")
 
@@ -36,10 +38,6 @@ final class BackgroundStreamCleanup {
 }
 
 private extension BackgroundStreamCleanup {
-    var taskName: String {
-        "End Xbox session"
-    }
-
     func finish() {
         guard task != .invalid else { return }
 

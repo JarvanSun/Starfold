@@ -19,12 +19,8 @@ struct StreamingToken: Codable, Sendable, Equatable {
     }
 
     func isValid(at date: Date) -> Bool {
-        expiresAt.timeIntervalSince(date) > refreshMargin
-    }
-}
+        let refreshMargin: TimeInterval = 60
 
-private extension StreamingToken {
-    var refreshMargin: TimeInterval {
-        60
+        return expiresAt.timeIntervalSince(date) > refreshMargin
     }
 }

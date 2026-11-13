@@ -14,6 +14,11 @@ struct SystemDialogView: View {
     let dialog: SystemDialogRequest
 
     var body: some View {
+        let draftText: Binding<String> = .init(
+            get: { dialogs.text },
+            set: { dialogs.changeText(to: $0) }
+        )
+
         switch dialog.kind {
         case .message(let title, let text, _, _, _):
             GameMessageDialog(
@@ -35,10 +40,6 @@ struct SystemDialogView: View {
 }
 
 private extension SystemDialogView {
-    var draftText: Binding<String> {
-        .init(get: { dialogs.text }, set: { dialogs.changeText(to: $0) })
-    }
-
     func answer(buttonIndex: Int) {
         dialogs.answer(dialog, buttonIndex: buttonIndex)
     }

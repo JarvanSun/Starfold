@@ -75,9 +75,11 @@ private extension StreamControlBar {
 
 #if DEBUG
 #Preview("Control bar") {
+    let preview = PreviewObjectPool.streamPreview(phase: .streaming)
+
     StreamControlBar(
-        settings: PreviewObjectPool.settingsViewModel,
-        stream: PreviewObjectPool.streamViewModel(phase: .streaming)
+        settings: preview.settings,
+        stream: preview.stream
     ) {}
 }
 #endif

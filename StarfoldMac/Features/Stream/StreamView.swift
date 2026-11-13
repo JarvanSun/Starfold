@@ -121,21 +121,19 @@ private extension StreamView {
 
 #if DEBUG
 #Preview("Game dialog") {
-    StreamView(
-        stream: PreviewObjectPool.streamViewModel(
-            phase: .streaming,
-            dialogs: [PreviewObjectPool.messageDialog]
-        ),
-        settings: PreviewObjectPool.settingsViewModel
-    ) {}
-    .frame(width: 1280, height: 720)
+    let preview = PreviewObjectPool.streamPreview(
+        phase: .streaming,
+        dialogs: [PreviewObjectPool.messageDialog]
+    )
+
+    StreamView(stream: preview.stream, settings: preview.settings) {}
+        .frame(width: 1280, height: 720)
 }
 
 #Preview("Connecting") {
-    StreamView(
-        stream: PreviewObjectPool.cloudStreamViewModel(phase: .connecting),
-        settings: PreviewObjectPool.settingsViewModel
-    ) {}
-    .frame(width: 1280, height: 720)
+    let preview = PreviewObjectPool.cloudStreamPreview(phase: .connecting)
+
+    StreamView(stream: preview.stream, settings: preview.settings) {}
+        .frame(width: 1280, height: 720)
 }
 #endif

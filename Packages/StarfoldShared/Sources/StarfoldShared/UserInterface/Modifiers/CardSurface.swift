@@ -21,7 +21,10 @@ private struct CardSurface: ViewModifier {
     let isHighlighted: Bool
 
     func body(content: Content) -> some View {
-        content
+        let materialOpacity = 0.9
+
+        return
+            content
             .background(
                 .ultraThinMaterial.opacity(materialOpacity),
                 in: .rect(cornerRadius: radius)
@@ -35,10 +38,6 @@ private struct CardSurface: ViewModifier {
 }
 
 private extension CardSurface {
-    var materialOpacity: Double {
-        0.9
-    }
-
     var radius: CGFloat {
         cornerRadius ?? dimensions.cornerRadiusXLarge
     }

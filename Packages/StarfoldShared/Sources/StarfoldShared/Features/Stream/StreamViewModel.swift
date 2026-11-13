@@ -265,14 +265,6 @@ private extension StreamViewModel {
         dependencies.controllers
     }
 
-    var pacingLogInterval: Int {
-        5
-    }
-
-    var shortestQueueEstimate: Duration {
-        .seconds(60)
-    }
-
     var playbackSettings: StreamPlaybackSettings {
         .init(preferences: preferences, picture: dependencies.picture)
     }
@@ -397,7 +389,9 @@ private extension StreamViewModel {
     }
 
     func queueEstimate(_ wait: Duration) -> String {
-        max(wait, shortestQueueEstimate).formatted(.units(allowed: [.minutes], width: .wide))
+        let shortestQueueEstimate: Duration = .seconds(60)
+
+        return max(wait, shortestQueueEstimate).formatted(.units(allowed: [.minutes], width: .wide))
     }
 
     func apply(_ statistics: StreamStatistics) {
@@ -414,6 +408,8 @@ private extension StreamViewModel {
 
     func logPacing() {
         statisticsTicks += 1
+
+        let pacingLogInterval = 5
 
         guard statisticsTicks.isMultiple(of: pacingLogInterval), let renderer else { return }
 

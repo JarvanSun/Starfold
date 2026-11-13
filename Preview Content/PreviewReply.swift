@@ -21,15 +21,12 @@ struct PreviewReply {
     }
 
     func neverAnswer<Value>() async throws -> Value {
+        let unansweredDuration: Duration = .seconds(86_400)
+
         try await Task.sleep(for: unansweredDuration)
 
         throw CancellationError()
     }
 }
 
-private extension PreviewReply {
-    var unansweredDuration: Duration {
-        .seconds(86_400)
-    }
-}
 #endif

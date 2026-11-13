@@ -76,10 +76,6 @@ final class PictureInPictureView: NSView {
 }
 
 private extension PictureInPictureView {
-    var fallbackBackingScale: CGFloat {
-        2
-    }
-
     func showVideo() {
         wantsLayer = true
         layer?.backgroundColor = NSColor.black.cgColor
@@ -114,6 +110,7 @@ private extension PictureInPictureView {
     }
 
     func updateDrawableSize() {
+        let fallbackBackingScale: CGFloat = 2
         let scale = window?.backingScaleFactor ?? fallbackBackingScale
         renderer.setDrawableSize(CGSize(width: bounds.width * scale, height: bounds.height * scale))
     }

@@ -14,6 +14,8 @@ struct GameHero: View {
     let detail: GameDetailViewModel
 
     var body: some View {
+        let scrimOpacity = 0.75
+
         ZStack(alignment: .bottomLeading) {
             Artwork(url: detail.titledHeroArtwork, aspectRatio: aspectRatio)
 
@@ -42,10 +44,6 @@ struct GameHero: View {
 private extension GameHero {
     var aspectRatio: CGFloat {
         16 / 7
-    }
-
-    var scrimOpacity: Double {
-        0.75
     }
 
     var badges: some View {

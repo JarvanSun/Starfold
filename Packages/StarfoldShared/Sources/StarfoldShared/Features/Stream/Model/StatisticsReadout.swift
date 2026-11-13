@@ -14,6 +14,7 @@ public struct StatisticsReadout {
     private let kinds: [StatisticsRowKind]
     private let usesAutomaticQuality: Bool
     private let loweredFrom: StreamQuality?
+    private let separator = " · "
 
     public var latency: StatisticsLatency? {
         statistics.estimatedLatencyMs.map(latency(of:))
@@ -39,18 +40,6 @@ public struct StatisticsReadout {
 // MARK: - Private
 
 private extension StatisticsReadout {
-    var separator: String {
-        " · "
-    }
-
-    var lowLatencyLimit: Double {
-        50
-    }
-
-    var moderateLatencyLimit: Double {
-        90
-    }
-
     var toneMapping: String? {
         switch statistics.isToneMapped {
         case true: String(localized: "stream.statistics.toneMapping", bundle: .module)
@@ -78,7 +67,10 @@ private extension StatisticsReadout {
     }
 
     func level(of milliseconds: Double) -> LatencyLevel {
-        switch milliseconds {
+        let lowLatencyLimit: Double = 50
+        let moderateLatencyLimit: Double = 90
+
+        return switch milliseconds {
         case ..<lowLatencyLimit: .low
         case ..<moderateLatencyLimit: .moderate
         default: .high

@@ -120,17 +120,19 @@ private extension StreamControlBar {
 
 #if DEBUG
 #Preview {
+    let preview = PreviewObjectPool.streamPreview(phase: .streaming)
+
     VStack {
         StreamControlBar(
-            settings: PreviewObjectPool.settingsViewModel,
-            stream: PreviewObjectPool.streamViewModel(phase: .streaming),
+            settings: preview.settings,
+            stream: preview.stream,
             pictureInPicture: nil,
             isFullScreen: false
         ) {}
 
         StreamControlBar(
-            settings: PreviewObjectPool.settingsViewModel,
-            stream: PreviewObjectPool.streamViewModel(phase: .streaming),
+            settings: preview.settings,
+            stream: preview.stream,
             pictureInPicture: nil,
             isFullScreen: true
         ) {}

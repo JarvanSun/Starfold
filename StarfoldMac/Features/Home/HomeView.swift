@@ -17,6 +17,8 @@ struct HomeView: View {
     let onOpenCloudLibrary: () -> Void
 
     var body: some View {
+        let recentGameLimit = 10
+
         ScrollView {
             VStack(spacing: dimensions.spaceXXLarge) {
                 HomeCardRow(home: home, library: library, onOpenCloudLibrary: onOpenCloudLibrary)
@@ -36,12 +38,6 @@ struct HomeView: View {
         .scrollIndicators(.hidden)
         .defaultScrollAnchor(.center)
         .refreshable { await home.refreshAccount() }
-    }
-}
-
-private extension HomeView {
-    var recentGameLimit: Int {
-        10
     }
 }
 

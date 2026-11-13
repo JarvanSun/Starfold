@@ -18,6 +18,8 @@ public struct SkyBackground: View {
     public init() {}
 
     public var body: some View {
+        let frameInterval: Double = 1 / 30
+
         TimelineView(.animation(minimumInterval: frameInterval, paused: isPaused)) { context in
             GeometryReader { proxy in
                 Rectangle()
@@ -30,14 +32,6 @@ public struct SkyBackground: View {
 }
 
 private extension SkyBackground {
-    var frameInterval: Double {
-        1 / 30
-    }
-
-    var stillFrameTime: Float {
-        12
-    }
-
     var isPaused: Bool {
         #if os(macOS)
         reduceMotion || activeState == .inactive
@@ -47,7 +41,9 @@ private extension SkyBackground {
     }
 
     func shaderTime(at date: Date) -> Float {
-        switch reduceMotion {
+        let stillFrameTime: Float = 12
+
+        return switch reduceMotion {
         case true: stillFrameTime
         case false: Float(date.timeIntervalSince(start))
         }

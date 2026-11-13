@@ -30,10 +30,6 @@ struct GameHero: View {
 }
 
 private extension GameHero {
-    var parallaxRate: CGFloat {
-        0.35
-    }
-
     var fade: LinearGradient {
         .init(
             stops: [
@@ -55,7 +51,9 @@ private extension GameHero {
     }
 
     func offset(scrolledBy minY: CGFloat) -> CGFloat {
-        switch minY > 0 {
+        let parallaxRate: CGFloat = 0.35
+
+        return switch minY > 0 {
         case true: -minY
         case false: -minY * parallaxRate
         }

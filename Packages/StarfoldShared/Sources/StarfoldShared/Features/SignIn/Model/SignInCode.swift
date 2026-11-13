@@ -12,6 +12,7 @@ public struct SignInCode: Equatable {
     public let text: String
     public let address: String
     public let page: URL
+    public let qrCode: QRCode
 
     public var characters: [SignInCodeCharacter] {
         text.enumerated().map { .init(id: $0.offset, text: String($0.element)) }
@@ -21,14 +22,11 @@ public struct SignInCode: Equatable {
         text.map(String.init).joined(separator: " ")
     }
 
-    public var qrCode: QRCode {
-        .init(url: page)
-    }
-
     public init(prompt: DeviceCodePrompt) {
         text = prompt.userCode
         address = prompt.verificationURL.addressWithoutScheme
         page = prompt.verificationURLComplete
+        qrCode = QRCode(url: prompt.verificationURLComplete)
     }
 }
 

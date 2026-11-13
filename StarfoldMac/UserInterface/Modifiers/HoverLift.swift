@@ -21,7 +21,10 @@ private struct HoverLift: ViewModifier {
     let isHovering: Bool
 
     func body(content: Content) -> some View {
-        content
+        let liftedScale: CGFloat = 1.05
+
+        return
+            content
             .scaleEffect(isLifted ? liftedScale : 1)
             .shadow(
                 color: .black.opacity(isHovering ? 0.5 : 0.25),
@@ -32,10 +35,6 @@ private struct HoverLift: ViewModifier {
 }
 
 private extension HoverLift {
-    var liftedScale: CGFloat {
-        1.05
-    }
-
     var isLifted: Bool {
         isHovering && !reduceMotion
     }

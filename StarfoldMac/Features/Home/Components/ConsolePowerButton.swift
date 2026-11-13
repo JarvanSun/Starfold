@@ -27,10 +27,6 @@ struct ConsolePowerButton: View {
 }
 
 private extension ConsolePowerButton {
-    var wakeUp: XboxLiveClient.PowerCommand {
-        .wakeUp
-    }
-
     var isDisabled: Bool {
         switch control {
         case .command: false
@@ -43,7 +39,7 @@ private extension ConsolePowerButton {
         switch control {
         case .command(let command): Label(command.title, systemImage: "power")
         case .sending: ProgressView().controlSize(.small)
-        case .unavailable: Label(wakeUp.title, systemImage: "power")
+        case .unavailable: Label(XboxLiveClient.PowerCommand.wakeUp.title, systemImage: "power")
         }
     }
 

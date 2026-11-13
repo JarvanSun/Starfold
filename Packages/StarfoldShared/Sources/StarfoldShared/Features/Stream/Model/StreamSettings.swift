@@ -12,7 +12,9 @@ struct StreamSettings: Equatable {
     let maxBitrateMbps: Int
 
     var maxBitrateKbps: Int? {
-        switch maxBitrateMbps > 0 {
+        let kilobitsPerMegabit = 1000
+
+        return switch maxBitrateMbps > 0 {
         case true: maxBitrateMbps * kilobitsPerMegabit
         case false: nil
         }
@@ -25,11 +27,5 @@ struct StreamSettings: Equatable {
             case .cloud: preferences.cloudQuality
             }
         maxBitrateMbps = preferences.maxBitrateMbps
-    }
-}
-
-private extension StreamSettings {
-    var kilobitsPerMegabit: Int {
-        1000
     }
 }

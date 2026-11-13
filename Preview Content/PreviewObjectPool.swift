@@ -34,7 +34,7 @@ enum PreviewObjectPool {
     }
 
     static var settingsViewModel: SettingsViewModel {
-        .init(preferences: preferences, controllers: controllers, picture: picture)
+        settingsViewModel(preferences: preferences, controllers: controllers)
     }
 
     static var failedLoadState: LoadState {
@@ -44,20 +44,55 @@ enum PreviewObjectPool {
 
 extension PreviewObjectPool {
     static var preferences: Preferences {
-        .init(defaults: userDefaults)
+        let userDefaults = UserDefaults(suiteName: "Starfold.previews")!
+
+        return .init(defaults: userDefaults)
+    }
+
+    static var controllers: ControllerHub {
+        .init(routing: .direct)
     }
 
     static var streamDependencies: StreamDependencies {
+        streamDependencies(preferences: preferences, controllers: controllers)
+    }
+
+    static var libraryCache: LibraryCache {
+        .init(directory: .temporaryDirectory.appending(path: "Previews/\(UUID().uuidString)"))
+    }
+
+    static func appViewModel(accountService: PreviewAccountService) -> AppViewModel {
+        let preferences = Self.preferences
+        let controllers = Self.controllers
+
+        return .init(
+            accountService: accountService,
+            cache: libraryCache,
+            settings: settingsViewModel(preferences: preferences, controllers: controllers),
+            streamDependencies: streamDependencies(
+                preferences: preferences,
+                controllers: controllers
+            )
+        )
+    }
+
+    static func settingsViewModel(
+        preferences: Preferences,
+        controllers: ControllerHub
+    ) -> SettingsViewModel {
+        .init(preferences: preferences, controllers: controllers, picture: picture)
+    }
+
+    static func streamDependencies(
+        preferences: Preferences,
+        controllers: ControllerHub
+    ) -> StreamDependencies {
         .init(
             preferences: preferences,
             controllers: controllers,
             picture: picture,
             overlays: streamOverlays
         )
-    }
-
-    static var libraryCache: LibraryCache {
-        .init(directory: .temporaryDirectory.appending(path: "Previews/\(UUID().uuidString)"))
     }
 
     static func account(streamPhase: StreamPhase) -> SignedInAccount {
@@ -71,14 +106,6 @@ extension PreviewObjectPool {
 }
 
 private extension PreviewObjectPool {
-    static var userDefaults: UserDefaults {
-        .init(suiteName: "Starfold.previews")!
-    }
-
-    static var controllers: ControllerHub {
-        .init(routing: .direct)
-    }
-
     static var picture: PictureCapabilities {
         .init(
             canFit: true,
@@ -89,16 +116,14 @@ private extension PreviewObjectPool {
     }
 
     static func appViewModel(accounts: [SignedInAccount]) -> AppViewModel {
-        .init(
+        appViewModel(
             accountService: PreviewAccountService(
                 accounts: accounts,
                 profile: profile,
                 signInPhase: .waiting(deviceCodePrompt)
-            ),
-            cache: libraryCache,
-            settings: settingsViewModel,
-            streamDependencies: streamDependencies
+            )
         )
     }
+
 }
 #endif

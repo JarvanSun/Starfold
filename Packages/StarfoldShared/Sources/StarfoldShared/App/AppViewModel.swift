@@ -174,10 +174,6 @@ public final class AppViewModel: SigningIn, SessionControlling {
 // MARK: - Private
 
 private extension AppViewModel {
-    var fallbackConsoleType: String {
-        "XboxSeriesX"
-    }
-
     var preferences: Preferences {
         streamDependencies.preferences
     }
@@ -321,7 +317,9 @@ private extension AppViewModel {
     }
 
     func backdrop(for target: StreamTarget) -> StreamBackdrop {
-        switch target {
+        let fallbackConsoleType = "XboxSeriesX"
+
+        return switch target {
         case .console(let id, _):
             .console(type: home?.console(id: id)?.consoleType ?? fallbackConsoleType)
         case .cloud(let titleID, _):

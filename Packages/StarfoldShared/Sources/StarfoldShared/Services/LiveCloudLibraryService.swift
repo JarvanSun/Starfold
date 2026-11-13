@@ -29,14 +29,6 @@ struct LiveCloudLibraryService: CloudLibraryService {
 }
 
 private extension LiveCloudLibraryService {
-    var fallbackMarket: String {
-        "US"
-    }
-
-    var fallbackLanguage: String {
-        "en-US"
-    }
-
     func loadLibrary(started: ContinuousClock.Instant) async throws -> CloudLibrary {
         let client = try await account.cloudClient(http: http)
         log.info("Cloud signed in +\(self.elapsed(since: started), privacy: .public)")
@@ -70,7 +62,9 @@ private extension LiveCloudLibraryService {
     }
 
     func catalogClient() async -> CatalogClient {
+        let fallbackMarket = "US"
         let market = await account.market ?? Locale.current.region?.identifier ?? fallbackMarket
+        let fallbackLanguage = "en-US"
         let language = Locale.preferredLanguages.first ?? fallbackLanguage
         return .init(http: http, market: market, language: language)
     }

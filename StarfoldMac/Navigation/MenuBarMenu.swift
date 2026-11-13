@@ -39,13 +39,7 @@ struct MenuBarMenu: View {
     }
 }
 
-// MARK: - Private
-
 private extension MenuBarMenu {
-    var recentGameLimit: Int {
-        3
-    }
-
     @ViewBuilder
     var account: some View {
         switch (app.sessionState, app.signedInGamertag) {
@@ -97,6 +91,7 @@ private extension MenuBarMenu {
 
     @ViewBuilder
     func recentGames(of library: LibraryViewModel) -> some View {
+        let recentGameLimit = 3
         let recentGames = library.recentGames.prefix(recentGameLimit)
         if !recentGames.isEmpty {
             Section(String(localized: "menuBar.recentGames.title")) {

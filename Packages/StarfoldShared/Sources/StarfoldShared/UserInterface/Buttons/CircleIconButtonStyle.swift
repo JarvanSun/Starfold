@@ -18,7 +18,13 @@ public struct CircleIconButtonStyle: ButtonStyle {
     }
 
     public func makeBody(configuration: Configuration) -> some View {
-        configuration.label
+        let symbolScale: CGFloat = 0.42
+        let symbolOpacity = 0.9
+        let fillOpacity = 0.12
+        let hoverFillOpacity = 0.2
+        let pressedScale: CGFloat = 0.9
+
+        return configuration.label
             .labelStyle(.iconOnly)
             .font(.system(size: diameter * symbolScale, weight: .semibold))
             .foregroundStyle(.white.opacity(symbolOpacity))
@@ -40,26 +46,6 @@ public struct CircleIconButtonStyle: ButtonStyle {
 private extension CircleIconButtonStyle {
     var diameter: CGFloat {
         size ?? dimensions.circleButtonSize
-    }
-
-    var symbolScale: CGFloat {
-        0.42
-    }
-
-    var symbolOpacity: Double {
-        0.9
-    }
-
-    var fillOpacity: Double {
-        0.12
-    }
-
-    var hoverFillOpacity: Double {
-        0.2
-    }
-
-    var pressedScale: CGFloat {
-        0.9
     }
 
     var pressAnimation: Animation {

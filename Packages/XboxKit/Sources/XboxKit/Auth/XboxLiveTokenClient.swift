@@ -37,6 +37,9 @@ struct XboxLiveTokenClient: Sendable {
             "RelyingParty": "http://auth.xboxlive.com",
             "TokenType": "JWT",
         ]
+
+        let userAuthenticationURL = URL(string: "https://user.auth.xboxlive.com/user/authenticate")!
+
         return try await xboxToken(posting: body, to: userAuthenticationURL)
     }
 
@@ -46,6 +49,9 @@ struct XboxLiveTokenClient: Sendable {
             "RelyingParty": relyingParty.rawValue,
             "TokenType": "JWT",
         ]
+
+        let securityTokenURL = URL(string: "https://xsts.auth.xboxlive.com/xsts/authorize")!
+
         return try await xboxToken(posting: body, to: securityTokenURL)
     }
 
@@ -76,6 +82,8 @@ struct XboxLiveTokenClient: Sendable {
     }
 
     func transferToken(refreshToken: String) async throws -> String {
+        let transferTokenScope =
+            "service::http://Passport.NET/purpose::PURPOSE_XBOX_CLOUD_CONSOLE_TRANSFER_TOKEN"
         let form = FormBody([
             ("client_id", identity.clientID),
             ("grant_type", "refresh_token"),
@@ -186,14 +194,6 @@ private extension XboxLiveTokenClient {
         let accessToken: String
     }
 
-    var userAuthenticationURL: URL {
-        URL(string: "https://user.auth.xboxlive.com/user/authenticate")!
-    }
-
-    var securityTokenURL: URL {
-        URL(string: "https://xsts.auth.xboxlive.com/xsts/authorize")!
-    }
-
     var xboxComBrowserHeaders: [String: String] {
         [
             "x-xbl-contract-version": "1",
@@ -203,14 +203,6 @@ private extension XboxLiveTokenClient {
             "Origin": "https://www.xbox.com",
             "Referer": "https://www.xbox.com/",
         ]
-    }
-
-    var unrankedFallbackPriority: Int {
-        -1
-    }
-
-    var transferTokenScope: String {
-        "service::http://Passport.NET/purpose::PURPOSE_XBOX_CLOUD_CONSOLE_TRANSFER_TOKEN"
     }
 
     func xboxToken(posting body: [String: Any], to url: URL) async throws -> XboxToken {
@@ -235,6 +227,8 @@ private extension XboxLiveTokenClient {
         guard let baseURL = URL(string: region.baseURI) else {
             return nil
         }
+
+        let unrankedFallbackPriority = -1
 
         return .init(
             name: region.name,

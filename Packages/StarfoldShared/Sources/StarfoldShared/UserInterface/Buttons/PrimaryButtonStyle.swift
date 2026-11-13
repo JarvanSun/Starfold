@@ -21,7 +21,10 @@ public struct PrimaryButtonStyle: ButtonStyle {
     }
 
     public func makeBody(configuration: Configuration) -> some View {
-        configuration.label
+        let pressedScale: CGFloat = 0.96
+        let disabledOpacity = 0.4
+
+        return configuration.label
             .font(size.font)
             .foregroundStyle(palette.primaryLabelColor)
             .padding(.horizontal, size.horizontalPadding(in: dimensions))
@@ -47,41 +50,7 @@ public struct PrimaryButtonStyle: ButtonStyle {
     }
 }
 
-// MARK: - Private
-
 private extension PrimaryButtonStyle {
-    var hoverLightOpacity: Double {
-        0.14
-    }
-
-    var rimOpacity: Double {
-        0.35
-    }
-
-    var glowOpacity: Double {
-        0.45
-    }
-
-    var pressedGlowOpacity: Double {
-        0.2
-    }
-
-    var shadowOpacity: Double {
-        0.6
-    }
-
-    var pressedScale: CGFloat {
-        0.96
-    }
-
-    var disabledOpacity: Double {
-        0.4
-    }
-
-    var hoverGrowth: CGFloat {
-        1.03
-    }
-
     var pressAnimation: Animation {
         .spring(duration: 0.25, bounce: 0.4)
     }
@@ -91,24 +60,35 @@ private extension PrimaryButtonStyle {
     }
 
     var rim: some View {
-        Capsule()
+        let rimOpacity = 0.35
+
+        return Capsule()
             .strokeBorder(.white.opacity(rimOpacity), lineWidth: dimensions.hairline)
             .blendMode(.overlay)
     }
 
     var glowColor: Color {
-        switch palette.hasPrimaryGlow {
+        let shadowOpacity = 0.6
+
+        return switch palette.hasPrimaryGlow {
         case true: palette.primaryTint
         case false: .black.opacity(shadowOpacity)
         }
     }
 
     func hoverLight(isPressed: Bool) -> some View {
-        Capsule().fill(.white.opacity(isHoverLit(isPressed: isPressed) ? hoverLightOpacity : 0))
+        let hoverLightOpacity = 0.14
+
+        return Capsule().fill(
+            .white.opacity(isHoverLit(isPressed: isPressed) ? hoverLightOpacity : 0)
+        )
     }
 
     func glow(isPressed: Bool) -> Color {
-        glowColor.opacity(isPressed ? pressedGlowOpacity : glowOpacity)
+        let glowOpacity = 0.45
+        let pressedGlowOpacity = 0.2
+
+        return glowColor.opacity(isPressed ? pressedGlowOpacity : glowOpacity)
     }
 
     func glowRadius(isPressed: Bool) -> CGFloat {
@@ -117,6 +97,8 @@ private extension PrimaryButtonStyle {
 
     func hoverScale(isPressed: Bool) -> CGFloat {
         let growsUnderPointer = isHoverLit(isPressed: isPressed) && !reduceMotion
+        let hoverGrowth: CGFloat = 1.03
+
         return growsUnderPointer ? hoverGrowth : 1
     }
 
@@ -124,8 +106,6 @@ private extension PrimaryButtonStyle {
         isHovering && isEnabled && !isPressed
     }
 }
-
-// MARK: - Previews
 
 #if DEBUG
 #Preview("Sizes and palettes") {

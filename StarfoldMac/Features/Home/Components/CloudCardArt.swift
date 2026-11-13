@@ -34,10 +34,6 @@ struct CloudCardArt: View {
 }
 
 private extension CloudCardArt {
-    var coverTilt: Double {
-        9
-    }
-
     var placeholder: some View {
         Image(systemName: access.placeholderSymbol)
             .font(.system(size: dimensions.cloudPlaceholderSymbolSize))
@@ -62,6 +58,8 @@ private extension CloudCardArt {
 
     func cover(_ url: URL, at position: Double) -> some View {
         let isMiddle = position == 0
+        let coverTilt: Double = 9
+
         return GameArtwork(url: url, aspectRatio: 2 / 3)
             .frame(width: dimensions.cloudCoverWidth)
             .shadow(

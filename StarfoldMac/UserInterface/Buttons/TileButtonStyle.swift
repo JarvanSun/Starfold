@@ -11,18 +11,14 @@ struct TileButtonStyle: ButtonStyle {
     @State private var isHovering = false
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
+        let pressedScale: CGFloat = 0.97
+
+        return configuration.label
             .scaleEffect(configuration.isPressed ? pressedScale : 1)
             .hoverLift(isHovering: isHovering)
             .animation(.spring(duration: 0.3, bounce: 0.35), value: isHovering)
             .animation(.spring(duration: 0.2), value: configuration.isPressed)
             .onHover { isHovering = $0 }
-    }
-}
-
-private extension TileButtonStyle {
-    var pressedScale: CGFloat {
-        0.97
     }
 }
 
