@@ -7,7 +7,7 @@
 
 import CoreGraphics
 
-public enum TouchOrientation: String, Hashable, Sendable {
+public enum TouchOrientation: String, Hashable, Sendable, CaseIterable {
     case portrait
     case landscape
 

@@ -7,7 +7,7 @@
 
 struct TouchLayoutAdjustments: Codable, Hashable, Sendable {
     var controls: [String: TouchControlAdjustment] = [:]
-    var opacity: Double = 0.85
+    var opacity: Double = 0.6
 
     func adjustment(for id: String) -> TouchControlAdjustment {
         controls[id] ?? .init()

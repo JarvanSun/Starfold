@@ -13,20 +13,32 @@ import UIKit
 final class OrientationLock {
     private(set) var supportedOrientations: UIInterfaceOrientationMask = .allButUpsideDown
 
-    func lockToLandscape(in scene: UIWindowScene) {
-        apply(.landscape, in: scene)
+    private var landscapeHolders = 0
+
+    func holdLandscape() {
+        landscapeHolders += 1
+
+        update()
     }
 
-    func unlock(in scene: UIWindowScene) {
-        apply(.allButUpsideDown, in: scene)
+    func releaseLandscape() {
+        landscapeHolders = max(0, landscapeHolders - 1)
+
+        update()
     }
 
-    private func apply(_ orientations: UIInterfaceOrientationMask, in scene: UIWindowScene) {
+    private func update() {
+        let orientations: UIInterfaceOrientationMask =
+            landscapeHolders > 0 ? .landscape : .allButUpsideDown
+        guard orientations != supportedOrientations else { return }
+
         supportedOrientations = orientations
 
-        scene.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }) {
+            scene.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
 
-        scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientations)) { _ in }
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientations)) { _ in }
+        }
     }
 }
 
@@ -41,25 +53,23 @@ private struct LandscapeOnPhone: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background {
-                SceneTracker(onAttach: { lock($0) }, onDetach: { unlock($0) })
-                    .frame(width: 0, height: 0)
-            }
+            .onAppear { hold() }
+            .onDisappear { release() }
     }
 
     private var isPhone: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
     }
 
-    private func lock(_ scene: UIWindowScene) {
+    private func hold() {
         guard isPhone else { return }
 
-        orientation?.lockToLandscape(in: scene)
+        orientation?.holdLandscape()
     }
 
-    private func unlock(_ scene: UIWindowScene) {
+    private func release() {
         guard isPhone else { return }
 
-        orientation?.unlock(in: scene)
+        orientation?.releaseLandscape()
     }
 }

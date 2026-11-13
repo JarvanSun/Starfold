@@ -67,6 +67,8 @@ public final class Preferences {
         didSet { defaults.set(librarySort.rawValue, for: .librarySort) }
     }
 
+    private(set) var touchLayouts: [TouchOrientation: TouchLayoutAdjustments] = [:]
+
     private let defaults: UserDefaults
 
     var lastAccountID: String? {
@@ -129,20 +131,30 @@ public final class Preferences {
         librarySort =
             defaults.string(for: .librarySort).flatMap(GameSort.init(rawValue:))
             ?? factory.librarySort
+        touchLayouts = .init(
+            uniqueKeysWithValues: TouchOrientation.allCases.compactMap { orientation in
+                storedTouchLayout(for: orientation).map { (orientation, $0) }
+            }
+        )
     }
 
     func touchLayoutAdjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
-        let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
-        return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
-            ?? .init()
+        touchLayouts[orientation] ?? .init()
     }
 
     func setTouchLayoutAdjustments(
         _ adjustments: TouchLayoutAdjustments,
         for orientation: TouchOrientation
     ) {
+        touchLayouts[orientation] = adjustments
+
         let encoded = try? JSONEncoder().encode(adjustments)
         defaults.set(encoded, forKey: touchLayoutKey(for: orientation))
+    }
+
+    private func storedTouchLayout(for orientation: TouchOrientation) -> TouchLayoutAdjustments? {
+        let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
+        return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
     }
 
     private func touchLayoutKey(for orientation: TouchOrientation) -> String {

@@ -116,6 +116,7 @@ In StarfoldShared.
 - **TouchLayoutPlanner**: Microsoft does not publish where its renderer puts TAK slots, so outer slots are spread evenly over a 100° arc around their wheel, the right wheel running from the top towards the centre to match the order of the standard sample.
 - **TouchControlsViewModel**: A title layout is used only when every visible control has a Touch Controller counterpart (`TouchLayer.isDrawable`); a partly drawn layout could leave out the control a game needs.
 - **TouchControlsViewModel**: Edits apply only to the standard layout because a title layout's positions come from the game's own design.
+- **Preferences**: Touch layout edits are kept in an observed property as well as `UserDefaults`, so a stream redraws as soon as the editor changes them.
 - **StandardTouchLayout**: The standard layout is Microsoft's MIT `standard-controller.json`, decoded like any title layout so both go through one planner.
 
 ## Mac
@@ -193,7 +194,7 @@ In `StarfoldTV/`, TopShelfKit and `StarfoldTopShelf/`.
 
 In `StarfoldiOS/`.
 
-- **OrientationLock**: iPhone streams in landscape, so the lock checks the `.phone` idiom; size classes cannot tell an iPhone from an iPad window of the same size. The app delegate reports the lock because SwiftUI has no supported-orientations API.
+- **OrientationLock**: iPhone streams in landscape, so the lock checks the `.phone` idiom; size classes cannot tell an iPhone from an iPad window of the same size. The app delegate reports the lock because SwiftUI has no supported-orientations API. Landscape is held by a count, so the touch editor shown over a stream does not release the stream's landscape when it closes.
 - **TouchControllerView**: Touches reach Touch Controller by a per-finger index because it does not track `UITouch`; `point(inside:with:)` is true only over a control, so taps elsewhere reach the stream and its menu handle.
 - **TouchControllerView**: Controls draw in their own transparent Metal view above the picture, never into video frames.
 - **TouchControlBuilder**: Sticks take half the screen as their touch area, and Touch Controller gives an overlapping touch to the higher `zIndex` (at equal `zIndex`, to the control added last), so sticks sit on a lower layer than every button.

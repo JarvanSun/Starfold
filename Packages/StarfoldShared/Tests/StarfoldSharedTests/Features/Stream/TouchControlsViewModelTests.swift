@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import Observation
 import StreamKit
+import Synchronization
 import Testing
 
 @testable import StarfoldShared
@@ -60,6 +62,27 @@ struct TouchControlsViewModelTests {
         // Then
         #expect(!touch.isShowingTitleLayout)
         #expect(touch.plan(for: .dummy, in: .landscape).controls.count == 15)
+    }
+
+    @Test
+    func planWhenTheEditorChangesTheLayoutThenTellsObserversAtOnce() {
+        // Given
+        let preferences = Preferences(defaults: .dummyEmpty)
+        let touch = makeTouchControls(preferences: preferences)
+        let editor = TouchLayoutEditorViewModel(preferences: preferences)
+        let didChange = Mutex(false)
+        withObservationTracking {
+            _ = touch.plan(for: .dummy, in: .landscape)
+        } onChange: {
+            didChange.withLock { $0 = true }
+        }
+
+        // When
+        editor.opacity = 0.3
+
+        // Then
+        #expect(didChange.withLock { $0 })
+        #expect(touch.plan(for: .dummy, in: .landscape).opacity == 0.3)
     }
 
     @Test
