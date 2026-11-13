@@ -9,19 +9,21 @@
 
 @MainActor
 final class XboxButtonSettingsSourceStub {
-    struct ReadFailure: Error {}
+    var owner: XboxButtonOwner = .system
+    var isReadFailing = false
 
-    var owner: Result<XboxButtonOwner, ReadFailure> = .success(.system)
     private(set) var openedSettingsCount = 0
     private(set) var readCount = 0
 
     private var onChange: (@MainActor () -> Void)?
 
-    var source: XboxButtonSettings.Source {
+    var source: XboxButtonSettingsSource {
         .init(
             readOwner: {
                 self.readCount += 1
-                return try self.owner.get()
+                if self.isReadFailing { throw CancellationError() }
+
+                return self.owner
             },
             openSettings: { self.openedSettingsCount += 1 },
             observeChanges: { onChange in

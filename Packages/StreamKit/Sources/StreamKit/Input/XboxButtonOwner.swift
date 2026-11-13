@@ -21,18 +21,11 @@ extension XboxButtonOwner {
         case .defer: self = .stream
         case .systemDefault: self = .system
         case .unavailable: self = .unknown
-        default: self = Self.ownerOfPlatformSpecific(inAppAction)
-        }
-    }
-
-    private static func ownerOfPlatformSpecific(
-        _ inAppAction: GCControllerHomeButtonSettingsManager.InAppAction
-    ) -> XboxButtonOwner {
         #if os(macOS)
-        inAppAction == .disabled ? .stream : .unknown
-        #else
-        .unknown
+        case .disabled: self = .stream
         #endif
+        @unknown default: self = .unknown
+        }
     }
 }
 #endif

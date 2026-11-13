@@ -12,7 +12,7 @@ import Testing
 @MainActor
 struct XboxButtonSettingsTests {
     @Test
-    func ownerWhenNoControllerIsConnectedThenIsUnknownWithoutReading() {
+    func setControllerConnectedWhenNoneIsConnectedThenOwnerIsUnknownWithoutReading() {
         // Given
         let (stub, settings) = makeSettings()
 
@@ -28,7 +28,7 @@ struct XboxButtonSettingsTests {
     func setControllerConnectedThenReadsTheOwner(_ expected: XboxButtonOwner) {
         // Given
         let (stub, settings) = makeSettings()
-        stub.owner = .success(expected)
+        stub.owner = expected
 
         // When
         settings.setControllerConnected(true)
@@ -41,7 +41,7 @@ struct XboxButtonSettingsTests {
     func setControllerConnectedWhenReadingFailsThenOwnerIsUnknown() {
         // Given
         let (stub, settings) = makeSettings()
-        stub.owner = .failure(.init())
+        stub.isReadFailing = true
 
         // When
         settings.setControllerConnected(true)
@@ -64,11 +64,11 @@ struct XboxButtonSettingsTests {
     }
 
     @Test
-    func settingsChangeWhileConnectedThenRereadsTheOwner() {
+    func initWhenSettingsChangeWhileConnectedThenRereadsTheOwner() {
         // Given
         let (stub, settings) = makeSettings()
         settings.setControllerConnected(true)
-        stub.owner = .success(.stream)
+        stub.owner = .stream
 
         // When
         stub.sendChange()

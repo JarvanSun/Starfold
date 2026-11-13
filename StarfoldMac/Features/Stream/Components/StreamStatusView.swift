@@ -15,11 +15,11 @@ struct StreamStatusView: View {
     let name: String
     let status: StreamStatus
     let backdrop: StreamBackdrop
-    var isXboxButtonTakenBySystem = false
+    let isXboxButtonTakenBySystem: Bool
 
     let onClose: () -> Void
     let onTryAgain: () -> Void
-    var onOpenXboxButtonSettings: () -> Void = {}
+    let onOpenXboxButtonSettings: () -> Void
 
     var body: some View {
         VStack(spacing: dimensions.spaceXLarge) {
@@ -69,8 +69,10 @@ struct StreamStatusView: View {
         name: stream.target.name,
         status: stream.status,
         backdrop: stream.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }

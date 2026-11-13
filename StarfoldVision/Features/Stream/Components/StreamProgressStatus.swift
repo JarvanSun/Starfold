@@ -12,9 +12,9 @@ struct StreamProgressStatus: View {
     @Environment(\.dimensions) private var dimensions
 
     let title: LocalizedStringResource
-    var isXboxButtonTakenBySystem = false
+    let isXboxButtonTakenBySystem: Bool
 
-    var onOpenXboxButtonSettings: () -> Void = {}
+    let onOpenXboxButtonSettings: () -> Void
     let onCancel: () -> Void
 
     var body: some View {
@@ -51,7 +51,12 @@ struct StreamProgressStatus: View {
 
 #if DEBUG
 #Preview {
-    StreamProgressStatus(title: StreamStatus.connecting.title, isXboxButtonTakenBySystem: true) {}
-        .padding()
+    StreamProgressStatus(
+        title: StreamStatus.connecting.title,
+        isXboxButtonTakenBySystem: true,
+        onOpenXboxButtonSettings: {},
+        onCancel: {}
+    )
+    .padding()
 }
 #endif

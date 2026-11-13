@@ -27,15 +27,11 @@ public final class ControllerHub {
     private var rumblePlayers: [ObjectIdentifier: RumblePlayer] = [:]
     private var observers: [NSObjectProtocol] = []
 
-    public convenience init(routing: ControllerRouting) {
-        self.init(routing: routing, xboxButton: XboxButtonSettings())
-    }
-
-    init(routing: ControllerRouting, xboxButton: XboxButtonSettings) {
+    public init(routing: ControllerRouting) {
         let router = GamepadRouter(routing: routing)
         let inputQueue = DispatchQueue(label: "StreamKit.controllers", qos: .userInteractive)
         self.router = router
-        self.xboxButton = xboxButton
+        xboxButton = XboxButtonSettings()
         self.inputQueue = inputQueue
 
         switch routing {

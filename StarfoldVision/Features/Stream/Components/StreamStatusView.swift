@@ -15,11 +15,11 @@ struct StreamStatusView: View {
     let name: String
     let status: StreamStatus
     let backdrop: StreamBackdrop
-    var isXboxButtonTakenBySystem = false
+    let isXboxButtonTakenBySystem: Bool
 
     let onClose: () -> Void
     let onTryAgain: () -> Void
-    var onOpenXboxButtonSettings: () -> Void = {}
+    let onOpenXboxButtonSettings: () -> Void
 
     var body: some View {
         VStack(spacing: dimensions.spaceXLarge) {
@@ -61,8 +61,10 @@ struct StreamStatusView: View {
         name: stream.target.name,
         status: .connecting,
         backdrop: stream.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }
@@ -73,8 +75,10 @@ struct StreamStatusView: View {
         name: stream.target.name,
         status: .queued(estimatedWait: nil),
         backdrop: stream.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }
@@ -85,8 +89,10 @@ struct StreamStatusView: View {
         name: stream.target.name,
         status: .ended(.failed(""), advice: .consoleOffline),
         backdrop: stream.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }
@@ -97,8 +103,10 @@ struct StreamStatusView: View {
         name: stream.target.name,
         status: .ended(.userStopped, advice: nil),
         backdrop: stream.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }
