@@ -31,6 +31,25 @@ struct TouchLayoutEditorViewModelTests {
     }
 
     @Test
+    func moveWhenAnotherControlsDragNeverEndedThenStartsFromItsOwnOffset() throws {
+        // Given
+        let preferences = Preferences(defaults: .dummyEmpty)
+        let editor = TouchLayoutEditorViewModel(preferences: preferences)
+        let leftStick = try control(.leftStick, in: editor)
+        let a = try control(.button(.a), in: editor)
+        editor.move(leftStick, by: CGSize(width: 40, height: 0))
+        editor.endMove()
+        editor.move(leftStick, by: CGSize(width: 5, height: 0))
+
+        // When
+        editor.move(a, by: CGSize(width: 0, height: -10))
+
+        // Then
+        let saved = preferences.touchLayoutAdjustments(for: .landscape)
+        #expect(saved.adjustment(for: a.id).offset == CGPoint(x: 0, y: -10))
+    }
+
+    @Test
     func selectedScaleWhenChangedThenScalesOnlyTheSelectedControl() throws {
         // Given
         let preferences = Preferences(defaults: .dummyEmpty)

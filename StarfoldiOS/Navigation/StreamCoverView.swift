@@ -13,13 +13,8 @@ struct StreamCoverView: View {
     @Environment(AppViewModel.self) private var app
     @Environment(\.dismiss) private var dismiss
 
-    var body: some View {
-        content
-            .onDisappear { endStream() }
-    }
-
     @ViewBuilder
-    private var content: some View {
+    var body: some View {
         switch app.stream {
         case let stream?: streamView(stream)
         case nil: noStream
@@ -36,10 +31,6 @@ struct StreamCoverView: View {
     private var noStream: some View {
         ContentUnavailableView("stream.empty.title", systemImage: "gamecontroller")
             .background(.black)
-    }
-
-    private func endStream() {
-        Task { await app.endStream() }
     }
 }
 

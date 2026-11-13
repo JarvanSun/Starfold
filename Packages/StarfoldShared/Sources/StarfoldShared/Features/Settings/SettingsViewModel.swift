@@ -12,6 +12,8 @@ import XboxKit
 
 @Observable
 public final class SettingsViewModel {
+    public private(set) var touchLayoutEditor: TouchLayoutEditorViewModel?
+
     weak var session: SessionControlling?
 
     private let preferences: Preferences
@@ -232,8 +234,12 @@ public final class SettingsViewModel {
         controllers.testRumble(slot: controller.slot)
     }
 
-    public func touchLayoutEditor() -> TouchLayoutEditorViewModel {
-        .init(preferences: preferences)
+    public func editTouchLayout() {
+        touchLayoutEditor = .init(preferences: preferences)
+    }
+
+    public func finishEditingTouchLayout() {
+        touchLayoutEditor = nil
     }
 
     public func openXboxButtonSettings() {

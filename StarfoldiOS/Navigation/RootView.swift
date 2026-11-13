@@ -19,7 +19,11 @@ struct RootView: View {
         content
             .preferredColorScheme(.dark)
             .sheet(isPresented: $isSignInPresented) { SignInHostView { SignInView(signIn: $0) } }
-            .fullScreenCover(isPresented: $isStreamPresented) { StreamCoverView() }
+            .fullScreenCover(isPresented: $isStreamPresented) {
+                endStream()
+            } content: {
+                StreamCoverView()
+            }
             .alert("app.signInExpired.title", isPresented: signInExpiredAlert) {
                 Button("app.signInExpired.signIn") { presentSignIn() }
 
@@ -80,6 +84,10 @@ struct RootView: View {
 
         isStreamPresented = false
 
+        endStream()
+    }
+
+    private func endStream() {
         backgroundStreamEnd.end { await app.endStream() }
     }
 }

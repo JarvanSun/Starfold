@@ -19,7 +19,7 @@ public final class TouchLayoutEditorViewModel {
 
     private var adjustments = TouchLayoutAdjustments()
     private var selectedInput: TouchInput?
-    private var movingFrom: CGPoint?
+    private var movingFrom: (id: String, offset: CGPoint)?
 
     public var opacity: Double {
         get { adjustments.opacity }
@@ -84,8 +84,10 @@ public final class TouchLayoutEditorViewModel {
     public func move(_ placement: TouchControlPlacement, by translation: CGSize) {
         select(placement)
 
-        let start = movingFrom ?? adjustments.adjustment(for: placement.id).offset
-        movingFrom = start
+        let start =
+            movingFrom.flatMap { $0.id == placement.id ? $0.offset : nil }
+            ?? adjustments.adjustment(for: placement.id).offset
+        movingFrom = (placement.id, start)
 
         change {
             $0.controls[placement.id, default: .init()].offset = CGPoint(

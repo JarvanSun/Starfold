@@ -16,9 +16,12 @@ struct TouchLayoutEditorPanel: View {
 
     var body: some View {
         VStack(spacing: dimensions.spaceMedium) {
-            if editor.isStickSelected {
-                stickVisibility
-            }
+            Text("touchEditor.title")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+
+            stickVisibility
+                .disabled(!editor.isStickSelected)
 
             slider("touchEditor.size", value: $editor.selectedScale, range: editor.scaleRange)
                 .disabled(!editor.canResizeSelection)
@@ -65,9 +68,11 @@ struct TouchLayoutEditorPanel: View {
 
 #if DEBUG
 #Preview {
-    TouchLayoutEditorPanel(editor: PreviewObjectPool.settingsViewModel.touchLayoutEditor()) {}
-        .padding()
-        .background(.black)
-        .environment(\.colorScheme, .dark)
+    if let editor = PreviewObjectPool.touchLayoutEditor {
+        TouchLayoutEditorPanel(editor: editor) {}
+            .padding()
+            .background(.black)
+            .environment(\.colorScheme, .dark)
+    }
 }
 #endif

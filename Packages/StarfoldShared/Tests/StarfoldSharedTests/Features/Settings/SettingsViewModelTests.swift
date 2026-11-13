@@ -92,6 +92,21 @@ struct SettingsViewModelTests {
         #expect(settings.effectiveGameLanguage == "ja-JP")
     }
 
+    @Test
+    func editTouchLayoutThenKeepsOneEditorUntilEditingFinishes() throws {
+        // Given
+        let settings = makeSettings()
+
+        // When
+        settings.editTouchLayout()
+
+        // Then
+        let editor = try #require(settings.touchLayoutEditor)
+        #expect(settings.touchLayoutEditor === editor)
+        settings.finishEditingTouchLayout()
+        #expect(settings.touchLayoutEditor == nil)
+    }
+
     @Test(arguments: [true, false])
     func canToneMapHDRThenFollowsTheDisplay(isHDRDisplayAvailable: Bool) {
         // Given

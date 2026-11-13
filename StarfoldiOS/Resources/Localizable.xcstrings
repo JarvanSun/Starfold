@@ -1803,6 +1803,23 @@
         }
       }
     },
+    "touchEditor.title" : {
+      "comment" : "Touch layout editor: heading of the panel, telling the player how to start editing",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select or drag a control to customize it"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选中或拖动按钮以进行自定义"
+          }
+        }
+      }
+    },
     "welcome.feature.console.detail" : {
       "comment" : "Welcome: detail of the console feature",
       "localizations" : {

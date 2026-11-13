@@ -37,6 +37,13 @@ enum PreviewObjectPool {
         settingsViewModel(preferences: preferences, controllers: controllers)
     }
 
+    static var touchLayoutEditor: TouchLayoutEditorViewModel? {
+        let settings = settingsViewModel
+        settings.editTouchLayout()
+
+        return settings.touchLayoutEditor
+    }
+
     static var failedLoadState: LoadState {
         .failed("The network connection was lost.")
     }

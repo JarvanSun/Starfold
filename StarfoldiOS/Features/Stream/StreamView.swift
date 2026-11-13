@@ -66,7 +66,9 @@ struct StreamView: View {
         }
         .onDisappear { controllers.routeInput(toGame: false) }
         .fullScreenCover(isPresented: $isEditingTouchLayout) {
-            TouchLayoutEditorView(editor: settings.touchLayoutEditor())
+            settings.finishEditingTouchLayout()
+        } content: {
+            touchLayoutEditor
         }
         .sheet(item: presentedDialog) { dialog in
             SystemDialogView(dialogs: stream.dialogs, dialog: dialog)
@@ -130,8 +132,16 @@ struct StreamView: View {
 
     private func editTouchLayout() {
         stream.closeMenu()
+        settings.editTouchLayout()
 
         isEditingTouchLayout = true
+    }
+
+    @ViewBuilder
+    private var touchLayoutEditor: some View {
+        if let editor = settings.touchLayoutEditor {
+            TouchLayoutEditorView(editor: editor)
+        }
     }
 
     private var menuHandle: some View {

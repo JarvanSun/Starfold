@@ -81,6 +81,8 @@ struct TouchLayoutEditorView: View {
 
 #if DEBUG
 #Preview {
-    TouchLayoutEditorView(editor: PreviewObjectPool.settingsViewModel.touchLayoutEditor())
+    if let editor = PreviewObjectPool.touchLayoutEditor {
+        TouchLayoutEditorView(editor: editor)
+    }
 }
 #endif

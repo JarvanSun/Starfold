@@ -25,7 +25,7 @@ struct SettingsView: View {
             PictureSettingsSection(settings: settings)
 
             if settings.hasTouchControls {
-                TouchControlsSettingsSection(settings: settings) { isEditingTouchLayout = true }
+                TouchControlsSettingsSection(settings: settings) { editTouchLayout() }
             }
 
             ControllerSettingsSection(settings: settings)
@@ -45,7 +45,9 @@ struct SettingsView: View {
             Button("settings.signOut.confirm", role: .destructive) { settings.signOut() }
         }
         .fullScreenCover(isPresented: $isEditingTouchLayout) {
-            TouchLayoutEditorView(editor: settings.touchLayoutEditor())
+            settings.finishEditingTouchLayout()
+        } content: {
+            touchLayoutEditor
         }
     }
 
@@ -60,6 +62,19 @@ struct SettingsView: View {
 
     private func switchAccount(to account: AccountChoice) {
         Task { await settings.switchAccount(to: account) }
+    }
+
+    private func editTouchLayout() {
+        settings.editTouchLayout()
+
+        isEditingTouchLayout = true
+    }
+
+    @ViewBuilder
+    private var touchLayoutEditor: some View {
+        if let editor = settings.touchLayoutEditor {
+            TouchLayoutEditorView(editor: editor)
+        }
     }
 }
 

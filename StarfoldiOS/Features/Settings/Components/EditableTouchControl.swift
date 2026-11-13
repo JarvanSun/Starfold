@@ -10,6 +10,8 @@ import SwiftUI
 
 struct EditableTouchControl: View {
     @Environment(\.dimensions) private var dimensions
+    @State private var drops = 0
+    @GestureState private var isDragging = false
 
     let placement: TouchControlPlacement
     let isSelected: Bool
@@ -29,11 +31,23 @@ struct EditableTouchControl: View {
             .accessibilityElement()
             .accessibilityLabel(Text(placement.input.title))
             .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+            .sensoryFeedback(.impact(weight: .heavy), trigger: isSelected) { _, isSelected in
+                isSelected
+            }
+            .sensoryFeedback(.impact(weight: .heavy), trigger: drops)
+            .onChange(of: isDragging) { _, isDragging in
+                if !isDragging { endMove() }
+            }
     }
 
     private var drag: some Gesture {
         DragGesture(minimumDistance: dimensions.spaceXSmall)
+            .updating($isDragging) { _, isDragging, _ in isDragging = true }
             .onChanged { onMove($0.translation) }
-            .onEnded { _ in onEndMove() }
+    }
+
+    private func endMove() {
+        drops += 1
+        onEndMove()
     }
 }
