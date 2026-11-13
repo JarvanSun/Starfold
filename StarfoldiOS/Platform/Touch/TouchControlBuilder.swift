@@ -132,6 +132,17 @@ struct TouchControlBuilder {
         control.anchor = anchor(for: placement.anchor)
         control.anchorCoordinateSystem = .absolute
         control.offset = placement.offset
+        control.zIndex = layer(of: placement.input)
+    }
+
+    private func layer(of input: TouchInput) -> Int {
+        let stickLayer = 0
+        let buttonLayer = 1
+
+        return switch input {
+        case .leftStick, .rightStick: stickLayer
+        case .directionPad, .leftTrigger, .rightTrigger, .button: buttonLayer
+        }
     }
 
     private func anchor(for anchor: TouchAnchor) -> TCControlLayoutAnchor {

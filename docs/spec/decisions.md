@@ -196,6 +196,7 @@ In `StarfoldiOS/`.
 - **OrientationLock**: iPhone streams in landscape, so the lock checks the `.phone` idiom; size classes cannot tell an iPhone from an iPad window of the same size. The app delegate reports the lock because SwiftUI has no supported-orientations API.
 - **TouchControllerView**: Touches reach Touch Controller by a per-finger index because it does not track `UITouch`; `point(inside:with:)` is true only over a control, so taps elsewhere reach the stream and its menu handle.
 - **TouchControllerView**: Controls draw in their own transparent Metal view above the picture, never into video frames.
+- **TouchControlBuilder**: Sticks take half the screen as their touch area, and Touch Controller gives an overlapping touch to the higher `zIndex` (at equal `zIndex`, to the control added last), so sticks sit on a lower layer than every button.
 - **TouchLayoutEditorView**: The editor draws the real Touch Controller controls, non-interactive, under transparent drag handles, so what is edited is exactly what is played.
 - **TouchPlatform**: `maxTouchPoints` 5 is an assumption about what a phone browser reports to xbox.com; it is not confirmed against the service.
 - **RootView**: Going to the background ends the stream inside a background task, as Apple TV does, because a suspended app cannot delete the host session.
