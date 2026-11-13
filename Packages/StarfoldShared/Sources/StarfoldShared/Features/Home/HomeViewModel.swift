@@ -9,7 +9,6 @@ import Foundation
 import ImageIO
 import Observation
 import StreamKit
-import UniformTypeIdentifiers
 import XboxKit
 import os
 
@@ -240,34 +239,10 @@ public final class HomeViewModel {
     func recordLastFrame(_ image: CGImage, console consoleID: String) {
         lastFrames[consoleID] = image
 
-        guard let jpeg = jpegData(of: image) else { return }
+        let lastFrameJPEGQuality = 0.8
+        guard let jpeg = image.jpegData(quality: lastFrameJPEGQuality) else { return }
 
         cache.saveLastFrame(jpeg, console: consoleID, for: accountID)
-    }
-
-    private func jpegData(of image: CGImage) -> Data? {
-        let data = NSMutableData()
-        guard
-            let destination = CGImageDestinationCreateWithData(
-                data,
-                UTType.jpeg.identifier as CFString,
-                1,
-                nil
-            )
-        else {
-            return nil
-        }
-
-        let lastFrameJPEGQuality = 0.8
-
-        CGImageDestinationAddImage(
-            destination,
-            image,
-            [kCGImageDestinationLossyCompressionQuality: lastFrameJPEGQuality] as CFDictionary
-        )
-
-        let isFinalized = CGImageDestinationFinalize(destination)
-        return isFinalized ? data as Data : nil
     }
 
     func console(id: String) -> Console? {

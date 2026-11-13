@@ -85,11 +85,12 @@ final class RumblePlayer {
     private func pattern(of effect: VibrationEffect, at locality: GCHapticsLocality)
         -> CHHapticPattern?
     {
-        let intensity = intensity(of: effect, at: locality)
-        let duration = seconds(effect.duration)
+        let intensity = effect.intensity(at: locality)
+        let duration = effect.duration / .seconds(1)
+        let minimumIntensity: Float = 0.01
         guard intensity > minimumIntensity, duration > 0 else { return nil }
 
-        let period = duration + seconds(effect.delay)
+        let period = duration + effect.delay / .seconds(1)
         let events = (0...effect.repeatCount).map { repetition in
             CHHapticEvent(
                 eventType: .hapticContinuous,
@@ -101,10 +102,6 @@ final class RumblePlayer {
         return try? CHHapticPattern(events: events, parameters: [])
     }
 
-    private func seconds(_ duration: Duration) -> Double {
-        duration / .seconds(1)
-    }
-
     private func parameters(intensity: Float, at locality: GCHapticsLocality)
         -> [CHHapticEventParameter]
     {
@@ -112,17 +109,6 @@ final class RumblePlayer {
             CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity),
             CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness(at: locality)),
         ]
-    }
-
-    private func intensity(of effect: VibrationEffect, at locality: GCHapticsLocality) -> Float {
-        switch locality {
-        case .leftHandle: effect.leftMotor
-        case .rightHandle: effect.rightMotor
-        case .leftTrigger: effect.leftTrigger
-        case .rightTrigger: effect.rightTrigger
-        case .default: max(effect.leftMotor, effect.rightMotor)
-        default: 0
-        }
     }
 
     private func sharpness(at locality: GCHapticsLocality) -> Float {
@@ -139,6 +125,17 @@ final class RumblePlayer {
 
         players.removeAll()
     }
+}
 
-    private var minimumIntensity: Float { 0.01 }
+private extension VibrationEffect {
+    func intensity(at locality: GCHapticsLocality) -> Float {
+        switch locality {
+        case .leftHandle: leftMotor
+        case .rightHandle: rightMotor
+        case .leftTrigger: leftTrigger
+        case .rightTrigger: rightTrigger
+        case .default: max(leftMotor, rightMotor)
+        default: 0
+        }
+    }
 }

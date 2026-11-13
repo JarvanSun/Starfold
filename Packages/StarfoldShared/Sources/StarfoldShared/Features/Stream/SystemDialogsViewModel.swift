@@ -22,13 +22,7 @@ public final class SystemDialogsViewModel {
     }
 
     public func changeText(to newText: String) {
-        text = String(newText.prefix(maxTextLength ?? newText.count))
-    }
-
-    private var maxTextLength: Int? {
-        guard case .keyboard(_, _, _, let maxLength) = presentedDialog?.kind else { return nil }
-
-        return maxLength
+        text = String(newText.prefix(presentedDialog?.maxTextLength ?? newText.count))
     }
 
     public func answer(_ dialog: SystemDialogRequest, buttonIndex: Int) {
@@ -62,17 +56,9 @@ public final class SystemDialogsViewModel {
     public func buttons(of dialog: SystemDialogRequest) -> [DialogButton] {
         switch dialog.kind {
         case .message(_, _, let titles, _, _) where titles.isEmpty: [acknowledgeButton]
-        case .message(_, _, let titles, let defaultIndex, let cancelIndex):
+        case .message(_, _, let titles, _, _):
             titles.enumerated().map { index, title in
-                .init(
-                    index: index,
-                    title: title,
-                    role: role(
-                        ofButtonAt: index,
-                        defaultIndex: defaultIndex,
-                        cancelIndex: cancelIndex
-                    )
-                )
+                .init(index: index, title: title, role: dialog.role(ofButtonAt: index))
             }
         case .keyboard: []
         }
@@ -84,16 +70,6 @@ public final class SystemDialogsViewModel {
             title: String(localized: "stream.dialog.ok", bundle: .module),
             role: .primary
         )
-    }
-
-    private func role(ofButtonAt index: Int, defaultIndex: Int, cancelIndex: Int?)
-        -> DialogButtonRole
-    {
-        switch (index == defaultIndex, index == cancelIndex) {
-        case (true, _): .primary
-        case (false, true): .cancel
-        case (false, false): .plain
-        }
     }
 
     public func textFieldTitle(of dialog: SystemDialogRequest) -> String {
@@ -124,13 +100,34 @@ public final class SystemDialogsViewModel {
         guard draftedDialogID != presentedDialog?.id else { return }
 
         draftedDialogID = presentedDialog?.id
-        text = presentedDialog.map(defaultText(of:)) ?? ""
+        text = presentedDialog?.defaultText ?? ""
     }
 
-    private func defaultText(of dialog: SystemDialogRequest) -> String {
-        switch dialog.kind {
+}
+
+private extension SystemDialogRequest {
+    var defaultText: String {
+        switch kind {
         case .keyboard(_, _, let defaultText, _): defaultText
         case .message: ""
+        }
+    }
+
+    var maxTextLength: Int? {
+        guard case .keyboard(_, _, _, let maxLength) = kind else { return nil }
+
+        return maxLength
+    }
+
+    func role(ofButtonAt index: Int) -> DialogButtonRole {
+        guard case .message(_, _, _, let defaultIndex, let cancelIndex) = kind else {
+            return .plain
+        }
+
+        return switch (index == defaultIndex, index == cancelIndex) {
+        case (true, _): .primary
+        case (false, true): .cancel
+        case (false, false): .plain
         }
     }
 }

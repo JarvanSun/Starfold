@@ -125,15 +125,11 @@ public struct GSSVClient: Sendable {
                 .init(url: url, method: method, headers: headers, body: body)
             )
 
-            switch (isTokenRejected(response), freshness) {
+            switch (response.isAuthorizationRejected, freshness) {
             case (true, .cachedAllowed): freshness = .refreshRequired
             default: return try successful(response, from: url)
             }
         }
-    }
-
-    private func isTokenRejected(_ response: HTTPClient.Response) -> Bool {
-        response.statusCode == 401 || response.statusCode == 403
     }
 
     private func successful(_ response: HTTPClient.Response, from url: URL) throws

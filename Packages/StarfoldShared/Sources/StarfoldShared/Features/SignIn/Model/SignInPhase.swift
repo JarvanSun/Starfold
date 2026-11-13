@@ -13,4 +13,14 @@ public enum SignInPhase: Equatable {
     case finishing
     case done
     case failed(String)
+
+    var step: SignInStep {
+        switch self {
+        case .requesting: .preparing
+        case .waiting(let prompt): .code(.init(prompt: prompt))
+        case .finishing: .progress(.signingIn)
+        case .done: .progress(.signedIn)
+        case .failed(let message): .failure(message)
+        }
+    }
 }

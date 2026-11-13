@@ -31,17 +31,9 @@ public struct StatisticsReadout {
     private var network: String? {
         guard let path = statistics.path else { return nil }
 
-        return [name(of: path), statistics.interface.flatMap(name(ofInterface:))]
+        return [String(localized: path.title), statistics.interface.flatMap(name(ofInterface:))]
             .compactMap { $0 }
             .joined(separator: separator)
-    }
-
-    private func name(of path: StreamStatistics.NetworkPath) -> String {
-        switch path {
-        case .local: String(localized: "stream.statistics.network.local", bundle: .module)
-        case .internet: String(localized: "stream.statistics.network.internet", bundle: .module)
-        case .relay: String(localized: "stream.statistics.network.relay", bundle: .module)
-        }
     }
 
     private func name(ofInterface type: String) -> String? {
@@ -78,7 +70,7 @@ public struct StatisticsReadout {
                 localized: "stream.statistics.latency.value \(duration)",
                 bundle: .module
             ),
-            level: level(of: milliseconds)
+            level: LatencyLevel(milliseconds: milliseconds)
         )
     }
 
@@ -141,14 +133,4 @@ public struct StatisticsReadout {
         (value / 100).formatted(.percent.precision(.fractionLength(1)))
     }
 
-    private func level(of milliseconds: Double) -> LatencyLevel {
-        let lowLatencyLimit: Double = 50
-        let moderateLatencyLimit: Double = 90
-
-        return switch milliseconds {
-        case ..<lowLatencyLimit: .low
-        case ..<moderateLatencyLimit: .moderate
-        default: .high
-        }
-    }
 }

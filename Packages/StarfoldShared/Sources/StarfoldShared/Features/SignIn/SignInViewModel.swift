@@ -72,17 +72,7 @@ public final class SignInViewModel {
     }
 
     private func show(_ phase: SignInPhase) {
-        step = makeStep(for: phase)
-    }
-
-    private func makeStep(for phase: SignInPhase) -> SignInStep {
-        switch phase {
-        case .requesting: .preparing
-        case .waiting(let prompt): .code(.init(prompt: prompt))
-        case .finishing: .progress(.signingIn)
-        case .done: .progress(.signedIn)
-        case .failed(let message): .failure(message)
-        }
+        step = phase.step
     }
 
     private func closeAfterShowingSuccess() async {

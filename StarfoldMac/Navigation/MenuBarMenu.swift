@@ -52,10 +52,12 @@ struct MenuBarMenu: View {
         if !home.consoles.isEmpty {
             Section(String(localized: "menuBar.consoles.title")) {
                 ForEach(home.consoles) { console in
+                    let title = console.menuBarTitle(activity: home.activity(for: console))
+
                     Button {
                         play(.console(id: console.id, name: console.name))
                     } label: {
-                        Label(title(for: console, in: home), systemImage: "play.fill")
+                        Label(String(localized: title), systemImage: "play.fill")
                     }
                 }
             }
@@ -76,14 +78,6 @@ struct MenuBarMenu: View {
                     }
                 }
             }
-        }
-    }
-
-    private func title(for console: Console, in home: HomeViewModel) -> String {
-        switch home.activity(for: console) {
-        case let activity? where activity.kind == .playingNow:
-            String(localized: "menuBar.console.playing \(console.name) \(activity.name)")
-        default: console.name
         }
     }
 

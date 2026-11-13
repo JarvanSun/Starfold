@@ -218,18 +218,12 @@ public final class LibraryViewModel {
 
     func games(matching search: String) -> [CloudGame] {
         let query = search.trimmingCharacters(in: .whitespacesAndNewlines)
-        let matchingGames = games.filter { game($0, matches: query) }
+        let matchingGames = games.filter { $0.matches(query) }
 
         switch sort {
         case .name: return matchingGames
         case .recent: return sortedByRecentPlay(matchingGames)
         }
-    }
-
-    private func game(_ game: CloudGame, matches query: String) -> Bool {
-        let matchesName = game.name.localizedStandardContains(query)
-        let matchesPublisher = game.product?.publisher?.localizedStandardContains(query) ?? false
-        return query.isEmpty || matchesName || matchesPublisher
     }
 
     private func sortedByRecentPlay(_ games: [CloudGame]) -> [CloudGame] {
@@ -249,5 +243,13 @@ public final class LibraryViewModel {
 
     private func isNamed(_ name: String, before otherName: String) -> Bool {
         name.localizedStandardCompare(otherName) == .orderedAscending
+    }
+}
+
+private extension CloudGame {
+    func matches(_ query: String) -> Bool {
+        let matchesName = name.localizedStandardContains(query)
+        let matchesPublisher = product?.publisher?.localizedStandardContains(query) ?? false
+        return query.isEmpty || matchesName || matchesPublisher
     }
 }

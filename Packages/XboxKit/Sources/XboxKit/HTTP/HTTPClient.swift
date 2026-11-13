@@ -16,6 +16,22 @@ public actor HTTPClient {
         var body: Data?
         var timeout: Duration?
 
+        var urlRequest: URLRequest {
+            var urlRequest = URLRequest(url: url)
+            urlRequest.httpMethod = method
+            urlRequest.httpBody = body
+
+            if let timeout {
+                urlRequest.timeoutInterval = timeout / .seconds(1)
+            }
+
+            for (name, headerValue) in headers {
+                urlRequest.setValue(headerValue, forHTTPHeaderField: name)
+            }
+
+            return urlRequest
+        }
+
         init(
             url: URL,
             method: String = "GET",
@@ -35,6 +51,10 @@ public actor HTTPClient {
         let statusCode: Int
         let headers: [String: String]
         let body: Data
+
+        var isAuthorizationRejected: Bool {
+            statusCode == 401 || statusCode == 403
+        }
 
         public init(statusCode: Int, headers: [String: String] = [:], body: Data) {
             self.statusCode = statusCode
@@ -87,45 +107,16 @@ private struct URLSessionTransport: Sendable {
     let session: URLSession
 
     func exchange(_ request: HTTPClient.Request) async throws -> HTTPClient.Response {
-        let (body, response) = try await session.data(for: urlRequest(for: request))
+        let (body, response) = try await session.data(for: request.urlRequest)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
         }
 
         return .init(
             statusCode: httpResponse.statusCode,
-            headers: lowercasedHeaders(of: httpResponse),
+            headers: httpResponse.lowercasedHeaderFields,
             body: body
         )
     }
 
-    private func urlRequest(for request: HTTPClient.Request) -> URLRequest {
-        var urlRequest = URLRequest(url: request.url)
-        urlRequest.httpMethod = request.method
-        urlRequest.httpBody = request.body
-
-        if let timeout = request.timeout {
-            urlRequest.timeoutInterval = timeInterval(of: timeout)
-        }
-
-        for (name, headerValue) in request.headers {
-            urlRequest.setValue(headerValue, forHTTPHeaderField: name)
-        }
-
-        return urlRequest
-    }
-
-    private func timeInterval(of duration: Duration) -> TimeInterval {
-        Double(duration.components.seconds) + Double(duration.components.attoseconds) / 1e18
-    }
-
-    private func lowercasedHeaders(of response: HTTPURLResponse) -> [String: String] {
-        var headers: [String: String] = [:]
-
-        for case (let name as String, let headerValue as String) in response.allHeaderFields {
-            headers[name.lowercased()] = headerValue
-        }
-
-        return headers
-    }
 }
