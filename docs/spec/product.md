@@ -249,7 +249,7 @@ compact width is the iPhone layout, regular width the iPad layout, so iPad Split
 Manager windows and an unfolded iPhone Duo each get the layout that fits.
 
 - **Tabs:** Home and Settings, signed in. The tab bar floats at the bottom on iPhone and at the
-  top on iPad. The account menu is in Home's toolbar.
+  top on iPad, with no sidebar: two tabs need none. The account menu is in Home's toolbar.
 - **Signed out** there are no tabs: the welcome page, with Settings behind a gear at the top right
   (a sheet). In compact portrait it shows the app icon at the top left and three steps (sign in,
   pick a console or a cloud game, play with touch or a controller) above a sign-in sheet fixed to
@@ -266,9 +266,13 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
   says why and does not open.
 - **Cloud Gaming** opens from that row on Home's stack: the Mac's rows and All Games, a sort
   button at the top right (a menu: Name, Recently Played) and a search field under the title that
-  searches the same cloud library (no search tab). Game names wrap to two lines, with two lines
-  reserved so tiles stay aligned.
+  searches the same cloud library (no search tab). The title stays inline, so it does not jump to a
+  large title after a search. Game names wrap to two lines, with two lines reserved so tiles stay
+  aligned.
 - **Game page:** as on Mac; Touch shows among the input badges when the title has a touch layout.
+  The game's name is shown once, in the header over the art, not again as a navigation title.
+- **Settings** keeps its rows at most 720 pt wide, aligned with the title, so labels and values
+  stay close on a wide iPad. The active account is a plain row with a trailing checkmark.
 - **Stream:** full screen, status bar and Home indicator hidden, system edge gestures deferred so a
   stray swipe needs a second one. iPhone streams in landscape only (either way round) while
   browsing follows the device; iPad streams in any orientation and in a resized window. The

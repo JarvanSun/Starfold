@@ -26,7 +26,7 @@ struct SignedInTabView: View {
                 SettingsHostView(onAddAccount: onAddAccount)
             }
         }
-        .tabViewStyle(.sidebarAdaptable)
+        .tabViewStyle(.tabBarOnly)
     }
 }
 

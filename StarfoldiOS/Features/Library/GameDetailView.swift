@@ -35,6 +35,8 @@ struct GameDetailView: View {
         .ignoresSafeArea(edges: .top)
         .scrollIndicators(.hidden)
         .navigationTitle(detail.name)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(removing: .title)
     }
 }
 

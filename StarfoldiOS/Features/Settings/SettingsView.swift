@@ -9,6 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(\.dimensions) private var dimensions
     @State private var isConfirmingSignOut = false
     @State private var isEditingTouchLayout = false
 
@@ -17,16 +18,13 @@ struct SettingsView: View {
     let onAddAccount: () -> Void
 
     var body: some View {
-        Form {
-            StreamingSettingsSection(settings: settings)
-
-            DisplaySettingsSection(settings: settings)
-
-            ControlsSettingsSection(settings: settings) { editTouchLayout() }
-
-            if settings.hasAccounts {
-                accountSection
-            }
+        GeometryReader { proxy in
+            form
+                .contentMargins(
+                    .trailing,
+                    trailingMargin(in: proxy.size.width),
+                    for: .scrollContent
+                )
         }
         .navigationTitle(Text("settings.title"))
         .confirmationDialog(
@@ -41,6 +39,24 @@ struct SettingsView: View {
         } content: {
             touchLayoutEditor
         }
+    }
+
+    private var form: some View {
+        Form {
+            StreamingSettingsSection(settings: settings)
+
+            DisplaySettingsSection(settings: settings)
+
+            ControlsSettingsSection(settings: settings) { editTouchLayout() }
+
+            if settings.hasAccounts {
+                accountSection
+            }
+        }
+    }
+
+    private func trailingMargin(in width: CGFloat) -> CGFloat {
+        max(0, width - dimensions.settingsMaxWidth)
     }
 
     private var accountSection: some View {

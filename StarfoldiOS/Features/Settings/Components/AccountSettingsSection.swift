@@ -31,10 +31,18 @@ struct AccountSettingsSection: View {
         } label: {
             HStack {
                 Text(verbatim: account.gamertag)
+                    .foregroundStyle(Color.primary)
 
-                Image(systemName: "checkmark").opacity(account.isActive ? 1 : 0)
+                Spacer()
+
+                Image(systemName: "checkmark")
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.tint)
+                    .opacity(account.isActive ? 1 : 0)
             }
+            .contentShape(.rect)
         }
+        .accessibilityAddTraits(account.isActive ? .isSelected : [])
     }
 }
 

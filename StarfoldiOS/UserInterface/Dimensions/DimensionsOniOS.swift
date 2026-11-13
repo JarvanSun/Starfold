@@ -68,11 +68,13 @@ extension Dimensions {
     var streamMenuActionHeight: CGFloat { 52 }
     var streamMenuHandleWidth: CGFloat { 44 }
     var streamMenuHandleHeight: CGFloat { 22 }
+    var streamMenuHandleZone: CGSize { CGSize(width: 88, height: 48) }
     var highlightLineWidth: CGFloat { 2 }
     var touchInspectorWidth: CGFloat { 260 }
     var touchInspectorTopInset: CGFloat { 72 }
     var touchEditorSliderWidth: CGFloat { 160 }
     var touchEditorButtonSize: CGFloat { 44 }
+    var settingsMaxWidth: CGFloat { 720 }
     var touchPlaceholderDash: CGFloat { 6 }
 
     func touchMetrics(forVerticalSizeClass sizeClass: UserInterfaceSizeClass?) -> TouchMetrics {

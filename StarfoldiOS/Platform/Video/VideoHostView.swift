@@ -37,6 +37,10 @@ final class VideoHostView: UIView {
         fatalError("init(coder:) is not supported")
     }
 
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        false
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
 

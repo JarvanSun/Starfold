@@ -44,6 +44,7 @@ struct HomeHostView: View {
         cloudGamingContent
             .background { SkyBackground() }
             .navigationTitle(Text("library.title"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     SortPicker(sort: $library.sort, choices: library.sortChoices)
@@ -54,6 +55,7 @@ struct HomeHostView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Text("search.field.prompt")
             )
+            .textInputAutocapitalization(.never)
     }
 
     @ViewBuilder

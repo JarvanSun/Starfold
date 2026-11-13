@@ -17,6 +17,7 @@ final class TouchControllerView: MTKView {
     }
 
     var isHapticsEnabled = false
+    var stickPassThroughZone: CGSize = .zero
 
     private let commandQueue: MTLCommandQueue?
     private let pressFeedback = UIImpactFeedbackGenerator(style: .light)
@@ -115,7 +116,21 @@ final class TouchControllerView: MTKView {
     }
 
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        touchController?.control(at: point) != nil
+        switch touchController?.control(at: point) {
+        case nil: false
+        case is TCThumbstick: !isInStickPassThroughZone(point)
+        case _?: true
+        }
+    }
+
+    private func isInStickPassThroughZone(_ point: CGPoint) -> Bool {
+        let zone = CGRect(
+            x: bounds.midX - stickPassThroughZone.width / 2,
+            y: bounds.minY,
+            width: stickPassThroughZone.width,
+            height: stickPassThroughZone.height
+        )
+        return zone.contains(point)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
