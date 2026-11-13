@@ -302,6 +302,37 @@ ServerMetadata, Vibration.
   right handle, 0.3 elsewhere. A new effect replaces the playing one.
 - Rumble plays only while the preference is on, and stops when the stream ends.
 
+## Touch (iPhone, iPad)
+
+Not built yet. Read from the xbox.com/play web client and Microsoft's Touch Adaptation Kit (TAK)
+schemas and samples in `microsoft/xbox-game-streaming-tools` (MIT); recheck against the live
+services before relying on a value. Until it is built, every platform keeps the start-up values in
+[Data channels](#data-channels) (`maxTouchPoints` 0, `touchInputEnabled` false).
+
+| What | Where |
+|---|---|
+| Does the title have touch? | `POST /v2/titles/inputconfigs` `{titleIds, titleIdType}` (remote play: `xboxTitleId`, after `/streaming/properties/titleinfo` names the running title); each entry has `supportedTabs` (`[{id}]`) and `supportedInputTypes` (`Controller`, `MKB`, `CustomTouchOverlay`, `GenericTouch`, `NativeTouch`, `NativeSensor`). Cloud titles carry the same two fields. A non-empty `supportedTabs` means a title layout. |
+| Its layout bundle | `GET /v1/sessions/tabs/<tabId>/download?noRedirect=true` with the gssv token returns a URL as plain text; a plain `GET` of that URL, without the token, returns a zip: `takxmanifest.json`, `layouts/<locale>/*.json` (falling back to `neutral`), `assets/<locale>/@Nx/*.png`, optional `context.json`. The URL's host is unconfirmed. |
+| Turning touch on | Session config `inputConfiguration.enableTouchInput` and `maxTouchPoints`; `touchinputenabledchanged {"touchInputEnabled": true}`; `clientdevicecapabilities {"maxTouchBundleLayoutVersion": "4.1.0.0", "maxTouchBundleManifestVersion": "2.0.0.0"}`; `/streaming/characteristics/touchBundleMetadataChanged {version, versionName}` for the loaded bundle. |
+
+| Incoming on `message`, `/streaming/touchcontrols/…` | Means |
+|---|---|
+| `showlayoutv2` `{layoutId, patch?}` | Show that layout; `layoutId` "" is the standard layout |
+| `showlayout` (raw id) | Older form of the above |
+| `showtitledefault` | Show the title's default layout |
+| `patchstate` `{patch}` | JSON Patch on the layout's `context.json` state |
+| `hide` | Hide the touch layout |
+
+- A transaction on this scope is still answered with `ReceiverCancel`.
+- Layout controls (`button`, `joystick`, `directionalPad`, `throttle`, `touchpad`, `arcadeButtons`,
+  wheels, `layer` actions, `turbo`) produce a virtual gamepad: ordinary Gamepad records on `input`,
+  with virtual physicality. A layout may also emit relative mouse, and a `NativeTouch` title takes
+  Pointer reports (report type 4); both need their encodings pinned down here before they are
+  sent.
+- The standard layout matches the MIT sample `standard-controller.json`: left joystick in
+  `left.inner`; D-pad, left stick click, LT and LB in `left.outer`; Y, B, A, X in `right.inner`; RB,
+  RT, right stick click and right joystick in `right.outer`; Menu and View at `upper.right`.
+
 ## Ending a session
 
 - Keepalive: `POST keepalive` with `{}` every keepalive interval once streaming. A body containing

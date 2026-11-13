@@ -3,16 +3,17 @@
 What a player can do in Starfold. A behaviour not here is not built; a feature changes this file
 before its code.
 
-Starfold streams Xbox games to Mac, Apple Vision Pro and Apple TV: remote play from the player's
-consoles, and Xbox Cloud Gaming. It talks to Microsoft's and Xbox's services directly; there is no
+Starfold streams Xbox games to Mac, Apple Vision Pro, Apple TV, iPhone and iPad: remote play from
+the player's consoles, and Xbox Cloud Gaming. It talks to Microsoft's and Xbox's services directly; there is no
 Starfold server. Text names the app only by `AppInfo().displayName`, in English and Simplified
 Chinese; the welcome screen says Starfold isn't affiliated with or endorsed by Microsoft.
 
 ## Accounts
 
 - **Device code.** Signed out, the welcome screen shows the sign-in at once: the code in boxes,
-  "or enter the code at microsoft.com/link", and a QR code on Mac and Apple TV (not Vision Pro).
-  Open Link (Mac) or Sign In (Vision Pro) copies the code and opens the link with it filled in.
+  "or enter the code at microsoft.com/link", and a QR code on Mac and Apple TV (not Vision Pro,
+  iPhone or iPad, where the link opens on the same device). Open Link (Mac) or Sign In (Vision Pro,
+  iPhone, iPad) copies the code and opens the link with it filled in.
 - "Waiting for sign in…" while polling, "Signing in…" after the browser step; then Home appears at
   once with placeholders. An expired code is replaced; a declined sign-in or an error shows the
   reason and Get a New Code.
@@ -87,15 +88,17 @@ Chinese; the welcome screen says Starfold isn't affiliated with or endorsed by M
 |---|---|---|---|
 | Console quality | Automatic, 720p, 1080p, 1080p High Bitrate | Automatic | All |
 | Cloud quality | Automatic, 720p, 1080p, 1440p (Game Pass Ultimate) | Automatic | All |
-| Maximum bitrate | Automatic, 10–80 Mbps | Automatic | Mac, Vision Pro |
+| Cellular quality | Automatic, 720p, 1080p; a ceiling over the console and cloud quality while on cellular data | 720p | iPhone, iPad with cellular |
+| Maximum bitrate | Automatic, 10–80 Mbps | Automatic | Mac, Vision Pro, iPhone, iPad |
 | MetalFX upscaling | On, Off | On | Mac |
 | Sharpening | Off to High | Low | Mac |
-| Picture Mode | Fit; Fill (crops the edges); Scale (stretches to the view's shape) | Fit | Mac, Apple TV |
+| Picture Mode | Fit; Fill (crops the edges); Scale (stretches to the view's shape) | Fit | Mac, Apple TV, iPhone, iPad |
 | HDR tone mapping | On, Off; shown only with an HDR screen connected | Off | Mac |
 | Buffer | Standard, Low Latency | Standard | All |
 | Show statistics | On, Off | Off | All |
 | Game language (cloud) | System or one of 12 languages | System | All |
-| Keyboard as controller, Rumble | On, Off | On | Keyboard: Mac; Rumble: all |
+| Keyboard as controller, Rumble | On, Off | On | Keyboard: Mac, iPad; Rumble: all |
+| Touch haptics | On, Off: a tap on a touch control and, with no controller, host rumble play on the device | On | iPhone |
 
 - Automatic asks for 1080p; when bandwidth runs short the Xbox lowers resolution mid-stream and
   keeps the frame rate. Fixed tiers are ceilings. A free-to-play account (no Game Pass) never asks
@@ -113,7 +116,8 @@ Chinese; the welcome screen says Starfold isn't affiliated with or endorsed by M
 ### Statistics
 
 - Top-leading overlay. First line: estimated latency (round trip + jitter buffer + decode +
-  display), on Mac and Vision Pro with a green (< 50 ms), amber (< 90 ms) or red dot.
+  display), on Mac, Vision Pro, iPhone and iPad with a green (< 50 ms), amber (< 90 ms) or red
+  dot.
 - Then each line the stream has a value for:
   - **Mac:** resolution and codec (marked Automatic), upscaled size, SDR → HDR tone mapping,
     "Lowered from <tier>", frame rate, bitrate, network path (Local network, Internet or Relay;
@@ -121,6 +125,9 @@ Chinese; the welcome screen says Starfold isn't affiliated with or endorsed by M
   - **Vision Pro:** resolution (marked Automatic), "Lowered from <tier>", frame rate, bitrate,
     round trip, decode, jitter buffer, packet loss.
   - **Apple TV:** resolution, frame rate, bitrate, codec, "Lowered from <tier>", unlabeled.
+  - **iPhone, iPad:** resolution (marked Automatic), "Lowered from <tier>", frame rate, bitrate,
+    network path (Local network, Internet or Relay; Wi-Fi, Ethernet or Cellular), round trip,
+    packet loss.
 - The stream never pops up a network or quality notice.
 - Copy Statistics (Mac) copies the figures as English plain text, noting that controller input and
   the host's capture and encode are not included.
@@ -129,8 +136,15 @@ Chinese; the welcome screen says Starfold isn't affiliated with or endorsed by M
 
 - Controllers go straight to the stream, off the main thread. A tap between two samples is still
   sent; unplugging sends one neutral state. Host rumble plays unless Rumble is off. Settings list
-  controllers with player slot, battery and Test Vibration (Mac, Vision Pro).
-- Keyboard as controller (Mac) uses key positions: WASD left stick, IJKL right stick, arrows D-pad,
+  controllers with player slot, battery and Test Vibration (Mac, Vision Pro, iPhone, iPad).
+- **Xbox button.** Every controller's Xbox button goes to the Xbox while Starfold is in front. From
+  macOS, iOS and visionOS 27 the player's game controller settings can tell the system to keep that
+  button in every app, and Starfold cannot override it. While that is set and a controller is
+  connected, Settings shows "Xbox button — macOS handles it instead of your Xbox." (the platform's
+  name) with Open System Settings (Open Settings on Vision Pro, iPhone, iPad), and the connecting
+  page shows "macOS is handling the Xbox button." with the same link. The stream's own Xbox Guide
+  control always works. Apple TV hands the button to the Xbox only during play.
+- Keyboard as controller (Mac; iPad with a hardware keyboard) uses key positions: WASD left stick, IJKL right stick, arrows D-pad,
   Space A, Esc or Delete B, F X, R Y, Q LB, E RB, Z and C triggers, Return Menu, Tab View, Shift
   and V stick presses.
 - Diagonals stay on the unit circle, opposite keys cancel, keyboard and controller on one player
@@ -228,8 +242,76 @@ A host error becomes the step that fixes it; only an unrecognised one is shown a
   Play starts it; a console starts a stream from Home. Signing out clears the rows; with nothing to
   show, a static image without text appears.
 
+## iPhone and iPad
+
+One app for both. Layout follows the size class of the space the app has, never the device:
+compact width is the iPhone layout, regular width the iPad layout, so iPad Split View, Stage
+Manager windows and an unfolded iPhone Duo each get the layout that fits.
+
+- **Tabs:** Home, Cloud Gaming, Settings and the system search tab, signed in; Sign In and Settings
+  signed out. The tab bar floats at the bottom on iPhone and at the top on iPad. The account menu
+  is in Home's toolbar.
+- **Home:** console cards, then Continue Playing (up to 10); no cloud card. On iPhone one card fills
+  the width and the cards page sideways; on iPad they are Mac-sized and sit in a row. **Cloud
+  Gaming** has the Mac's rows and All Games, with a sort menu; search lives in the search tab.
+- **Game page:** as on Mac; Touch shows among the input badges when the title has a touch layout.
+- **Stream:** full screen, status bar and Home indicator hidden, system edge gestures deferred so a
+  stray swipe needs a second one. iPhone streams in landscape only (either way round) while
+  browsing follows the device; iPad streams in any orientation and in a resized window. The
+  waiting and end pages are the Mac's.
+- **Stream menu:** a small handle at the top centre opens it. The handle dims after 3 s; while a
+  controller is in use it hides and a tap brings it back. The menu is a glass panel: Xbox Guide,
+  Statistics, Picture in Picture and Disconnect, then Picture (Fit, Fill), Buffer and Edit Touch
+  Controls. Tapping outside closes it. A game dialog or keyboard prompt is a sheet, as on Mac.
+- **Leaving the app** during play continues the picture in system Picture in Picture and keeps the
+  session; tapping it returns. Input does not reach the Xbox while Starfold is in the background.
+  When Picture in Picture is off in the system's settings, leaving ends the stream and session,
+  as on Apple TV.
+- **Sound** plays with the Ring/Silent switch on silent, like video, pauses for calls and returns
+  after them, and is released when the stream ends.
+- **Cellular:** the Cellular quality ceiling applies while the stream runs over cellular data;
+  statistics name the path.
+- **Settings tab:** Quality (with Cellular quality), Cloud Gaming, Picture (Picture Mode, Buffer,
+  statistics), Touch Controls (Edit Layout, Touch haptics on iPhone), Controllers (with keyboard
+  as controller on iPad), Account (switch, Add Account, Sign Out…), Appearance (palette).
+
+### Touch controls
+
+Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
+
+- **When they show.** With no controller connected the touch controls are on screen. Input from a
+  controller hides them; touching the screen brings them back; disconnecting the last controller
+  brings them back. A keyboard counts as a controller on iPad. There is no on/off setting.
+- **Which layout.** A title with its own touch layout (Xbox Touch Adaptation Kit) uses it, in cloud
+  and remote play alike, including the layers, wheels and state the game switches at run time;
+  the game decides when its layout shows, hides or changes. Every other title gets the standard
+  Xbox layout: left stick, D-pad, LB, LT and left stick click on the left; A, B, X, Y, RB, RT, right
+  stick and right stick click on the right; View and Menu at the top. A title that reads touch
+  directly receives the player's touches instead of a layout.
+- **Look and feel.** Controls are translucent and neutral in every palette, at least 44 × 44 pt
+  (menus 28 × 28 pt), clear of the Dynamic Island, Home indicator and an active fold. A press
+  shows at once with a glow visible around the finger and, with Touch haptics on, a light tap.
+  On the standard layout the left stick starts where the thumb lands in the left half.
+- **Edit Layout** (Settings, and the stream menu) adjusts the standard layout only: drag a control
+  to move it, and set its size and the layout's opacity; Reset restores the default. Edits are per
+  device and orientation. A title's own layout is never edited.
+- **Rumble** plays on the controller when there is one; with only touch controls it plays as
+  haptics on iPhone while Touch haptics is on.
+
+### iPhone Duo
+
+Built after iPhone and iPad are finished.
+
+- Closed (outer display): the iPhone layout. Fully open: the layout the inner display's size class
+  gives. Moving between displays or folding keeps the stream, its menu state and the player's
+  place, without reconnecting.
+- **Half folded:** the picture sits above the fold and the touch controls fill the half below it;
+  nothing overlaps the picture. With a controller in use the lower half is empty except for the
+  stream menu handle and, when on, statistics. The fold position comes from the system's reserved
+  regions, never from the hinge angle.
+
 ## Out of scope
 
-iPhone and iPad, other streaming services, touch controls, mouse and keyboard passthrough, voice
-chat, notifications, analytics, light palettes, curved or immersive screens on Vision Pro, a
+Other streaming services, mouse and keyboard passthrough (a keyboard only plays as a controller),
+voice chat, notifications, analytics, light palettes, curved or immersive screens on Vision Pro, a
 server of our own. Adding one changes this list first.
