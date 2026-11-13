@@ -37,19 +37,25 @@ In StreamKit.
 - **StreamController**: The slot-0 reset-then-announce pair runs in its own task so its 500 ms gap does not hold up other messages, and the input sender starts only after it.
 - **InputSender**: Input goes out on its own thread so a press never waits for an actor hop and timers cannot coalesce the 8 ms wake-up.
 - **InputState**: A Guide pulse rides on its slot even with no controller connected.
+- **InputState**: A press latched between two samples takes the physicality of the state it is sent with, so a touch tap shorter than one send round is reported as physical.
 - **GamepadRouter**: Deliveries happen under the lock in change order so an older state never overtakes a newer one; destinations only record and wake the input thread.
 - **GamepadRouter**: Slot 0 always gets a state because the host is told about it at connect, and each stream starts with no keyboard keys held.
-- **GamepadRouter**: Clearing pending input on TV delivers nil even for slot 0, so the sender drops latched taps before neutral states follow.
+- **GamepadRouter**: Clearing pending input under gated routing delivers nil even for slot 0, so the sender drops latched taps before neutral states follow.
+- **GamepadRouter**: Under gated routing player one exists only while a controller, the touch controller or held keys feed it, so Apple TV still reports a disconnected player one as a removal; the keyboard merges in for iPad.
 - **ControllerHub**: `GCController.shouldMonitorBackgroundEvents` stays on so input arrives when the stream window is not key.
 - **ControllerHub**: Connect and disconnect notifications only trigger a diff against `GCController.controllers()`, keeping non-Sendable controllers out of main-actor closures.
 - **ControllerHub**: A new controller's first state goes through the handler queue to stay ordered with its own callbacks and a later disconnect.
-- **ControllerInputDestination**: Direct routing disables the system gesture on Home, Menu and Options so the Xbox / PS button reaches the game; on TV, TVControllerInput toggles it with gameplay.
+- **ControllerHub**: The touch controller is recognised by the product category the app passes, because StreamKit cannot import TouchController; it is read through `physicalInputProfile` because it may have no `extendedGamepad`.
+- **ControllerHub**: The device's own haptics engine is created on the first rumble that needs it, so devices that never play device rumble never start one.
+- **ControllerInputDestination**: Direct routing disables the system gesture on Home, Menu and Options so the Xbox / PS button reaches the game; under gated routing, GatedControllerInput toggles it with gameplay.
 - **XboxButtonSettings**: From OS 27 the user's in-app Home button setting wins over `preferredSystemGestureState` unless it is Defer; an app can only read it (and only while a controller is connected) and open its settings screen, so Starfold says so instead of fixing it.
 - **RumblePlayer**: It uses the standard pattern player because on macOS 27 an advanced player's events are rejected by gamecontrollerd and silence later rumble; a stopped engine is restarted and retried once.
-- **TVControllerInput**: All TV filtering runs on the controller queue; main-actor commands join it rather than add a hop to each input.
-- **TVControllerInput**: UIKit may consume button releases while it has focus, so the held-control barrier is refreshed from the gamepads before gameplay resumes.
-- **TVGamepadPolicy**: Leaving gameplay sends neutral for every player and quarantines held controls until their physical release.
-- **TVGamepadPolicy**: A removed controller is reported only as a removal, because a neutral pad first would re-add the slot.
+- **GatedControllerInput**: All gated filtering runs on the controller queue; main-actor commands join it rather than add a hop to each input.
+- **GatedControllerInput**: UIKit may consume button releases while it has focus, so the held-control barrier is refreshed from the gamepads and the touch controller before gameplay resumes.
+- **GatedGamepadPolicy**: Leaving gameplay sends neutral for every player and quarantines held controls until their physical release.
+- **GatedGamepadPolicy**: A removed controller is reported only as a removal, because a neutral pad first would re-add the slot.
+- **GatedGamepadPolicy**: Touch is a source of its own (`GamepadSource.touch`), so a finger held through Control Center or a game dialog is quarantined without blocking the controller that shares slot 0.
+- **ActiveInputSwitch**: Only a deliberate control (a button, or a stick or trigger at 0.3 or more) flips it, because a resting stick's drift would otherwise hide the touch controls as soon as they are touched; a flip hops to the main actor, a sample never does.
 - **KeyboardGamepad**: Key codes are hardware positions (`kVK_*`) so WASD stays under the left hand on every layout.
 - **StreamRenderer**: Every frame is rendered in order, since dropping burst frames would undo pacing; only a backlog over 6 frames drops the oldest.
 - **StreamRenderer**: At most 12 output buffers live (the layer holds about 8 at 60 fps plus one drawing); past that a frame is dropped, since a 5K buffer is about 59 MB.
@@ -67,6 +73,8 @@ In StreamKit.
 - **AdaptiveQuality**: Cloud 1440p without Game Pass starts the session and ends it at once (measured with Fortnite), so such streams are pinned to 1080p.
 - **StatisticsReport**: Labels are fixed English because the report is read by whoever receives it and compared across runs.
 - **ControlMessage**: JSON keys are sorted only for deterministic tests; the host ignores order.
+- **MessageChannel**: A touch-controls transaction is still cancelled as before, but its command is reported too, since which envelope the host uses for layouts is unconfirmed.
+- **RunningTitleParsing**: The `titleinfo` payload is unconfirmed, so keys match in any case, a numeric id is written in hex and a missing `focus` counts as focused.
 - **PictureGeometry**: Upscaling renders at the picture's on-screen pixel size (never below the stream's); without upscaling the stream's size is used, since the layer scales anyway.
 - **StreamViewModel**: It watches `Preferences` with `withObservationTracking`, so a change from Settings, the menu bar or the stream controls applies the same way, until the stream ends.
 - **StreamViewModel**: The sharpening menu shows the nearest of four levels, because Settings saves any slider strength.

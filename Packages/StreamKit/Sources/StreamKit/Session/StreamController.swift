@@ -420,4 +420,8 @@ public actor StreamController {
     public func answerKeyboard(id: String, text: String?) async {
         await perform([channels.answerKeyboard(id: id, text: text)])
     }
+
+    public func announceTouchBundle(version: String, versionName: String) async {
+        await perform([channels.announceTouchBundle(version: version, versionName: versionName)])
+    }
 }

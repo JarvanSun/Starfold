@@ -1,21 +1,21 @@
 //
-//  TVGamepadPolicy.swift
+//  GatedGamepadPolicy.swift
 //  StreamKit
 //
 //  Created by Jiawen Sun on 2026/09/30.
 //
 
-struct TVGamepadPolicy {
+struct GatedGamepadPolicy {
     struct Output {
-        var states: [UInt8: GamepadState] = [:]
+        var states: [GamepadSource: GamepadState] = [:]
         var shouldClearPendingInput = false
-        var removedSlots: [UInt8] = []
+        var removed: [GamepadSource] = []
     }
 
     private(set) var isPlaying = false
 
-    private var physical: [UInt8: GamepadState] = [:]
-    private var blocked: [UInt8: GamepadState] = [:]
+    private var held: [GamepadSource: GamepadState] = [:]
+    private var blocked: [GamepadSource: GamepadState] = [:]
 
     private var releaseThreshold: Float { 0.1 }
 
@@ -24,31 +24,33 @@ struct TVGamepadPolicy {
         guard self.isPlaying != isPlaying else { return Output() }
 
         self.isPlaying = isPlaying
-        blocked = physical
+        blocked = held
 
-        let neutral = Dictionary(uniqueKeysWithValues: physical.keys.map { ($0, GamepadState()) })
+        let neutral = Dictionary(uniqueKeysWithValues: held.keys.map { ($0, GamepadState()) })
         return Output(states: neutral, shouldClearPendingInput: true)
     }
 
     @discardableResult
-    mutating func update(slot: UInt8, state: GamepadState?) -> Output {
+    mutating func update(_ source: GamepadSource, state: GamepadState?) -> Output {
         guard let state else {
-            physical[slot] = nil
-            blocked[slot] = nil
+            held[source] = nil
+            blocked[source] = nil
 
-            return Output(removedSlots: [slot])
+            return Output(removed: [source])
         }
 
-        physical[slot] = state
+        held[source] = state
 
-        guard isPlaying else { return Output(states: [slot: GamepadState()]) }
+        guard isPlaying else { return Output(states: [source: GamepadState()]) }
 
-        return Output(states: [slot: quarantine(state, slot: slot)])
+        return Output(states: [source: quarantine(state, from: source)])
     }
 
-    private mutating func quarantine(_ state: GamepadState, slot: UInt8) -> GamepadState {
-        let barrier = releasedBarrier(blocked[slot] ?? GamepadState(), current: state)
-        blocked[slot] = barrier
+    private mutating func quarantine(_ state: GamepadState, from source: GamepadSource)
+        -> GamepadState
+    {
+        let barrier = releasedBarrier(blocked[source] ?? GamepadState(), current: state)
+        blocked[source] = barrier
 
         var clean = state
         clean.buttons.subtract(barrier.buttons)

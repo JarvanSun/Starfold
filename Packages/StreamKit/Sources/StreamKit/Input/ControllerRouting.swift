@@ -7,5 +7,5 @@
 
 public enum ControllerRouting: Sendable {
     case direct
-    case television
+    case gated
 }
