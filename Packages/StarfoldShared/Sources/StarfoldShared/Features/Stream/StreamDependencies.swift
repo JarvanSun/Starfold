@@ -10,18 +10,30 @@ import StreamKit
 public struct StreamDependencies {
     let preferences: Preferences
     let controllers: ControllerHub
-    let picture: PictureCapabilities
-    let overlays: StreamOverlays
+    let platform: StreamPlatform
+    let network: NetworkPathReading
+
+    var picture: PictureCapabilities {
+        platform.picture
+    }
+
+    var overlays: StreamOverlays {
+        platform.overlays
+    }
+
+    var touch: TouchCapabilities? {
+        platform.touch
+    }
 
     public init(
         preferences: Preferences,
         controllers: ControllerHub,
-        picture: PictureCapabilities,
-        overlays: StreamOverlays
+        platform: StreamPlatform,
+        network: NetworkPathReading
     ) {
         self.preferences = preferences
         self.controllers = controllers
-        self.picture = picture
-        self.overlays = overlays
+        self.platform = platform
+        self.network = network
     }
 }

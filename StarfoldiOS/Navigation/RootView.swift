@@ -1,0 +1,97 @@
+//
+//  RootView.swift
+//  Starfold
+//
+//  Created by Jiawen Sun on 2026/11/13.
+//
+
+import StarfoldShared
+import SwiftUI
+
+struct RootView: View {
+    @Environment(AppViewModel.self) private var app
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var isSignInPresented = false
+    @State private var isStreamPresented = false
+    @State private var backgroundStreamEnd = BackgroundStreamEnd()
+
+    var body: some View {
+        content
+            .preferredColorScheme(.dark)
+            .sheet(isPresented: $isSignInPresented) { SignInHostView { SignInView(signIn: $0) } }
+            .fullScreenCover(isPresented: $isStreamPresented) { StreamCoverView() }
+            .alert("app.signInExpired.title", isPresented: signInExpiredAlert) {
+                Button("app.signInExpired.signIn") { presentSignIn() }
+
+                Button("app.signInExpired.notNow", role: .cancel) {}
+            } message: {
+                Text("app.signInExpired.message")
+            }
+            .onChange(of: app.streamPresentationRequest) { isStreamPresented = true }
+            .onChange(of: scenePhase) { _, phase in apply(phase) }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch (app.sessionState, app.home, app.library) {
+        case (.signedIn, let home?, let library?): signedInTabs(home: home, library: library)
+        case (.signedOut, _, _): signedOutTabs
+        case (.restoring, _, _), (.signedIn, _, _): restoring
+        }
+    }
+
+    private func signedInTabs(home: HomeViewModel, library: LibraryViewModel) -> some View {
+        SignedInTabView(home: home, library: library, onAddAccount: { presentSignIn() })
+    }
+
+    private func presentSignIn() {
+        isSignInPresented = true
+    }
+
+    private var signedOutTabs: some View {
+        TabView {
+            Tab("app.tab.signIn", systemImage: "person.crop.circle") {
+                SignInHostView { WelcomeView(signIn: $0) }
+                    .background { SkyBackground() }
+            }
+
+            Tab("app.tab.settings", systemImage: "gear") {
+                SettingsHostView(onAddAccount: { presentSignIn() })
+            }
+        }
+        .tabViewStyle(.sidebarAdaptable)
+    }
+
+    private var restoring: some View {
+        ProgressView()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background { SkyBackground() }
+    }
+
+    private var signInExpiredAlert: Binding<Bool> {
+        .init(
+            get: { app.isSignInExpired && !isStreamPresented },
+            set: { app.isSignInExpired = $0 }
+        )
+    }
+
+    private func apply(_ phase: ScenePhase) {
+        guard phase == .background, isStreamPresented else { return }
+
+        isStreamPresented = false
+
+        backgroundStreamEnd.end { await app.endStream() }
+    }
+}
+
+#if DEBUG
+#Preview("Signed in") {
+    RootView()
+        .environment(PreviewObjectPool.appViewModel(signedIn: true))
+}
+
+#Preview("Signed out") {
+    RootView()
+        .environment(PreviewObjectPool.appViewModel(signedIn: false))
+}
+#endif

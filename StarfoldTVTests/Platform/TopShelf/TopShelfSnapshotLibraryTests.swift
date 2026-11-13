@@ -83,15 +83,27 @@ private extension TopShelfSnapshotLibraryTests {
             shouldKeepLastFrame: false,
             isHDRDisplayAvailable: nil
         )
+        let platform = StreamPlatform(
+            controllerRouting: .direct,
+            picture: picture,
+            overlays: .init(statisticsRows: [], controlsHideDelay: nil),
+            touch: nil
+        )
+        let network = LiveNetworkPath()
         return AppViewModel(
             accountService: AccountServiceStub(),
             cache: .init(directory: .temporaryDirectory.appending(path: UUID().uuidString)),
-            settings: .init(preferences: preferences, controllers: controllers, picture: picture),
+            settings: .init(
+                preferences: preferences,
+                controllers: controllers,
+                platform: platform,
+                network: network
+            ),
             streamDependencies: .init(
                 preferences: preferences,
                 controllers: controllers,
-                picture: picture,
-                overlays: .init(statisticsRows: [], controlsHideDelay: nil)
+                platform: platform,
+                network: network
             )
         )
     }

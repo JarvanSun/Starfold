@@ -28,6 +28,7 @@ public final class StreamViewModel {
     public private(set) var phase: StreamPhase = .provisioning
     public private(set) var hasFirstFrame = false
     public private(set) var areControlsRevealed = true
+    public private(set) var isMenuOpen = false
 
     private(set) var statistics = StreamStatistics()
     private(set) var startedSettings: StreamSettings?
@@ -50,6 +51,7 @@ public final class StreamViewModel {
     private var keyboard = KeyboardGamepad()
     private var hasLoggedFirstRumble = false
     private var statisticsTicks = 0
+    private var isInForeground = true
     private var startedAt = ContinuousClock.now
 
     public var sharpeningLevel: SharpeningLevel {
@@ -92,11 +94,19 @@ public final class StreamViewModel {
     }
 
     public var isPlayable: Bool {
-        !isWaitingForPicture && dialogs.queue.isEmpty && !controllers.connected.isEmpty
+        !isWaitingForPicture && dialogs.queue.isEmpty && hasInput
     }
 
     public var needsController: Bool {
-        isStreaming && controllers.connected.isEmpty
+        isStreaming && !hasInput
+    }
+
+    private var hasInput: Bool {
+        dependencies.touch != nil || !controllers.connected.isEmpty
+    }
+
+    public var isRoutingInputToGame: Bool {
+        isPlayable && !isMenuOpen && isInForeground
     }
 
     public var isXboxButtonTakenBySystem: Bool {
@@ -205,7 +215,7 @@ public final class StreamViewModel {
         let settings = StreamSettings(target: target, preferences: preferences)
         startedSettings = settings
 
-        let quality = qualityOverride ?? settings.choice.requestedQuality
+        let quality = networkQuality(for: qualityOverride ?? settings.choice.requestedQuality)
         self.quality = quality
 
         let options = StreamOptions(
@@ -217,6 +227,13 @@ public final class StreamViewModel {
 
         startedAt = .now
         connectTask = Task { await connect(with: options) }
+    }
+
+    private func networkQuality(for requested: StreamQuality) -> StreamQuality {
+        switch dependencies.network.isOnCellular {
+        case true: requested.capped(at: preferences.cellularQuality)
+        case false: requested
+        }
     }
 
     private func connect(with options: StreamOptions) async {
@@ -400,6 +417,20 @@ public final class StreamViewModel {
         guard !Task.isCancelled else { return }
 
         areControlsRevealed = false
+    }
+
+    public func openMenu() {
+        guard canOpenMenu else { return }
+
+        isMenuOpen = true
+    }
+
+    public func closeMenu() {
+        isMenuOpen = false
+    }
+
+    public func moveToForeground(_ isInForeground: Bool) {
+        self.isInForeground = isInForeground
     }
 
     public func openGuide() {

@@ -409,6 +409,79 @@ struct StreamViewModelTests {
         #expect(preferences.sharpening == 1)
     }
 
+    @Test(arguments: [(true, StreamQuality.standard), (false, .high)])
+    func startWhenCellularIsKnownThenCapsQualityOnlyOnCellular(
+        isOnCellular: Bool,
+        expected: StreamQuality
+    ) {
+        // Given
+        let network = NetworkPathStub()
+        network.isOnCellular = isOnCellular
+        let stream = makeStream(service: StreamServiceStub(), network: network)
+
+        // When
+        stream.start()
+
+        // Then
+        #expect(stream.quality == expected)
+    }
+
+    @Test
+    func needsControllerWhenTouchControlsExistThenIsFalse() async {
+        // Given / When
+        let stream = await makeStreamingStream(touch: .dummy)
+
+        // Then
+        #expect(!stream.needsController)
+    }
+
+    @Test
+    func needsControllerWhenNoControllerAndNoTouchThenIsTrue() async {
+        // Given / When
+        let stream = await makeStreamingStream()
+
+        // Then
+        #expect(stream.needsController)
+    }
+
+    @Test
+    func openMenuThenOpensItAndStopsRoutingInputToTheGame() async {
+        // Given
+        let stream = await makeStreamingStream(touch: .dummy)
+
+        // When
+        stream.openMenu()
+
+        // Then
+        #expect(stream.isMenuOpen)
+        #expect(!stream.isRoutingInputToGame)
+    }
+
+    @Test
+    func closeMenuThenClosesIt() async {
+        // Given
+        let stream = await makeStreamingStream(touch: .dummy)
+        stream.openMenu()
+
+        // When
+        stream.closeMenu()
+
+        // Then
+        #expect(!stream.isMenuOpen)
+    }
+
+    @Test
+    func openMenuWhenNotStreamingThenStaysClosed() {
+        // Given
+        let stream = makeStream(service: StreamServiceStub())
+
+        // When
+        stream.openMenu()
+
+        // Then
+        #expect(!stream.isMenuOpen)
+    }
+
     @Test
     func stopThenEndsAsStoppedByThePlayer() async {
         // Given
@@ -428,11 +501,12 @@ struct StreamViewModelTests {
 
 private extension StreamViewModelTests {
     func makeStreamingStream(
-        preferences: Preferences = .init(defaults: .dummyEmpty)
+        preferences: Preferences = .init(defaults: .dummyEmpty),
+        touch: TouchCapabilities? = nil
     ) async -> StreamViewModel {
         let service = StreamServiceStub()
         service.updates = [.phase(.streaming)]
-        let stream = makeStream(service: service, preferences: preferences)
+        let stream = makeStream(service: service, preferences: preferences, touch: touch)
 
         stream.start()
         await Eventually().holds { stream.isStreaming }
@@ -443,14 +517,16 @@ private extension StreamViewModelTests {
     @discardableResult
     func makeStream(
         service: StreamServiceStub,
-        preferences: Preferences = .init(defaults: .dummyEmpty)
+        preferences: Preferences = .init(defaults: .dummyEmpty),
+        touch: TouchCapabilities? = nil,
+        network: NetworkPathStub = .init()
     ) -> StreamViewModel {
         .init(
             target: livingRoom,
             backdrop: .console(type: "XboxSeriesX"),
             qualityOverride: nil,
             service: service,
-            dependencies: .dummy(preferences: preferences)
+            dependencies: .dummy(preferences: preferences, touch: touch, network: network)
         )
     }
 }

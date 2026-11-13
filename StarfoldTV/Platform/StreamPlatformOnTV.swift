@@ -21,7 +21,8 @@ extension StreamPlatform {
             overlays: .init(
                 statisticsRows: [.resolution, .frameRate, .bitrate, .codec, .lowered],
                 controlsHideDelay: nil
-            )
+            ),
+            touch: nil
         )
     }
 }

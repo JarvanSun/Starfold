@@ -300,7 +300,13 @@ private extension SettingsViewModelTests {
         let settings = SettingsViewModel(
             preferences: .init(defaults: defaults),
             controllers: ControllerHub(routing: .direct),
-            picture: picture
+            platform: .init(
+                controllerRouting: .direct,
+                picture: picture,
+                overlays: .init(statisticsRows: [], controlsHideDelay: nil),
+                touch: nil
+            ),
+            network: NetworkPathStub()
         )
         settings.session = session
         return settings

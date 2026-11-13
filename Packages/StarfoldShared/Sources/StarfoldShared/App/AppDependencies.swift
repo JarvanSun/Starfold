@@ -20,6 +20,7 @@ public struct AppDependencies {
         let http = HTTPClient()
         let preferences = Preferences(defaults: .standard)
         let controllers = ControllerHub(routing: streamPlatform.controllerRouting)
+        let network = LiveNetworkPath()
         let accountsKeychainService = "\(bundleID).accounts"
         let accountService = LiveAccountService(
             store: .init(
@@ -36,13 +37,14 @@ public struct AppDependencies {
             settings: .init(
                 preferences: preferences,
                 controllers: controllers,
-                picture: streamPlatform.picture
+                platform: streamPlatform,
+                network: network
             ),
             streamDependencies: .init(
                 preferences: preferences,
                 controllers: controllers,
-                picture: streamPlatform.picture,
-                overlays: streamPlatform.overlays
+                platform: streamPlatform,
+                network: network
             )
         )
     }

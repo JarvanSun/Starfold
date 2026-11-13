@@ -30,7 +30,8 @@ extension StreamPlatform {
                     .packetLoss,
                 ],
                 controlsHideDelay: nil
-            )
+            ),
+            touch: nil
         )
     }
 }

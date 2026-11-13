@@ -18,6 +18,9 @@ public final class Preferences {
     var cloudQuality: QualityChoice {
         didSet { defaults.set(cloudQuality.storageValue, for: .cloudQuality) }
     }
+    var cellularQuality: QualityChoice {
+        didSet { defaults.set(cellularQuality.storageValue, for: .cellularQuality) }
+    }
     var maxBitrateMbps: Int {
         didSet { defaults.set(maxBitrateMbps, for: .maxBitrate) }
     }
@@ -47,6 +50,9 @@ public final class Preferences {
     }
     var isRumbleEnabled: Bool {
         didSet { defaults.set(isRumbleEnabled, for: .rumble) }
+    }
+    var isTouchHapticsEnabled: Bool {
+        didSet { defaults.set(isTouchHapticsEnabled, for: .touchHaptics) }
     }
     var soundStage: SoundStage {
         didSet { defaults.set(soundStage.rawValue, for: .soundStage) }
@@ -100,6 +106,9 @@ public final class Preferences {
         self.defaults = defaults
         consoleQuality = .init(storageValue: defaults.string(for: .consoleQuality))
         cloudQuality = .init(storageValue: defaults.string(for: .cloudQuality))
+        cellularQuality =
+            defaults.string(for: .cellularQuality).map(QualityChoice.init(storageValue:))
+            ?? factory.cellularQuality
         maxBitrateMbps = defaults.object(for: .maxBitrate) ?? factory.maxBitrateMbps
         isUpscalingEnabled = defaults.object(for: .upscaling) ?? factory.isUpscalingEnabled
         sharpening = defaults.object(for: .sharpening) ?? factory.sharpening
@@ -108,6 +117,7 @@ public final class Preferences {
         isKeyboardControllerEnabled =
             defaults.object(for: .keyboardAsController) ?? factory.isKeyboardControllerEnabled
         isRumbleEnabled = defaults.object(for: .rumble) ?? factory.isRumbleEnabled
+        isTouchHapticsEnabled = defaults.object(for: .touchHaptics) ?? factory.isTouchHapticsEnabled
         shouldShowInMenuBar = defaults.object(for: .showInMenuBar) ?? factory.shouldShowInMenuBar
         pacingMode = .init(storedValue: defaults.string(for: .pacingMode))
         soundStage =
@@ -136,6 +146,7 @@ private enum PreferenceKey: String {
     case lastAccountID
     case consoleQuality
     case cloudQuality
+    case cellularQuality
     case maxBitrate
     case upscaling
     case sharpening
@@ -143,6 +154,7 @@ private enum PreferenceKey: String {
     case gameLanguage
     case keyboardAsController
     case rumble
+    case touchHaptics
     case showInMenuBar
     case pacingMode
     case soundStage
@@ -154,6 +166,8 @@ private enum PreferenceKey: String {
 }
 
 private struct FactorySettings {
+    var cellularQuality: QualityChoice { .fixed(.standard) }
+
     var maxBitrateMbps: Int { 0 }
 
     var isUpscalingEnabled: Bool { true }
@@ -163,6 +177,8 @@ private struct FactorySettings {
     var isKeyboardControllerEnabled: Bool { true }
 
     var isRumbleEnabled: Bool { true }
+
+    var isTouchHapticsEnabled: Bool { true }
 
     var shouldShowInMenuBar: Bool { true }
 

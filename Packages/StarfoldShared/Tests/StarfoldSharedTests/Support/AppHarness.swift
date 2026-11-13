@@ -47,7 +47,8 @@ struct AppHarness {
             settings: .init(
                 preferences: preferences,
                 controllers: dependencies.controllers,
-                picture: dependencies.picture
+                platform: dependencies.platform,
+                network: dependencies.network
             ),
             streamDependencies: dependencies
         )

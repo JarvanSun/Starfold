@@ -16,7 +16,8 @@ public final class SettingsViewModel {
 
     private let preferences: Preferences
     private let controllers: ControllerHub
-    private let picture: PictureCapabilities
+    private let platform: StreamPlatform
+    private let network: NetworkPathReading
     private let automaticBitrate = 0
     private let systemGameLanguage = ""
 
@@ -28,6 +29,11 @@ public final class SettingsViewModel {
     public var cloudQuality: QualityChoice {
         get { preferences.cloudQuality }
         set { preferences.cloudQuality = newValue }
+    }
+
+    public var cellularQuality: QualityChoice {
+        get { preferences.cellularQuality }
+        set { preferences.cellularQuality = newValue }
     }
 
     public var maxBitrateMbps: Int {
@@ -80,6 +86,11 @@ public final class SettingsViewModel {
         set { preferences.isRumbleEnabled = newValue }
     }
 
+    public var isTouchHapticsEnabled: Bool {
+        get { preferences.isTouchHapticsEnabled }
+        set { preferences.isTouchHapticsEnabled = newValue }
+    }
+
     public var isKeyboardControllerEnabled: Bool {
         get { preferences.isKeyboardControllerEnabled }
         set { preferences.isKeyboardControllerEnabled = newValue }
@@ -97,6 +108,10 @@ public final class SettingsViewModel {
 
     public var qualityChoices: [QualityChoice] {
         [.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest)]
+    }
+
+    public var cellularQualityChoices: [QualityChoice] {
+        [.automatic, .fixed(.standard), .fixed(.high)]
     }
 
     public var bitrateChoices: [Int] {
@@ -134,11 +149,27 @@ public final class SettingsViewModel {
     }
 
     public var canToneMapHDR: Bool {
-        picture.isHDRDisplayAvailable?() ?? false
+        platform.picture.isHDRDisplayAvailable?() ?? false
     }
 
     public var connectedControllers: [ConnectedController] {
         controllers.connected
+    }
+
+    public var hasTouchControls: Bool {
+        platform.touch != nil
+    }
+
+    public var canPlayTouchHaptics: Bool {
+        platform.touch?.hasDeviceHaptics ?? false
+    }
+
+    public var canUseCellular: Bool {
+        network.hasCellular
+    }
+
+    public var hasAccounts: Bool {
+        !accountChoices.isEmpty
     }
 
     public var isControllerMissing: Bool {
@@ -174,21 +205,23 @@ public final class SettingsViewModel {
     }
 
     var canEnhancePicture: Bool {
-        picture.canEnhance
+        platform.picture.canEnhance
     }
 
     var canChoosePictureFit: Bool {
-        picture.canFit
+        platform.picture.canFit
     }
 
     public init(
         preferences: Preferences,
         controllers: ControllerHub,
-        picture: PictureCapabilities
+        platform: StreamPlatform,
+        network: NetworkPathReading
     ) {
         self.preferences = preferences
         self.controllers = controllers
-        self.picture = picture
+        self.platform = platform
+        self.network = network
     }
 
     public func restartStream() async {

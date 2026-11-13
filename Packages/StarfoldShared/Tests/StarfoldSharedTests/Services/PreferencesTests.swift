@@ -22,12 +22,14 @@ struct PreferencesTests {
         // Then
         #expect(preferences.consoleQuality == .automatic)
         #expect(preferences.cloudQuality == .automatic)
+        #expect(preferences.cellularQuality == .fixed(.standard))
         #expect(preferences.maxBitrateMbps == 0)
         #expect(preferences.isUpscalingEnabled)
         #expect(preferences.sharpening == 0.3)
         #expect(!preferences.shouldShowStatistics)
         #expect(preferences.isKeyboardControllerEnabled)
         #expect(preferences.isRumbleEnabled)
+        #expect(preferences.isTouchHapticsEnabled)
         #expect(preferences.pacingMode == .standard)
         #expect(preferences.soundStage == .window)
         #expect(preferences.pictureFit == .fit)
@@ -43,6 +45,7 @@ struct PreferencesTests {
         let preferences = Preferences(defaults: defaults)
         preferences.consoleQuality = .fixed(.highest)
         preferences.cloudQuality = .fixed(.standard)
+        preferences.cellularQuality = .automatic
         preferences.maxBitrateMbps = 40
         preferences.isUpscalingEnabled = false
         preferences.sharpening = 1
@@ -50,6 +53,7 @@ struct PreferencesTests {
         preferences.gameLanguage = "ja-JP"
         preferences.isKeyboardControllerEnabled = false
         preferences.isRumbleEnabled = false
+        preferences.isTouchHapticsEnabled = false
         preferences.pacingMode = .lowLatency
         preferences.soundStage = .direct
         preferences.pictureFit = .fill
@@ -63,6 +67,7 @@ struct PreferencesTests {
         // Then
         #expect(relaunched.consoleQuality == .fixed(.highest))
         #expect(relaunched.cloudQuality == .fixed(.standard))
+        #expect(relaunched.cellularQuality == .automatic)
         #expect(relaunched.maxBitrateMbps == 40)
         #expect(!relaunched.isUpscalingEnabled)
         #expect(relaunched.sharpening == 1)
@@ -70,6 +75,7 @@ struct PreferencesTests {
         #expect(relaunched.gameLanguage == "ja-JP")
         #expect(!relaunched.isKeyboardControllerEnabled)
         #expect(!relaunched.isRumbleEnabled)
+        #expect(!relaunched.isTouchHapticsEnabled)
         #expect(relaunched.pacingMode == .lowLatency)
         #expect(relaunched.soundStage == .direct)
         #expect(relaunched.pictureFit == .fill)

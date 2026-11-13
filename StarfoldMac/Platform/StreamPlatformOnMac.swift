@@ -35,7 +35,8 @@ extension StreamPlatform {
                     .packetLoss,
                 ],
                 controlsHideDelay: .seconds(3)
-            )
+            ),
+            touch: nil
         )
     }
 }
