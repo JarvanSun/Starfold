@@ -248,9 +248,13 @@ One app for both. Layout follows the size class of the space the app has, never 
 compact width is the iPhone layout, regular width the iPad layout, so iPad Split View, Stage
 Manager windows and an unfolded iPhone Duo each get the layout that fits.
 
-- **Tabs:** Home, Cloud Gaming, Settings and the system search tab, signed in; Sign In and Settings
-  signed out. The tab bar floats at the bottom on iPhone and at the top on iPad. The account menu
-  is in Home's toolbar.
+- **Tabs:** Home, Cloud Gaming, Settings and the system search tab, signed in. The tab bar floats
+  at the bottom on iPhone and at the top on iPad. The account menu is in Home's toolbar.
+- **Signed out** there are no tabs: the welcome page, with Settings behind a gear at the top right
+  (a sheet). In compact width it shows three steps (sign in, pick a console or a cloud game, play
+  with touch or a controller) above a sign-in sheet fixed to the bottom: the code, a full-width
+  Sign In, the other-device line, the waiting status and the trademark line. In regular width it
+  keeps the pitch beside the sign-in card.
 - **Home:** console cards, then Continue Playing (up to 10); no cloud card. On iPhone one card fills
   the width and the cards page sideways; on iPad they are Mac-sized and sit in a row. **Cloud
   Gaming** has the Mac's rows and All Games, with a sort menu; search lives in the search tab.

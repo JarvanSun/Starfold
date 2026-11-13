@@ -55,19 +55,13 @@ struct WelcomeView: View {
     }
 
     private var stacked: some View {
-        ScrollView {
-            VStack(spacing: dimensions.spaceXXLarge) {
-                pitch
-
-                signInCard
-                    .frame(maxWidth: dimensions.welcomePanelWidth)
-
-                WelcomeTrademark()
+        WelcomeSteps()
+            .padding(.horizontal, dimensions.spaceXXLarge)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .opacity(isVisible ? 1 : 0)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                WelcomeSignInSheet(step: signIn.step, onRetry: { signIn.retry() })
             }
-            .padding(dimensions.spaceXXLarge)
-            .padding(.bottom, dimensions.spaceXLarge)
-            .frame(maxWidth: .infinity)
-        }
     }
 
     private var pitch: some View {

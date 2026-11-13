@@ -120,23 +120,6 @@
         }
       }
     },
-    "app.tab.signIn" : {
-      "comment" : "Tab bar, signed out: the welcome screen with sign-in",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign In"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录"
-          }
-        }
-      }
-    },
     "controller.missing.instructions" : {
       "comment" : "Settings, Controllers: text when no controller is connected",
       "localizations" : {
@@ -1765,6 +1748,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用 Xbox 登录"
+          }
+        }
+      }
+    },
+    "welcome.step.choose" : {
+      "comment" : "Welcome step 2 of 3: what to play",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a console or a cloud game"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择主机或云游戏"
+          }
+        }
+      }
+    },
+    "welcome.step.play" : {
+      "comment" : "Welcome step 3 of 3: how to play",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play with touch or a controller"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用触控或手柄开玩"
+          }
+        }
+      }
+    },
+    "welcome.step.signIn" : {
+      "comment" : "Welcome step 1 of 3, above the sign-in sheet",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in with your Xbox account"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录你的 Xbox 账户"
           }
         }
       }

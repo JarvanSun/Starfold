@@ -39,7 +39,7 @@ struct RootView: View {
     private var content: some View {
         switch (app.sessionState, app.home, app.library) {
         case (.signedIn, let home?, let library?): signedInTabs(home: home, library: library)
-        case (.signedOut, _, _): signedOutTabs
+        case (.signedOut, _, _): SignedOutView()
         case (.restoring, _, _), (.signedIn, _, _): restoring
         }
     }
@@ -50,20 +50,6 @@ struct RootView: View {
 
     private func presentSignIn() {
         isSignInPresented = true
-    }
-
-    private var signedOutTabs: some View {
-        TabView {
-            Tab("app.tab.signIn", systemImage: "person.crop.circle") {
-                SignInHostView { WelcomeView(signIn: $0) }
-                    .background { SkyBackground() }
-            }
-
-            Tab("app.tab.settings", systemImage: "gear") {
-                SettingsHostView(onAddAccount: { presentSignIn() })
-            }
-        }
-        .tabViewStyle(.sidebarAdaptable)
     }
 
     private var restoring: some View {

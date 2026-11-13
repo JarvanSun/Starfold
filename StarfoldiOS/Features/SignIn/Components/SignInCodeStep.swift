@@ -17,23 +17,23 @@ struct SignInCodeStep: View {
 
     var body: some View {
         VStack(spacing: dimensions.spaceLarge) {
-            enterCode
+            CodeBoxes(code: code)
 
             signInButton
 
-            waitingStatus
+            VStack(spacing: dimensions.spaceSmall) {
+                otherDevice
+
+                waitingStatus
+            }
         }
     }
 
-    private var enterCode: some View {
-        VStack(spacing: dimensions.spaceSmall) {
-            Text("signIn.code.instructions \(code.address)")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            CodeBoxes(code: code)
-        }
+    private var otherDevice: some View {
+        Text("signIn.code.instructions \(code.address)")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
     }
 
     private var signInButton: some View {
@@ -41,6 +41,7 @@ struct SignInCodeStep: View {
             copyCodeAndOpenPage()
         } label: {
             Label(String(localized: "signIn.code.signIn"), systemImage: "safari")
+                .frame(maxWidth: .infinity)
         }
         .buttonStyle(.primary)
         .keyboardShortcut(.defaultAction)
