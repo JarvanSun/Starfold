@@ -10,7 +10,7 @@ import StarfoldShared
 import SwiftUI
 
 extension Dimensions {
-    var welcomeSideBySideMinimumWidth: CGFloat { 820 }
+    var welcomeSideBySideMinimumWidth: CGFloat { 1000 }
     var welcomeSideBySideMinimumHeight: CGFloat { 600 }
 
     var accountPictureSize: CGFloat { 32 }

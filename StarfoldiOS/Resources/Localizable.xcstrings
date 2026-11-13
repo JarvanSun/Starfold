@@ -1819,23 +1819,6 @@
           }
         }
       }
-    },
-    "welcome.trademark %@" : {
-      "comment" : "Welcome: trademark notice at the bottom; the argument is the app name",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ isn’t affiliated with or endorsed by Microsoft. Xbox is a trademark of the Microsoft group of companies."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 与 Microsoft 无关联，也未获其认可。Xbox 是 Microsoft 集团公司的商标。"
-          }
-        }
-      }
     }
   },
   "version" : "1.0"

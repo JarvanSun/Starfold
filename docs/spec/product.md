@@ -255,8 +255,11 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
   pick a console or a cloud game, play with touch or a controller) above a sign-in sheet fixed to
   the bottom: the code, a full-width Sign In, the other-device line and the waiting status. In
   compact landscape the same content is a blurred backdrop and the sign-in card (at most 480 pt
-  wide) sits in the middle. The iPhone welcome page carries no trademark line. In regular width it
-  keeps the pitch beside the sign-in card.
+  wide) sits in the middle. Where the window is at least 1000 pt wide and 600 pt tall (iPad
+  landscape, 13-inch iPad portrait) the pitch sits beside the sign-in card; a narrower regular-width
+  window (11-inch iPad portrait, Split View) centres one column, the icon and steps above the
+  sign-in card, so the pitch is never squeezed into a sliver. The welcome page carries no trademark
+  line.
 - **Home:** console cards, then an Xbox Cloud Gaming row (three covers, availability and game
   count), then Continue Playing (up to 10). On iPhone one console card fills the width and the
   cards page sideways; on iPad they are Mac-sized and sit in a row. With no cloud access the row
