@@ -2,7 +2,7 @@
   <a href="README.md">English</a> · <b>简体中文</b>
 </p>
 
-<h1 align="center">Starfold — 适用于 Apple 平台的 Xbox 串流应用</h1>
+<h1 align="center">Starfold — 适用于 Apple 平台的 Xbox 游戏串流应用</h1>
 
 <p align="center">
   串流你自己的 Xbox 主机，或畅玩 Xbox 云游戏。原生 SwiftUI 应用，不是网页套壳。
