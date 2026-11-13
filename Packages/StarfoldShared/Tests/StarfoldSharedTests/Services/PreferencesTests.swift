@@ -132,6 +132,23 @@ struct PreferencesTests {
     }
 
     @Test
+    func touchLayoutAdjustmentsWhenRelaunchedThenRestoresEachOrientationSeparately() {
+        // Given
+        let defaults = UserDefaults.dummyEmpty
+        var landscape = TouchLayoutAdjustments()
+        landscape.opacity = 0.5
+        landscape.controls["gamepadA"] = .init(offset: .init(x: 10, y: -4), scale: 1.2)
+        Preferences(defaults: defaults).setTouchLayoutAdjustments(landscape, for: .landscape)
+
+        // When
+        let relaunched = Preferences(defaults: defaults)
+
+        // Then
+        #expect(relaunched.touchLayoutAdjustments(for: .landscape) == landscape)
+        #expect(relaunched.touchLayoutAdjustments(for: .portrait) == TouchLayoutAdjustments())
+    }
+
+    @Test
     func favoritesWhenOneAccountTogglesThenOtherAccountIsUnaffected() {
         // Given
         let preferences = Preferences(defaults: .dummyEmpty)

@@ -19,7 +19,10 @@ public struct AppDependencies {
     public func makeAppViewModel() -> AppViewModel {
         let http = HTTPClient()
         let preferences = Preferences(defaults: .standard)
-        let controllers = ControllerHub(routing: streamPlatform.controllerRouting)
+        let controllers = ControllerHub(
+            routing: streamPlatform.controllerRouting,
+            touchControllerCategory: streamPlatform.touch?.controllerCategory
+        )
         let network = LiveNetworkPath()
         let accountsKeychainService = "\(bundleID).accounts"
         let accountService = LiveAccountService(

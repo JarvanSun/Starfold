@@ -131,6 +131,26 @@ public final class Preferences {
             ?? factory.librarySort
     }
 
+    func touchLayoutAdjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
+        let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
+        return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
+            ?? .init()
+    }
+
+    func setTouchLayoutAdjustments(
+        _ adjustments: TouchLayoutAdjustments,
+        for orientation: TouchOrientation
+    ) {
+        let encoded = try? JSONEncoder().encode(adjustments)
+        defaults.set(encoded, forKey: touchLayoutKey(for: orientation))
+    }
+
+    private func touchLayoutKey(for orientation: TouchOrientation) -> String {
+        let touchLayoutKeyPrefix = "touchLayout."
+
+        return touchLayoutKeyPrefix + orientation.rawValue
+    }
+
     public func favorites(for xuid: String) -> FavoritesStore {
         .init(defaults: defaults, key: favoritesKey(for: xuid))
     }

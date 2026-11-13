@@ -11,13 +11,13 @@ public struct StreamPlatform {
     let controllerRouting: ControllerRouting
     let picture: PictureCapabilities
     let overlays: StreamOverlays
-    let touch: TouchCapabilities?
+    let touch: TouchPlatform?
 
     public init(
         controllerRouting: ControllerRouting,
         picture: PictureCapabilities,
         overlays: StreamOverlays,
-        touch: TouchCapabilities?
+        touch: TouchPlatform?
     ) {
         self.controllerRouting = controllerRouting
         self.picture = picture

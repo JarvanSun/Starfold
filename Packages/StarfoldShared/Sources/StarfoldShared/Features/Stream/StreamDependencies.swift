@@ -21,7 +21,7 @@ public struct StreamDependencies {
         platform.overlays
     }
 
-    var touch: TouchCapabilities? {
+    var touch: TouchPlatform? {
         platform.touch
     }
 

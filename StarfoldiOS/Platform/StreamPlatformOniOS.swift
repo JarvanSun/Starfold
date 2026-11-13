@@ -11,7 +11,7 @@ import StreamKit
 extension StreamPlatform {
     init() {
         self.init(
-            controllerRouting: .direct,
+            controllerRouting: .gated,
             picture: .init(
                 canFit: true,
                 canEnhance: false,
@@ -30,7 +30,7 @@ extension StreamPlatform {
                 ],
                 controlsHideDelay: .seconds(3)
             ),
-            touch: TouchCapabilities()
+            touch: TouchPlatform()
         )
     }
 }

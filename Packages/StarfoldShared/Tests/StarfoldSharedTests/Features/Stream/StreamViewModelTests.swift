@@ -502,7 +502,7 @@ struct StreamViewModelTests {
 private extension StreamViewModelTests {
     func makeStreamingStream(
         preferences: Preferences = .init(defaults: .dummyEmpty),
-        touch: TouchCapabilities? = nil
+        touch: TouchPlatform? = nil
     ) async -> StreamViewModel {
         let service = StreamServiceStub()
         service.updates = [.phase(.streaming)]
@@ -518,7 +518,7 @@ private extension StreamViewModelTests {
     func makeStream(
         service: StreamServiceStub,
         preferences: Preferences = .init(defaults: .dummyEmpty),
-        touch: TouchCapabilities? = nil,
+        touch: TouchPlatform? = nil,
         network: NetworkPathStub = .init()
     ) -> StreamViewModel {
         .init(

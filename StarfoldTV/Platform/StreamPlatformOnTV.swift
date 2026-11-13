@@ -11,7 +11,7 @@ import StreamKit
 extension StreamPlatform {
     init() {
         self.init(
-            controllerRouting: .television,
+            controllerRouting: .gated,
             picture: .init(
                 canFit: true,
                 canEnhance: false,

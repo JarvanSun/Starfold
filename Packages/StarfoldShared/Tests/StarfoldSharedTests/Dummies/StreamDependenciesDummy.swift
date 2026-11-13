@@ -12,7 +12,7 @@ import StreamKit
 extension StreamDependencies {
     static func dummy(
         preferences: Preferences,
-        touch: TouchCapabilities? = nil,
+        touch: TouchPlatform? = nil,
         network: NetworkPathStub = .init()
     ) -> StreamDependencies {
         .init(

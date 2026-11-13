@@ -1,0 +1,148 @@
+//
+//  TouchControlBuilder.swift
+//  Starfold
+//
+//  Created by Jiawen Sun on 2026/11/13.
+//
+
+import CoreGraphics
+import StarfoldShared
+import StreamKit
+import TouchController
+
+struct TouchControlBuilder {
+    let controller: TCTouchController
+
+    func add(_ placement: TouchControlPlacement) {
+        switch placement.input {
+        case .leftStick: addThumbstick(placement, label: .leftThumbstick, collider: .leftSide)
+        case .rightStick: addThumbstick(placement, label: .rightThumbstick, collider: .rightSide)
+        case .directionPad: addDirectionPad(placement)
+        case .leftTrigger: addButton(placement, label: .buttonLeftTrigger, shape: .rect)
+        case .rightTrigger: addButton(placement, label: .buttonRightTrigger, shape: .rect)
+        case .button(let button):
+            addButton(placement, label: label(for: button), shape: shape(of: button))
+        }
+    }
+
+    private func label(for button: GamepadButton) -> TCControlLabel? {
+        switch button {
+        case .a: .buttonA
+        case .b: .buttonB
+        case .x: .buttonX
+        case .y: .buttonY
+        case .leftShoulder: .buttonLeftShoulder
+        case .rightShoulder: .buttonRightShoulder
+        case .leftThumb: .leftThumbstickButton
+        case .rightThumb: .rightThumbstickButton
+        case .menu: .buttonMenu
+        case .view: .buttonOptions
+        case .nexus, .dpadUp, .dpadDown, .dpadLeft, .dpadRight: nil
+        }
+    }
+
+    private func shape(of button: GamepadButton) -> TCControlContents.ButtonShape {
+        switch button {
+        case .leftShoulder, .rightShoulder: .rect
+        default: .circle
+        }
+    }
+
+    private func addThumbstick(
+        _ placement: TouchControlPlacement,
+        label: TCControlLabel,
+        collider: TCColliderShape
+    ) {
+        let stickScale: CGFloat = 0.45
+        let size = square(placement.diameter)
+        let stickSize = square(placement.diameter * stickScale)
+
+        let descriptor = TCThumbstickDescriptor()
+        descriptor.label = label
+        descriptor.size = size
+        descriptor.stickSize = stickSize
+        descriptor.colliderShape = collider
+        descriptor.backgroundContents = .thumbstickStickBackgroundContents(
+            size: size,
+            controller: controller
+        )
+        descriptor.stickContents = .thumbstickStickContents(size: stickSize, controller: controller)
+
+        place(controller.addThumbstick(descriptor: descriptor), at: placement)
+    }
+
+    private func addDirectionPad(_ placement: TouchControlPlacement) {
+        let label = TCControlLabel.directionPad
+        let size = square(placement.diameter)
+
+        let descriptor = TCDirectionPadDescriptor()
+        descriptor.compositeLabel = label
+        descriptor.size = size
+        descriptor.upContents = directionContents(label, size: size, direction: .up)
+        descriptor.downContents = directionContents(label, size: size, direction: .down)
+        descriptor.leftContents = directionContents(label, size: size, direction: .left)
+        descriptor.rightContents = directionContents(label, size: size, direction: .right)
+
+        place(controller.addDirectionPad(descriptor: descriptor), at: placement)
+    }
+
+    private func directionContents(
+        _ label: TCControlLabel,
+        size: CGSize,
+        direction: TCControlContents.DpadDirection
+    ) -> TCControlContents {
+        .directionPadContents(
+            label: label,
+            size: size,
+            style: .circle,
+            direction: direction,
+            controller: controller
+        )
+    }
+
+    private func addButton(
+        _ placement: TouchControlPlacement,
+        label: TCControlLabel?,
+        shape: TCControlContents.ButtonShape
+    ) {
+        guard let label else { return }
+
+        let size = square(placement.diameter)
+
+        let descriptor = TCButtonDescriptor()
+        descriptor.label = label
+        descriptor.size = size
+        descriptor.contents = .buttonContents(
+            forSystemImageNamed: placement.symbol,
+            size: size,
+            shape: shape,
+            controller: controller
+        )
+
+        place(controller.addButton(descriptor: descriptor), at: placement)
+    }
+
+    private func square(_ length: CGFloat) -> CGSize {
+        CGSize(width: length, height: length)
+    }
+
+    private func place(_ control: TCControlLayout, at placement: TouchControlPlacement) {
+        control.anchor = anchor(for: placement.anchor)
+        control.anchorCoordinateSystem = .absolute
+        control.offset = placement.offset
+    }
+
+    private func anchor(for anchor: TouchAnchor) -> TCControlLayoutAnchor {
+        switch anchor {
+        case .topLeading: .topLeft
+        case .top: .topCenter
+        case .topTrailing: .topRight
+        case .leading: .centerLeft
+        case .center: .center
+        case .trailing: .centerRight
+        case .bottomLeading: .bottomLeft
+        case .bottom: .bottomCenter
+        case .bottomTrailing: .bottomRight
+        }
+    }
+}

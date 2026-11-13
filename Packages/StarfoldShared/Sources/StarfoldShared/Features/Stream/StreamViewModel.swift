@@ -19,6 +19,7 @@ public final class StreamViewModel {
     public let backdrop: StreamBackdrop
     public let renderer: StreamRenderer?
     public let dialogs = SystemDialogsViewModel()
+    public let touchControls: TouchControlsViewModel?
 
     public var onStop: () -> Void = {}
     public var onEnd: () -> Void = {}
@@ -105,6 +106,10 @@ public final class StreamViewModel {
         dependencies.touch != nil || !controllers.connected.isEmpty
     }
 
+    public var isShowingTouchControls: Bool {
+        isStreaming && hasFirstFrame && !isMenuOpen && touchControls?.isShowing == true
+    }
+
     public var isRoutingInputToGame: Bool {
         isPlayable && !isMenuOpen && isInForeground
     }
@@ -152,7 +157,7 @@ public final class StreamViewModel {
     }
 
     private var playbackSettings: StreamPlaybackSettings {
-        .init(preferences: preferences, picture: dependencies.picture)
+        .init(preferences: preferences, picture: dependencies.picture, touch: dependencies.touch)
     }
 
     public init(
@@ -168,6 +173,7 @@ public final class StreamViewModel {
         self.service = service
         self.dependencies = dependencies
         renderer = StreamRenderer(keepsLastFrame: dependencies.picture.shouldKeepLastFrame)
+        touchControls = dependencies.touch.map { _ in .init(controllers: dependencies.controllers) }
 
         apply(playbackSettings)
 
@@ -190,6 +196,8 @@ public final class StreamViewModel {
         appliedSettings = settings
 
         service.setDirectStereo(settings.isDirectStereo)
+
+        controllers.isDeviceRumbleEnabled = settings.isDeviceRumbleEnabled
 
         guard let renderer else { return }
 
@@ -222,7 +230,8 @@ public final class StreamViewModel {
             quality: quality,
             maxBitrateKbps: settings.maxBitrateKbps,
             gameLocale: preferences.effectiveGameLanguage,
-            clientAppInstallID: preferences.clientAppInstallID
+            clientAppInstallID: preferences.clientAppInstallID,
+            touch: dependencies.touch?.capabilities
         )
 
         startedAt = .now
@@ -290,6 +299,8 @@ public final class StreamViewModel {
         case .dialogDismissed(let id): dialogs.remove(id: id)
         case .vibration(let effect): play(effect)
         case .videoSize: break
+        case .touchControls(let command): touchControls?.apply(command)
+        case .runningTitle: break
         }
     }
 
