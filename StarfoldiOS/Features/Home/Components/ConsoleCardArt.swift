@@ -17,13 +17,12 @@ struct ConsoleCardArt: View {
     let cover: ConsoleCover
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            LinearGradient(
-                colors: [palette.nightRaised.color, palette.night.color],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-
+        LinearGradient(
+            colors: [palette.nightRaised.color, palette.night.color],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .overlay {
             switch cover {
             case .game(let url): gameArtwork(url)
             case .lastFrame(let image): lastFrame(image)

@@ -210,6 +210,7 @@ In `StarfoldiOS/`.
 - **TouchControlBuilder**: A stick set to On Touch uses Touch Controller's `hidesWhenNotPressed`; a stick set to Off is not added, so its half of the screen passes touches through to the stream.
 - **TouchLayoutEditorView**: The inspector is placed by `BesideLayout`, which measures it and puts it beside the selected control within the screen, so its position comes from layout rather than from a measurement fed back into state.
 - **TouchLayoutEditorView**: The editor draws the real Touch Controller controls, non-interactive, under transparent drag handles, so what is edited is exactly what is played.
+- **ConsoleCardArt** (iOS): The cover is an overlay on the gradient, not a sibling in a stack: a `scaledToFill` image reports its own width, which widened the iPad card past its slot and pushed it off the left edge once a game snapshot replaced the placeholder.
 - **TouchPlatform**: `maxTouchPoints` 5 is an assumption about what a phone browser reports to xbox.com; it is not confirmed against the service.
 - **RootView**: Going to the background ends the stream inside a background task, as Apple TV does, because a suspended app cannot delete the host session.
 - **RootView**: The stream ends when its full-screen cover is dismissed, not when the stream view disappears, because the touch editor's cover hides the stream without ending it. Both paths go through one `BackgroundStreamEnd`, which ignores a second end while one is running.
