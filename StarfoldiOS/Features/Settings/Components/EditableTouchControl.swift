@@ -42,7 +42,7 @@ struct EditableTouchControl: View {
     }
 
     private var drag: some Gesture {
-        DragGesture(minimumDistance: dimensions.spaceXSmall)
+        DragGesture(minimumDistance: dimensions.spaceXSmall, coordinateSpace: .global)
             .updating($isDragging) { _, isDragging, _ in isDragging = true }
             .onChanged { onMove($0.translation) }
     }

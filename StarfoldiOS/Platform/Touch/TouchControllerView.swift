@@ -24,6 +24,7 @@ final class TouchControllerView: MTKView {
     private var touchController: TCTouchController?
     private var touches: [ObjectIdentifier: TrackedTouch] = [:]
     private var plan: TouchControlPlan?
+    private var placedControls: [String: TCControlLayout] = [:]
 
     init() {
         let device = MTLCreateSystemDefaultDevice()
@@ -47,9 +48,25 @@ final class TouchControllerView: MTKView {
     func show(_ plan: TouchControlPlan) {
         guard plan != self.plan else { return }
 
+        let previous = self.plan
         self.plan = plan
         alpha = plan.opacity
 
+        switch previous.map(plan.isRearrangement(of:)) {
+        case true?: move(to: plan)
+        case false?, nil: rebuild(plan)
+        }
+    }
+
+    private func move(to plan: TouchControlPlan) {
+        for placement in plan.controls {
+            placedControls[placement.id]?.offset = placement.offset
+        }
+        touchController?.size = bounds.size
+        draw()
+    }
+
+    private func rebuild(_ plan: TouchControlPlan) {
         let controller = connectedController()
         for touch in touches.values {
             _ = controller.handleTouchEnded(at: touch.point, index: touch.index)
@@ -57,8 +74,9 @@ final class TouchControllerView: MTKView {
         controller.removeAllControls()
 
         let builder = TouchControlBuilder(controller: controller, sticks: plan.sticks)
+        placedControls = [:]
         for placement in plan.controls {
-            builder.add(placement)
+            placedControls[placement.id] = builder.add(placement)
         }
 
         for touch in touches.values {
@@ -70,6 +88,7 @@ final class TouchControllerView: MTKView {
         isPaused = !isActive
         isHidden = !isActive
         isUserInteractionEnabled = isActive && isInteractive
+        presentsWithTransaction = !isInteractive
 
         if !isUserInteractionEnabled { releaseAllTouches() }
     }
@@ -78,6 +97,7 @@ final class TouchControllerView: MTKView {
         touchController?.disconnect()
         touchController = nil
         plan = nil
+        placedControls = [:]
     }
 
     private func connectedController() -> TCTouchController {
@@ -179,7 +199,14 @@ extension TouchControllerView: MTKViewDelegate {
         touchController.render(using: encoder)
         encoder.endEncoding()
 
-        commands.present(drawable)
-        commands.commit()
+        switch presentsWithTransaction {
+        case true:
+            commands.commit()
+            commands.waitUntilScheduled()
+            drawable.present()
+        case false:
+            commands.present(drawable)
+            commands.commit()
+        }
     }
 }

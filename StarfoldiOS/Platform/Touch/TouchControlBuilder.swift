@@ -14,10 +14,10 @@ struct TouchControlBuilder {
     let controller: TCTouchController
     let sticks: TouchSticks
 
-    func add(_ placement: TouchControlPlacement) {
-        guard sticks.visibility(of: placement.input) != .off else { return }
+    func add(_ placement: TouchControlPlacement) -> TCControlLayout? {
+        guard sticks.visibility(of: placement.input) != .off else { return nil }
 
-        switch placement.input {
+        return switch placement.input {
         case .leftStick: addThumbstick(placement, label: .leftThumbstick, collider: .leftSide)
         case .rightStick: addThumbstick(placement, label: .rightThumbstick, collider: .rightSide)
         case .directionPad: addDirectionPad(placement)
@@ -55,7 +55,7 @@ struct TouchControlBuilder {
         _ placement: TouchControlPlacement,
         label: TCControlLabel,
         collider: TCColliderShape
-    ) {
+    ) -> TCControlLayout {
         let stickScale: CGFloat = 0.45
         let size = square(placement.diameter)
         let stickSize = square(placement.diameter * stickScale)
@@ -72,10 +72,10 @@ struct TouchControlBuilder {
         )
         descriptor.stickContents = .thumbstickStickContents(size: stickSize, controller: controller)
 
-        place(controller.addThumbstick(descriptor: descriptor), at: placement)
+        return place(controller.addThumbstick(descriptor: descriptor), at: placement)
     }
 
-    private func addDirectionPad(_ placement: TouchControlPlacement) {
+    private func addDirectionPad(_ placement: TouchControlPlacement) -> TCControlLayout {
         let elementScale: CGFloat = 0.36
         let label = TCControlLabel.directionPad
         let size = square(placement.diameter)
@@ -89,7 +89,7 @@ struct TouchControlBuilder {
         descriptor.leftContents = directionContents(label, size: element, direction: .left)
         descriptor.rightContents = directionContents(label, size: element, direction: .right)
 
-        place(controller.addDirectionPad(descriptor: descriptor), at: placement)
+        return place(controller.addDirectionPad(descriptor: descriptor), at: placement)
     }
 
     private func directionContents(
@@ -110,8 +110,8 @@ struct TouchControlBuilder {
         _ placement: TouchControlPlacement,
         label: TCControlLabel?,
         shape: TCControlContents.ButtonShape
-    ) {
-        guard let label else { return }
+    ) -> TCControlLayout? {
+        guard let label else { return nil }
 
         let size = square(placement.diameter)
 
@@ -125,18 +125,21 @@ struct TouchControlBuilder {
             controller: controller
         )
 
-        place(controller.addButton(descriptor: descriptor), at: placement)
+        return place(controller.addButton(descriptor: descriptor), at: placement)
     }
 
     private func square(_ length: CGFloat) -> CGSize {
         CGSize(width: length, height: length)
     }
 
-    private func place(_ control: TCControlLayout, at placement: TouchControlPlacement) {
+    private func place(_ control: TCControlLayout, at placement: TouchControlPlacement)
+        -> TCControlLayout
+    {
         control.anchor = anchor(for: placement.anchor)
         control.anchorCoordinateSystem = .absolute
         control.offset = placement.offset
         control.zIndex = layer(of: placement.input)
+        return control
     }
 
     private func layer(of input: TouchInput) -> Int {
