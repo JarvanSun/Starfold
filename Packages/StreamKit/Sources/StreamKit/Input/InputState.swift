@@ -62,6 +62,11 @@ final class InputState: @unchecked Sendable {
         }
     }
 
+    private func update(_ body: () -> Bool) {
+        let notify = lock.withLock { body() ? onChange : nil }
+        notify?()
+    }
+
     func recordFrame(rtpTimestamp: UInt32, at milliseconds: Double) {
         let time = UInt32(truncatingIfNeeded: Int64(milliseconds))
         let record = FrameTimingRecord(
@@ -79,6 +84,8 @@ final class InputState: @unchecked Sendable {
             frames.append(record)
         }
     }
+
+    private var maximumPendingFrames: Int { 29 }
 
     @discardableResult
     func drain(now: Double) -> InputSnapshot {
@@ -102,17 +109,8 @@ final class InputState: @unchecked Sendable {
             return snapshot
         }
     }
-}
 
-private extension InputState {
-    var maximumPendingFrames: Int { 29 }
-
-    func update(_ body: () -> Bool) {
-        let notify = lock.withLock { body() ? onChange : nil }
-        notify?()
-    }
-
-    func effectivePads() -> [UInt8: GamepadState] {
+    private func effectivePads() -> [UInt8: GamepadState] {
         let pulseClock = (CACurrentMediaTime() - clockOrigin) * 1000
         pulses.removeAll { $0.until < pulseClock }
 
@@ -131,7 +129,7 @@ private extension InputState {
         return effective
     }
 
-    func gamepadsToSend(_ effective: [UInt8: GamepadState], now: Double) -> [(
+    private func gamepadsToSend(_ effective: [UInt8: GamepadState], now: Double) -> [(
         index: UInt8, state: GamepadState
     )] {
         var gamepads: [(index: UInt8, state: GamepadState)] = []

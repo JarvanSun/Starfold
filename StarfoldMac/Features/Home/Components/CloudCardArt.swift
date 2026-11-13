@@ -31,24 +31,22 @@ struct CloudCardArt: View {
         }
         .animation(.smooth(duration: 0.5), value: covers)
     }
-}
 
-private extension CloudCardArt {
-    var placeholder: some View {
+    private var placeholder: some View {
         Image(systemName: access.placeholderSymbol)
             .font(.system(size: dimensions.cloudPlaceholderSymbolSize))
             .foregroundStyle(placeholderStyle)
             .symbolEffect(.pulse, isActive: isLoading)
     }
 
-    var placeholderStyle: AnyShapeStyle {
+    private var placeholderStyle: AnyShapeStyle {
         switch access {
         case .unavailable: .init(.secondary)
         case .gamePass, .freeToPlay, .unknown: .init(palette.primaryFill)
         }
     }
 
-    var coverFan: some View {
+    private var coverFan: some View {
         let middle = Double(covers.count - 1) / 2
         return ForEach(Array(covers.enumerated()), id: \.element) { index, url in
             cover(url, at: Double(index) - middle)
@@ -56,7 +54,7 @@ private extension CloudCardArt {
         .transition(.opacity)
     }
 
-    func cover(_ url: URL, at position: Double) -> some View {
+    private func cover(_ url: URL, at position: Double) -> some View {
         let isMiddle = position == 0
         let coverTilt: Double = 9
 

@@ -18,10 +18,8 @@ struct LibraryHostView: View {
                 .navigationDestination(for: CloudGame.self) { gameDetail($0) }
         }
     }
-}
 
-private extension LibraryHostView {
-    func gameDetail(_ game: CloudGame) -> some View {
+    private func gameDetail(_ game: CloudGame) -> some View {
         GameDetailView(detail: library.detail(for: game))
     }
 }

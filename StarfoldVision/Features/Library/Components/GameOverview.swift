@@ -24,10 +24,8 @@ struct GameOverview: View {
             GameFacts(facts: facts)
         }
     }
-}
 
-private extension GameOverview {
-    func aboutSection(_ about: String) -> some View {
+    private func aboutSection(_ about: String) -> some View {
         VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
             Text("game.about.title")
                 .font(.title2.bold())

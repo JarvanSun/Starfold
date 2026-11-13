@@ -50,6 +50,102 @@ public final class ControllerHub {
         GCController.startWirelessControllerDiscovery {}
     }
 
+    private func observeConnections() {
+        for name in [Notification.Name.GCControllerDidConnect, .GCControllerDidDisconnect] {
+            let observer = NotificationCenter.default.addObserver(
+                forName: name,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.syncControllers() }
+            }
+            observers.append(observer)
+        }
+    }
+
+    private func syncControllers() {
+        let current = GCController.controllers()
+        let currentIDs = Set(current.map(ObjectIdentifier.init))
+
+        for id in slots.keys where !currentIDs.contains(id) {
+            detach(id)
+        }
+
+        for controller in current {
+            attach(controller)
+        }
+    }
+
+    private func detach(_ id: ObjectIdentifier) {
+        guard let slot = slots.removeValue(forKey: id) else { return }
+
+        rumblePlayers[id]?.stop()
+        rumblePlayers[id] = nil
+
+        connected.removeAll { $0.id == id }
+
+        let destination = destination
+        inputQueue.async {
+            destination.update(slot: slot, state: nil)
+        }
+    }
+
+    private func attach(_ controller: GCController) {
+        let id = ObjectIdentifier(controller)
+        guard let gamepad = controller.extendedGamepad,
+            slots[id] == nil,
+            let slot = freeSlot()
+        else { return }
+
+        slots[id] = slot
+
+        startReading(gamepad, of: controller, slot: slot)
+
+        if let player = RumblePlayer(controller: controller) {
+            rumblePlayers[id] = player
+        }
+
+        listConnected(controller, slot: slot)
+
+        log.info("Controller \(controller.vendorName ?? "?") → slot \(slot)")
+    }
+
+    private func freeSlot() -> UInt8? {
+        let used = Set(slots.values)
+        return (0..<slotCount).first { !used.contains($0) }
+    }
+
+    private func startReading(
+        _ gamepad: GCExtendedGamepad,
+        of controller: GCController,
+        slot: UInt8
+    ) {
+        destination.prepare(gamepad)
+
+        controller.handlerQueue = inputQueue
+
+        let destination = destination
+        gamepad.valueChangedHandler = { @Sendable gamepad, _ in
+            destination.update(slot: slot, state: GamepadState(reading: gamepad))
+        }
+
+        nonisolated(unsafe) let initialGamepad = gamepad
+        inputQueue.async {
+            destination.attach(slot: slot, gamepad: initialGamepad)
+        }
+    }
+
+    private func listConnected(_ controller: GCController, slot: UInt8) {
+        let entry = ConnectedController(
+            id: ObjectIdentifier(controller),
+            slot: slot,
+            name: controller.vendorName ?? "Controller",
+            batteryLevel: controller.battery?.batteryLevel
+        )
+        connected.append(entry)
+        connected.sort { $0.slot < $1.slot }
+    }
+
     public func checkControllers() {
         syncControllers()
     }
@@ -90,102 +186,6 @@ public final class ControllerHub {
             player.stop()
         }
     }
-}
 
-// MARK: - Private
-
-private extension ControllerHub {
-    var slotCount: UInt8 { 4 }
-
-    func observeConnections() {
-        for name in [Notification.Name.GCControllerDidConnect, .GCControllerDidDisconnect] {
-            let observer = NotificationCenter.default.addObserver(
-                forName: name,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in
-                MainActor.assumeIsolated { self?.syncControllers() }
-            }
-            observers.append(observer)
-        }
-    }
-
-    func syncControllers() {
-        let current = GCController.controllers()
-        let currentIDs = Set(current.map(ObjectIdentifier.init))
-
-        for id in slots.keys where !currentIDs.contains(id) {
-            detach(id)
-        }
-
-        for controller in current {
-            attach(controller)
-        }
-    }
-
-    func detach(_ id: ObjectIdentifier) {
-        guard let slot = slots.removeValue(forKey: id) else { return }
-
-        rumblePlayers[id]?.stop()
-        rumblePlayers[id] = nil
-
-        connected.removeAll { $0.id == id }
-
-        let destination = destination
-        inputQueue.async {
-            destination.update(slot: slot, state: nil)
-        }
-    }
-
-    func attach(_ controller: GCController) {
-        let id = ObjectIdentifier(controller)
-        guard let gamepad = controller.extendedGamepad,
-            slots[id] == nil,
-            let slot = freeSlot()
-        else { return }
-
-        slots[id] = slot
-
-        startReading(gamepad, of: controller, slot: slot)
-
-        if let player = RumblePlayer(controller: controller) {
-            rumblePlayers[id] = player
-        }
-
-        listConnected(controller, slot: slot)
-
-        log.info("Controller \(controller.vendorName ?? "?") → slot \(slot)")
-    }
-
-    func freeSlot() -> UInt8? {
-        let used = Set(slots.values)
-        return (0..<slotCount).first { !used.contains($0) }
-    }
-
-    func startReading(_ gamepad: GCExtendedGamepad, of controller: GCController, slot: UInt8) {
-        destination.prepare(gamepad)
-
-        controller.handlerQueue = inputQueue
-
-        let destination = destination
-        gamepad.valueChangedHandler = { @Sendable gamepad, _ in
-            destination.update(slot: slot, state: GamepadState(reading: gamepad))
-        }
-
-        nonisolated(unsafe) let initialGamepad = gamepad
-        inputQueue.async {
-            destination.attach(slot: slot, gamepad: initialGamepad)
-        }
-    }
-
-    func listConnected(_ controller: GCController, slot: UInt8) {
-        let entry = ConnectedController(
-            id: ObjectIdentifier(controller),
-            slot: slot,
-            name: controller.vendorName ?? "Controller",
-            batteryLevel: controller.battery?.batteryLevel
-        )
-        connected.append(entry)
-        connected.sort { $0.slot < $1.slot }
-    }
+    private var slotCount: UInt8 { 4 }
 }

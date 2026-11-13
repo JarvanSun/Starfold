@@ -38,19 +38,17 @@ struct SystemDialogView: View {
             )
         }
     }
-}
 
-private extension SystemDialogView {
-    func answer(buttonIndex: Int) {
+    private func answer(buttonIndex: Int) {
         dialogs.answer(dialog, buttonIndex: buttonIndex)
     }
 
-    func submitText() {
-        dialogs.submitText(for: dialog)
+    private func cancel() {
+        dialogs.cancel(dialog)
     }
 
-    func cancel() {
-        dialogs.cancel(dialog)
+    private func submitText() {
+        dialogs.submitText(for: dialog)
     }
 }
 

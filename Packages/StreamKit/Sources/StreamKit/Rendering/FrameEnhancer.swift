@@ -126,15 +126,43 @@ final class FrameEnhancer {
         return target.pixelBuffer
     }
 
-    func clear() {
-        textures.removeAll()
+    private func planeTextures(_ frame: CVPixelBuffer) -> PlaneTextures? {
+        guard CVPixelBufferGetPlaneCount(frame) == 2 else {
+            log.error("Unsupported pixel format \(CVPixelBufferGetPixelFormatType(frame))")
+
+            return nil
+        }
+
+        let format = CVPixelBufferGetPixelFormatType(frame)
+        let isTenBit =
+            format == kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
+            || format == kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
+        guard let luma = planeTexture(frame, plane: 0, format: isTenBit ? .r16Unorm : .r8Unorm),
+            let chroma = planeTexture(frame, plane: 1, format: isTenBit ? .rg16Unorm : .rg8Unorm)
+        else { return nil }
+
+        return PlaneTextures(luma: luma, chroma: chroma)
     }
-}
 
-// MARK: - Private
+    private func planeTexture(_ frame: CVPixelBuffer, plane: Int, format: MTLPixelFormat)
+        -> CVMetalTexture?
+    {
+        var texture: CVMetalTexture?
+        let status = CVMetalTextureCacheCreateTextureFromImage(
+            nil,
+            textureCache,
+            frame,
+            nil,
+            format,
+            CVPixelBufferGetWidthOfPlane(frame, plane),
+            CVPixelBufferGetHeightOfPlane(frame, plane),
+            plane,
+            &texture
+        )
+        return status == kCVReturnSuccess ? texture : nil
+    }
 
-private extension FrameEnhancer {
-    func convert(
+    private func convert(
         _ frame: CVPixelBuffer,
         planes: PlaneTextures,
         commands: MTLCommandBuffer
@@ -168,33 +196,39 @@ private extension FrameEnhancer {
         return converted
     }
 
-    func sharpen(_ input: MTLTexture, strength: Float, commands: MTLCommandBuffer) -> MTLTexture? {
-        guard
-            let sharpened = textures.texture(
-                .sharpened,
-                width: input.width,
-                height: input.height,
-                format: .rgba16Float,
-                usage: [.shaderRead, .shaderWrite]
-            ),
-            let encoder = commands.makeComputeCommandEncoder()
-        else { return nil }
+    private func encodeFullScreen(
+        _ commands: MTLCommandBuffer,
+        target: MTLTexture,
+        pipeline: MTLRenderPipelineState,
+        viewport: CGRect,
+        configure: (MTLRenderCommandEncoder) -> Void
+    ) {
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = target
+        pass.colorAttachments[0].loadAction = .clear
+        pass.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 1)
+        pass.colorAttachments[0].storeAction = .store
 
-        var strength = strength
-        encoder.setComputePipelineState(pipelines.sharpen)
-        encoder.setTexture(input, index: 0)
-        encoder.setTexture(sharpened, index: 1)
-        encoder.setBytes(&strength, length: MemoryLayout<Float>.stride, index: 0)
-        encoder.dispatchThreads(
-            MTLSize(width: input.width, height: input.height, depth: 1),
-            threadsPerThreadgroup: MTLSize(width: 16, height: 16, depth: 1)
+        guard let encoder = commands.makeRenderCommandEncoder(descriptor: pass) else { return }
+
+        encoder.setRenderPipelineState(pipeline)
+        encoder.setViewport(
+            MTLViewport(
+                originX: viewport.minX,
+                originY: viewport.minY,
+                width: viewport.width,
+                height: viewport.height,
+                znear: 0,
+                zfar: 1
+            )
         )
-        encoder.endEncoding()
+        configure(encoder)
 
-        return sharpened
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        encoder.endEncoding()
     }
 
-    func upscale(_ input: MTLTexture, commands: MTLCommandBuffer, width: Int, height: Int)
+    private func upscale(_ input: MTLTexture, commands: MTLCommandBuffer, width: Int, height: Int)
         -> MTLTexture?
     {
         #if canImport(MetalFX)
@@ -229,6 +263,42 @@ private extension FrameEnhancer {
         #endif
     }
 
+    private func sharpen(_ input: MTLTexture, strength: Float, commands: MTLCommandBuffer)
+        -> MTLTexture?
+    {
+        guard
+            let sharpened = textures.texture(
+                .sharpened,
+                width: input.width,
+                height: input.height,
+                format: .rgba16Float,
+                usage: [.shaderRead, .shaderWrite]
+            ),
+            let encoder = commands.makeComputeCommandEncoder()
+        else { return nil }
+
+        var strength = strength
+        encoder.setComputePipelineState(pipelines.sharpen)
+        encoder.setTexture(input, index: 0)
+        encoder.setTexture(sharpened, index: 1)
+        encoder.setBytes(&strength, length: MemoryLayout<Float>.stride, index: 0)
+        encoder.dispatchThreads(
+            MTLSize(width: input.width, height: input.height, depth: 1),
+            threadsPerThreadgroup: MTLSize(width: 16, height: 16, depth: 1)
+        )
+        encoder.endEncoding()
+
+        return sharpened
+    }
+
+    func clear() {
+        textures.removeAll()
+    }
+}
+
+// MARK: - Private
+
+private extension FrameEnhancer {
     #if canImport(MetalFX)
     func makeScaler(for input: MTLTexture, width: Int, height: Int) -> MTLFXSpatialScaler? {
         let descriptor = MTLFXSpatialScalerDescriptor()
@@ -251,71 +321,4 @@ private extension FrameEnhancer {
         return scaler
     }
     #endif
-
-    func encodeFullScreen(
-        _ commands: MTLCommandBuffer,
-        target: MTLTexture,
-        pipeline: MTLRenderPipelineState,
-        viewport: CGRect,
-        configure: (MTLRenderCommandEncoder) -> Void
-    ) {
-        let pass = MTLRenderPassDescriptor()
-        pass.colorAttachments[0].texture = target
-        pass.colorAttachments[0].loadAction = .clear
-        pass.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 1)
-        pass.colorAttachments[0].storeAction = .store
-
-        guard let encoder = commands.makeRenderCommandEncoder(descriptor: pass) else { return }
-
-        encoder.setRenderPipelineState(pipeline)
-        encoder.setViewport(
-            MTLViewport(
-                originX: viewport.minX,
-                originY: viewport.minY,
-                width: viewport.width,
-                height: viewport.height,
-                znear: 0,
-                zfar: 1
-            )
-        )
-        configure(encoder)
-
-        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
-        encoder.endEncoding()
-    }
-
-    func planeTextures(_ frame: CVPixelBuffer) -> PlaneTextures? {
-        guard CVPixelBufferGetPlaneCount(frame) == 2 else {
-            log.error("Unsupported pixel format \(CVPixelBufferGetPixelFormatType(frame))")
-
-            return nil
-        }
-
-        let format = CVPixelBufferGetPixelFormatType(frame)
-        let isTenBit =
-            format == kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
-            || format == kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
-        guard let luma = planeTexture(frame, plane: 0, format: isTenBit ? .r16Unorm : .r8Unorm),
-            let chroma = planeTexture(frame, plane: 1, format: isTenBit ? .rg16Unorm : .rg8Unorm)
-        else { return nil }
-
-        return PlaneTextures(luma: luma, chroma: chroma)
-    }
-
-    func planeTexture(_ frame: CVPixelBuffer, plane: Int, format: MTLPixelFormat) -> CVMetalTexture?
-    {
-        var texture: CVMetalTexture?
-        let status = CVMetalTextureCacheCreateTextureFromImage(
-            nil,
-            textureCache,
-            frame,
-            nil,
-            format,
-            CVPixelBufferGetWidthOfPlane(frame, plane),
-            CVPixelBufferGetHeightOfPlane(frame, plane),
-            plane,
-            &texture
-        )
-        return status == kCVReturnSuccess ? texture : nil
-    }
 }

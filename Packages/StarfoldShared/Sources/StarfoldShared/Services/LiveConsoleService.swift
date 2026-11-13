@@ -11,6 +11,10 @@ struct LiveConsoleService: ConsoleService {
     private let account: XboxAccount
     private let http: HTTPClient
 
+    private var xboxLive: XboxLiveClient {
+        .init(account: account, http: http)
+    }
+
     init(account: XboxAccount, http: HTTPClient) {
         self.account = account
         self.http = http
@@ -29,11 +33,5 @@ struct LiveConsoleService: ConsoleService {
 
     func send(_ command: XboxLiveClient.PowerCommand, to consoleID: String) async throws {
         try await xboxLive.send(command, to: consoleID)
-    }
-}
-
-private extension LiveConsoleService {
-    var xboxLive: XboxLiveClient {
-        .init(account: account, http: http)
     }
 }

@@ -28,10 +28,19 @@ struct GameGrid: View {
             }
         }
     }
-}
 
-private extension GameGrid {
-    var columns: [GridItem] {
+    private var header: some View {
+        HStack(alignment: .firstTextBaseline, spacing: dimensions.spaceSmall) {
+            Text(title)
+                .font(.title2.bold())
+
+            Text(games.count, format: .number)
+                .font(.callout.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var columns: [GridItem] {
         [
             .init(
                 .adaptive(
@@ -42,17 +51,6 @@ private extension GameGrid {
                 alignment: .top
             )
         ]
-    }
-
-    var header: some View {
-        HStack(alignment: .firstTextBaseline, spacing: dimensions.spaceSmall) {
-            Text(title)
-                .font(.title2.bold())
-
-            Text(games.count, format: .number)
-                .font(.callout.monospacedDigit())
-                .foregroundStyle(.secondary)
-        }
     }
 }
 

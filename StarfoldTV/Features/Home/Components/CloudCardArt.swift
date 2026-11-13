@@ -25,23 +25,21 @@ struct CloudCardArt: View {
             }
         }
     }
-}
 
-private extension CloudCardArt {
-    var placeholder: some View {
+    private var placeholder: some View {
         Image(systemName: access.placeholderSymbol)
             .font(.largeTitle)
             .foregroundStyle(.secondary)
     }
 
-    var coverFan: some View {
+    private var coverFan: some View {
         let middle = Double(covers.count - 1) / 2
         return ForEach(Array(covers.enumerated()), id: \.element) { index, url in
             cover(url, position: Double(index) - middle)
         }
     }
 
-    func cover(_ url: URL, position: Double) -> some View {
+    private func cover(_ url: URL, position: Double) -> some View {
         let coverWidthRatio: CGFloat = 0.32
         let coverHeightRatio: CGFloat = 0.46
         let fanAngle: Double = 9
@@ -55,7 +53,7 @@ private extension CloudCardArt {
             .zIndex(position == 0 ? 1 : 0)
     }
 
-    func coverLift(at position: Double) -> CGFloat {
+    private func coverLift(at position: Double) -> CGFloat {
         position == 0 ? -dimensions.spaceXSmall : dimensions.spaceMedium
     }
 }

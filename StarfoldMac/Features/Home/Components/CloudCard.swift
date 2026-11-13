@@ -23,10 +23,8 @@ struct CloudCard: View {
             SettingsShortcutButton()
         }
     }
-}
 
-private extension CloudCard {
-    var heading: HomeCardHeading {
+    private var heading: HomeCardHeading {
         .init(
             title: Text("home.cloud.title"),
             subtitle: subtitle,
@@ -39,14 +37,14 @@ private extension CloudCard {
         )
     }
 
-    var subtitle: Text {
+    private var subtitle: Text {
         switch library.cloudAccess.cardSubtitle(gameCount: library.games.count) {
         case let subtitle?: Text(subtitle)
         case nil: Text(verbatim: "")
         }
     }
 
-    var browseAction: HomeCardAction {
+    private var browseAction: HomeCardAction {
         .init(
             title: "home.cloud.browse",
             systemImage: "square.grid.2x2",
@@ -55,7 +53,7 @@ private extension CloudCard {
         )
     }
 
-    var artwork: some View {
+    private var artwork: some View {
         let coverLimit = 3
 
         return CloudCardArt(

@@ -22,10 +22,8 @@ struct WelcomePitch: View {
             }
         }
     }
-}
 
-private extension WelcomePitch {
-    var headline: some View {
+    private var headline: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
             Image(systemName: "gamecontroller.fill")
                 .font(.system(size: dimensions.welcomeAppSymbolPointSize))

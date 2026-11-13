@@ -35,10 +35,8 @@ final class BackgroundStreamCleanup {
             finish()
         }
     }
-}
 
-private extension BackgroundStreamCleanup {
-    func finish() {
+    private func finish() {
         guard task != .invalid else { return }
 
         UIApplication.shared.endBackgroundTask(task)

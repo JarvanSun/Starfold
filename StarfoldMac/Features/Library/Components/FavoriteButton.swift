@@ -28,18 +28,16 @@ struct FavoriteButton: View {
         .buttonStyle(CircleIconButtonStyle(size: dimensions.gameFavoriteButtonSize))
         .help(Text(action.title))
     }
-}
 
-private extension FavoriteButton {
-    var style: AnyShapeStyle {
+    private func toggle() {
+        withAnimation(.spring(duration: 0.3, bounce: 0.5), onToggle)
+    }
+
+    private var style: AnyShapeStyle {
         switch isFavorite {
         case true: .init(palette.primaryTint)
         case false: .init(.white)
         }
-    }
-
-    func toggle() {
-        withAnimation(.spring(duration: 0.3, bounce: 0.5), onToggle)
     }
 }
 

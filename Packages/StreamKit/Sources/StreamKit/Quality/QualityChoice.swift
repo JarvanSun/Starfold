@@ -18,6 +18,8 @@ public enum QualityChoice: Hashable, Sendable {
         }
     }
 
+    private var automaticStorageValue: String { "automatic" }
+
     public var requestedQuality: StreamQuality {
         switch self {
         case .automatic: .high
@@ -31,8 +33,4 @@ public enum QualityChoice: Hashable, Sendable {
         case nil: self = .automatic
         }
     }
-}
-
-private extension QualityChoice {
-    var automaticStorageValue: String { "automatic" }
 }

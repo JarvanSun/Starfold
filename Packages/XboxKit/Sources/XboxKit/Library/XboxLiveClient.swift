@@ -67,6 +67,60 @@ public struct XboxLiveClient: Sendable {
         }
     }
 
+    private func currentConsoleTitle(xuid: String) async throws -> PresenceResponse.Title? {
+        let response = try await http.decodedBody(
+            PresenceResponse.self,
+            for: .init(
+                url: URL(
+                    string: "https://userpresence.xboxlive.com/users/xuid(\(xuid))?level=all"
+                )!,
+                headers: try await headers(contractVersion: 3)
+            )
+        )
+
+        let consoleDeviceTypes: Set<String> = ["Scarlett", "XboxOne"]
+        let consoles = (response.devices ?? []).filter { consoleDeviceTypes.contains($0.type) }
+        let titles = consoles.flatMap { $0.titles ?? [] }.filter(isActiveGame)
+        return titles.first { $0.placement == "Full" } ?? titles.first
+    }
+
+    private func isActiveGame(_ title: PresenceResponse.Title) -> Bool {
+        let dashboardTitleID = "750323071"
+
+        return title.id != dashboardTitleID && title.state != "Inactive"
+    }
+
+    private func recentTitles(xuid: String) async throws -> [HistoryTitle] {
+        let response = try await http.decodedBody(
+            TitleHistoryResponse.self,
+            for: .init(
+                url: URL(
+                    string:
+                        "https://titlehub.xboxlive.com/users/xuid(\(xuid))/titles/titlehistory/decoration/image?maxItems=10"
+                )!,
+                headers: try await headers(contractVersion: 2)
+            )
+        )
+        return response.titles
+    }
+
+    private func headers(
+        contractVersion: Int,
+        adding extraHeaders: [String: String] = [:]
+    ) async throws -> [String: String] {
+        var headers = [
+            "Authorization": try await authorization(),
+            "x-xbl-contract-version": String(contractVersion),
+            "Accept-Language": Locale.preferredLanguages.first ?? "en-US",
+            "Accept": "application/json",
+            "x-xbl-client-name": "XboxApp",
+            "x-xbl-client-type": "UWA",
+            "x-xbl-client-version": "39.39.22001.0",
+        ]
+        headers.merge(extraHeaders) { _, new in new }
+        return headers
+    }
+
     public func consoles() async throws -> [Console] {
         let response = try await http.decodedBody(
             DeviceListResponse.self,
@@ -122,6 +176,29 @@ public struct XboxLiveClient: Sendable {
         if let rejection = rejection(in: reply) {
             throw rejection
         }
+    }
+
+    private func rejection(in reply: Data) -> CommandRejected? {
+        guard
+            let status = (try? JSONDecoder().decode(CommandReply.self, from: reply))?.status,
+            let code = status.errorCode,
+            code != "OK"
+        else {
+            return nil
+        }
+
+        return .init(code: code, message: status.errorMessage)
+    }
+
+    private func profile(of user: ProfileResponse.User) -> XboxProfile {
+        let settings = Dictionary(user.settings.map { ($0.id, $0.value) }) { first, _ in first }
+        let modernGamertag = settings["ModernGamertag"].flatMap { $0.isEmpty ? nil : $0 }
+        return .init(
+            xuid: user.id,
+            gamertag: modernGamertag ?? settings["Gamertag"] ?? user.id,
+            gamerscore: settings["Gamerscore"].flatMap(Int.init),
+            pictureURL: settings["GameDisplayPicRaw"].flatMap(URL.init(upgradingXboxImageToHTTPS:))
+        )
     }
 }
 
@@ -211,82 +288,5 @@ private extension XboxLiveClient {
         }
 
         let status: Status?
-    }
-
-    func headers(
-        contractVersion: Int,
-        adding extraHeaders: [String: String] = [:]
-    ) async throws -> [String: String] {
-        var headers = [
-            "Authorization": try await authorization(),
-            "x-xbl-contract-version": String(contractVersion),
-            "Accept-Language": Locale.preferredLanguages.first ?? "en-US",
-            "Accept": "application/json",
-            "x-xbl-client-name": "XboxApp",
-            "x-xbl-client-type": "UWA",
-            "x-xbl-client-version": "39.39.22001.0",
-        ]
-        headers.merge(extraHeaders) { _, new in new }
-        return headers
-    }
-
-    func profile(of user: ProfileResponse.User) -> XboxProfile {
-        let settings = Dictionary(user.settings.map { ($0.id, $0.value) }) { first, _ in first }
-        let modernGamertag = settings["ModernGamertag"].flatMap { $0.isEmpty ? nil : $0 }
-        return .init(
-            xuid: user.id,
-            gamertag: modernGamertag ?? settings["Gamertag"] ?? user.id,
-            gamerscore: settings["Gamerscore"].flatMap(Int.init),
-            pictureURL: settings["GameDisplayPicRaw"].flatMap(URL.init(upgradingXboxImageToHTTPS:))
-        )
-    }
-
-    func currentConsoleTitle(xuid: String) async throws -> PresenceResponse.Title? {
-        let response = try await http.decodedBody(
-            PresenceResponse.self,
-            for: .init(
-                url: URL(
-                    string: "https://userpresence.xboxlive.com/users/xuid(\(xuid))?level=all"
-                )!,
-                headers: try await headers(contractVersion: 3)
-            )
-        )
-
-        let consoleDeviceTypes: Set<String> = ["Scarlett", "XboxOne"]
-        let consoles = (response.devices ?? []).filter { consoleDeviceTypes.contains($0.type) }
-        let titles = consoles.flatMap { $0.titles ?? [] }.filter(isActiveGame)
-        return titles.first { $0.placement == "Full" } ?? titles.first
-    }
-
-    func isActiveGame(_ title: PresenceResponse.Title) -> Bool {
-        let dashboardTitleID = "750323071"
-
-        return title.id != dashboardTitleID && title.state != "Inactive"
-    }
-
-    func recentTitles(xuid: String) async throws -> [HistoryTitle] {
-        let response = try await http.decodedBody(
-            TitleHistoryResponse.self,
-            for: .init(
-                url: URL(
-                    string:
-                        "https://titlehub.xboxlive.com/users/xuid(\(xuid))/titles/titlehistory/decoration/image?maxItems=10"
-                )!,
-                headers: try await headers(contractVersion: 2)
-            )
-        )
-        return response.titles
-    }
-
-    func rejection(in reply: Data) -> CommandRejected? {
-        guard
-            let status = (try? JSONDecoder().decode(CommandReply.self, from: reply))?.status,
-            let code = status.errorCode,
-            code != "OK"
-        else {
-            return nil
-        }
-
-        return .init(code: code, message: status.errorMessage)
     }
 }

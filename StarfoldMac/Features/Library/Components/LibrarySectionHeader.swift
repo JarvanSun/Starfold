@@ -26,10 +26,8 @@ struct LibrarySectionHeader: View {
         }
         .padding(.horizontal, dimensions.spaceXXLarge)
     }
-}
 
-private extension LibrarySectionHeader {
-    func countLabel(_ count: Int) -> some View {
+    private func countLabel(_ count: Int) -> some View {
         Text(count, format: .number)
             .font(.callout.monospacedDigit())
             .foregroundStyle(.secondary)

@@ -84,82 +84,9 @@ public actor StreamController {
         }
     }
 
-    public func stop(reason: StreamEndReason) async {
-        if case .ended = phase { return }
-
-        setPhase(.ended(reason))
-
-        for task in tasks {
-            task.cancel()
-        }
-
-        tasks.removeAll()
-
-        resolveConnection(.failure(CancellationError()))
-
-        removeAnnouncedPads(sender.stop())
-
-        peer?.frameReceiver.setSink(nil)
-        peer?.frameReceiver.setFrameTimingHandler(nil)
-        peer?.close()
-        peer = nil
-
-        eventTask?.cancel()
-        eventTask = nil
-
-        await session?.stop()
-        session = nil
-
-        updateContinuation.finish()
-    }
-
-    public nonisolated func setGamepad(_ index: UInt8, state: GamepadState?) {
-        input.setGamepad(index, state: state)
-    }
-
-    public func pressGuide() {
-        input.pulse(.nexus, on: 0, duration: guideTapDuration)
-    }
-
-    public func requestKeyframe() {
-        peer?.send(ControlMessage.keyframeRequest.json, on: .control)
-    }
-
-    public func answerDialog(id: String, buttonIndex: Int) async {
-        await perform([channels.answerDialog(id: id, buttonIndex: buttonIndex)])
-    }
-
-    public func answerKeyboard(id: String, text: String?) async {
-        await perform([channels.answerKeyboard(id: id, text: text)])
-    }
-}
-
-// MARK: - Private
-
-private extension StreamController {
-    var guideTapDuration: TimeInterval { 0.12 }
-
-    var consoleProvisioningTimeout: Duration { .seconds(90) }
-
-    var cloudProvisioningTimeout: Duration { .seconds(15 * 60) }
-
-    var gatheringTimeout: Duration { .seconds(3) }
-
-    var gatheringQuietPeriod: Duration { .milliseconds(300) }
-
-    var gatheringPollInterval: Duration { .milliseconds(50) }
-
-    var connectionTimeout: Duration { .seconds(20) }
-
-    var gamepadAnnouncementDelay: Duration { .milliseconds(500) }
-
-    var statisticsInterval: Duration { .seconds(1) }
-
-    var currentTimestamp: Double {
-        (CACurrentMediaTime() - clockOrigin) * 1000
-    }
-
-    func makePeer(sink: VideoFrameReceiving, runtime: StreamRuntime) throws -> PeerConnection {
+    private func makePeer(sink: VideoFrameReceiving, runtime: StreamRuntime) throws
+        -> PeerConnection
+    {
         let (events, continuation) = AsyncStream<PeerEvent>.makeStream()
         guard
             let peer = PeerConnection(
@@ -190,7 +117,92 @@ private extension StreamController {
         return peer
     }
 
-    func provision() async throws {
+    private func handle(_ event: PeerEvent) async {
+        switch event {
+        case .localCandidate(let candidate):
+            gathering.add(candidate, at: .now)
+        case .gatheringComplete:
+            gathering.complete()
+        case .connectionState(let state):
+            await handleConnectionState(state)
+        case .channelOpen(let label):
+            await perform(channels.opened(label))
+        case .channelMessage(let label, let data):
+            await perform(channels.received(data, on: label, timestamp: currentTimestamp))
+        case .channelClosed(let label):
+            log.info("Channel \(label.rawValue) closed")
+        case .mediaTracksReady:
+            mark("media tracks ready")
+            requestKeyframe()
+        }
+    }
+
+    private func handleConnectionState(_ state: PeerConnectionState) async {
+        log.info("Peer connection \(state.rawValue)")
+
+        switch state {
+        case .connected:
+            isConnected = true
+            resolveConnection(.success(()))
+        case .failed:
+            resolveConnection(.failure(StreamError.webRTC("ICE failed")))
+
+            if case .streaming = phase {
+                await stop(reason: .connectionLost)
+            }
+        case .closed, .disconnected, .new, .connecting:
+            break
+        }
+    }
+
+    private func resolveConnection(_ result: Result<Void, Error>) {
+        connectedContinuation?.resume(with: result)
+        connectedContinuation = nil
+    }
+
+    private func perform(_ actions: [HostChannelAction]) async {
+        for action in actions {
+            switch action {
+            case .send(let data, let label): peer?.send(data, on: label)
+            case .update(let update): updateContinuation.yield(update)
+            case .announceGamepad: scheduleGamepadAnnouncement()
+            case .end(let reason): await stop(reason: reason)
+            case .trace(let text): log.debug("\(text)")
+            }
+        }
+    }
+
+    private func scheduleGamepadAnnouncement() {
+        let delay = gamepadAnnouncementDelay
+
+        tasks.append(
+            Task { [weak self] in
+                try? await Task.sleep(for: delay)
+
+                await self?.announceFirstGamepad()
+            }
+        )
+    }
+
+    private var gamepadAnnouncementDelay: Duration { .milliseconds(500) }
+
+    private func announceFirstGamepad() {
+        guard let peer else { return }
+
+        peer.send(ControlMessage.gamepadChanged(index: 0, isAdded: true).json, on: .control)
+        sender.start(peer: peer, announced: [0])
+    }
+
+    private var currentTimestamp: Double {
+        (CACurrentMediaTime() - clockOrigin) * 1000
+    }
+
+    private func mark(_ stage: StaticString) {
+        let milliseconds = Int((ContinuousClock.now - startedAt) / .milliseconds(1))
+        log.info("Startup \(stage) +\(milliseconds) ms")
+    }
+
+    private func provision() async throws {
         setPhase(.provisioning)
 
         let session =
@@ -222,12 +234,11 @@ private extension StreamController {
         }
     }
 
-    func mark(_ stage: StaticString) {
-        let milliseconds = Int((ContinuousClock.now - startedAt) / .milliseconds(1))
-        log.info("Startup \(stage) +\(milliseconds) ms")
-    }
+    private var consoleProvisioningTimeout: Duration { .seconds(90) }
 
-    func connect(peer: PeerConnection, offer: String) async throws {
+    private var cloudProvisioningTimeout: Duration { .seconds(15 * 60) }
+
+    private func connect(peer: PeerConnection, offer: String) async throws {
         guard let session else { return }
 
         mark("provisioned")
@@ -259,7 +270,15 @@ private extension StreamController {
         keepAliveInterval = await configuredKeepAlive ?? keepAliveInterval
     }
 
-    func waitForLocalCandidates() async throws {
+    private func setPhase(_ phase: StreamPhase) {
+        guard self.phase != phase else { return }
+
+        self.phase = phase
+
+        updateContinuation.yield(.phase(phase))
+    }
+
+    private func waitForLocalCandidates() async throws {
         let deadline = ContinuousClock.now + gatheringTimeout
 
         while ContinuousClock.now < deadline,
@@ -273,7 +292,13 @@ private extension StreamController {
         )
     }
 
-    func waitUntilConnected(timeout: Duration) async throws {
+    private var gatheringTimeout: Duration { .seconds(3) }
+
+    private var gatheringQuietPeriod: Duration { .milliseconds(300) }
+
+    private var gatheringPollInterval: Duration { .milliseconds(50) }
+
+    private func waitUntilConnected(timeout: Duration) async throws {
         guard !isConnected else { return }
 
         try Task.checkCancellation()
@@ -293,12 +318,9 @@ private extension StreamController {
         }
     }
 
-    func resolveConnection(_ result: Result<Void, Error>) {
-        connectedContinuation?.resume(with: result)
-        connectedContinuation = nil
-    }
+    private var connectionTimeout: Duration { .seconds(20) }
 
-    func startKeepAlive() {
+    private func startKeepAlive() {
         guard let session else { return }
 
         let interval = keepAliveInterval
@@ -323,7 +345,7 @@ private extension StreamController {
         )
     }
 
-    func startStatisticsLoop() {
+    private func startStatisticsLoop() {
         let interval = statisticsInterval
         tasks.append(
             Task { [weak self] in
@@ -336,83 +358,45 @@ private extension StreamController {
         )
     }
 
-    func publishStatistics() async {
+    private var statisticsInterval: Duration { .seconds(1) }
+
+    private func publishStatistics() async {
         guard let peer else { return }
 
         let statistics = statisticsCollector.collect(await peer.statistics())
         updateContinuation.yield(.statistics(statistics))
     }
 
-    func handle(_ event: PeerEvent) async {
-        switch event {
-        case .localCandidate(let candidate):
-            gathering.add(candidate, at: .now)
-        case .gatheringComplete:
-            gathering.complete()
-        case .connectionState(let state):
-            await handleConnectionState(state)
-        case .channelOpen(let label):
-            await perform(channels.opened(label))
-        case .channelMessage(let label, let data):
-            await perform(channels.received(data, on: label, timestamp: currentTimestamp))
-        case .channelClosed(let label):
-            log.info("Channel \(label.rawValue) closed")
-        case .mediaTracksReady:
-            mark("media tracks ready")
-            requestKeyframe()
+    public func stop(reason: StreamEndReason) async {
+        if case .ended = phase { return }
+
+        setPhase(.ended(reason))
+
+        for task in tasks {
+            task.cancel()
         }
+
+        tasks.removeAll()
+
+        resolveConnection(.failure(CancellationError()))
+
+        removeAnnouncedPads(sender.stop())
+
+        peer?.frameReceiver.setSink(nil)
+        peer?.frameReceiver.setFrameTimingHandler(nil)
+        peer?.close()
+        peer = nil
+
+        eventTask?.cancel()
+        eventTask = nil
+
+        await session?.stop()
+        session = nil
+
+        updateContinuation.finish()
     }
 
-    func handleConnectionState(_ state: PeerConnectionState) async {
-        log.info("Peer connection \(state.rawValue)")
-
-        switch state {
-        case .connected:
-            isConnected = true
-            resolveConnection(.success(()))
-        case .failed:
-            resolveConnection(.failure(StreamError.webRTC("ICE failed")))
-
-            if case .streaming = phase {
-                await stop(reason: .connectionLost)
-            }
-        case .closed, .disconnected, .new, .connecting:
-            break
-        }
-    }
-
-    func perform(_ actions: [HostChannelAction]) async {
-        for action in actions {
-            switch action {
-            case .send(let data, let label): peer?.send(data, on: label)
-            case .update(let update): updateContinuation.yield(update)
-            case .announceGamepad: scheduleGamepadAnnouncement()
-            case .end(let reason): await stop(reason: reason)
-            case .trace(let text): log.debug("\(text)")
-            }
-        }
-    }
-
-    func scheduleGamepadAnnouncement() {
-        let delay = gamepadAnnouncementDelay
-
-        tasks.append(
-            Task { [weak self] in
-                try? await Task.sleep(for: delay)
-
-                await self?.announceFirstGamepad()
-            }
-        )
-    }
-
-    func announceFirstGamepad() {
-        guard let peer else { return }
-
-        peer.send(ControlMessage.gamepadChanged(index: 0, isAdded: true).json, on: .control)
-        sender.start(peer: peer, announced: [0])
-    }
-
-    func removeAnnouncedPads(_ announcedPads: Set<UInt8>) {
+    private func removeAnnouncedPads(_ announcedPads: Set<UInt8>) {
         guard let peer else { return }
 
         for index in announcedPads.sorted() {
@@ -423,11 +407,25 @@ private extension StreamController {
         }
     }
 
-    func setPhase(_ phase: StreamPhase) {
-        guard self.phase != phase else { return }
+    public nonisolated func setGamepad(_ index: UInt8, state: GamepadState?) {
+        input.setGamepad(index, state: state)
+    }
 
-        self.phase = phase
+    public func pressGuide() {
+        input.pulse(.nexus, on: 0, duration: guideTapDuration)
+    }
 
-        updateContinuation.yield(.phase(phase))
+    private var guideTapDuration: TimeInterval { 0.12 }
+
+    public func requestKeyframe() {
+        peer?.send(ControlMessage.keyframeRequest.json, on: .control)
+    }
+
+    public func answerDialog(id: String, buttonIndex: Int) async {
+        await perform([channels.answerDialog(id: id, buttonIndex: buttonIndex)])
+    }
+
+    public func answerKeyboard(id: String, text: String?) async {
+        await perform([channels.answerKeyboard(id: id, text: text)])
     }
 }

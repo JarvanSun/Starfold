@@ -49,24 +49,17 @@ struct StreamView: View {
         .sheet(isPresented: $presenter.isMenuPresented) { menu }
         .sheet(item: presentedDialog) { dialog in dialogSheet(dialog) }
     }
-}
 
-private extension StreamView {
-    var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream?.dialogs.presentedDialog }, set: { _ in })
+    private func goBack() {
+        Task { await presenter.goBack() }
+    }
+
+    private func openMenu() {
+        presenter.openMenu(for: stream)
     }
 
     @ViewBuilder
-    var menu: some View {
-        switch stream {
-        case let stream?:
-            StreamMenuView(settings: settings, stream: stream, onDisconnect: { end() })
-        case nil: EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    func layers(of stream: StreamViewModel) -> some View {
+    private func layers(of stream: StreamViewModel) -> some View {
         StreamPicture(renderer: stream.renderer, isVisible: stream.hasFirstFrame)
 
         if stream.isWaitingForPicture {
@@ -90,30 +83,35 @@ private extension StreamView {
         }
     }
 
+    private func restart() {
+        Task { await presenter.restart() }
+    }
+
+    private func end() {
+        Task { await presenter.end() }
+    }
+
     @ViewBuilder
-    func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
+    private var menu: some View {
+        switch stream {
+        case let stream?:
+            StreamMenuView(settings: settings, stream: stream, onDisconnect: { end() })
+        case nil: EmptyView()
+        }
+    }
+
+    private var presentedDialog: Binding<SystemDialogRequest?> {
+        .init(get: { stream?.dialogs.presentedDialog }, set: { _ in })
+    }
+
+    @ViewBuilder
+    private func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
         switch stream {
         case let stream?:
             SystemDialogView(dialogs: stream.dialogs, dialog: dialog)
                 .interactiveDismissDisabled()
         case nil: EmptyView()
         }
-    }
-
-    func goBack() {
-        Task { await presenter.goBack() }
-    }
-
-    func openMenu() {
-        presenter.openMenu(for: stream)
-    }
-
-    func end() {
-        Task { await presenter.end() }
-    }
-
-    func restart() {
-        Task { await presenter.restart() }
     }
 }
 

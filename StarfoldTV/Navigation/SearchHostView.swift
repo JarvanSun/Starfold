@@ -19,18 +19,16 @@ struct SearchHostView: View {
         }
         .onChange(of: app.activeAccountID) { path.removeAll() }
     }
-}
 
-private extension SearchHostView {
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch app.library {
         case let library?: results(in: library)
         case nil: LoadingView()
         }
     }
 
-    func results(in library: LibraryViewModel) -> some View {
+    private func results(in library: LibraryViewModel) -> some View {
         SearchResultsView(library: library)
             .searchable(text: Bindable(library).searchText, prompt: Text("search.field.prompt"))
             .navigationDestination(for: CloudGame.self) { game in

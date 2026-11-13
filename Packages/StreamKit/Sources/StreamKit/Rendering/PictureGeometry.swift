@@ -26,6 +26,10 @@ struct PictureGeometry {
         return CGRect(origin: origin, size: size)
     }
 
+    private var hasArea: Bool {
+        content.width > 0 && content.height > 0 && container.width > 0 && container.height > 0
+    }
+
     func upscaledSize(for fit: PictureFit) -> CGSize {
         let shown =
             switch fit {
@@ -37,14 +41,8 @@ struct PictureGeometry {
 
         return shown
     }
-}
 
-private extension PictureGeometry {
-    var hasArea: Bool {
-        content.width > 0 && content.height > 0 && container.width > 0 && container.height > 0
-    }
-
-    var coverSize: CGSize {
+    private var coverSize: CGSize {
         guard hasArea else { return content }
 
         let scale = max(container.width / content.width, container.height / content.height)

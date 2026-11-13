@@ -37,11 +37,9 @@ struct MenuBarMenu: View {
 
         quitButton
     }
-}
 
-private extension MenuBarMenu {
     @ViewBuilder
-    var account: some View {
+    private var account: some View {
         switch (app.sessionState, app.signedInGamertag) {
         case (.signedIn, let gamertag?): Text(gamertag)
         case (.signedOut, _): Text("menuBar.signedOut.message")
@@ -50,32 +48,7 @@ private extension MenuBarMenu {
     }
 
     @ViewBuilder
-    var controllers: some View {
-        if !app.settings.connectedControllers.isEmpty {
-            Section(String(localized: "menuBar.controllers.title")) {
-                ForEach(app.settings.connectedControllers) { controllerLine(for: $0) }
-            }
-        }
-    }
-
-    var openAppButton: some View {
-        Button(String(localized: "menuBar.open \(AppInfo().displayName)")) { openApp() }
-    }
-
-    var settingsButton: some View {
-        Button(String(localized: "menuBar.settings")) { showSettings() }
-            .keyboardShortcut(",")
-    }
-
-    var quitButton: some View {
-        Button(String(localized: "menuBar.quit \(AppInfo().displayName)")) {
-            NSApp.terminate(nil)
-        }
-        .keyboardShortcut("q")
-    }
-
-    @ViewBuilder
-    func consoles(of home: HomeViewModel) -> some View {
+    private func consoles(of home: HomeViewModel) -> some View {
         if !home.consoles.isEmpty {
             Section(String(localized: "menuBar.consoles.title")) {
                 ForEach(home.consoles) { console in
@@ -90,7 +63,7 @@ private extension MenuBarMenu {
     }
 
     @ViewBuilder
-    func recentGames(of library: LibraryViewModel) -> some View {
+    private func recentGames(of library: LibraryViewModel) -> some View {
         let recentGameLimit = 3
         let recentGames = library.recentGames.prefix(recentGameLimit)
         if !recentGames.isEmpty {
@@ -106,16 +79,7 @@ private extension MenuBarMenu {
         }
     }
 
-    @ViewBuilder
-    func controllerLine(for controller: ConnectedController) -> some View {
-        switch app.settings.batteryLevel(of: controller) {
-        case let battery?:
-            Text("menuBar.controller.battery \(controller.name) \(percentText(battery))")
-        case nil: Text(controller.name)
-        }
-    }
-
-    func title(for console: Console, in home: HomeViewModel) -> String {
+    private func title(for console: Console, in home: HomeViewModel) -> String {
         switch home.activity(for: console) {
         case let activity? where activity.kind == .playingNow:
             String(localized: "menuBar.console.playing \(console.name) \(activity.name)")
@@ -123,23 +87,57 @@ private extension MenuBarMenu {
         }
     }
 
-    func percentText(_ fraction: Double) -> String {
-        fraction.formatted(.percent.precision(.fractionLength(0)))
-    }
-
-    func play(_ target: StreamTarget) {
+    private func play(_ target: StreamTarget) {
         Task { await app.play(target) }
     }
 
-    func openApp() {
+    @ViewBuilder
+    private var controllers: some View {
+        if !app.settings.connectedControllers.isEmpty {
+            Section(String(localized: "menuBar.controllers.title")) {
+                ForEach(app.settings.connectedControllers) { controllerLine(for: $0) }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func controllerLine(for controller: ConnectedController) -> some View {
+        switch app.settings.batteryLevel(of: controller) {
+        case let battery?:
+            Text("menuBar.controller.battery \(controller.name) \(percentText(battery))")
+        case nil: Text(controller.name)
+        }
+    }
+
+    private func percentText(_ fraction: Double) -> String {
+        fraction.formatted(.percent.precision(.fractionLength(0)))
+    }
+
+    private var openAppButton: some View {
+        Button(String(localized: "menuBar.open \(AppInfo().displayName)")) { openApp() }
+    }
+
+    private func openApp() {
         openWindow(id: SceneID.main.rawValue)
 
         NSApp.activate()
     }
 
-    func showSettings() {
+    private var settingsButton: some View {
+        Button(String(localized: "menuBar.settings")) { showSettings() }
+            .keyboardShortcut(",")
+    }
+
+    private func showSettings() {
         NSApp.activate()
 
         openSettings()
+    }
+
+    private var quitButton: some View {
+        Button(String(localized: "menuBar.quit \(AppInfo().displayName)")) {
+            NSApp.terminate(nil)
+        }
+        .keyboardShortcut("q")
     }
 }

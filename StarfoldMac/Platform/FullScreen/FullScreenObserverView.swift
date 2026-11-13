@@ -34,15 +34,13 @@ final class FullScreenObserverView: NSView {
 
         DispatchQueue.main.async { [weak self] in self?.reportFullScreen() }
     }
-}
 
-private extension FullScreenObserverView {
-    func stopObserving() {
+    private func stopObserving() {
         observers.forEach(NotificationCenter.default.removeObserver)
         observers = []
     }
 
-    func observeFullScreenChanges(of window: NSWindow) {
+    private func observeFullScreenChanges(of window: NSWindow) {
         let fullScreenNotifications: [Notification.Name] = [
             NSWindow.didEnterFullScreenNotification, NSWindow.didExitFullScreenNotification,
         ]
@@ -55,7 +53,7 @@ private extension FullScreenObserverView {
         }
     }
 
-    func reportFullScreen() {
+    private func reportFullScreen() {
         report(window?.styleMask.contains(.fullScreen) ?? false)
     }
 }

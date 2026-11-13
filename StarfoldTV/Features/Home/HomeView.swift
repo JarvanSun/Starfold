@@ -51,22 +51,20 @@ struct HomeView: View {
             Text(problem.message)
         }
     }
-}
 
-private extension HomeView {
-    func cardWidth(in width: CGFloat) -> CGFloat {
+    private func cardWidth(in width: CGFloat) -> CGFloat {
         let cardsPerRow: CGFloat = 3
 
         return max(dimensions.homeCardMinimumWidth, columnWidth(in: width, count: cardsPerRow))
     }
 
-    func shelfTileWidth(in width: CGFloat) -> CGFloat {
+    private func shelfTileWidth(in width: CGFloat) -> CGFloat {
         let shelfTilesPerRow: CGFloat = 4
 
         return max(dimensions.gameTileMinimumWidth, columnWidth(in: width, count: shelfTilesPerRow))
     }
 
-    func columnWidth(in width: CGFloat, count: CGFloat) -> CGFloat {
+    private func columnWidth(in width: CGFloat, count: CGFloat) -> CGFloat {
         let margins = 2 * dimensions.spaceXXLarge
         let gaps = (count - 1) * dimensions.spaceXXLarge
         return (width - margins - gaps) / count

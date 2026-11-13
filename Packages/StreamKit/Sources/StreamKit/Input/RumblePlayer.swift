@@ -28,27 +28,7 @@ final class RumblePlayer {
         guard !engines.isEmpty else { return nil }
     }
 
-    func play(_ effect: VibrationEffect) {
-        for (locality, engine) in engines {
-            try? players[locality]?.stop(atTime: CHHapticTimeImmediate)
-
-            players[locality] = pattern(of: effect, at: locality).flatMap { start($0, on: engine) }
-        }
-    }
-
-    func stop() {
-        for player in players.values {
-            try? player.stop(atTime: CHHapticTimeImmediate)
-        }
-
-        players.removeAll()
-    }
-}
-
-private extension RumblePlayer {
-    var minimumIntensity: Float { 0.01 }
-
-    func startLocalizedEngines(_ haptics: GCDeviceHaptics) {
+    private func startLocalizedEngines(_ haptics: GCDeviceHaptics) {
         let localities: [GCHapticsLocality] = [
             .leftHandle, .rightHandle, .leftTrigger, .rightTrigger,
         ]
@@ -62,7 +42,49 @@ private extension RumblePlayer {
         }
     }
 
-    func pattern(of effect: VibrationEffect, at locality: GCHapticsLocality) -> CHHapticPattern? {
+    private func start(_ pattern: CHHapticPattern, on engine: CHHapticEngine)
+        -> CHHapticPatternPlayer?
+    {
+        do {
+            return try startPlayer(pattern, on: engine)
+        } catch {
+            return restartEngineAndStartPlayer(pattern, on: engine)
+        }
+    }
+
+    private func restartEngineAndStartPlayer(
+        _ pattern: CHHapticPattern,
+        on engine: CHHapticEngine
+    ) -> CHHapticPatternPlayer? {
+        do {
+            try engine.start()
+            return try startPlayer(pattern, on: engine)
+        } catch {
+            log.error("Rumble failed: \(error.localizedDescription, privacy: .public)")
+
+            return nil
+        }
+    }
+
+    private func startPlayer(_ pattern: CHHapticPattern, on engine: CHHapticEngine) throws
+        -> CHHapticPatternPlayer
+    {
+        let player = try engine.makePlayer(with: pattern)
+        try player.start(atTime: CHHapticTimeImmediate)
+        return player
+    }
+
+    func play(_ effect: VibrationEffect) {
+        for (locality, engine) in engines {
+            try? players[locality]?.stop(atTime: CHHapticTimeImmediate)
+
+            players[locality] = pattern(of: effect, at: locality).flatMap { start($0, on: engine) }
+        }
+    }
+
+    private func pattern(of effect: VibrationEffect, at locality: GCHapticsLocality)
+        -> CHHapticPattern?
+    {
         let intensity = intensity(of: effect, at: locality)
         let duration = seconds(effect.duration)
         guard intensity > minimumIntensity, duration > 0 else { return nil }
@@ -79,7 +101,20 @@ private extension RumblePlayer {
         return try? CHHapticPattern(events: events, parameters: [])
     }
 
-    func intensity(of effect: VibrationEffect, at locality: GCHapticsLocality) -> Float {
+    private func seconds(_ duration: Duration) -> Double {
+        duration / .seconds(1)
+    }
+
+    private func parameters(intensity: Float, at locality: GCHapticsLocality)
+        -> [CHHapticEventParameter]
+    {
+        [
+            CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity),
+            CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness(at: locality)),
+        ]
+    }
+
+    private func intensity(of effect: VibrationEffect, at locality: GCHapticsLocality) -> Float {
         switch locality {
         case .leftHandle: effect.leftMotor
         case .rightHandle: effect.rightMotor
@@ -90,51 +125,20 @@ private extension RumblePlayer {
         }
     }
 
-    func parameters(intensity: Float, at locality: GCHapticsLocality) -> [CHHapticEventParameter] {
-        [
-            CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity),
-            CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness(at: locality)),
-        ]
-    }
-
-    func sharpness(at locality: GCHapticsLocality) -> Float {
+    private func sharpness(at locality: GCHapticsLocality) -> Float {
         switch locality {
         case .rightHandle: 0.8
         default: 0.3
         }
     }
 
-    func start(_ pattern: CHHapticPattern, on engine: CHHapticEngine) -> CHHapticPatternPlayer? {
-        do {
-            return try startPlayer(pattern, on: engine)
-        } catch {
-            return restartEngineAndStartPlayer(pattern, on: engine)
+    func stop() {
+        for player in players.values {
+            try? player.stop(atTime: CHHapticTimeImmediate)
         }
+
+        players.removeAll()
     }
 
-    func restartEngineAndStartPlayer(
-        _ pattern: CHHapticPattern,
-        on engine: CHHapticEngine
-    ) -> CHHapticPatternPlayer? {
-        do {
-            try engine.start()
-            return try startPlayer(pattern, on: engine)
-        } catch {
-            log.error("Rumble failed: \(error.localizedDescription, privacy: .public)")
-
-            return nil
-        }
-    }
-
-    func startPlayer(_ pattern: CHHapticPattern, on engine: CHHapticEngine) throws
-        -> CHHapticPatternPlayer
-    {
-        let player = try engine.makePlayer(with: pattern)
-        try player.start(atTime: CHHapticTimeImmediate)
-        return player
-    }
-
-    func seconds(_ duration: Duration) -> Double {
-        duration / .seconds(1)
-    }
+    private var minimumIntensity: Float { 0.01 }
 }

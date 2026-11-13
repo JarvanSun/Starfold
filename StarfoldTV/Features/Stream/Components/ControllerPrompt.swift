@@ -34,18 +34,16 @@ struct ControllerPrompt: View {
         .padding(dimensions.spaceHuge)
         .onExitCommand { dismiss() }
     }
-}
 
-private extension ControllerPrompt {
     @ViewBuilder
-    var primaryButton: some View {
+    private var primaryButton: some View {
         switch hasController {
         case true: Button("controller.prompt.play") { play() }
         case false: Button("controller.missing.checkAgain") { onCheckAgain() }
         }
     }
 
-    func play() {
+    private func play() {
         dismiss()
 
         onPlay()

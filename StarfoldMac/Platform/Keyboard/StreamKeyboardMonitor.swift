@@ -34,6 +34,28 @@ final class StreamKeyboardMonitor {
         }
     }
 
+    private func consume(_ key: KeyEvent, inWindowNumber windowNumber: Int) -> Bool {
+        guard let window = view?.window, window.windowNumber == windowNumber else { return false }
+
+        return handle(key)
+    }
+
+    private func handle(_ key: KeyEvent) -> Bool {
+        guard !key.isCommandPressed else { return false }
+
+        switch key.kind {
+        case .down: return stream.handleKey(key.keyCode, isDown: true)
+        case .up: return stream.handleKey(key.keyCode, isDown: false)
+        case .modifiers(let isShiftPressed):
+            if key.keyCode == leftShiftKeyCode {
+                stream.handleKey(leftShiftKeyCode, isDown: isShiftPressed)
+            }
+
+            return false
+        case .other: return false
+        }
+    }
+
     func uninstall() {
         if let monitor {
             NSEvent.removeMonitor(monitor)
@@ -65,29 +87,5 @@ private struct KeyEvent: Sendable {
             case .flagsChanged: .modifiers(isShiftPressed: event.modifierFlags.contains(.shift))
             default: .other
             }
-    }
-}
-
-private extension StreamKeyboardMonitor {
-    func consume(_ key: KeyEvent, inWindowNumber windowNumber: Int) -> Bool {
-        guard let window = view?.window, window.windowNumber == windowNumber else { return false }
-
-        return handle(key)
-    }
-
-    func handle(_ key: KeyEvent) -> Bool {
-        guard !key.isCommandPressed else { return false }
-
-        switch key.kind {
-        case .down: return stream.handleKey(key.keyCode, isDown: true)
-        case .up: return stream.handleKey(key.keyCode, isDown: false)
-        case .modifiers(let isShiftPressed):
-            if key.keyCode == leftShiftKeyCode {
-                stream.handleKey(leftShiftKeyCode, isDown: isShiftPressed)
-            }
-
-            return false
-        case .other: return false
-        }
     }
 }

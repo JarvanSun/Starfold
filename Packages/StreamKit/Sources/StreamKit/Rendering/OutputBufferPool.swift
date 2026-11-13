@@ -33,14 +33,8 @@ final class OutputBufferPool {
 
         return makeTarget(on: buffer)
     }
-}
 
-private extension OutputBufferPool {
-    var maximumBuffers: Int { 12 }
-
-    var minimumBuffers: Int { 4 }
-
-    func replacePool(width: Int, height: Int, isHDR: Bool) {
+    private func replacePool(width: Int, height: Int, isHDR: Bool) {
         let bufferAttributes: [CFString: Any] = [
             kCVPixelBufferPixelFormatTypeKey: isHDR
                 ? kCVPixelFormatType_64RGBAHalf : kCVPixelFormatType_32BGRA,
@@ -65,7 +59,9 @@ private extension OutputBufferPool {
         hasLoggedExhaustion = false
     }
 
-    func makeBuffer() -> CVPixelBuffer? {
+    private var minimumBuffers: Int { 4 }
+
+    private func makeBuffer() -> CVPixelBuffer? {
         guard let pool else { return nil }
 
         var buffer: CVPixelBuffer?
@@ -80,7 +76,9 @@ private extension OutputBufferPool {
         return buffer
     }
 
-    func logExhaustion(status: CVReturn) {
+    private var maximumBuffers: Int { 12 }
+
+    private func logExhaustion(status: CVReturn) {
         guard !hasLoggedExhaustion else { return }
 
         hasLoggedExhaustion = true
@@ -89,7 +87,7 @@ private extension OutputBufferPool {
         )
     }
 
-    func makeTarget(on buffer: CVPixelBuffer) -> OutputTarget? {
+    private func makeTarget(on buffer: CVPixelBuffer) -> OutputTarget? {
         var texture: CVMetalTexture?
         let textureStatus = CVMetalTextureCacheCreateTextureFromImage(
             nil,

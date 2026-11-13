@@ -32,10 +32,8 @@ struct AllGamesGrid: View {
             .padding(.horizontal, dimensions.spaceXXLarge)
         }
     }
-}
 
-private extension AllGamesGrid {
-    var columns: [GridItem] {
+    private var columns: [GridItem] {
         [
             .init(
                 .adaptive(
@@ -48,7 +46,7 @@ private extension AllGamesGrid {
         ]
     }
 
-    func tile(for game: CloudGame) -> some View {
+    private func tile(for game: CloudGame) -> some View {
         GameTile(game: game, badge: nil) {
             library.play(game)
         } onOpen: {

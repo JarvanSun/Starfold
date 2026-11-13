@@ -16,6 +16,10 @@ struct WelcomeView: View {
 
     let signIn: SignInViewModel
 
+    private var isVisible: Bool {
+        hasEntered || skipsEntranceAnimations
+    }
+
     var body: some View {
         GeometryReader { geometry in
             switch hasRoomSideBySide(in: geometry.size) {
@@ -26,18 +30,14 @@ struct WelcomeView: View {
         .onAppear { enter() }
         .task(id: signIn.attempt) { await signIn.run() }
     }
-}
 
-private extension WelcomeView {
-    var isVisible: Bool {
-        hasEntered || skipsEntranceAnimations
+    private func hasRoomSideBySide(in size: CGSize) -> Bool {
+        let isWideEnough = size.width >= dimensions.welcomeSideBySideMinimumWidth
+        let isTallEnough = size.height >= dimensions.welcomeSideBySideMinimumHeight
+        return isWideEnough && isTallEnough
     }
 
-    var isInPlace: Bool {
-        isVisible || reduceMotion
-    }
-
-    var sideBySide: some View {
+    private var sideBySide: some View {
         HStack(alignment: .center, spacing: dimensions.spaceXXXLarge) {
             pitch
 
@@ -54,7 +54,7 @@ private extension WelcomeView {
         }
     }
 
-    var stacked: some View {
+    private var stacked: some View {
         ScrollView {
             VStack(spacing: dimensions.spaceXXLarge) {
                 pitch
@@ -70,24 +70,22 @@ private extension WelcomeView {
         }
     }
 
-    var pitch: some View {
+    private var pitch: some View {
         WelcomePitch(features: signIn.welcomeFeatures, isInPlace: isInPlace)
             .frame(maxWidth: dimensions.welcomePitchMaxWidth, alignment: .leading)
             .opacity(isVisible ? 1 : 0)
     }
 
-    var signInCard: some View {
+    private var isInPlace: Bool {
+        isVisible || reduceMotion
+    }
+
+    private var signInCard: some View {
         WelcomeSignInCard(step: signIn.step, onRetry: { signIn.retry() })
             .opacity(isVisible ? 1 : 0)
     }
 
-    func hasRoomSideBySide(in size: CGSize) -> Bool {
-        let isWideEnough = size.width >= dimensions.welcomeSideBySideMinimumWidth
-        let isTallEnough = size.height >= dimensions.welcomeSideBySideMinimumHeight
-        return isWideEnough && isTallEnough
-    }
-
-    func enter() {
+    private func enter() {
         withAnimation(.spring(duration: 0.8, bounce: 0.3)) {
             hasEntered = true
         }

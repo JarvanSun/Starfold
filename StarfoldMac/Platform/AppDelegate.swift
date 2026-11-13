@@ -22,10 +22,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         return .terminateLater
     }
-}
 
-private extension AppDelegate {
-    func endStream(of app: AppViewModel) async {
+    private func endStream(of app: AppViewModel) async {
         let longestWaitForStreamEnd: Duration = .seconds(2)
         let longestWait = longestWaitForStreamEnd
         await withTaskGroup(of: Void.self) { group in

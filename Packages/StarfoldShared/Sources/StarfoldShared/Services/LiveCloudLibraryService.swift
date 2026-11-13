@@ -26,10 +26,8 @@ struct LiveCloudLibraryService: CloudLibraryService {
             return .init(games: [], recentGames: [], curated: [:], access: .unavailable)
         }
     }
-}
 
-private extension LiveCloudLibraryService {
-    func loadLibrary(started: ContinuousClock.Instant) async throws -> CloudLibrary {
+    private func loadLibrary(started: ContinuousClock.Instant) async throws -> CloudLibrary {
         let client = try await account.cloudClient(http: http)
         log.info("Cloud signed in +\(self.elapsed(since: started), privacy: .public)")
 
@@ -61,7 +59,11 @@ private extension LiveCloudLibraryService {
         return library
     }
 
-    func catalogClient() async -> CatalogClient {
+    private func elapsed(since start: ContinuousClock.Instant) -> String {
+        (ContinuousClock.now - start).formatted(.units(allowed: [.milliseconds]))
+    }
+
+    private func catalogClient() async -> CatalogClient {
         let fallbackMarket = "US"
         let market = await account.market ?? Locale.current.region?.identifier ?? fallbackMarket
         let fallbackLanguage = "en-US"
@@ -69,25 +71,7 @@ private extension LiveCloudLibraryService {
         return .init(http: http, market: market, language: language)
     }
 
-    func games(for titles: [CloudTitle], from catalog: CatalogClient) async -> [CloudGame] {
-        let products = await catalogProducts(for: titles, from: catalog)
-        return titles.map { CloudGame(title: $0, product: products[$0.productID.uppercased()]) }
-    }
-
-    func catalogProducts(
-        for titles: [CloudTitle],
-        from catalog: CatalogClient
-    ) async -> [String: CatalogProduct] {
-        do {
-            return try await catalog.products(titles.map(\.productID))
-        } catch {
-            log.error("Catalog lookup failed: \(String(describing: error), privacy: .public)")
-
-            return [:]
-        }
-    }
-
-    func curatedLists(
+    private func curatedLists(
         of games: [CloudGame],
         from catalog: CatalogClient
     ) async -> [CatalogClient.List: [CloudGame]] {
@@ -108,13 +92,27 @@ private extension LiveCloudLibraryService {
         return lists
     }
 
-    func access(for titles: [CloudTitle], isFreeToPlayOffering: Bool) -> CloudAccess {
+    private func games(for titles: [CloudTitle], from catalog: CatalogClient) async -> [CloudGame] {
+        let products = await catalogProducts(for: titles, from: catalog)
+        return titles.map { CloudGame(title: $0, product: products[$0.productID.uppercased()]) }
+    }
+
+    private func catalogProducts(
+        for titles: [CloudTitle],
+        from catalog: CatalogClient
+    ) async -> [String: CatalogProduct] {
+        do {
+            return try await catalog.products(titles.map(\.productID))
+        } catch {
+            log.error("Catalog lookup failed: \(String(describing: error), privacy: .public)")
+
+            return [:]
+        }
+    }
+
+    private func access(for titles: [CloudTitle], isFreeToPlayOffering: Bool) -> CloudAccess {
         let hasGamePassGames = titles.contains { $0.isPlayable && $0.isGrantedBySubscription }
         let isFreeToPlay = isFreeToPlayOffering || !hasGamePassGames
         return isFreeToPlay ? .freeToPlay : .gamePass
-    }
-
-    func elapsed(since start: ContinuousClock.Instant) -> String {
-        (ContinuousClock.now - start).formatted(.units(allowed: [.milliseconds]))
     }
 }

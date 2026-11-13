@@ -30,16 +30,14 @@ struct ServerInputPacket {
 
         return events
     }
-}
 
-private extension ServerInputPacket {
-    func readVideoSize(from reader: inout ByteReader) -> ServerInputEvent? {
+    private func readVideoSize(from reader: inout ByteReader) -> ServerInputEvent? {
         guard let height = reader.readUInt32(), let width = reader.readUInt32() else { return nil }
 
         return .videoSize(width: Int(width), height: Int(height))
     }
 
-    func readVibration(from reader: inout ByteReader) -> ServerInputEvent? {
+    private func readVibration(from reader: inout ByteReader) -> ServerInputEvent? {
         guard reader.readUInt8() != nil,
             let index = reader.readUInt8(),
             let left = reader.readUInt8(),
@@ -64,7 +62,7 @@ private extension ServerInputPacket {
         return .vibration(effect)
     }
 
-    func unitIntensity(_ percent: UInt8) -> Float {
+    private func unitIntensity(_ percent: UInt8) -> Float {
         min(Float(percent), 100) / 100
     }
 }

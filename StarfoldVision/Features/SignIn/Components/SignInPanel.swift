@@ -18,11 +18,9 @@ struct SignInPanel: View {
             .frame(maxWidth: .infinity)
             .animation(.smooth(duration: 0.35), value: step)
     }
-}
 
-private extension SignInPanel {
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch step {
         case .preparing: SignInPlaceholder()
         case .code(let code): SignInCodeStep(code: code)

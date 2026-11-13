@@ -25,6 +25,13 @@ final class VideoHostView: UIView {
         claimControllerForGame()
     }
 
+    private func claimControllerForGame() {
+        let controllerEvents = GCEventInteraction()
+        controllerEvents.handledEventTypes = .gamepad
+
+        addInteraction(controllerEvents)
+    }
+
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) is not supported")
@@ -36,22 +43,7 @@ final class VideoHostView: UIView {
         fitVideoLayerWithoutAnimation()
     }
 
-    override func didMoveToWindow() {
-        super.didMoveToWindow()
-
-        keepWindowAspectRatioWhileResizing()
-    }
-}
-
-private extension VideoHostView {
-    func claimControllerForGame() {
-        let controllerEvents = GCEventInteraction()
-        controllerEvents.handledEventTypes = .gamepad
-
-        addInteraction(controllerEvents)
-    }
-
-    func fitVideoLayerWithoutAnimation() {
+    private func fitVideoLayerWithoutAnimation() {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
 
@@ -60,7 +52,13 @@ private extension VideoHostView {
         CATransaction.commit()
     }
 
-    func keepWindowAspectRatioWhileResizing() {
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+
+        keepWindowAspectRatioWhileResizing()
+    }
+
+    private func keepWindowAspectRatioWhileResizing() {
         guard let scene = window?.windowScene else { return }
 
         let preferences = UIWindowScene.GeometryPreferences.Vision(resizingRestrictions: .uniform)

@@ -53,6 +53,8 @@ struct MessageChannel: Sendable {
         ]
     }
 
+    private var supportedSystemUIs: [Int] { [10, 19] }
+
     mutating func completeMessageDialog(id: String, buttonIndex: Int) -> Data {
         transactionComplete(id: id, content: ["Result": buttonIndex])
     }
@@ -93,87 +95,8 @@ struct MessageChannel: Sendable {
         case .handshake, .transactionComplete, .receiverCancel, .unhandled: []
         }
     }
-}
 
-// MARK: - Private
-
-private extension MessageChannel {
-    var supportedSystemUIs: [Int] { [10, 19] }
-
-    var touchControlsPrefix: String { "/streaming/touchcontrols/" }
-
-    func newMessageID() -> String {
-        UUID().uuidString.lowercased()
-    }
-
-    mutating func nextCorrelationVector() -> String {
-        correlationCount += 1
-        return "\(correlationBase).\(correlationCount)"
-    }
-
-    func encode(_ object: [String: Any]) -> Data {
-        let options: JSONSerialization.WritingOptions = [.sortedKeys, .withoutEscapingSlashes]
-        return (try? JSONSerialization.data(withJSONObject: object, options: options)) ?? Data()
-    }
-
-    mutating func message(_ target: MessageTarget, _ content: [String: Any]) -> Data {
-        encode([
-            "type": MessageEnvelopeType.message.rawValue,
-            "id": newMessageID(),
-            "target": target.rawValue,
-            "content": jsonString(content),
-            "cv": nextCorrelationVector(),
-        ])
-    }
-
-    func jsonString(_ content: [String: Any]) -> String {
-        let options: JSONSerialization.WritingOptions = [.sortedKeys, .withoutEscapingSlashes]
-        let data = try? JSONSerialization.data(withJSONObject: content, options: options)
-        return data.map { String(decoding: $0, as: UTF8.self) } ?? "{}"
-    }
-
-    mutating func dimensionsChanged(width: Int, height: Int) -> Data {
-        message(
-            .dimensionsChanged,
-            [
-                "horizontal": width,
-                "vertical": height,
-                "preferredWidth": width,
-                "preferredHeight": height,
-                "safeAreaLeft": 0,
-                "safeAreaTop": 0,
-                "safeAreaRight": width,
-                "safeAreaBottom": height,
-                "supportsCustomResolution": true,
-            ]
-        )
-    }
-
-    mutating func transactionComplete(id: String, content: [String: Any]) -> Data {
-        encode([
-            "type": MessageEnvelopeType.transactionComplete.rawValue,
-            "id": id,
-            "content": jsonString(content),
-            "cv": nextCorrelationVector(),
-        ])
-    }
-
-    func content(of value: Any?) -> [String: Any] {
-        switch value {
-        case let object as [String: Any]:
-            return object
-        case let text as String:
-            guard let data = text.data(using: .utf8),
-                let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-            else { return [:] }
-
-            return object
-        default:
-            return [:]
-        }
-    }
-
-    mutating func receiveMessage(
+    private mutating func receiveMessage(
         target: String,
         id: String,
         content: [String: Any],
@@ -196,7 +119,7 @@ private extension MessageChannel {
         }
     }
 
-    func messageDialog(id: String, content: [String: Any]) -> SystemDialogRequest {
+    private func messageDialog(id: String, content: [String: Any]) -> SystemDialogRequest {
         let buttons = ["CommandLabel1", "CommandLabel2", "CommandLabel3"]
             .compactMap { content[$0] as? String }
             .filter { !$0.isEmpty }
@@ -210,7 +133,21 @@ private extension MessageChannel {
         return .init(id: id, kind: kind)
     }
 
-    func keyboardDialog(id: String, content: [String: Any]) -> SystemDialogRequest {
+    private mutating func message(_ target: MessageTarget, _ content: [String: Any]) -> Data {
+        encode([
+            "type": MessageEnvelopeType.message.rawValue,
+            "id": newMessageID(),
+            "target": target.rawValue,
+            "content": jsonString(content),
+            "cv": nextCorrelationVector(),
+        ])
+    }
+
+    private func newMessageID() -> String {
+        UUID().uuidString.lowercased()
+    }
+
+    private func keyboardDialog(id: String, content: [String: Any]) -> SystemDialogRequest {
         let kind = SystemDialogRequest.Kind.keyboard(
             title: content["TitleText"] as? String ?? "",
             description: content["DescriptionText"] as? String ?? "",
@@ -220,7 +157,22 @@ private extension MessageChannel {
         return .init(id: id, kind: kind)
     }
 
-    func integer(_ value: Any?) -> Int? {
+    private func content(of value: Any?) -> [String: Any] {
+        switch value {
+        case let object as [String: Any]:
+            return object
+        case let text as String:
+            guard let data = text.data(using: .utf8),
+                let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+            else { return [:] }
+
+            return object
+        default:
+            return [:]
+        }
+    }
+
+    private func integer(_ value: Any?) -> Int? {
         switch value {
         case let number as NSNumber: number.intValue
         case let text as String: Int(text)
@@ -228,7 +180,39 @@ private extension MessageChannel {
         }
     }
 
-    mutating func receiveUnknownMessage(target: String, id: String, isTransaction: Bool)
+    private mutating func transactionComplete(id: String, content: [String: Any]) -> Data {
+        encode([
+            "type": MessageEnvelopeType.transactionComplete.rawValue,
+            "id": id,
+            "content": jsonString(content),
+            "cv": nextCorrelationVector(),
+        ])
+    }
+
+    private func jsonString(_ content: [String: Any]) -> String {
+        let options: JSONSerialization.WritingOptions = [.sortedKeys, .withoutEscapingSlashes]
+        let data = try? JSONSerialization.data(withJSONObject: content, options: options)
+        return data.map { String(decoding: $0, as: UTF8.self) } ?? "{}"
+    }
+
+    private mutating func dimensionsChanged(width: Int, height: Int) -> Data {
+        message(
+            .dimensionsChanged,
+            [
+                "horizontal": width,
+                "vertical": height,
+                "preferredWidth": width,
+                "preferredHeight": height,
+                "safeAreaLeft": 0,
+                "safeAreaTop": 0,
+                "safeAreaRight": width,
+                "safeAreaBottom": height,
+                "supportsCustomResolution": true,
+            ]
+        )
+    }
+
+    private mutating func receiveUnknownMessage(target: String, id: String, isTransaction: Bool)
         -> [MessageChannelEvent]
     {
         let isTouchControls = target.hasPrefix(touchControlsPrefix)
@@ -239,12 +223,24 @@ private extension MessageChannel {
         }
     }
 
-    mutating func unhandled(id: String, target: String) -> Data {
+    private var touchControlsPrefix: String { "/streaming/touchcontrols/" }
+
+    private mutating func unhandled(id: String, target: String) -> Data {
         encode([
             "type": MessageEnvelopeType.unhandled.rawValue,
             "id": id,
             "target": target,
             "cv": nextCorrelationVector(),
         ])
+    }
+
+    private func encode(_ object: [String: Any]) -> Data {
+        let options: JSONSerialization.WritingOptions = [.sortedKeys, .withoutEscapingSlashes]
+        return (try? JSONSerialization.data(withJSONObject: object, options: options)) ?? Data()
+    }
+
+    private mutating func nextCorrelationVector() -> String {
+        correlationCount += 1
+        return "\(correlationBase).\(correlationCount)"
     }
 }

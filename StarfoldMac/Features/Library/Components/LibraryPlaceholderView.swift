@@ -22,10 +22,8 @@ struct LibraryPlaceholderView: View {
         case .noResults: ContentUnavailableView.search(text: searchText)
         }
     }
-}
 
-private extension LibraryPlaceholderView {
-    func failedCard(_ message: String) -> some View {
+    private func failedCard(_ message: String) -> some View {
         MessageCard(
             symbol: "exclamationmark.triangle",
             title: String(localized: "library.failed.title"),
@@ -35,7 +33,7 @@ private extension LibraryPlaceholderView {
         }
     }
 
-    var unavailableCard: some View {
+    private var unavailableCard: some View {
         MessageCard(
             symbol: "cloud.slash",
             title: String(localized: "library.unavailable.title"),

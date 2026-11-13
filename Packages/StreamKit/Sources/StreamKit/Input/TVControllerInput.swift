@@ -26,6 +26,49 @@ final class TVControllerInput: @unchecked Sendable {
         }
     }
 
+    private func applyPlaying(_ isPlaying: Bool) {
+        let isResuming = isPlaying && !policy.isPlaying
+
+        if isResuming {
+            refreshHeldControls()
+        }
+
+        deliver(policy.setPlaying(isPlaying))
+
+        for gamepad in gamepads.values {
+            setSystemGestures(on: gamepad, isPlaying: isPlaying)
+        }
+    }
+
+    private func refreshHeldControls() {
+        for (slot, gamepad) in gamepads {
+            deliver(policy.update(slot: slot, state: GamepadState(reading: gamepad)))
+        }
+    }
+
+    private func deliver(_ output: TVGamepadPolicy.Output) {
+        if output.shouldClearPendingInput {
+            router.clearPendingPhysicalInput(slots: Array(output.states.keys))
+        }
+
+        for (slot, state) in output.states.sorted(by: { $0.key < $1.key }) {
+            router.update(slot: slot, state: state)
+        }
+
+        for slot in output.removedSlots {
+            router.update(slot: slot, state: nil)
+        }
+    }
+
+    private func setSystemGestures(on gamepad: GCExtendedGamepad, isPlaying: Bool) {
+        let systemButtons = [gamepad.buttonMenu, gamepad.buttonOptions, gamepad.buttonHome]
+            .compactMap { $0 }
+
+        for button in systemButtons {
+            button.preferredSystemGestureState = isPlaying ? .disabled : .enabled
+        }
+    }
+
     func attach(slot: UInt8, gamepad: GCExtendedGamepad) {
         gamepads[slot] = gamepad
 
@@ -40,50 +83,5 @@ final class TVControllerInput: @unchecked Sendable {
         }
 
         deliver(policy.update(slot: slot, state: state))
-    }
-}
-
-private extension TVControllerInput {
-    func applyPlaying(_ isPlaying: Bool) {
-        let isResuming = isPlaying && !policy.isPlaying
-
-        if isResuming {
-            refreshHeldControls()
-        }
-
-        deliver(policy.setPlaying(isPlaying))
-
-        for gamepad in gamepads.values {
-            setSystemGestures(on: gamepad, isPlaying: isPlaying)
-        }
-    }
-
-    func refreshHeldControls() {
-        for (slot, gamepad) in gamepads {
-            deliver(policy.update(slot: slot, state: GamepadState(reading: gamepad)))
-        }
-    }
-
-    func setSystemGestures(on gamepad: GCExtendedGamepad, isPlaying: Bool) {
-        let systemButtons = [gamepad.buttonMenu, gamepad.buttonOptions, gamepad.buttonHome]
-            .compactMap { $0 }
-
-        for button in systemButtons {
-            button.preferredSystemGestureState = isPlaying ? .disabled : .enabled
-        }
-    }
-
-    func deliver(_ output: TVGamepadPolicy.Output) {
-        if output.shouldClearPendingInput {
-            router.clearPendingPhysicalInput(slots: Array(output.states.keys))
-        }
-
-        for (slot, state) in output.states.sorted(by: { $0.key < $1.key }) {
-            router.update(slot: slot, state: state)
-        }
-
-        for slot in output.removedSlots {
-            router.update(slot: slot, state: nil)
-        }
     }
 }

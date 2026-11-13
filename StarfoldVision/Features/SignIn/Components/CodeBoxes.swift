@@ -20,10 +20,8 @@ struct CodeBoxes: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("signIn.code.accessibilityLabel \(code.spelledOut)"))
     }
-}
 
-private extension CodeBoxes {
-    func box(for character: SignInCodeCharacter) -> some View {
+    private func box(for character: SignInCodeCharacter) -> some View {
         Text(verbatim: character.text)
             .font(.system(size: dimensions.signInCodeFontSize, weight: .bold, design: .monospaced))
             .frame(width: dimensions.signInCodeBoxWidth, height: dimensions.signInCodeBoxHeight)

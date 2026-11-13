@@ -35,10 +35,8 @@ struct ConsoleCard: View {
         .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXXLarge))
         .hoverEffect(.highlight)
     }
-}
 
-private extension ConsoleCard {
-    var summary: some View {
+    private var summary: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceXSmall) {
             Text(console.name)
                 .font(.title3.bold())
@@ -55,13 +53,13 @@ private extension ConsoleCard {
         }
     }
 
-    var statusDot: some View {
+    private var statusDot: some View {
         let status = home.status(of: console)
         return StatusDot(color: status.color, pulsing: status.isPulsing)
             .accessibilityLabel(Text(console.powerStateDescription))
     }
 
-    var actions: some View {
+    private var actions: some View {
         HStack(spacing: dimensions.spaceMedium) {
             playButton
 
@@ -78,7 +76,7 @@ private extension ConsoleCard {
         }
     }
 
-    var playButton: some View {
+    private var playButton: some View {
         Button {
             play()
         } label: {
@@ -91,18 +89,18 @@ private extension ConsoleCard {
         .buttonStyle(.borderedProminent)
     }
 
-    var wirelessWarning: some View {
-        Image(systemName: "wifi")
-            .foregroundStyle(.secondary)
-            .accessibilityLabel(Text("home.console.wirelessWarning"))
-    }
-
-    func play() {
+    private func play() {
         home.play(console)
     }
 
-    func togglePower() {
+    private func togglePower() {
         Task { await home.togglePower(of: console) }
+    }
+
+    private var wirelessWarning: some View {
+        Image(systemName: "wifi")
+            .foregroundStyle(.secondary)
+            .accessibilityLabel(Text("home.console.wirelessWarning"))
     }
 }
 

@@ -24,28 +24,26 @@ struct StreamWindowView: View {
             )
             .onDisappear { endStream() }
     }
-}
 
-private extension StreamWindowView {
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch app.stream {
         case let stream?: streamView(stream)
         case nil: noStream
         }
     }
 
-    func streamView(_ stream: StreamViewModel) -> some View {
+    private func streamView(_ stream: StreamViewModel) -> some View {
         StreamView(stream: stream, settings: app.settings) { dismissWindow() }
             .id(ObjectIdentifier(stream))
     }
 
-    var noStream: some View {
+    private var noStream: some View {
         ContentUnavailableView("stream.empty.title", systemImage: "gamecontroller")
             .glassBackgroundEffect()
     }
 
-    func endStream() {
+    private func endStream() {
         Task { await app.endStream() }
     }
 }

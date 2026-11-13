@@ -15,10 +15,8 @@ struct XboxDateParser: Sendable {
             ?? textTrimmedToMilliseconds(text).flatMap { try? fractionalSecondsFormat.parse($0) }
             ?? (try? Date.ISO8601FormatStyle().parse(text))
     }
-}
 
-private extension XboxDateParser {
-    func textTrimmedToMilliseconds(_ text: String) -> String? {
+    private func textTrimmedToMilliseconds(_ text: String) -> String? {
         guard
             let dot = text.firstIndex(of: "."),
             let zone = text[dot...].firstIndex(where: isZoneDesignator)
@@ -30,7 +28,7 @@ private extension XboxDateParser {
         return String(text[..<dot] + "." + milliseconds + text[zone...])
     }
 
-    func isZoneDesignator(_ character: Character) -> Bool {
+    private func isZoneDesignator(_ character: Character) -> Bool {
         character == "Z" || character == "+" || character == "-"
     }
 }

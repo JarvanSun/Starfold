@@ -63,6 +63,10 @@ public final class HomeViewModel {
         }
     }
 
+    private var consoleThatIsOn: Console? {
+        consoles.first { $0.powerState == .on }
+    }
+
     public init(
         accountID: String,
         service: ConsoleService,
@@ -79,6 +83,25 @@ public final class HomeViewModel {
         }
 
         restoreLastFrames()
+    }
+
+    private func restore(_ snapshot: HomeSnapshot) {
+        consoles = snapshot.consoles
+        consolesState = .loaded
+        lastPlayedHere = snapshot.lastPlayedHere
+    }
+
+    private func restoreLastFrames() {
+        for (consoleID, data) in cache.lastFrames(for: accountID) {
+            guard
+                let source = CGImageSourceCreateWithData(data as CFData, nil),
+                let image = CGImageSourceCreateImageAtIndex(source, 0, nil)
+            else {
+                continue
+            }
+
+            lastFrames[consoleID] = image
+        }
     }
 
     public func refreshAccount() async {
@@ -113,6 +136,16 @@ public final class HomeViewModel {
         }
     }
 
+    private func recordFailure(_ error: Error) {
+        if case XboxAccountError.signInRequired = error {
+            onSignInRequired()
+        }
+
+        log.error("Consoles failed: \(String(describing: error), privacy: .public)")
+
+        consolesState = .failed(error.localizedDescription)
+    }
+
     func refreshConsoleActivity() async {
         do {
             let playing = try await service.activity()
@@ -127,6 +160,17 @@ public final class HomeViewModel {
         } catch {
             log.error("Console activity failed: \(String(describing: error), privacy: .public)")
         }
+    }
+
+    private func rememberOnConsoleThatIsOn(_ activity: ConsoleActivity?) {
+        guard var activity, let console = consoleThatIsOn else { return }
+
+        activity.kind = .lastPlayedHere
+        lastPlayedHere[console.id] = activity
+    }
+
+    private func saveSnapshot() {
+        cache.save(HomeSnapshot(consoles: consoles, lastPlayedHere: lastPlayedHere), for: accountID)
     }
 
     func keepConsolesFresh(
@@ -146,6 +190,18 @@ public final class HomeViewModel {
 
             threshold = interval
         }
+    }
+
+    private var consoleListAge: Duration {
+        guard let lastConsolesRefresh else { return .zero }
+
+        return age(of: lastConsolesRefresh)
+    }
+
+    private func age<Instant: InstantProtocol<Duration>>(of instant: Instant) -> Duration {
+        guard let now = clock.now as? Instant else { return .zero }
+
+        return instant.duration(to: now)
     }
 
     public func play(_ console: Console) {
@@ -172,12 +228,46 @@ public final class HomeViewModel {
         }
     }
 
+    private func reportPowerCommandFailure(_ error: Error, for console: Console) {
+        switch error {
+        case XboxAccountError.signInRequired: onSignInRequired()
+        default: powerProblem = .init(consoleName: console.name)
+        }
+
+        log.error("Power command failed: \(String(describing: error), privacy: .public)")
+    }
+
     func recordLastFrame(_ image: CGImage, console consoleID: String) {
         lastFrames[consoleID] = image
 
         guard let jpeg = jpegData(of: image) else { return }
 
         cache.saveLastFrame(jpeg, console: consoleID, for: accountID)
+    }
+
+    private func jpegData(of image: CGImage) -> Data? {
+        let data = NSMutableData()
+        guard
+            let destination = CGImageDestinationCreateWithData(
+                data,
+                UTType.jpeg.identifier as CFString,
+                1,
+                nil
+            )
+        else {
+            return nil
+        }
+
+        let lastFrameJPEGQuality = 0.8
+
+        CGImageDestinationAddImage(
+            destination,
+            image,
+            [kCGImageDestinationLossyCompressionQuality: lastFrameJPEGQuality] as CFDictionary
+        )
+
+        let isFinalized = CGImageDestinationFinalize(destination)
+        return isFinalized ? data as Data : nil
     }
 
     func console(id: String) -> Console? {
@@ -211,99 +301,5 @@ public final class HomeViewModel {
         case (.standby, true): return .sending(.wakeUp)
         case (.standby, false): return .command(.wakeUp)
         }
-    }
-}
-
-// MARK: - Private
-
-private extension HomeViewModel {
-    var consoleThatIsOn: Console? {
-        consoles.first { $0.powerState == .on }
-    }
-
-    var consoleListAge: Duration {
-        guard let lastConsolesRefresh else { return .zero }
-
-        return age(of: lastConsolesRefresh)
-    }
-
-    func restore(_ snapshot: HomeSnapshot) {
-        consoles = snapshot.consoles
-        consolesState = .loaded
-        lastPlayedHere = snapshot.lastPlayedHere
-    }
-
-    func saveSnapshot() {
-        cache.save(HomeSnapshot(consoles: consoles, lastPlayedHere: lastPlayedHere), for: accountID)
-    }
-
-    func restoreLastFrames() {
-        for (consoleID, data) in cache.lastFrames(for: accountID) {
-            guard
-                let source = CGImageSourceCreateWithData(data as CFData, nil),
-                let image = CGImageSourceCreateImageAtIndex(source, 0, nil)
-            else {
-                continue
-            }
-
-            lastFrames[consoleID] = image
-        }
-    }
-
-    func jpegData(of image: CGImage) -> Data? {
-        let data = NSMutableData()
-        guard
-            let destination = CGImageDestinationCreateWithData(
-                data,
-                UTType.jpeg.identifier as CFString,
-                1,
-                nil
-            )
-        else {
-            return nil
-        }
-
-        let lastFrameJPEGQuality = 0.8
-
-        CGImageDestinationAddImage(
-            destination,
-            image,
-            [kCGImageDestinationLossyCompressionQuality: lastFrameJPEGQuality] as CFDictionary
-        )
-
-        let isFinalized = CGImageDestinationFinalize(destination)
-        return isFinalized ? data as Data : nil
-    }
-
-    func rememberOnConsoleThatIsOn(_ activity: ConsoleActivity?) {
-        guard var activity, let console = consoleThatIsOn else { return }
-
-        activity.kind = .lastPlayedHere
-        lastPlayedHere[console.id] = activity
-    }
-
-    func age<Instant: InstantProtocol<Duration>>(of instant: Instant) -> Duration {
-        guard let now = clock.now as? Instant else { return .zero }
-
-        return instant.duration(to: now)
-    }
-
-    func reportPowerCommandFailure(_ error: Error, for console: Console) {
-        switch error {
-        case XboxAccountError.signInRequired: onSignInRequired()
-        default: powerProblem = .init(consoleName: console.name)
-        }
-
-        log.error("Power command failed: \(String(describing: error), privacy: .public)")
-    }
-
-    func recordFailure(_ error: Error) {
-        if case XboxAccountError.signInRequired = error {
-            onSignInRequired()
-        }
-
-        log.error("Consoles failed: \(String(describing: error), privacy: .public)")
-
-        consolesState = .failed(error.localizedDescription)
     }
 }

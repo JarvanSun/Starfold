@@ -39,10 +39,8 @@ struct GameMessageDialog: View {
         .padding(dimensions.spaceXLarge)
         .frame(minWidth: dimensions.gameDialogMinimumWidth)
     }
-}
 
-private extension GameMessageDialog {
-    func shortcut(for role: DialogButtonRole) -> KeyboardShortcut? {
+    private func shortcut(for role: DialogButtonRole) -> KeyboardShortcut? {
         switch role {
         case .primary: .defaultAction
         case .cancel: .cancelAction

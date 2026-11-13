@@ -21,6 +21,13 @@ public struct RGBColor: Equatable, Sendable {
         0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
     }
 
+    private func linear(_ component: Double) -> Double {
+        switch component <= 0.04045 {
+        case true: component / 12.92
+        case false: pow((component + 0.055) / 1.055, 2.4)
+        }
+    }
+
     init(red: Double, green: Double, blue: Double) {
         self.red = red
         self.green = green
@@ -37,14 +44,5 @@ public struct RGBColor: Equatable, Sendable {
         let lighter = max(luminance, other.luminance)
         let darker = min(luminance, other.luminance)
         return (lighter + 0.05) / (darker + 0.05)
-    }
-}
-
-private extension RGBColor {
-    func linear(_ component: Double) -> Double {
-        switch component <= 0.04045 {
-        case true: component / 12.92
-        case false: pow((component + 0.055) / 1.055, 2.4)
-        }
     }
 }

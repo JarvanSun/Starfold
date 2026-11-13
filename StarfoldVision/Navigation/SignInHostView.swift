@@ -23,10 +23,8 @@ struct SignInHostView<Screen: View>: View {
         }
         .onAppear { createSignIn() }
     }
-}
 
-private extension SignInHostView {
-    func createSignIn() {
+    private func createSignIn() {
         guard signIn == nil else { return }
 
         signIn = app.makeSignInViewModel()

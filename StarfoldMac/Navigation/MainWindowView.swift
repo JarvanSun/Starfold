@@ -43,11 +43,9 @@ struct MainWindowView: View {
             Text(problem.message)
         }
     }
-}
 
-private extension MainWindowView {
     @ViewBuilder
-    var sessionContent: some View {
+    private var sessionContent: some View {
         switch app.sessionState {
         case .restoring: restoringPlaceholder
         case .signedOut: SignInHostView { WelcomeView(signIn: $0) }
@@ -55,7 +53,7 @@ private extension MainWindowView {
         }
     }
 
-    var restoringPlaceholder: some View {
+    private var restoringPlaceholder: some View {
         HStack(spacing: dimensions.spaceXLarge) {
             SkeletonCard()
 
@@ -65,7 +63,7 @@ private extension MainWindowView {
     }
 
     @ViewBuilder
-    var signedInHome: some View {
+    private var signedInHome: some View {
         switch (app.home, app.library) {
         case (let home?, let library?):
             HomeView(home: home, library: library) { path.append(.cloudLibrary) }
@@ -74,13 +72,33 @@ private extension MainWindowView {
     }
 
     @ViewBuilder
-    var signInExpiredActions: some View {
+    private func destination(for route: HomeRoute) -> some View {
+        switch app.library {
+        case let library?: page(for: route, in: library).background { SkyBackground() }
+        case nil: EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
+        switch route {
+        case .cloudLibrary: LibraryView(library: library) { path.append(.game($0)) }
+        case .game(let game): GameDetailView(detail: library.detail(for: game))
+        }
+    }
+
+    @ViewBuilder
+    private var signInExpiredActions: some View {
         Button(String(localized: "mainWindow.signInExpired.signIn")) { showSignIn() }
 
         Button(String(localized: "mainWindow.signInExpired.notNow"), role: .cancel) {}
     }
 
-    var isShowingPowerProblem: Binding<Bool> {
+    private func showSignIn() {
+        isShowingSignIn = true
+    }
+
+    private var isShowingPowerProblem: Binding<Bool> {
         .init(
             get: { app.home?.powerProblem != nil },
             set: { isShowing in
@@ -89,26 +107,6 @@ private extension MainWindowView {
                 }
             }
         )
-    }
-
-    @ViewBuilder
-    func destination(for route: HomeRoute) -> some View {
-        switch app.library {
-        case let library?: page(for: route, in: library).background { SkyBackground() }
-        case nil: EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
-        switch route {
-        case .cloudLibrary: LibraryView(library: library) { path.append(.game($0)) }
-        case .game(let game): GameDetailView(detail: library.detail(for: game))
-        }
-    }
-
-    func showSignIn() {
-        isShowingSignIn = true
     }
 }
 

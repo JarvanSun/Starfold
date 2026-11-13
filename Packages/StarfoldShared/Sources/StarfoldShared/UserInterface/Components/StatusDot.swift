@@ -15,6 +15,10 @@ public struct StatusDot: View {
     private let color: Color
     private let isPulsing: Bool
 
+    private var showsPulse: Bool {
+        isPulsing && !reduceMotion
+    }
+
     public init(color: Color, pulsing: Bool = false) {
         self.color = color
         isPulsing = pulsing
@@ -32,14 +36,8 @@ public struct StatusDot: View {
             .onAppear { startPulsing() }
             .accessibilityHidden(true)
     }
-}
 
-private extension StatusDot {
-    var showsPulse: Bool {
-        isPulsing && !reduceMotion
-    }
-
-    var pulse: some View {
+    private var pulse: some View {
         let pulseOpacity = 0.5
         let pulseStartOpacity = 0.8
         let pulseGrowth: CGFloat = 2.4
@@ -50,7 +48,7 @@ private extension StatusDot {
             .opacity(isExpanded ? 0 : pulseStartOpacity)
     }
 
-    func startPulsing() {
+    private func startPulsing() {
         guard showsPulse else { return }
 
         let pulseAnimation: Animation = .easeOut(duration: 1.6).repeatForever(autoreverses: false)

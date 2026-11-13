@@ -34,10 +34,8 @@ struct SignInPlaceholder: View {
         .accessibilityElement()
         .accessibilityLabel(Text("signIn.placeholder.accessibilityLabel"))
     }
-}
 
-private extension SignInPlaceholder {
-    var codeBoxes: some View {
+    private var codeBoxes: some View {
         let codeLength = 8
 
         return HStack(spacing: dimensions.spaceXSmall) {

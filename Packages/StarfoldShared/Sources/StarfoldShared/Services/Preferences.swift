@@ -75,11 +75,24 @@ public final class Preferences {
         }
     }
 
+    private var systemGameLanguage: String {
+        let locale = Locale.current
+        let language = locale.language.languageCode?.identifier ?? "en"
+        let region = locale.region?.identifier ?? "US"
+        return "\(language)-\(region)"
+    }
+
     var clientAppInstallID: UUID {
         switch defaults.string(for: .installID).flatMap(UUID.init(uuidString:)) {
         case let storedID?: storedID
         case nil: makeInstallID()
         }
+    }
+
+    private func makeInstallID() -> UUID {
+        let id = UUID()
+        defaults.set(id.uuidString, for: .installID)
+        return id
     }
 
     public init(defaults: UserDefaults) {
@@ -110,6 +123,12 @@ public final class Preferences {
 
     public func favorites(for xuid: String) -> FavoritesStore {
         .init(defaults: defaults, key: favoritesKey(for: xuid))
+    }
+
+    private func favoritesKey(for xuid: String) -> String {
+        let favoritesKeyPrefix = "favorites."
+
+        return favoritesKeyPrefix + xuid
     }
 }
 
@@ -150,29 +169,6 @@ private struct FactorySettings {
     var soundStage: SoundStage { .window }
 
     var librarySort: GameSort { .name }
-}
-
-// MARK: - Private
-
-private extension Preferences {
-    var systemGameLanguage: String {
-        let locale = Locale.current
-        let language = locale.language.languageCode?.identifier ?? "en"
-        let region = locale.region?.identifier ?? "US"
-        return "\(language)-\(region)"
-    }
-
-    func favoritesKey(for xuid: String) -> String {
-        let favoritesKeyPrefix = "favorites."
-
-        return favoritesKeyPrefix + xuid
-    }
-
-    func makeInstallID() -> UUID {
-        let id = UUID()
-        defaults.set(id.uuidString, for: .installID)
-        return id
-    }
 }
 
 // MARK: - UserDefaults

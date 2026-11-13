@@ -40,11 +40,9 @@ struct GameMessageDialog: View {
         .frame(minWidth: dimensions.gameDialogMinimumWidth)
         .onExitCommand { onCancel() }
     }
-}
 
-private extension GameMessageDialog {
     @ViewBuilder
-    func answerButton(_ button: DialogButton) -> some View {
+    private func answerButton(_ button: DialogButton) -> some View {
         switch button.role {
         case .primary:
             Button(button.title) { onAnswer(button.index) }

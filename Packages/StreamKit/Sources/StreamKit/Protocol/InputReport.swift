@@ -11,6 +11,8 @@ struct InputReport {
     var frames: [FrameTimingRecord] = []
     var gamepads: [(index: UInt8, state: GamepadState)] = []
 
+    private var maximumRecordsPerSection: Int { 255 }
+
     func encoded(sequence: UInt32, timestamp: Double) -> Data? {
         guard !presentTypes.isEmpty else { return nil }
 
@@ -20,12 +22,8 @@ struct InputReport {
         appendGamepads(to: &writer)
         return writer.data
     }
-}
 
-private extension InputReport {
-    var maximumRecordsPerSection: Int { 255 }
-
-    var presentTypes: [InputReportType] {
+    private var presentTypes: [InputReportType] {
         let sections: [(InputReportType, Bool)] = [
             (.metadata, !frames.isEmpty),
             (.gamepad, !gamepads.isEmpty),
@@ -33,7 +31,7 @@ private extension InputReport {
         return sections.filter(\.1).map(\.0)
     }
 
-    func appendFrames(to writer: inout ByteWriter, timestamp: Double) {
+    private func appendFrames(to writer: inout ByteWriter, timestamp: Double) {
         guard !frames.isEmpty else { return }
 
         let packetTime = UInt32(truncatingIfNeeded: Int64(timestamp))
@@ -51,7 +49,7 @@ private extension InputReport {
         }
     }
 
-    func appendGamepads(to writer: inout ByteWriter) {
+    private func appendGamepads(to writer: inout ByteWriter) {
         guard !gamepads.isEmpty else { return }
 
         writer.append(UInt8(min(gamepads.count, maximumRecordsPerSection)))
@@ -70,19 +68,19 @@ private extension InputReport {
         }
     }
 
-    func axis(_ value: Float) -> Int16 {
+    private func axis(_ value: Float) -> Int16 {
         guard value.isFinite else { return 0 }
 
         return Int16((max(-1, min(1, value)) * 32767).rounded(.towardZero))
     }
 
-    func trigger(_ value: Float) -> UInt16 {
+    private func trigger(_ value: Float) -> UInt16 {
         guard value.isFinite else { return 0 }
 
         return UInt16((max(0, min(1, value)) * 65535).rounded(.towardZero))
     }
 
-    func physicality(of state: GamepadState) -> UInt32 {
+    private func physicality(of state: GamepadState) -> UInt32 {
         let analogFlags: [(UInt32, Bool)] = [
             (0x10000, state.leftTrigger > 0),
             (0x20000, state.rightTrigger > 0),

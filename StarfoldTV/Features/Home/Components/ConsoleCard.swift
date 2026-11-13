@@ -27,11 +27,13 @@ struct ConsoleCard: View {
         }
         .contextMenu { powerButton }
     }
-}
 
-private extension ConsoleCard {
+    private func play() {
+        home.play(console)
+    }
+
     @ViewBuilder
-    var picture: some View {
+    private var picture: some View {
         switch home.cover(for: console) {
         case .game(let url): Artwork(url: url)
         case .lastFrame(let image): Image(decorative: image, scale: 1).resizable().scaledToFill()
@@ -39,7 +41,7 @@ private extension ConsoleCard {
         }
     }
 
-    var modelName: some View {
+    private var modelName: some View {
         Text(console.modelName)
             .font(.title2.bold())
             .foregroundStyle(.secondary)
@@ -48,7 +50,7 @@ private extension ConsoleCard {
     }
 
     @ViewBuilder
-    var powerButton: some View {
+    private var powerButton: some View {
         switch home.powerControl(for: console) {
         case .command(let command): powerButton(for: command)
         case .sending(let command): powerButton(for: command).disabled(true)
@@ -56,7 +58,7 @@ private extension ConsoleCard {
         }
     }
 
-    func powerButton(for command: XboxLiveClient.PowerCommand) -> some View {
+    private func powerButton(for command: XboxLiveClient.PowerCommand) -> some View {
         Button {
             togglePower()
         } label: {
@@ -64,11 +66,7 @@ private extension ConsoleCard {
         }
     }
 
-    func play() {
-        home.play(console)
-    }
-
-    func togglePower() {
+    private func togglePower() {
         Task { await home.togglePower(of: console) }
     }
 }

@@ -55,6 +55,35 @@ struct XboxLiveTokenClient: Sendable {
         return try await xboxToken(posting: body, to: securityTokenURL)
     }
 
+    private func xboxToken(posting body: [String: Any], to url: URL) async throws -> XboxToken {
+        let request = HTTPClient.Request(
+            url: url,
+            method: "POST",
+            headers: xboxComBrowserHeaders,
+            body: try encoded(body)
+        )
+        let response = try await http.decodedBody(TokenResponse.self, for: request)
+        return try response.xboxToken()
+    }
+
+    private var xboxComBrowserHeaders: [String: String] {
+        [
+            "x-xbl-contract-version": "1",
+            "Cache-Control": "no-cache",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Origin": "https://www.xbox.com",
+            "Referer": "https://www.xbox.com/",
+        ]
+    }
+
+    private func encoded(_ body: [String: Any]) throws -> Data {
+        try JSONSerialization.data(
+            withJSONObject: body,
+            options: [.withoutEscapingSlashes, .sortedKeys]
+        )
+    }
+
     func streamingToken(
         gssvToken: XboxToken,
         offering: StreamingOffering
@@ -78,6 +107,21 @@ struct XboxLiveTokenClient: Sendable {
             expiresAt: now().addingTimeInterval(TimeInterval(response.durationInSeconds)),
             market: response.market,
             regions: response.offeringSettings.regions.compactMap(streamingRegion)
+        )
+    }
+
+    private func streamingRegion(_ region: StreamingLoginResponse.Region) -> StreamingRegion? {
+        guard let baseURL = URL(string: region.baseURI) else {
+            return nil
+        }
+
+        let unrankedFallbackPriority = -1
+
+        return .init(
+            name: region.name,
+            baseURL: baseURL,
+            isDefault: region.isDefault ?? false,
+            fallbackPriority: region.fallbackPriority ?? unrankedFallbackPriority
         )
     }
 
@@ -192,49 +236,5 @@ private extension XboxLiveTokenClient {
         }
 
         let accessToken: String
-    }
-
-    var xboxComBrowserHeaders: [String: String] {
-        [
-            "x-xbl-contract-version": "1",
-            "Cache-Control": "no-cache",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Origin": "https://www.xbox.com",
-            "Referer": "https://www.xbox.com/",
-        ]
-    }
-
-    func xboxToken(posting body: [String: Any], to url: URL) async throws -> XboxToken {
-        let request = HTTPClient.Request(
-            url: url,
-            method: "POST",
-            headers: xboxComBrowserHeaders,
-            body: try encoded(body)
-        )
-        let response = try await http.decodedBody(TokenResponse.self, for: request)
-        return try response.xboxToken()
-    }
-
-    func encoded(_ body: [String: Any]) throws -> Data {
-        try JSONSerialization.data(
-            withJSONObject: body,
-            options: [.withoutEscapingSlashes, .sortedKeys]
-        )
-    }
-
-    func streamingRegion(_ region: StreamingLoginResponse.Region) -> StreamingRegion? {
-        guard let baseURL = URL(string: region.baseURI) else {
-            return nil
-        }
-
-        let unrankedFallbackPriority = -1
-
-        return .init(
-            name: region.name,
-            baseURL: baseURL,
-            isDefault: region.isDefault ?? false,
-            fallbackPriority: region.fallbackPriority ?? unrankedFallbackPriority
-        )
     }
 }

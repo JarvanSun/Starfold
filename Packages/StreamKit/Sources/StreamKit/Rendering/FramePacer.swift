@@ -83,28 +83,7 @@ struct FramePacer: Sendable {
         return schedule(capture + floor + delay, arrival: arrival)
     }
 
-    mutating func setMode(_ mode: PacingMode) {
-        configuration = .init(mode: mode)
-        delay = min(max(delay, configuration.minimumDelay), configuration.maximumDelay)
-    }
-
-    mutating func takeLateFrames() -> Int {
-        defer { lateFrames = 0 }
-
-        return lateFrames
-    }
-}
-
-// MARK: - Private
-
-private extension FramePacer {
-    var rtpClockRate: Double { 90_000 }
-
-    var floorWindow: Int { 10 }
-
-    var minimumSpacing: Double { 0.001 }
-
-    mutating func captureTime(rtp: UInt32) -> Double {
+    private mutating func captureTime(rtp: UInt32) -> Double {
         if let previousRTP {
             unwrappedRTP += Int64(Int32(bitPattern: rtp &- previousRTP))
         }
@@ -114,7 +93,9 @@ private extension FramePacer {
         return Double(unwrappedRTP) / rtpClockRate
     }
 
-    mutating func transitFloor(adding transit: Double, at second: Int) -> Double {
+    private var rtpClockRate: Double { 90_000 }
+
+    private mutating func transitFloor(adding transit: Double, at second: Int) -> Double {
         switch floorBuckets.last {
         case let last? where last.second == second:
             floorBuckets[floorBuckets.count - 1].transit = min(last.transit, transit)
@@ -127,7 +108,9 @@ private extension FramePacer {
         return floorBuckets.map(\.transit).min() ?? transit
     }
 
-    mutating func updateDelay(lateness: Double, at second: Int, arrival: Double) {
+    private var floorWindow: Int { 10 }
+
+    private mutating func updateDelay(lateness: Double, at second: Int, arrival: Double) {
         switch worstPerSecond.last {
         case let last? where last.second == second:
             worstPerSecond[worstPerSecond.count - 1].lateness = max(last.lateness, lateness)
@@ -147,7 +130,7 @@ private extension FramePacer {
         delay = target > delay ? target : max(target, delay - configuration.decay * elapsed)
     }
 
-    mutating func schedule(_ planned: Double, arrival: Double) -> Double {
+    private mutating func schedule(_ planned: Double, arrival: Double) -> Double {
         let spaced = lastPresentation.map { max(planned, $0 + minimumSpacing) } ?? planned
         let presentation = max(spaced, arrival)
 
@@ -157,5 +140,18 @@ private extension FramePacer {
 
         lastPresentation = presentation
         return presentation
+    }
+
+    private var minimumSpacing: Double { 0.001 }
+
+    mutating func setMode(_ mode: PacingMode) {
+        configuration = .init(mode: mode)
+        delay = min(max(delay, configuration.minimumDelay), configuration.maximumDelay)
+    }
+
+    mutating func takeLateFrames() -> Int {
+        defer { lateFrames = 0 }
+
+        return lateFrames
     }
 }

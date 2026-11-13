@@ -44,32 +44,7 @@ final class InputSender: @unchecked Sendable {
         }
     }
 
-    func stop() -> Set<UInt8> {
-        condition.withLock {
-            isRunning = false
-            peer = nil
-
-            condition.signal()
-        }
-
-        return sendLock.withLock { announced }
-    }
-}
-
-private extension InputSender {
-    var idleWakeInterval: TimeInterval { 0.008 }
-
-    var maximumQueuedBytes: UInt64 { 4096 }
-
-    func signal() {
-        condition.withLock {
-            isSignalled = true
-
-            condition.signal()
-        }
-    }
-
-    func run() {
+    private func run() {
         while true {
             condition.lock()
 
@@ -92,7 +67,9 @@ private extension InputSender {
         }
     }
 
-    func send(on peer: PeerConnection) {
+    private var idleWakeInterval: TimeInterval { 0.008 }
+
+    private func send(on peer: PeerConnection) {
         guard peer.bufferedAmount(on: .input) < maximumQueuedBytes else { return }
 
         let timestamp = (CACurrentMediaTime() - clockOrigin) * 1000
@@ -110,7 +87,7 @@ private extension InputSender {
         }
     }
 
-    func announce(_ addedPads: [UInt8], on peer: PeerConnection) {
+    private func announce(_ addedPads: [UInt8], on peer: PeerConnection) {
         for index in addedPads where !announced.contains(index) {
             peer.send(
                 ControlMessage.gamepadChanged(index: Int(index), isAdded: true).json,
@@ -121,7 +98,7 @@ private extension InputSender {
         }
     }
 
-    func withdraw(_ removedPads: [UInt8], on peer: PeerConnection) {
+    private func withdraw(_ removedPads: [UInt8], on peer: PeerConnection) {
         for index in removedPads where announced.contains(index) && index != 0 {
             peer.send(
                 ControlMessage.gamepadChanged(index: Int(index), isAdded: false).json,
@@ -131,4 +108,25 @@ private extension InputSender {
             announced.remove(index)
         }
     }
+
+    func stop() -> Set<UInt8> {
+        condition.withLock {
+            isRunning = false
+            peer = nil
+
+            condition.signal()
+        }
+
+        return sendLock.withLock { announced }
+    }
+
+    private func signal() {
+        condition.withLock {
+            isSignalled = true
+
+            condition.signal()
+        }
+    }
+
+    private var maximumQueuedBytes: UInt64 { 4096 }
 }

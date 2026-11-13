@@ -18,10 +18,8 @@ struct GameFacts: View {
             ForEach(facts) { column($0) }
         }
     }
-}
 
-private extension GameFacts {
-    func column(_ fact: GameFact) -> some View {
+    private func column(_ fact: GameFact) -> some View {
         VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
             Text(fact.label)
                 .font(.caption.weight(.semibold))

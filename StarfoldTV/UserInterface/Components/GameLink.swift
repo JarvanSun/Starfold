@@ -31,10 +31,8 @@ struct GameLink: View {
         }
         .buttonStyle(.card)
     }
-}
 
-private extension GameLink {
-    var artworkFrameHeight: CGFloat {
+    private var artworkFrameHeight: CGFloat {
         artworkHeight ?? dimensions.gameArtworkHeight
     }
 }

@@ -29,10 +29,8 @@ struct LibraryView: View {
         }
         .scrollClipDisabled()
     }
-}
 
-private extension LibraryView {
-    func refresh() {
+    private func refresh() {
         Task { await library.refresh() }
     }
 }

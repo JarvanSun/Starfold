@@ -16,6 +16,10 @@ struct AccountMenu: View {
 
     let onAddAccount: () -> Void
 
+    private var gamertag: String {
+        app.signedInGamertag ?? ""
+    }
+
     var body: some View {
         Menu {
             accountSwitcher
@@ -45,15 +49,9 @@ struct AccountMenu: View {
             }
         }
     }
-}
-
-private extension AccountMenu {
-    var gamertag: String {
-        app.signedInGamertag ?? ""
-    }
 
     @ViewBuilder
-    var accountSwitcher: some View {
+    private var accountSwitcher: some View {
         if app.accounts.count > 1 {
             Section("home.account.switchAccount") {
                 ForEach(app.accounts) { accountButton($0) }
@@ -61,7 +59,7 @@ private extension AccountMenu {
         }
     }
 
-    func accountButton(_ account: AccountSummary) -> some View {
+    private func accountButton(_ account: AccountSummary) -> some View {
         Button {
             Task { await app.switchAccount(to: account.id) }
         } label: {
@@ -70,14 +68,14 @@ private extension AccountMenu {
     }
 
     @ViewBuilder
-    func accountLabel(_ account: AccountSummary) -> some View {
+    private func accountLabel(_ account: AccountSummary) -> some View {
         switch account.id == app.activeAccountID {
         case true: Label(account.gamertag, systemImage: "checkmark")
         case false: Text(account.gamertag)
         }
     }
 
-    var profile: some View {
+    private var profile: some View {
         HStack(spacing: dimensions.spaceSmall) {
             picture
 
@@ -91,7 +89,7 @@ private extension AccountMenu {
         }
     }
 
-    var picture: some View {
+    private var picture: some View {
         AsyncImage(url: app.profile?.pictureURL) { image in
             image.resizable().scaledToFill()
         } placeholder: {
@@ -104,7 +102,7 @@ private extension AccountMenu {
     }
 
     @ViewBuilder
-    var gamerscore: some View {
+    private var gamerscore: some View {
         switch app.profile?.gamerscore {
         case let score?:
             Text("home.account.gamerscore \(score.formatted())")

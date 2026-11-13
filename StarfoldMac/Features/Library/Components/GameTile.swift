@@ -43,24 +43,8 @@ struct GameTile: View {
         .accessibilityAction(named: Text("library.tile.play"), onPlay)
         .accessibilityAction(.default, onOpen)
     }
-}
 
-private extension GameTile {
-    var nameStyle: HierarchicalShapeStyle {
-        switch isHovering {
-        case true: .primary
-        case false: .secondary
-        }
-    }
-
-    var playButtonTransition: AnyTransition {
-        switch reduceMotion {
-        case true: .opacity
-        case false: .scale(scale: 0.6).combined(with: .opacity)
-        }
-    }
-
-    var artwork: some View {
+    private var artwork: some View {
         GameArtwork(url: game.tileArtwork, aspectRatio: 1)
             .overlay(if: badge, alignment: .topLeading) { badgeLabel($0) }
             .overlay(alignment: .bottomTrailing) {
@@ -79,7 +63,17 @@ private extension GameTile {
             .hoverLift(isHovering: isHovering)
     }
 
-    var playButton: some View {
+    private func badgeLabel(_ badge: LocalizedStringResource) -> some View {
+        Text(badge)
+            .font(.caption2.bold())
+            .padding(.horizontal, dimensions.spaceSmall)
+            .padding(.vertical, dimensions.spaceXSmall)
+            .background(palette.primaryTint, in: .capsule)
+            .foregroundStyle(.black)
+            .padding(dimensions.spaceSmall)
+    }
+
+    private var playButton: some View {
         Button {
             onPlay()
         } label: {
@@ -94,17 +88,21 @@ private extension GameTile {
         .padding(dimensions.spaceSmall)
     }
 
-    func badgeLabel(_ badge: LocalizedStringResource) -> some View {
-        Text(badge)
-            .font(.caption2.bold())
-            .padding(.horizontal, dimensions.spaceSmall)
-            .padding(.vertical, dimensions.spaceXSmall)
-            .background(palette.primaryTint, in: .capsule)
-            .foregroundStyle(.black)
-            .padding(dimensions.spaceSmall)
+    private var playButtonTransition: AnyTransition {
+        switch reduceMotion {
+        case true: .opacity
+        case false: .scale(scale: 0.6).combined(with: .opacity)
+        }
     }
 
-    func hover(_ isInside: Bool) {
+    private var nameStyle: HierarchicalShapeStyle {
+        switch isHovering {
+        case true: .primary
+        case false: .secondary
+        }
+    }
+
+    private func hover(_ isInside: Bool) {
         withAnimation(.spring(duration: 0.3, bounce: 0.35)) {
             isHovering = isInside
         }

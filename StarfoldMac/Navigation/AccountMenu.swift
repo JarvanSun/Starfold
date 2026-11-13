@@ -14,6 +14,10 @@ struct AccountMenu: View {
 
     let onShowSignIn: () -> Void
 
+    private var gamertag: String {
+        app.signedInGamertag ?? ""
+    }
+
     var body: some View {
         Menu {
             if app.accounts.count > 1 {
@@ -39,14 +43,8 @@ struct AccountMenu: View {
             }
         }
     }
-}
 
-private extension AccountMenu {
-    var gamertag: String {
-        app.signedInGamertag ?? ""
-    }
-
-    var switchAccountSection: some View {
+    private var switchAccountSection: some View {
         Section(String(localized: "account.menu.switchAccount")) {
             ForEach(app.accounts) { account in
                 Button {
@@ -58,7 +56,19 @@ private extension AccountMenu {
         }
     }
 
-    var addAccountButton: some View {
+    private func switchAccount(to account: AccountSummary) {
+        Task { await app.switchAccount(to: account.id) }
+    }
+
+    @ViewBuilder
+    private func accountLabel(_ account: AccountSummary) -> some View {
+        switch account.id == app.activeAccountID {
+        case true: Label(account.gamertag, systemImage: "checkmark")
+        case false: Text(account.gamertag)
+        }
+    }
+
+    private var addAccountButton: some View {
         Button(
             String(localized: "account.menu.addAccount"),
             systemImage: "person.crop.circle.badge.plus"
@@ -67,7 +77,7 @@ private extension AccountMenu {
         }
     }
 
-    var signOutButton: some View {
+    private var signOutButton: some View {
         Button(
             String(localized: "account.menu.signOut"),
             systemImage: "rectangle.portrait.and.arrow.right",
@@ -75,17 +85,5 @@ private extension AccountMenu {
         ) {
             isConfirmingSignOut = true
         }
-    }
-
-    @ViewBuilder
-    func accountLabel(_ account: AccountSummary) -> some View {
-        switch account.id == app.activeAccountID {
-        case true: Label(account.gamertag, systemImage: "checkmark")
-        case false: Text(account.gamertag)
-        }
-    }
-
-    func switchAccount(to account: AccountSummary) {
-        Task { await app.switchAccount(to: account.id) }
     }
 }

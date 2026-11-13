@@ -42,6 +42,17 @@ final class StreamVideoHostView: NSView {
         holdHighRefreshRate()
     }
 
+    private func holdHighRefreshRate() {
+        let link = displayLink(target: self, selector: #selector(compositeFrame(_:)))
+        let compositingRates: CAFrameRateRange = .init(minimum: 60, maximum: 120, preferred: 120)
+
+        link.preferredFrameRateRange = compositingRates
+
+        link.add(to: .main, forMode: .common)
+
+        refreshLink = link
+    }
+
     override func layout() {
         super.layout()
 
@@ -67,25 +78,15 @@ final class StreamVideoHostView: NSView {
 
         updateDrawableSize()
     }
-}
 
-private extension StreamVideoHostView {
-    func holdHighRefreshRate() {
-        let link = displayLink(target: self, selector: #selector(compositeFrame(_:)))
-        let compositingRates: CAFrameRateRange = .init(minimum: 60, maximum: 120, preferred: 120)
-
-        link.preferredFrameRateRange = compositingRates
-
-        link.add(to: .main, forMode: .common)
-
-        refreshLink = link
-    }
-
-    @objc func compositeFrame(_ link: CADisplayLink) {}
-
-    func updateDrawableSize() {
+    private func updateDrawableSize() {
         let fallbackBackingScale: CGFloat = 2
         let scale = window?.backingScaleFactor ?? fallbackBackingScale
         renderer.setDrawableSize(CGSize(width: bounds.width * scale, height: bounds.height * scale))
     }
+}
+
+private extension StreamVideoHostView {
+    @objc func compositeFrame(_ link: CADisplayLink) {}
+
 }

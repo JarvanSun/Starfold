@@ -24,10 +24,8 @@ struct AccountSettingsSection: View {
             Button("settings.account.signOut", role: .destructive) { onSignOut() }
         }
     }
-}
 
-private extension AccountSettingsSection {
-    func accountButton(_ account: AccountChoice) -> some View {
+    private func accountButton(_ account: AccountChoice) -> some View {
         Button {
             onSwitch(account)
         } label: {

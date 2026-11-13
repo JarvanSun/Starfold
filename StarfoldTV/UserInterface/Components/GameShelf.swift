@@ -16,6 +16,10 @@ struct GameShelf: View {
     let games: [CloudGame]
     var tileWidth: CGFloat?
 
+    private var tileFrameWidth: CGFloat {
+        tileWidth ?? dimensions.gameShelfTileWidth
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceLarge) {
             Text(title).font(.headline)
@@ -31,20 +35,14 @@ struct GameShelf: View {
             .focusSection()
         }
     }
-}
 
-private extension GameShelf {
-    var tileFrameWidth: CGFloat {
-        tileWidth ?? dimensions.gameShelfTileWidth
-    }
-
-    var artworkHeight: CGFloat {
-        min(dimensions.gameShelfArtworkMaximumHeight, tileFrameWidth * 9 / 16)
-    }
-
-    func tile(_ game: CloudGame) -> some View {
+    private func tile(_ game: CloudGame) -> some View {
         GameLink(game: game, artworkHeight: artworkHeight, titleLines: 1)
             .frame(width: tileFrameWidth)
+    }
+
+    private var artworkHeight: CGFloat {
+        min(dimensions.gameShelfArtworkMaximumHeight, tileFrameWidth * 9 / 16)
     }
 }
 

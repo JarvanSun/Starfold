@@ -43,14 +43,12 @@ struct SettingsView: View {
             Button("common.cancel", role: .cancel) {}
         }
     }
-}
 
-private extension SettingsView {
-    func switchAccount(to account: AccountChoice) {
+    private func switchAccount(to account: AccountChoice) {
         Task { await settings.switchAccount(to: account) }
     }
 
-    func confirmSignOut() {
+    private func confirmSignOut() {
         isConfirmingSignOut = true
     }
 }

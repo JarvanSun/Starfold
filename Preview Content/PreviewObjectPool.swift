@@ -40,6 +40,25 @@ enum PreviewObjectPool {
     static var failedLoadState: LoadState {
         .failed("The network connection was lost.")
     }
+
+    fileprivate static var picture: PictureCapabilities {
+        .init(
+            canFit: true,
+            canEnhance: true,
+            shouldKeepLastFrame: false,
+            isHDRDisplayAvailable: nil
+        )
+    }
+
+    fileprivate static func appViewModel(accounts: [SignedInAccount]) -> AppViewModel {
+        appViewModel(
+            accountService: PreviewAccountService(
+                accounts: accounts,
+                profile: profile,
+                signInPhase: .waiting(deviceCodePrompt)
+            )
+        )
+    }
 }
 
 extension PreviewObjectPool {
@@ -103,27 +122,5 @@ extension PreviewObjectPool {
             streams: streamService(phase: streamPhase, dialogs: [])
         )
     }
-}
-
-private extension PreviewObjectPool {
-    static var picture: PictureCapabilities {
-        .init(
-            canFit: true,
-            canEnhance: true,
-            shouldKeepLastFrame: false,
-            isHDRDisplayAvailable: nil
-        )
-    }
-
-    static func appViewModel(accounts: [SignedInAccount]) -> AppViewModel {
-        appViewModel(
-            accountService: PreviewAccountService(
-                accounts: accounts,
-                profile: profile,
-                signInPhase: .waiting(deviceCodePrompt)
-            )
-        )
-    }
-
 }
 #endif

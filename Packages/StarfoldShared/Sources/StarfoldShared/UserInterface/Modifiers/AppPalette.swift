@@ -34,10 +34,8 @@ private struct AppPalette: ViewModifier {
         case .system: content.untintedPalette(chosenPalette)
         }
     }
-}
 
-private extension AppPalette {
-    var chosenPalette: Palette {
+    private var chosenPalette: Palette {
         .init(app.settings.palette)
     }
 }

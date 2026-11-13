@@ -38,18 +38,16 @@ struct LiveStreamService: StreamService {
         return LiveStreamConnection(controller: controller, runtime: runtime)
     }
 
-    func setDirectStereo(_ isEnabled: Bool) {
-        #if !os(macOS)
-        runtime.setDirectStereo(isEnabled)
-        #endif
-    }
-}
-
-private extension LiveStreamService {
-    func streamingClient(for target: StreamTarget) async throws -> GSSVClient {
+    private func streamingClient(for target: StreamTarget) async throws -> GSSVClient {
         switch target {
         case .console: try await account.homeClient(http: http)
         case .cloud: try await account.cloudClient(http: http)
         }
+    }
+
+    func setDirectStereo(_ isEnabled: Bool) {
+        #if !os(macOS)
+        runtime.setDirectStereo(isEnabled)
+        #endif
     }
 }

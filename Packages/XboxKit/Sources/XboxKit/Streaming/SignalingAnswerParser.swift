@@ -33,6 +33,20 @@ struct SignalingAnswerParser: Sendable {
         return (sdp, versions)
     }
 
+    private func failedStatus(in answer: [String: Any]) -> String? {
+        guard let status = answer["status"] as? String, status != "success" else {
+            return nil
+        }
+
+        return status
+    }
+
+    private func negotiatedVersion(_ channel: String, in answer: [String: Any]) -> Int {
+        let defaultChannelVersion = 1
+
+        return (answer[channel] as? NSNumber)?.intValue ?? defaultChannelVersion
+    }
+
     func iceCandidates(from body: Data) throws -> [RemoteICECandidate]? {
         guard let entries = try exchangeResponse(in: body) as? [[String: Any]] else {
             return nil
@@ -40,10 +54,8 @@ struct SignalingAnswerParser: Sendable {
 
         return entries.flatMap(remoteCandidates)
     }
-}
 
-private extension SignalingAnswerParser {
-    func exchangeResponse(in body: Data) throws -> Any? {
+    private func exchangeResponse(in body: Data) throws -> Any? {
         guard let outer = try JSONSerialization.jsonObject(with: body) as? [String: Any] else {
             return nil
         }
@@ -59,7 +71,7 @@ private extension SignalingAnswerParser {
         }
     }
 
-    func hostError(in outer: [String: Any]) -> GSSVSessionError? {
+    private func hostError(in outer: [String: Any]) -> GSSVSessionError? {
         guard
             let details = outer["errorDetails"] as? [String: Any],
             let code = details["code"] as? String
@@ -70,21 +82,7 @@ private extension SignalingAnswerParser {
         return .failed(code: code, message: details["message"] as? String)
     }
 
-    func failedStatus(in answer: [String: Any]) -> String? {
-        guard let status = answer["status"] as? String, status != "success" else {
-            return nil
-        }
-
-        return status
-    }
-
-    func negotiatedVersion(_ channel: String, in answer: [String: Any]) -> Int {
-        let defaultChannelVersion = 1
-
-        return (answer[channel] as? NSNumber)?.intValue ?? defaultChannelVersion
-    }
-
-    func remoteCandidates(in entry: [String: Any]) -> [RemoteICECandidate] {
+    private func remoteCandidates(in entry: [String: Any]) -> [RemoteICECandidate] {
         guard let line = entry["candidate"] as? String else {
             return []
         }

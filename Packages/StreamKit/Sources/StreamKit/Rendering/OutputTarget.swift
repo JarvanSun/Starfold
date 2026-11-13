@@ -19,10 +19,8 @@ struct OutputTarget {
         case false: copyColorAttachments(from: source)
         }
     }
-}
 
-private extension OutputTarget {
-    func tagAsPQ() {
+    private func tagAsPQ() {
         CVBufferSetAttachment(
             pixelBuffer,
             kCVImageBufferColorPrimariesKey,
@@ -37,7 +35,7 @@ private extension OutputTarget {
         )
     }
 
-    func copyColorAttachments(from source: CVPixelBuffer) {
+    private func copyColorAttachments(from source: CVPixelBuffer) {
         let keys: [(CFString, CFString)] = [
             (kCVImageBufferColorPrimariesKey, kCVImageBufferColorPrimaries_ITU_R_709_2),
             (kCVImageBufferTransferFunctionKey, kCVImageBufferTransferFunction_ITU_R_709_2),
