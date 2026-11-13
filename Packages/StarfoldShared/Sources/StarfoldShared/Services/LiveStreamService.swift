@@ -52,7 +52,8 @@ struct LiveStreamService: StreamService {
 
         guard let bundleID = configurations.first?.touchBundleIDs.first else { return nil }
 
-        return try TouchBundle(archive: await client.touchBundleArchive(id: bundleID))
+        let archive = try await client.touchBundleArchive(id: bundleID)
+        return try await TouchBundleUnpacker().bundle(from: archive)
     }
 
     func setDirectStereo(_ isEnabled: Bool) {

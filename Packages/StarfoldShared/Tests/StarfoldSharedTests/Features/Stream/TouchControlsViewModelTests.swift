@@ -10,6 +10,7 @@ import Observation
 import StreamKit
 import Synchronization
 import Testing
+import XboxKit
 
 @testable import StarfoldShared
 
@@ -62,6 +63,36 @@ struct TouchControlsViewModelTests {
         // Then
         #expect(!touch.isShowingTitleLayout)
         #expect(touch.plan(for: .dummy, in: .landscape).controls.count == 15)
+    }
+
+    @Test
+    func loadWhenTheGamePatchedItsStateBeforeTheBundleArrivedThenKeepsThatState() throws {
+        // Given
+        let touch = makeTouchControls()
+        let patch = #"[{"op":"replace","path":"/showsWheel","value":false}]"#
+        touch.apply(.showLayout(.titleDefault, statePatch: Data(patch.utf8)))
+
+        // When
+        touch.load(try makeBundle())
+
+        // Then
+        #expect(touch.isShowingTitleLayout)
+    }
+
+    @Test
+    func clearTitleThenShowsTheStandardLayoutAgain() {
+        // Given
+        let touch = makeTouchControls()
+        touch.apply(.showLayout(.named("driving"), statePatch: nil))
+        touch.apply(.hide)
+
+        // When
+        touch.clearTitle()
+
+        // Then
+        #expect(touch.isShowing)
+        #expect(touch.reference == .standard)
+        #expect(!touch.isShowingTitleLayout)
     }
 
     @Test
@@ -119,6 +150,19 @@ struct TouchControlsViewModelTests {
 }
 
 private extension TouchControlsViewModelTests {
+    func makeBundle() throws -> TouchBundle {
+        let files = [
+            "takxmanifest.json":
+                #"{"defaultLayout":"main","layouts":"layouts","assets":"assets","version":"1.0.0.0"}"#,
+            "context.json": #"{"state":{"showsWheel":true}}"#,
+            "layouts/neutral/main.json":
+                #"{"content":{"right":{"inner":[{"type":"steeringWheel","visible":{"$ref":"../../context.json#/state/showsWheel"}}]}}}"#,
+        ]
+        let entries = files.sorted { $0.key < $1.key }
+            .map { path, text in ZipArchiveBuilder.Entry(name: path, contents: Data(text.utf8)) }
+        return try TouchBundle(archive: ZipArchiveBuilder().archive(entries))
+    }
+
     func makeTouchControls(
         preferences: Preferences = .init(defaults: .dummyEmpty)
     ) -> TouchControlsViewModel {

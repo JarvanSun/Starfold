@@ -173,51 +173,67 @@ struct TouchLayoutPlanner {
     private func edge(_ edge: TouchEdge, isTop: Bool) -> [TouchControlPlacement] {
         let name = isTop ? "upper" : "lower"
         let side = isTop ? 1 : -1 as CGFloat
-        let vertical = side * (metrics.edgeMargin + metrics.smallButtonDiameter / 2)
-        let corner = isTop ? TouchAnchor.top : .bottom
+        let y = side * (metrics.edgeMargin + metrics.smallButtonDiameter / 2)
+        let middle = isTop ? TouchAnchor.top : .bottom
+        let fromCorner = metrics.edgeMargin + metrics.smallButtonDiameter / 2
+        let center = controls(in: edge.center, id: "\(name).center")
+        let centerWidth = rowWidth(of: center.count)
+        let besideCenter =
+            (center.isEmpty ? rowGap / 2 : centerWidth / 2 + rowGap)
+            + metrics.smallButtonDiameter / 2
+
         return row(
             controls(in: edge.left, id: "\(name).left"),
             anchor: isTop ? .topLeading : .bottomLeading,
-            vertical: vertical,
+            from: CGPoint(x: fromCorner, y: y),
             direction: 1
         )
             + row(
                 controls(in: edge.leftCenter, id: "\(name).leftCenter"),
-                anchor: corner,
-                vertical: vertical,
+                anchor: middle,
+                from: CGPoint(x: -besideCenter, y: y),
                 direction: -1
             )
             + row(
-                controls(in: edge.center, id: "\(name).center"),
-                anchor: corner,
-                vertical: vertical,
+                center,
+                anchor: middle,
+                from: CGPoint(x: (metrics.smallButtonDiameter - centerWidth) / 2, y: y),
                 direction: 1
             )
             + row(
                 controls(in: edge.rightCenter, id: "\(name).rightCenter"),
-                anchor: corner,
-                vertical: vertical,
+                anchor: middle,
+                from: CGPoint(x: besideCenter, y: y),
                 direction: 1
             )
             + row(
                 controls(in: edge.right, id: "\(name).right"),
                 anchor: isTop ? .topTrailing : .bottomTrailing,
-                vertical: vertical,
+                from: CGPoint(x: -fromCorner, y: y),
                 direction: -1
             )
+    }
+
+    private var rowGap: CGFloat {
+        metrics.edgeMargin / 2
+    }
+
+    private func rowWidth(of count: Int) -> CGFloat {
+        guard count > 0 else { return 0 }
+
+        return CGFloat(count) * (metrics.smallButtonDiameter + rowGap) - rowGap
     }
 
     private func row(
         _ controls: [PlannedControl],
         anchor: TouchAnchor,
-        vertical: CGFloat,
+        from first: CGPoint,
         direction: CGFloat
     ) -> [TouchControlPlacement] {
-        let step = metrics.smallButtonDiameter + metrics.edgeMargin / 2
-        let start = metrics.edgeMargin + metrics.smallButtonDiameter / 2
+        let step = metrics.smallButtonDiameter + rowGap
 
         return controls.enumerated().map { index, control in
-            let position = CGPoint(x: direction * (start + CGFloat(index) * step), y: vertical)
+            let position = CGPoint(x: first.x + direction * CGFloat(index) * step, y: first.y)
             return place(
                 control,
                 anchor: anchor,

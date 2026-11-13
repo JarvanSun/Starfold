@@ -75,12 +75,34 @@ struct TouchLayoutPlannerTests {
         #expect(moved.diameter == leftStick.diameter * 1.2)
         #expect(control(.button(.a), in: adjusted) == control(.button(.a), in: original))
     }
+
+    @Test
+    func planWhenTheTopEdgeHasCenterAndRightCenterRowsThenCentresOneAndPutsTheOtherBesideIt() throws
+    {
+        // Given
+        let size = CGSize(width: 800, height: 400)
+        let top = TouchEdge(center: [button(.view)], rightCenter: [button(.menu)])
+
+        // When
+        let plan = TouchLayoutPlanner(metrics: .dummy, adjustments: .init(), sticks: .init())
+            .plan(for: TouchLayer(upper: top))
+
+        // Then
+        let view = try #require(control(.button(.view), in: plan)).position(in: size)
+        let menu = try #require(control(.button(.menu), in: plan)).position(in: size)
+        #expect(view.x == size.width / 2)
+        #expect(menu.x - view.x >= TouchMetrics.dummy.smallButtonDiameter)
+    }
 }
 
 private extension TouchLayoutPlannerTests {
     func makePlan(adjustments: TouchLayoutAdjustments = .init()) -> TouchControlPlan {
         TouchLayoutPlanner(metrics: .dummy, adjustments: adjustments, sticks: .init())
             .plan(for: StandardTouchLayout().layout.base)
+    }
+
+    func button(_ output: TouchGamepadOutput) -> TouchSlot {
+        .control(.init(kind: .button(.init(actions: [.output(.gamepad(output))]))))
     }
 
     func control(_ input: TouchInput, in plan: TouchControlPlan) -> TouchControlPlacement? {

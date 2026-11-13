@@ -316,6 +316,7 @@ public final class StreamViewModel {
         guard let touchControls, title.isFocused, title.titleID != touchTitleID else { return }
 
         touchTitleID = title.titleID
+        touchControls.clearTitle()
         touchBundleTask?.cancel()
         touchBundleTask = Task { await loadTouchBundle(for: title.titleID, into: touchControls) }
     }
@@ -338,6 +339,8 @@ public final class StreamViewModel {
             log.error(
                 "Touch layouts for \(titleID, privacy: .public) could not be loaded: \(error)"
             )
+
+            if touchTitleID == titleID { touchTitleID = nil }
         }
     }
 
@@ -472,6 +475,7 @@ public final class StreamViewModel {
         guard canOpenMenu else { return }
 
         isMenuOpen = true
+        releaseKeyboard()
     }
 
     public func closeMenu() {
@@ -508,6 +512,10 @@ public final class StreamViewModel {
     @discardableResult
     public func handleKey(_ keyCode: UInt16, isDown: Bool) -> Bool {
         guard preferences.isKeyboardControllerEnabled, isStreaming else { return false }
+        guard isAcceptingKeyboard else {
+            releaseKeyboard()
+            return false
+        }
 
         let isHandled = keyboard.setKey(keyCode, isDown: isDown)
 
@@ -516,6 +524,10 @@ public final class StreamViewModel {
         }
 
         return isHandled
+    }
+
+    private var isAcceptingKeyboard: Bool {
+        !isMenuOpen && dialogs.queue.isEmpty
     }
 
     public func releaseKeyboard() {

@@ -287,8 +287,8 @@ Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
 - **Which layout.** When the running title has its own touch layout (Xbox Touch Adaptation Kit), in
   cloud and remote play alike, Starfold loads it and the game decides when it shows, hides or
   changes and what state it is in. Touch Controller draws buttons, sticks, triggers and D-pads; a
-  layout that also needs throttles, touchpads, arcade button groups, layer switches, turbo or
-  mouse output falls back to the standard layout, rather than leaving out a control the game
+  layout that also needs throttles, touchpads, arcade button groups, layer switches, turbo,
+  toggle or pull buttons, several controls in one slot, centre controls or mouse output falls back to the standard layout, rather than leaving out a control the game
   needs. Every other title gets the standard Xbox layout (Microsoft's sample
   `standard-controller.json`): left stick, D-pad, LB, LT and left stick click on the left; A, B,
   X, Y, RB, RT, right stick and right stick click on the right; View and Menu at the top right.

@@ -11,13 +11,18 @@ import TouchController
 import UIKit
 
 final class TouchControllerView: MTKView {
+    private struct TrackedTouch {
+        let index: Int
+        var point: CGPoint
+    }
+
     var isHapticsEnabled = false
 
     private let commandQueue: MTLCommandQueue?
     private let pressFeedback = UIImpactFeedbackGenerator(style: .light)
 
     private var touchController: TCTouchController?
-    private var touchIndices: [ObjectIdentifier: Int] = [:]
+    private var touches: [ObjectIdentifier: TrackedTouch] = [:]
     private var plan: TouchControlPlan?
 
     init() {
@@ -46,11 +51,18 @@ final class TouchControllerView: MTKView {
         alpha = plan.opacity
 
         let controller = connectedController()
+        for touch in touches.values {
+            _ = controller.handleTouchEnded(at: touch.point, index: touch.index)
+        }
         controller.removeAllControls()
 
         let builder = TouchControlBuilder(controller: controller, sticks: plan.sticks)
         for placement in plan.controls {
             builder.add(placement)
+        }
+
+        for touch in touches.values {
+            _ = controller.handleTouchBegan(at: touch.point, index: touch.index)
         }
     }
 
@@ -88,18 +100,17 @@ final class TouchControllerView: MTKView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            let index = nextFreeIndex()
-            touchIndices[ObjectIdentifier(touch)] = index
+            let tracked = TrackedTouch(index: nextFreeIndex(), point: touch.location(in: self))
+            self.touches[ObjectIdentifier(touch)] = tracked
 
             let isOnControl =
-                touchController?.handleTouchBegan(at: touch.location(in: self), index: index)
-                ?? false
+                touchController?.handleTouchBegan(at: tracked.point, index: tracked.index) ?? false
             if isOnControl { tapFeedback() }
         }
     }
 
     private func nextFreeIndex() -> Int {
-        let used = Set(touchIndices.values)
+        let used = Set(touches.values.map(\.index))
         return (0...).first { !used.contains($0) } ?? 0
     }
 
@@ -111,9 +122,11 @@ final class TouchControllerView: MTKView {
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            guard let index = touchIndices[ObjectIdentifier(touch)] else { continue }
+            let point = touch.location(in: self)
+            guard let index = self.touches[ObjectIdentifier(touch)]?.index else { continue }
 
-            _ = touchController?.handleTouchMoved(at: touch.location(in: self), index: index)
+            self.touches[ObjectIdentifier(touch)]?.point = point
+            _ = touchController?.handleTouchMoved(at: point, index: index)
         }
     }
 
@@ -127,20 +140,23 @@ final class TouchControllerView: MTKView {
 
     private func end(_ touches: Set<UITouch>) {
         for touch in touches {
-            guard let index = touchIndices.removeValue(forKey: ObjectIdentifier(touch)) else {
+            guard let tracked = self.touches.removeValue(forKey: ObjectIdentifier(touch)) else {
                 continue
             }
 
-            _ = touchController?.handleTouchEnded(at: touch.location(in: self), index: index)
+            _ = touchController?.handleTouchEnded(
+                at: touch.location(in: self),
+                index: tracked.index
+            )
         }
     }
 
     private func releaseAllTouches() {
-        for index in touchIndices.values {
-            _ = touchController?.handleTouchEnded(at: .zero, index: index)
+        for touch in touches.values {
+            _ = touchController?.handleTouchEnded(at: touch.point, index: touch.index)
         }
 
-        touchIndices.removeAll()
+        touches.removeAll()
     }
 }
 

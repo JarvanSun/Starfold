@@ -14,6 +14,8 @@ final class StreamServiceStub: StreamService {
     var updates: [StreamUpdate] = []
     var failure: Error?
     var touchBundle: TouchBundle?
+    var touchBundleFailures: [Error] = []
+    private(set) var connection: StreamConnectionStub?
     private(set) var connectedTargets: [StreamTarget] = []
     private(set) var directStereoChanges: [Bool] = []
     private(set) var touchBundleRequests: [String] = []
@@ -25,7 +27,9 @@ final class StreamServiceStub: StreamService {
             throw failure
         }
 
-        return StreamConnectionStub(updates: updates)
+        let connection = StreamConnectionStub(updates: updates)
+        self.connection = connection
+        return connection
     }
 
     func setDirectStereo(_ isEnabled: Bool) {
@@ -35,6 +39,10 @@ final class StreamServiceStub: StreamService {
     func touchBundle(forTitle titleID: String, on target: StreamTarget) async throws -> TouchBundle?
     {
         touchBundleRequests.append(titleID)
+
+        if !touchBundleFailures.isEmpty {
+            throw touchBundleFailures.removeFirst()
+        }
 
         return touchBundle
     }

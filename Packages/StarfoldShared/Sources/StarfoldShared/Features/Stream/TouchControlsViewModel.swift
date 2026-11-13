@@ -25,6 +25,7 @@ public final class TouchControlsViewModel {
     private let log = Logger(category: .stream)
 
     private var context = TouchContext()
+    private var pendingPatches: [JSONPatch] = []
 
     public var isShowing: Bool {
         controllers.activeInput == .touch && !isHiddenByGame
@@ -69,9 +70,19 @@ public final class TouchControlsViewModel {
 
     func load(_ bundle: TouchBundle) {
         titleBundle = bundle
-        context = bundle.context
+        context = pendingPatches.reduce(bundle.context) { applying($1, to: $0) }
+        pendingPatches = []
 
         resolveTitleLayout()
+    }
+
+    func clearTitle() {
+        titleBundle = nil
+        titleLayout = nil
+        context = TouchContext()
+        pendingPatches = []
+        reference = .standard
+        isHiddenByGame = false
     }
 
     func apply(_ command: TouchControlsCommand) {
@@ -95,12 +106,25 @@ public final class TouchControlsViewModel {
     private func applyPatch(_ data: Data) {
         do {
             let patch = try JSONDecoder().decode(JSONPatch.self, from: data)
-            context = try context.applying(patch)
+
+            switch titleBundle {
+            case nil: pendingPatches.append(patch)
+            case _?: context = applying(patch, to: context)
+            }
         } catch {
-            log.error("Touch state patch was not applied: \(error)")
+            log.error("Touch state patch could not be read: \(error)")
         }
 
         resolveTitleLayout()
+    }
+
+    private func applying(_ patch: JSONPatch, to context: TouchContext) -> TouchContext {
+        do {
+            return try context.applying(patch)
+        } catch {
+            log.error("Touch state patch was not applied: \(error)")
+            return context
+        }
     }
 
     private func resolveTitleLayout() {

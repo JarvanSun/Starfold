@@ -19,25 +19,27 @@ struct GameTextPrompt: View {
     let onCancel: () -> Void
 
     var body: some View {
-        Form {
-            if !description.isEmpty {
-                Text(description)
-            }
+        NavigationStack {
+            Form {
+                if !description.isEmpty {
+                    Text(description)
+                }
 
-            TextField(title, text: $text)
-                .onSubmit(onSubmit)
+                TextField(title, text: $text)
+                    .onSubmit(onSubmit)
+            }
+            .formStyle(.grouped)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "stream.textPrompt.cancel")) { onCancel() }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(String(localized: "stream.textPrompt.done")) { onSubmit() }
+                }
+            }
         }
-        .formStyle(.grouped)
         .frame(minWidth: dimensions.gameDialogMinimumWidth)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button(String(localized: "stream.textPrompt.cancel")) { onCancel() }
-            }
-
-            ToolbarItem(placement: .confirmationAction) {
-                Button(String(localized: "stream.textPrompt.done")) { onSubmit() }
-            }
-        }
     }
 }
 

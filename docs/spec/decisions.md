@@ -112,12 +112,15 @@ In StarfoldShared.
 - **PrimaryButtonStyle**: Under Reduce Motion the hover growth is dropped; the hover lightening stays.
 - **AppPalette**: Apple TV uses `untintedAppPalette()` because there the palette only colours the sky.
 - **LiveNetworkPath**: The cellular state sits behind an unfair lock because NWPathMonitor reports on its own queue while ViewModels read it on the main actor.
+- **StreamViewModel**: Keys play as a gamepad only while nothing covers the game (no stream menu, no game dialog); a key that arrives otherwise releases every held key, so none stays pressed.
 - **StreamViewModel**: The Cellular quality ceiling caps the quality after the AdaptiveQuality override, so a pinned cloud stream still respects it.
 - **TouchLayoutPlanner**: Microsoft does not publish where its renderer puts TAK slots, so outer slots are spread evenly over a 100° arc around their wheel, the right wheel running from the top towards the centre to match the order of the standard sample.
-- **TouchControlsViewModel**: A title layout is used only when every visible control has a Touch Controller counterpart (`TouchLayer.isDrawable`); a partly drawn layout could leave out the control a game needs.
+- **TouchControlsViewModel**: A title layout is used only when the planner can draw every visible control as the game meant it (`TouchLayer.isDrawable`): each has a Touch Controller counterpart, no slot holds more than one, nothing sits in the centre wheel, and no button toggles or has a pull action. A partly drawn layout could leave out the control a game needs.
+- **TouchControlsViewModel**: State patches that arrive before the title's bundle are kept and applied once it loads, and a new focused title clears the previous title's layout, state and hiding.
 - **TouchControlsViewModel**: Edits apply only to the standard layout because a title layout's positions come from the game's own design.
 - **TouchSticks**: Stick visibility is one setting for both orientations, not part of the per-orientation adjustments, because whether a game needs a stick does not depend on the screen's shape. The plan carries it, so the planner still places every stick and the editor can draw an outline where a hidden stick sits.
 - **Preferences**: Touch layout edits are kept in an observed property as well as `UserDefaults`, so a stream redraws as soon as the editor changes them.
+- **TouchBundleUnpacker**: A title's touch bundle is inflated and checked off the main actor (`@concurrent`), because a large bundle arrives while the stream is playing.
 - **StandardTouchLayout**: The standard layout is Microsoft's MIT `standard-controller.json`, decoded like any title layout so both go through one planner.
 
 ## Mac
@@ -198,8 +201,10 @@ In `StarfoldiOS/`.
 - **OrientationLock**: iPhone streams in landscape, so the lock checks the `.phone` idiom; size classes cannot tell an iPhone from an iPad window of the same size. The app delegate reports the lock because SwiftUI has no supported-orientations API. Landscape is held by a count, so the touch editor shown over a stream does not release the stream's landscape when it closes.
 - **TouchControllerView**: Touches reach Touch Controller by a per-finger index because it does not track `UITouch`; `point(inside:with:)` is true only over a control, so taps elsewhere reach the stream and its menu handle.
 - **TouchControllerView**: Controls draw in their own transparent Metal view above the picture, never into video frames.
+- **TouchControllerView**: Rebuilding the controls (a new plan) ends each held finger on the old controls and begins it again at the same point on the new ones, so a held stick keeps working and no removed button stays pressed.
 - **TouchControlBuilder**: Sticks take half the screen as their touch area, and Touch Controller gives an overlapping touch to the higher `zIndex` (at equal `zIndex`, to the control added last), so sticks sit on a lower layer than every button.
 - **TouchControlBuilder**: A stick set to On Touch uses Touch Controller's `hidesWhenNotPressed`; a stick set to Off is not added, so its half of the screen passes touches through to the stream.
 - **TouchLayoutEditorView**: The editor draws the real Touch Controller controls, non-interactive, under transparent drag handles, so what is edited is exactly what is played.
 - **TouchPlatform**: `maxTouchPoints` 5 is an assumption about what a phone browser reports to xbox.com; it is not confirmed against the service.
 - **RootView**: Going to the background ends the stream inside a background task, as Apple TV does, because a suspended app cannot delete the host session.
+- **RootView**: The stream ends when its full-screen cover is dismissed, not when the stream view disappears, because the touch editor's cover hides the stream without ending it. Both paths go through one `BackgroundStreamEnd`, which ignores a second end while one is running.

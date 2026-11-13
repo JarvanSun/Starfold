@@ -450,6 +450,49 @@ struct StreamViewModelTests {
     }
 
     @Test
+    func runningTitleWhenTheTouchLayoutsFailedToLoadThenTriesAgain() async throws {
+        // Given
+        let service = StreamServiceStub()
+        let title = RunningTitle(titleID: "1717", isFocused: true)
+        service.updates = [.phase(.streaming), .runningTitle(title)]
+        service.touchBundleFailures = [URLError(.timedOut)]
+        let stream = makeStream(service: service, touch: .dummy)
+        stream.start()
+        await Eventually().holds { service.touchBundleRequests.count == 1 }
+
+        // When
+        try #require(service.connection).send(.runningTitle(title))
+
+        // Then
+        #expect(await Eventually().holds { service.touchBundleRequests.count == 2 })
+    }
+
+    @Test
+    func handleKeyWhenTheMenuIsOpenThenLeavesTheKeyToTheMenu() async {
+        // Given
+        let stream = await makeStreamingStream(touch: .dummy)
+        stream.openMenu()
+
+        // When
+        let isHandled = stream.handleKey(KeyboardKey.a.rawValue, isDown: true)
+
+        // Then
+        #expect(!isHandled)
+    }
+
+    @Test
+    func handleKeyWhenStreamingThenPlaysTheKeyAsAGamepad() async {
+        // Given
+        let stream = await makeStreamingStream(touch: .dummy)
+
+        // When
+        let isHandled = stream.handleKey(KeyboardKey.a.rawValue, isDown: true)
+
+        // Then
+        #expect(isHandled)
+    }
+
+    @Test
     func openMenuThenOpensItAndStopsRoutingInputToTheGame() async {
         // Given
         let stream = await makeStreamingStream(touch: .dummy)
