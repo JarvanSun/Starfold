@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/12.
 //
 
+import CoreHaptics
 import Foundation
 import GameController
 import Observation
@@ -16,40 +17,57 @@ public final class ControllerHub {
     public let router: GamepadRouter
     public let xboxButton: XboxButtonSettings
 
+    public var isDeviceRumbleEnabled = false
+
     public private(set) var connected: [ConnectedController] = []
     public private(set) var isRoutingToGame: Bool
+    public private(set) var activeInput: ActiveInput = .touch
 
     private let destination: ControllerInputDestination
     private let inputQueue: DispatchQueue
+    private let touchControllerCategory: String?
     private let log = Logger(category: .controllers)
 
     private var slots: [ObjectIdentifier: UInt8] = [:]
+    private var touchControllerID: ObjectIdentifier?
     private var rumblePlayers: [ObjectIdentifier: RumblePlayer] = [:]
+    private var deviceRumble: RumblePlayer?
     private var observers: [NSObjectProtocol] = []
 
-    public init(routing: ControllerRouting) {
+    public init(routing: ControllerRouting, touchControllerCategory: String? = nil) {
         let router = GamepadRouter(routing: routing)
         let inputQueue = DispatchQueue(label: "StreamKit.controllers", qos: .userInteractive)
         self.router = router
         xboxButton = XboxButtonSettings()
         self.inputQueue = inputQueue
+        self.touchControllerCategory = touchControllerCategory
 
         switch routing {
         case .direct:
             destination = .router(router)
             isRoutingToGame = true
-        case .television:
-            destination = .television(TVControllerInput(queue: inputQueue, router: router))
+        case .gated:
+            destination = .gated(GatedControllerInput(queue: inputQueue, router: router))
             isRoutingToGame = false
         }
 
         GCController.shouldMonitorBackgroundEvents = true
+
+        observeActiveInput()
 
         observeConnections()
 
         syncControllers()
 
         GCController.startWirelessControllerDiscovery {}
+    }
+
+    private func observeActiveInput() {
+        router.setActiveInputHandler { [weak self] input in
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated { self?.activeInput = input }
+            }
+        }
     }
 
     private func observeConnections() {
@@ -73,6 +91,10 @@ public final class ControllerHub {
             detach(id)
         }
 
+        if let touchControllerID, !currentIDs.contains(touchControllerID) {
+            detachTouchController()
+        }
+
         for controller in current {
             attach(controller)
         }
@@ -92,9 +114,53 @@ public final class ControllerHub {
         inputQueue.async {
             destination.update(slot: slot, state: nil)
         }
+
+        if slots.isEmpty {
+            router.use(.touch)
+        }
+    }
+
+    private func detachTouchController() {
+        touchControllerID = nil
+
+        let destination = destination
+        inputQueue.async {
+            destination.updateTouch(nil)
+        }
     }
 
     private func attach(_ controller: GCController) {
+        let isTouchController = controller.productCategory == touchControllerCategory
+
+        switch isTouchController {
+        case true: attachTouchController(controller)
+        case false: attachPhysicalController(controller)
+        }
+    }
+
+    private func attachTouchController(_ controller: GCController) {
+        let id = ObjectIdentifier(controller)
+        guard touchControllerID != id else { return }
+
+        touchControllerID = id
+
+        controller.handlerQueue = inputQueue
+
+        let profile = controller.physicalInputProfile
+        let destination = destination
+        profile.valueDidChangeHandler = { @Sendable profile, _ in
+            destination.updateTouch(GamepadState(reading: profile))
+        }
+
+        nonisolated(unsafe) let initialProfile = profile
+        inputQueue.async {
+            destination.attachTouch(initialProfile)
+        }
+
+        log.info("Touch controller attached to slot 0")
+    }
+
+    private func attachPhysicalController(_ controller: GCController) {
         let id = ObjectIdentifier(controller)
         guard let gamepad = controller.extendedGamepad,
             slots[id] == nil,
@@ -110,6 +176,10 @@ public final class ControllerHub {
         }
 
         listConnected(controller, slot: slot)
+
+        deviceRumble?.stop()
+
+        router.use(.controller)
 
         log.info("Controller \(controller.vendorName ?? "?") → slot \(slot)")
     }
@@ -157,7 +227,7 @@ public final class ControllerHub {
     }
 
     public func routeInput(toGame isPlaying: Bool) {
-        guard case .television(let input) = destination else { return }
+        guard case .gated(let input) = destination else { return }
 
         isRoutingToGame = isPlaying
 
@@ -168,11 +238,36 @@ public final class ControllerHub {
         input.setPlaying(isPlaying)
     }
 
+    public func useTouchControls() {
+        router.use(.touch)
+    }
+
     public func playRumble(_ effect: VibrationEffect) {
-        for controller in GCController.controllers()
-        where slots[ObjectIdentifier(controller)] == effect.gamepadIndex {
-            rumblePlayers[ObjectIdentifier(controller)]?.play(effect)
+        let target = RumbleTarget(
+            effect: effect,
+            controllerSlots: Set(slots.values),
+            isDeviceRumbleEnabled: isDeviceRumbleEnabled
+        )
+
+        switch target {
+        case .controllers(let slot): playOnControllers(effect, slot: slot)
+        case .device: deviceRumblePlayer()?.play(effect)
+        case .nowhere: break
         }
+    }
+
+    private func playOnControllers(_ effect: VibrationEffect, slot: UInt8) {
+        for (id, controllerSlot) in slots where controllerSlot == slot {
+            rumblePlayers[id]?.play(effect)
+        }
+    }
+
+    private func deviceRumblePlayer() -> RumblePlayer? {
+        if deviceRumble == nil {
+            deviceRumble = RumblePlayer(device: CHHapticEngine.capabilitiesForHardware())
+        }
+
+        return deviceRumble
     }
 
     public func testRumble(slot: UInt8) {
@@ -191,5 +286,7 @@ public final class ControllerHub {
         for player in rumblePlayers.values {
             player.stop()
         }
+
+        deviceRumble?.stop()
     }
 }

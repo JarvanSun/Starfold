@@ -12,9 +12,15 @@ enum MessageTarget: String {
     case touchInputEnabledChanged = "/streaming/characteristics/touchinputenabledchanged"
     case clientDeviceCapabilities = "/streaming/characteristics/clientdevicecapabilities"
     case dimensionsChanged = "/streaming/characteristics/dimensionschanged"
+    case touchBundleMetadataChanged = "/streaming/characteristics/touchBundleMetadataChanged"
     case showMessageDialog = "/streaming/systemUi/messages/ShowMessageDialog"
     case showVirtualKeyboard = "/streaming/systemUi/messages/ShowVirtualKeyboard"
     case serverInitiatedDisconnect =
         "/streaming/sessionLifetimeManagement/serverInitiatedDisconnect"
     case titleInfo = "/streaming/properties/titleinfo"
+    case showTouchLayoutV2 = "/streaming/touchcontrols/showlayoutv2"
+    case showTouchLayout = "/streaming/touchcontrols/showlayout"
+    case showTitleDefaultTouchLayout = "/streaming/touchcontrols/showtitledefault"
+    case patchTouchLayoutState = "/streaming/touchcontrols/patchstate"
+    case hideTouchLayout = "/streaming/touchcontrols/hide"
 }

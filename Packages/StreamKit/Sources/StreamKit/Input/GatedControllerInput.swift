@@ -1,5 +1,5 @@
 //
-//  TVControllerInput.swift
+//  GatedControllerInput.swift
 //  StreamKit
 //
 //  Created by Jiawen Sun on 2026/09/30.
@@ -8,12 +8,13 @@
 import Foundation
 import GameController
 
-final class TVControllerInput: @unchecked Sendable {
+final class GatedControllerInput: @unchecked Sendable {
     private let queue: DispatchQueue
     private let router: GamepadRouter
 
-    private var policy = TVGamepadPolicy()
+    private var policy = GatedGamepadPolicy()
     private var gamepads: [UInt8: GCExtendedGamepad] = [:]
+    private var touchProfile: GCPhysicalInputProfile?
 
     init(queue: DispatchQueue, router: GamepadRouter) {
         self.queue = queue
@@ -42,21 +43,25 @@ final class TVControllerInput: @unchecked Sendable {
 
     private func refreshHeldControls() {
         for (slot, gamepad) in gamepads {
-            deliver(policy.update(slot: slot, state: GamepadState(reading: gamepad)))
+            deliver(policy.update(.slot(slot), state: GamepadState(reading: gamepad)))
+        }
+
+        if let touchProfile {
+            deliver(policy.update(.touch, state: GamepadState(reading: touchProfile)))
         }
     }
 
-    private func deliver(_ output: TVGamepadPolicy.Output) {
+    private func deliver(_ output: GatedGamepadPolicy.Output) {
         if output.shouldClearPendingInput {
-            router.clearPendingPhysicalInput(slots: Array(output.states.keys))
+            router.clearPendingInput(from: Array(output.states.keys))
         }
 
-        for (slot, state) in output.states.sorted(by: { $0.key < $1.key }) {
-            router.update(slot: slot, state: state)
+        for (source, state) in output.states.sorted(by: { $0.key < $1.key }) {
+            router.update(source, state: state)
         }
 
-        for slot in output.removedSlots {
-            router.update(slot: slot, state: nil)
+        for source in output.removed {
+            router.update(source, state: nil)
         }
     }
 
@@ -82,6 +87,20 @@ final class TVControllerInput: @unchecked Sendable {
             gamepads[slot] = nil
         }
 
-        deliver(policy.update(slot: slot, state: state))
+        deliver(policy.update(.slot(slot), state: state))
+    }
+
+    func attachTouch(_ profile: GCPhysicalInputProfile) {
+        touchProfile = profile
+
+        updateTouch(GamepadState(reading: profile))
+    }
+
+    func updateTouch(_ state: GamepadState?) {
+        if state == nil {
+            touchProfile = nil
+        }
+
+        deliver(policy.update(.touch, state: state))
     }
 }

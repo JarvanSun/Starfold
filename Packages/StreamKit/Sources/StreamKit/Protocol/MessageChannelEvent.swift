@@ -13,4 +13,6 @@ enum MessageChannelEvent: Equatable, Sendable {
     case dialog(SystemDialogRequest)
     case dialogCancelled(id: String)
     case serverDisconnect
+    case touchControls(TouchControlsCommand)
+    case runningTitle(RunningTitle)
 }

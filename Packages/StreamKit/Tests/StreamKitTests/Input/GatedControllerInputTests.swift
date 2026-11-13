@@ -1,5 +1,5 @@
 //
-//  TVControllerInputTests.swift
+//  GatedControllerInputTests.swift
 //  StreamKitTests
 //
 //  Created by Jiawen Sun on 2026/11/12.
@@ -10,11 +10,11 @@ import Testing
 
 @testable import StreamKit
 
-struct TVControllerInputTests {
+struct GatedControllerInputTests {
     @Test
     func updateWhenMenuPressedAndReleasedThenReleaseComesFromHardware() async {
         // Given
-        let queue = DispatchQueue(label: "TVControllerInputTests.menu")
+        let queue = DispatchQueue(label: "GatedControllerInputTests.menu")
         let (input, destination) = makeInput(queue: queue, watchedSlot: 0)
         destination.clear()
 
@@ -36,7 +36,7 @@ struct TVControllerInputTests {
 
     func updateWhenPlayerDisconnectsThenRemovesSlotInsteadOfLeavingNeutralPad() async {
         // Given
-        let queue = DispatchQueue(label: "TVControllerInputTests.disconnect")
+        let queue = DispatchQueue(label: "GatedControllerInputTests.disconnect")
         let (input, destination) = makeInput(queue: queue, watchedSlot: 1)
         input.setPlaying(true)
 
@@ -54,7 +54,7 @@ struct TVControllerInputTests {
 
     func setPlayingWhenStoppedThenClearsPendingTapsBeforeSendingNeutral() async {
         // Given
-        let queue = DispatchQueue(label: "TVControllerInputTests.interface")
+        let queue = DispatchQueue(label: "GatedControllerInputTests.interface")
         let (input, destination) = makeInput(queue: queue, watchedSlot: 0)
         input.setPlaying(true)
         await run(on: queue) {
@@ -73,11 +73,55 @@ struct TVControllerInputTests {
         #expect(destination.recordedStates.first! == nil)
         #expect(destination.recordedStates.last! == GamepadState())
     }
+
+    @Test
+    func setPlayingWhenStoppedWithTouchHeldThenClearsPlayerOneBeforeSendingNeutral() async {
+        // Given
+        let queue = DispatchQueue(label: "GatedControllerInputTests.touchInterface")
+        let (input, destination) = makeInput(queue: queue, watchedSlot: 0)
+        input.setPlaying(true)
+        await run(on: queue) {
+            input.updateTouch(GamepadState(buttons: [.a]))
+
+            destination.clear()
+        }
+
+        // When
+        input.setPlaying(false)
+
+        await run(on: queue) {}
+
+        // Then
+        #expect(destination.recordedStates == [nil, GamepadState()])
+    }
+
+    @Test
+    func updateTouchWhenHeldThroughInterruptionThenCountsOnlyAfterRelease() async {
+        // Given
+        let queue = DispatchQueue(label: "GatedControllerInputTests.touchHeld")
+        let (input, destination) = makeInput(queue: queue, watchedSlot: 0)
+        input.setPlaying(true)
+        await run(on: queue) { input.updateTouch(GamepadState(buttons: [.a])) }
+        input.setPlaying(false)
+        input.setPlaying(true)
+        await run(on: queue) { destination.clear() }
+
+        // When
+        await run(on: queue) {
+            input.updateTouch(GamepadState(buttons: [.a]))
+            input.updateTouch(GamepadState())
+            input.updateTouch(GamepadState(buttons: [.a]))
+        }
+
+        // Then
+        #expect(destination.recordedStates.last??.buttons == [.a])
+        #expect(destination.recordedStates.dropLast().allSatisfy { $0 == GamepadState() })
+    }
 }
 
-private extension TVControllerInputTests {
+private extension GatedControllerInputTests {
     func makeInput(queue: DispatchQueue, watchedSlot: UInt8) -> (
-        TVControllerInput, GamepadDestinationStub
+        GatedControllerInput, GamepadDestinationStub
     ) {
         let router = GamepadRouter(routing: .direct)
         let destination = GamepadDestinationStub()
@@ -86,7 +130,7 @@ private extension TVControllerInputTests {
                 destination.record(slot, state)
             }
         }
-        return (TVControllerInput(queue: queue, router: router), destination)
+        return (GatedControllerInput(queue: queue, router: router), destination)
     }
 
     func run(on queue: DispatchQueue, _ body: @escaping @Sendable () -> Void) async {

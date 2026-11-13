@@ -28,6 +28,14 @@ final class RumblePlayer {
         guard !engines.isEmpty else { return nil }
     }
 
+    init?(device: CHHapticDeviceCapability) {
+        guard device.supportsHaptics, let engine = try? CHHapticEngine() else { return nil }
+
+        engine.playsHapticsOnly = true
+        try? engine.start()
+        engines[.default] = engine
+    }
+
     private func startLocalizedEngines(_ haptics: GCDeviceHaptics) {
         let localities: [GCHapticsLocality] = [
             .leftHandle, .rightHandle, .leftTrigger, .rightTrigger,

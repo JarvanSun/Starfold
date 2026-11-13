@@ -21,7 +21,7 @@ struct MessageChannelTests {
             videoWidth: 1920,
             videoHeight: 1080,
             clientAppInstallID: UUID(),
-            isTouchEnabled: false
+            touch: nil
         )
 
         // Then
@@ -113,9 +113,139 @@ struct MessageChannelTests {
         // When / Then
         #expect(channel.receive(acknowledgement) == [.handshakeAcknowledged])
     }
+
+    @Test
+    func initialConfigurationWhenNoTouchThenKeepsTouchOffWithEmptyCapabilities() throws {
+        // Given
+        var channel = MessageChannel(correlationBase: "abc")
+
+        // When
+        let packets = channel.initialConfiguration(
+            videoWidth: 1280,
+            videoHeight: 720,
+            clientAppInstallID: UUID(),
+            touch: nil
+        )
+
+        // Then
+        #expect(try object(packets[3])["content"] as? String == #"{"touchInputEnabled":false}"#)
+        #expect(try object(packets[4])["content"] as? String == "{}")
+    }
+
+    @Test
+    func initialConfigurationWhenTouchSupportedThenEnablesTouchAndNamesBundleVersions() throws {
+        // Given
+        var channel = MessageChannel(correlationBase: "abc")
+        let touch = TouchCapabilities(
+            maxTouchPoints: 5,
+            maxLayoutVersion: "4.1.0.0",
+            maxManifestVersion: "2.0.0.0"
+        )
+
+        // When
+        let packets = channel.initialConfiguration(
+            videoWidth: 1280,
+            videoHeight: 720,
+            clientAppInstallID: UUID(),
+            touch: touch
+        )
+
+        // Then
+        #expect(try object(packets[3])["content"] as? String == #"{"touchInputEnabled":true}"#)
+        #expect(
+            try object(packets[4])["content"] as? String
+                == #"{"maxTouchBundleLayoutVersion":"4.1.0.0","maxTouchBundleManifestVersion":"2.0.0.0"}"#
+        )
+    }
+
+    @Test
+    func touchBundleMetadataChangedThenSendsMessageWithVersionAndName() throws {
+        // Given
+        var channel = MessageChannel(correlationBase: "abc")
+
+        // When
+        let packet = try object(
+            channel.touchBundleMetadataChanged(version: "1.4.0.0", versionName: "Launch")
+        )
+
+        // Then
+        #expect(packet["type"] as? String == "Message")
+        #expect(
+            packet["target"] as? String == "/streaming/characteristics/touchBundleMetadataChanged"
+        )
+        #expect(packet["content"] as? String == #"{"version":"1.4.0.0","versionName":"Launch"}"#)
+        #expect(packet["cv"] as? String == "abc.1")
+    }
+
+    @Test
+    func receiveWhenTouchControlsMessageThenReportsCommandWithoutReply() throws {
+        // Given
+        var channel = MessageChannel(correlationBase: "abc")
+        let message = try envelope(type: "Message", target: "/streaming/touchcontrols/hide")
+
+        // When / Then
+        #expect(channel.receive(message) == [.touchControls(.hide)])
+    }
+
+    @Test
+    func receiveWhenTouchControlsTransactionThenCancelsAndReportsCommand() throws {
+        // Given
+        var channel = MessageChannel(correlationBase: "abc")
+        let transaction = try envelope(
+            type: "TransactionStart",
+            target: "/streaming/touchcontrols/showtitledefault"
+        )
+
+        // When
+        let events = channel.receive(transaction)
+
+        // Then
+        guard case .reply(let reply)? = events.first else {
+            Issue.record("Expected a reply")
+
+            return
+        }
+
+        #expect(try object(reply)["type"] as? String == "ReceiverCancel")
+        #expect(try object(reply)["id"] as? String == "9")
+        #expect(events.dropFirst() == [.touchControls(.showLayout(.titleDefault, statePatch: nil))])
+    }
+
+    @Test
+    func receiveWhenUnknownTouchControlsMessageThenIgnoresIt() throws {
+        // Given
+        var channel = MessageChannel(correlationBase: "abc")
+        let message = try envelope(type: "Message", target: "/streaming/touchcontrols/sensor")
+
+        // When / Then
+        #expect(channel.receive(message).isEmpty)
+    }
+
+    @Test
+    func receiveWhenTitleInfoThenReportsRunningTitle() throws {
+        // Given
+        var channel = MessageChannel(correlationBase: "abc")
+        let message = try envelope(
+            type: "Message",
+            target: "/streaming/properties/titleinfo",
+            content: #"{"titleid":"5D3C5A7D","focus":false}"#
+        )
+
+        // When / Then
+        #expect(
+            channel.receive(message)
+                == [.runningTitle(RunningTitle(titleID: "5D3C5A7D", isFocused: false))]
+        )
+    }
 }
 
 private extension MessageChannelTests {
+    func envelope(type: String, target: String, content: String = "{}") throws -> Data {
+        try JSONSerialization.data(withJSONObject: [
+            "type": type, "id": "9", "target": target, "content": content,
+        ])
+    }
+
     func object(_ data: Data) throws -> [String: Any] {
         try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
