@@ -19,10 +19,8 @@ struct RecentGamesShelf: View {
             ForEach(games) { button(for: $0) }
         }
     }
-}
 
-private extension RecentGamesShelf {
-    func button(for game: CloudGame) -> some View {
+    private func button(for game: CloudGame) -> some View {
         Button {
             onPlay(game)
         } label: {

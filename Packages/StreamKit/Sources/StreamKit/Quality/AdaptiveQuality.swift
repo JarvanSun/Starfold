@@ -27,10 +27,8 @@ public struct AdaptiveQuality: Sendable {
     public func isLoweredByHost(received: CGSize, requested: StreamQuality) -> Bool {
         Int(received.height) < fullHeight(of: requested)
     }
-}
 
-private extension AdaptiveQuality {
-    func fullHeight(of quality: StreamQuality) -> Int {
+    private func fullHeight(of quality: StreamQuality) -> Int {
         switch (quality, target) {
         case (.standard, _): 720
         case (.high, _), (.highest, .console): 1080

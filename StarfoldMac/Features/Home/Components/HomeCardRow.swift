@@ -38,22 +38,20 @@ struct HomeCardRow: View {
         .scrollClipDisabled()
         .defaultScrollAnchor(.center)
     }
-}
 
-private extension HomeCardRow {
-    func failedCard(_ message: String) -> some View {
+    private func failedCard(_ message: String) -> some View {
         ConsolesFailedCard(message: message, onRetry: { refreshConsoles() })
     }
 
-    var consoleCards: some View {
+    private func refreshConsoles() {
+        Task { await home.refreshConsoles() }
+    }
+
+    private var consoleCards: some View {
         ForEach(Array(home.consoles.enumerated()), id: \.element.id) { index, console in
             ConsoleCard(console: console, home: home)
                 .cardEntrance(index: index + 1)
         }
-    }
-
-    func refreshConsoles() {
-        Task { await home.refreshConsoles() }
     }
 }
 

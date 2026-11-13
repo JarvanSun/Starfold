@@ -28,10 +28,8 @@ struct StreamStatisticsView: View {
         .padding(dimensions.spaceXLarge)
         .background(.regularMaterial, in: .rect(cornerRadius: dimensions.cornerRadiusLarge))
     }
-}
 
-private extension StreamStatisticsView {
-    func latencyLine(_ latency: StatisticsLatency) -> some View {
+    private func latencyLine(_ latency: StatisticsLatency) -> some View {
         HStack {
             Text("stream.statistics.latency")
                 .foregroundStyle(.secondary)

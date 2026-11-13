@@ -91,6 +91,12 @@ public actor XboxAccount {
         }
     }
 
+    private func invalidateStreamingToken(_ offering: StreamingOffering) {
+        stored.streamingTokens[offering] = nil
+
+        save()
+    }
+
     func webAuthorization() async throws -> String {
         if let cached = stored.webToken, cached.isValid(at: now()) {
             return cached.authorizationHeader
@@ -134,38 +140,12 @@ public actor XboxAccount {
 
         throw lastError is XboxHTTPError ? XboxAccountError.cloudGamingUnavailable : lastError
     }
-}
 
-// MARK: - Private
-
-private extension XboxAccount {
-    var cloudOfferingCandidates: [StreamingOffering] {
+    private var cloudOfferingCandidates: [StreamingOffering] {
         stored.cloudOffering.map { [$0] } ?? [.cloud, .cloudFreeToPlay]
     }
 
-    func invalidateStreamingToken(_ offering: StreamingOffering) {
-        stored.streamingTokens[offering] = nil
-
-        save()
-    }
-
-    func rememberCloudOffering(_ offering: StreamingOffering) {
-        if stored.cloudOffering != offering {
-            stored.cloudOffering = offering
-
-            save()
-        }
-    }
-
-    func forgetLapsedCloudOffering() {
-        if stored.cloudOffering != nil {
-            stored.cloudOffering = nil
-
-            save()
-        }
-    }
-
-    func streamingToken(_ offering: StreamingOffering) async throws -> StreamingToken {
+    private func streamingToken(_ offering: StreamingOffering) async throws -> StreamingToken {
         if let cached = stored.streamingTokens[offering], cached.isValid(at: now()) {
             return cached
         }
@@ -181,7 +161,7 @@ private extension XboxAccount {
         return token
     }
 
-    func validGSSVToken() async throws -> XboxToken {
+    private func validGSSVToken() async throws -> XboxToken {
         if let cached = stored.gssvToken, cached.isValid(at: now()) {
             return cached
         }
@@ -197,7 +177,7 @@ private extension XboxAccount {
         return token
     }
 
-    func validUserToken() async throws -> XboxToken {
+    private func validUserToken() async throws -> XboxToken {
         if let userToken, userToken.isValid(at: now()) {
             return userToken
         }
@@ -210,7 +190,7 @@ private extension XboxAccount {
         return token
     }
 
-    func validMicrosoftAccountToken() async throws -> MicrosoftAccountToken {
+    private func validMicrosoftAccountToken() async throws -> MicrosoftAccountToken {
         switch (stored.microsoftAccountToken.isValid(at: now()), refreshTask) {
         case (true, _): return stored.microsoftAccountToken
         case (false, let refreshTask?): return try await refreshTask.value
@@ -218,7 +198,7 @@ private extension XboxAccount {
         }
     }
 
-    func refreshMicrosoftAccountToken() async throws -> MicrosoftAccountToken {
+    private func refreshMicrosoftAccountToken() async throws -> MicrosoftAccountToken {
         let current = stored.microsoftAccountToken
         let flow = deviceCodeFlow
         let task = Task { try await flow.refresh(current) }
@@ -239,7 +219,23 @@ private extension XboxAccount {
         }
     }
 
-    func save() {
+    private func save() {
         try? persist(stored)
+    }
+
+    private func rememberCloudOffering(_ offering: StreamingOffering) {
+        if stored.cloudOffering != offering {
+            stored.cloudOffering = offering
+
+            save()
+        }
+    }
+
+    private func forgetLapsedCloudOffering() {
+        if stored.cloudOffering != nil {
+            stored.cloudOffering = nil
+
+            save()
+        }
     }
 }

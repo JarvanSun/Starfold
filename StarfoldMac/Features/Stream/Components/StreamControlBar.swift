@@ -44,10 +44,8 @@ struct StreamControlBar: View {
         }
         .environment(\.colorScheme, .dark)
     }
-}
 
-private extension StreamControlBar {
-    var guideButton: some View {
+    private var guideButton: some View {
         Button {
             stream.openGuide()
         } label: {
@@ -56,7 +54,7 @@ private extension StreamControlBar {
         .help(Text("stream.controlBar.guide.tooltip"))
     }
 
-    var statisticsToggle: some View {
+    private var statisticsToggle: some View {
         Toggle(isOn: $settings.shouldShowStatistics) {
             Label(
                 String(localized: "stream.controlBar.statistics.label"),
@@ -67,7 +65,20 @@ private extension StreamControlBar {
         .help(Text("stream.controlBar.statistics.tooltip"))
     }
 
-    var fullScreenButton: some View {
+    private func pictureInPictureButton(_ pictureInPicture: StreamPictureInPicture) -> some View {
+        Button {
+            pictureInPicture.toggle()
+        } label: {
+            Label(
+                String(localized: "stream.controlBar.pictureInPicture.label"),
+                systemImage: "pip.enter"
+            )
+        }
+        .disabled(!pictureInPicture.isPossible)
+        .help(Text("stream.controlBar.pictureInPicture.tooltip"))
+    }
+
+    private var fullScreenButton: some View {
         Button {
             toggleFullScreen()
         } label: {
@@ -75,8 +86,12 @@ private extension StreamControlBar {
         }
     }
 
+    private func toggleFullScreen() {
+        NSApp.keyWindow?.toggleFullScreen(nil)
+    }
+
     @ViewBuilder
-    var fullScreenLabel: some View {
+    private var fullScreenLabel: some View {
         switch isFullScreen {
         case true:
             Label(
@@ -91,30 +106,13 @@ private extension StreamControlBar {
         }
     }
 
-    var disconnectButton: some View {
+    private var disconnectButton: some View {
         Button(role: .destructive) {
             onClose()
         } label: {
             Label(String(localized: "stream.controlBar.disconnect.label"), systemImage: "xmark")
         }
         .help(Text("stream.controlBar.disconnect.tooltip"))
-    }
-
-    func pictureInPictureButton(_ pictureInPicture: StreamPictureInPicture) -> some View {
-        Button {
-            pictureInPicture.toggle()
-        } label: {
-            Label(
-                String(localized: "stream.controlBar.pictureInPicture.label"),
-                systemImage: "pip.enter"
-            )
-        }
-        .disabled(!pictureInPicture.isPossible)
-        .help(Text("stream.controlBar.pictureInPicture.tooltip"))
-    }
-
-    func toggleFullScreen() {
-        NSApp.keyWindow?.toggleFullScreen(nil)
     }
 }
 

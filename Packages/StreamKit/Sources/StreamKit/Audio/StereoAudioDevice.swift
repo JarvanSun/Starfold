@@ -51,12 +51,88 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
     var isRecording: Bool { false }
 
+    private var watchdogInterval: Int { 5 }
+
     func initialize(with delegate: LKRTCAudioDeviceDelegate) -> Bool {
         lock.withLock { self.delegate = delegate }
 
         observeSystemChanges()
 
         return true
+    }
+
+    private func observeSystemChanges() {
+        let observers = [
+            observe(.AVAudioEngineConfigurationChange) { [weak self] notification in
+                self?.rebuildIfCurrent(notification.object as? AVAudioEngine)
+            },
+            observe(AVAudioSession.mediaServicesWereResetNotification) { [weak self] _ in
+                self?.recover(.replace)
+            },
+            observe(AVAudioSession.interruptionNotification) { [weak self] notification in
+                self?.handleInterruption(notification.userInfo)
+            },
+            observe(UIScene.didActivateNotification) { [weak self] _ in
+                self?.recover(.resume("scene activated"))
+            },
+        ]
+        let resumptions = resumptionObservers()
+        lock.withLock { self.observers = observers + resumptions }
+    }
+
+    private func rebuildIfCurrent(_ engine: AVAudioEngine?) {
+        guard let engine, lock.withLock({ engine === self.engine }) else { return }
+
+        recover(.rebuild("configuration change"))
+    }
+
+    private func handleInterruption(_ userInfo: [AnyHashable: Any]?) {
+        let type = (userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt)
+            .flatMap(AVAudioSession.InterruptionType.init)
+        let reason = (userInfo?[AVAudioSessionInterruptionReasonKey] as? UInt) ?? 0
+        log.info(
+            "Audio interruption \(type == .ended ? "ended" : "began", privacy: .public), reason \(reason)"
+        )
+
+        if type == .ended {
+            recover(.resume("interruption ended"))
+        }
+    }
+
+    private func recover(_ recovery: PlayoutRecovery) {
+        guard let delegate = lock.withLock({ self.delegate }) else { return }
+
+        delegate.dispatchAsync { [weak self] in
+            self?.recoverOnAudioThread(recovery)
+        }
+    }
+
+    private func recoverOnAudioThread(_ recovery: PlayoutRecovery) {
+        let (isWanted, current) = lock.withLock { (isPlayoutWanted, engine) }
+        guard isWanted else { return }
+
+        let isResumed = resume(current, after: recovery)
+
+        if !isResumed {
+            rebuild(replacing: current, after: recovery)
+        }
+    }
+
+    private func resumptionObservers() -> [NSObjectProtocol] {
+        guard #available(iOS 27, tvOS 27, visionOS 27, *) else { return [] }
+
+        let observer = observe(AVAudioSession.resumptionRecommendationNotification) {
+            [weak self] _ in
+            self?.recover(.resume("resumption recommended"))
+        }
+        return [observer]
+    }
+
+    private func observe(
+        _ name: Notification.Name,
+        using block: @escaping @Sendable (Notification) -> Void
+    ) -> NSObjectProtocol {
+        NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil, using: block)
     }
 
     func terminateDevice() -> Bool {
@@ -95,6 +171,44 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         return true
     }
 
+    private func startWatchdog() {
+        let timer = DispatchSource.makeTimerSource(queue: .global(qos: .utility))
+        timer.schedule(
+            deadline: .now() + .seconds(watchdogInterval),
+            repeating: .seconds(watchdogInterval)
+        )
+        timer.setEventHandler { [weak self] in
+            self?.checkPlayout()
+        }
+        let previous = lock.withLock {
+            defer { meterTimer = timer }
+            return meterTimer
+        }
+        previous?.cancel()
+
+        playout.meter.take()
+
+        timer.resume()
+    }
+
+    private func checkPlayout() {
+        let (pulls, frames, peak) = playout.meter.take()
+        let (engine, isWanted) = lock.withLock { (self.engine, isPlayoutWanted) }
+        log.info(
+            "Playout \(self.watchdogInterval)s: \(pulls / self.watchdogInterval) pulls/s, \(frames / self.watchdogInterval) frames/s, peak \(peak) of \(Int16.max)"
+        )
+
+        guard isWanted, pulls == 0 else { return }
+
+        let reason =
+            switch (engine, engine?.isRunning ?? false) {
+            case (nil, _): "no engine"
+            case (_, true): "engine not pulling"
+            case (_, false): "engine stopped"
+            }
+        recover(.rebuild(reason))
+    }
+
     @discardableResult
     func stopPlayout() -> Bool {
         let engine = lock.withLock {
@@ -116,6 +230,14 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         return true
     }
 
+    private func stopWatchdog() {
+        let timer = lock.withLock {
+            defer { meterTimer = nil }
+            return meterTimer
+        }
+        timer?.cancel()
+    }
+
     func setBypassesSpatialAudio(_ bypassesSpatialAudio: Bool) {
         let hasChanged = lock.withLock {
             defer { self.bypassesSpatialAudio = bypassesSpatialAudio }
@@ -132,20 +254,57 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
     func startRecording() -> Bool { false }
 
     func stopRecording() -> Bool { true }
-}
 
-// MARK: - Private
+    fileprivate func resume(_ engine: AVAudioEngine?, after recovery: PlayoutRecovery) -> Bool {
+        guard case .resume = recovery, let engine else { return false }
+        guard !engine.isRunning else { return true }
 
-private extension StereoAudioDevice {
-    var preferredIOBufferDuration: TimeInterval { 0.005 }
+        do {
+            try AVAudioSession.sharedInstance().setActive(true)
 
-    var watchdogInterval: Int { 5 }
+            try engine.start()
+            log.info("Audio resumed: \(recovery.description, privacy: .public)")
+
+            return true
+        } catch {
+            log.info(
+                "Audio restart failed, rebuilding: \(String(describing: error), privacy: .public)"
+            )
+
+            return false
+        }
+    }
+
+    fileprivate func rebuild(replacing current: AVAudioEngine?, after recovery: PlayoutRecovery) {
+        lock.withLock {
+            if self.engine === current { self.engine = nil }
+        }
+
+        stopUnlessReplaced(current, recovery: recovery)
+
+        switch startEngine() {
+        case true:
+            log.info("Audio engine rebuilt: \(recovery.description, privacy: .public)")
+        case false:
+            log.error(
+                "Audio still unavailable after \(recovery.description, privacy: .public); will retry"
+            )
+        }
+    }
+
+    private func stopUnlessReplaced(_ engine: AVAudioEngine?, recovery: PlayoutRecovery) {
+        switch recovery {
+        case .replace: break
+        case .resume, .rebuild: engine?.stop()
+        }
+    }
 
     @discardableResult
-    func startEngine() -> Bool {
+    private func startEngine() -> Bool {
         guard let delegate = lock.withLock({ self.delegate }) else { return false }
 
         let session = AVAudioSession.sharedInstance()
+        let preferredIOBufferDuration: TimeInterval = 0.005
 
         do {
             try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
@@ -189,15 +348,9 @@ private extension StereoAudioDevice {
         return true
     }
 
-    func spatialExperience(of engine: AVAudioEngine) -> String {
-        #if os(visionOS)
-        String(describing: engine.outputNode.intendedSpatialExperience)
-        #else
-        "n/a"
-        #endif
-    }
-
-    func makeEngine(pulling pull: @escaping LKRTCAudioDeviceGetPlayoutDataBlock) -> AVAudioEngine? {
+    private func makeEngine(pulling pull: @escaping LKRTCAudioDeviceGetPlayoutDataBlock)
+        -> AVAudioEngine?
+    {
         guard let (source, stereo) = playout.makeSource(pulling: pull) else { return nil }
 
         let engine = AVAudioEngine()
@@ -210,7 +363,7 @@ private extension StereoAudioDevice {
         return engine
     }
 
-    func bypassSpatialAudioIfChosen(on engine: AVAudioEngine) {
+    private func bypassSpatialAudioIfChosen(on engine: AVAudioEngine) {
         #if os(visionOS)
         if lock.withLock({ bypassesSpatialAudio }) {
             engine.outputNode.intendedSpatialExperience = .bypassed
@@ -218,53 +371,7 @@ private extension StereoAudioDevice {
         #endif
     }
 
-    func startWatchdog() {
-        let timer = DispatchSource.makeTimerSource(queue: .global(qos: .utility))
-        timer.schedule(
-            deadline: .now() + .seconds(watchdogInterval),
-            repeating: .seconds(watchdogInterval)
-        )
-        timer.setEventHandler { [weak self] in
-            self?.checkPlayout()
-        }
-        let previous = lock.withLock {
-            defer { meterTimer = timer }
-            return meterTimer
-        }
-        previous?.cancel()
-
-        playout.meter.take()
-
-        timer.resume()
-    }
-
-    func checkPlayout() {
-        let (pulls, frames, peak) = playout.meter.take()
-        let (engine, isWanted) = lock.withLock { (self.engine, isPlayoutWanted) }
-        log.info(
-            "Playout \(self.watchdogInterval)s: \(pulls / self.watchdogInterval) pulls/s, \(frames / self.watchdogInterval) frames/s, peak \(peak) of \(Int16.max)"
-        )
-
-        guard isWanted, pulls == 0 else { return }
-
-        let reason =
-            switch (engine, engine?.isRunning ?? false) {
-            case (nil, _): "no engine"
-            case (_, true): "engine not pulling"
-            case (_, false): "engine stopped"
-            }
-        recover(.rebuild(reason))
-    }
-
-    func stopWatchdog() {
-        let timer = lock.withLock {
-            defer { meterTimer = nil }
-            return meterTimer
-        }
-        timer?.cancel()
-    }
-
-    func deactivateSession() {
+    private func deactivateSession() {
         do {
             try AVAudioSession.sharedInstance().setActive(
                 false,
@@ -277,122 +384,12 @@ private extension StereoAudioDevice {
         }
     }
 
-    func recover(_ recovery: PlayoutRecovery) {
-        guard let delegate = lock.withLock({ self.delegate }) else { return }
-
-        delegate.dispatchAsync { [weak self] in
-            self?.recoverOnAudioThread(recovery)
-        }
-    }
-
-    func recoverOnAudioThread(_ recovery: PlayoutRecovery) {
-        let (isWanted, current) = lock.withLock { (isPlayoutWanted, engine) }
-        guard isWanted else { return }
-
-        let isResumed = resume(current, after: recovery)
-
-        if !isResumed {
-            rebuild(replacing: current, after: recovery)
-        }
-    }
-
-    func resume(_ engine: AVAudioEngine?, after recovery: PlayoutRecovery) -> Bool {
-        guard case .resume = recovery, let engine else { return false }
-        guard !engine.isRunning else { return true }
-
-        do {
-            try AVAudioSession.sharedInstance().setActive(true)
-
-            try engine.start()
-            log.info("Audio resumed: \(recovery.description, privacy: .public)")
-
-            return true
-        } catch {
-            log.info(
-                "Audio restart failed, rebuilding: \(String(describing: error), privacy: .public)"
-            )
-
-            return false
-        }
-    }
-
-    func rebuild(replacing current: AVAudioEngine?, after recovery: PlayoutRecovery) {
-        lock.withLock {
-            if self.engine === current { self.engine = nil }
-        }
-
-        stopUnlessReplaced(current, recovery: recovery)
-
-        switch startEngine() {
-        case true:
-            log.info("Audio engine rebuilt: \(recovery.description, privacy: .public)")
-        case false:
-            log.error(
-                "Audio still unavailable after \(recovery.description, privacy: .public); will retry"
-            )
-        }
-    }
-
-    func stopUnlessReplaced(_ engine: AVAudioEngine?, recovery: PlayoutRecovery) {
-        switch recovery {
-        case .replace: break
-        case .resume, .rebuild: engine?.stop()
-        }
-    }
-
-    func observeSystemChanges() {
-        let observers = [
-            observe(.AVAudioEngineConfigurationChange) { [weak self] notification in
-                self?.rebuildIfCurrent(notification.object as? AVAudioEngine)
-            },
-            observe(AVAudioSession.mediaServicesWereResetNotification) { [weak self] _ in
-                self?.recover(.replace)
-            },
-            observe(AVAudioSession.interruptionNotification) { [weak self] notification in
-                self?.handleInterruption(notification.userInfo)
-            },
-            observe(UIScene.didActivateNotification) { [weak self] _ in
-                self?.recover(.resume("scene activated"))
-            },
-        ]
-        let resumptions = resumptionObservers()
-        lock.withLock { self.observers = observers + resumptions }
-    }
-
-    func resumptionObservers() -> [NSObjectProtocol] {
-        guard #available(iOS 27, tvOS 27, visionOS 27, *) else { return [] }
-
-        let observer = observe(AVAudioSession.resumptionRecommendationNotification) {
-            [weak self] _ in
-            self?.recover(.resume("resumption recommended"))
-        }
-        return [observer]
-    }
-
-    func observe(
-        _ name: Notification.Name,
-        using block: @escaping @Sendable (Notification) -> Void
-    ) -> NSObjectProtocol {
-        NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil, using: block)
-    }
-
-    func rebuildIfCurrent(_ engine: AVAudioEngine?) {
-        guard let engine, lock.withLock({ engine === self.engine }) else { return }
-
-        recover(.rebuild("configuration change"))
-    }
-
-    func handleInterruption(_ userInfo: [AnyHashable: Any]?) {
-        let type = (userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt)
-            .flatMap(AVAudioSession.InterruptionType.init)
-        let reason = (userInfo?[AVAudioSessionInterruptionReasonKey] as? UInt) ?? 0
-        log.info(
-            "Audio interruption \(type == .ended ? "ended" : "began", privacy: .public), reason \(reason)"
-        )
-
-        if type == .ended {
-            recover(.resume("interruption ended"))
-        }
+    private func spatialExperience(of engine: AVAudioEngine) -> String {
+        #if os(visionOS)
+        String(describing: engine.outputNode.intendedSpatialExperience)
+        #else
+        "n/a"
+        #endif
     }
 }
 

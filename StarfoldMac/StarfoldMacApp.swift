@@ -15,6 +15,13 @@ struct StarfoldMacApp: App {
     @Environment(\.dimensions) private var dimensions
     @State private var app = AppDependencies(streamPlatform: StreamPlatform()).makeAppViewModel()
 
+    private var isHostingPreviewsOrTests: Bool {
+        let environment = ProcessInfo.processInfo.environment
+        let isHostingPreviews = environment[HostEnvironmentKey.runningForPreviews.rawValue] == "1"
+        let isHostingTests = environment[HostEnvironmentKey.testConfiguration.rawValue] != nil
+        return isHostingPreviews || isHostingTests
+    }
+
     var body: some Scene {
         Window(AppInfo().displayName, id: SceneID.main.rawValue) {
             mainWindow
@@ -42,15 +49,8 @@ struct StarfoldMacApp: App {
         }
         .menuBarExtraStyle(.menu)
     }
-}
 
-private enum HostEnvironmentKey: String {
-    case runningForPreviews = "XCODE_RUNNING_FOR_PREVIEWS"
-    case testConfiguration = "XCTestConfigurationFilePath"
-}
-
-private extension StarfoldMacApp {
-    var mainWindow: some View {
+    private var mainWindow: some View {
         MainWindowView()
             .opensStreamWindow()
             .appPalette()
@@ -58,47 +58,45 @@ private extension StarfoldMacApp {
             .task { await launch() }
     }
 
-    var streamWindow: some View {
-        StreamWindowView()
-            .appPalette()
-            .environment(app)
-    }
-
-    var settingsWindow: some View {
-        SettingsView(settings: app.settings)
-    }
-
-    var menuBarMenu: some View {
-        MenuBarMenu()
-            .environment(app)
-    }
-
-    var menuBarIcon: some View {
-        Image(systemName: "gamecontroller.fill")
-            .accessibilityLabel(Text(verbatim: AppInfo().displayName))
-            .opensStreamWindow()
-            .environment(app)
-    }
-
-    var isMenuBarIconInserted: Binding<Bool> {
-        switch isHostingPreviewsOrTests {
-        case true: .constant(false)
-        case false: Bindable(app.settings).shouldShowInMenuBar
-        }
-    }
-
-    var isHostingPreviewsOrTests: Bool {
-        let environment = ProcessInfo.processInfo.environment
-        let isHostingPreviews = environment[HostEnvironmentKey.runningForPreviews.rawValue] == "1"
-        let isHostingTests = environment[HostEnvironmentKey.testConfiguration.rawValue] != nil
-        return isHostingPreviews || isHostingTests
-    }
-
-    func launch() async {
+    private func launch() async {
         appDelegate.app = app
 
         guard !isHostingPreviewsOrTests else { return }
 
         await app.restore()
     }
+
+    private var streamWindow: some View {
+        StreamWindowView()
+            .appPalette()
+            .environment(app)
+    }
+
+    private var settingsWindow: some View {
+        SettingsView(settings: app.settings)
+    }
+
+    private var isMenuBarIconInserted: Binding<Bool> {
+        switch isHostingPreviewsOrTests {
+        case true: .constant(false)
+        case false: Bindable(app.settings).shouldShowInMenuBar
+        }
+    }
+
+    private var menuBarMenu: some View {
+        MenuBarMenu()
+            .environment(app)
+    }
+
+    private var menuBarIcon: some View {
+        Image(systemName: "gamecontroller.fill")
+            .accessibilityLabel(Text(verbatim: AppInfo().displayName))
+            .opensStreamWindow()
+            .environment(app)
+    }
+}
+
+private enum HostEnvironmentKey: String {
+    case runningForPreviews = "XCODE_RUNNING_FOR_PREVIEWS"
+    case testConfiguration = "XCTestConfigurationFilePath"
 }

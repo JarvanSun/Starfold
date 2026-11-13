@@ -27,10 +27,8 @@ struct Artwork: View {
         .clipped()
         .accessibilityHidden(true)
     }
-}
 
-private extension Artwork {
-    var placeholderSymbol: some View {
+    private var placeholderSymbol: some View {
         Image(systemName: "gamecontroller")
             .font(.largeTitle)
             .foregroundStyle(.secondary)

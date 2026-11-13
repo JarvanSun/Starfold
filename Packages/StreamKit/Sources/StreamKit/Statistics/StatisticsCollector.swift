@@ -49,12 +49,8 @@ struct StatisticsCollector {
 
         return statistics
     }
-}
 
-// MARK: - Private
-
-private extension StatisticsCollector {
-    mutating func recordVideo(
+    private mutating func recordVideo(
         _ entry: LKRTCStatistics,
         report: [String: LKRTCStatistics],
         into statistics: inout StreamStatistics
@@ -92,7 +88,7 @@ private extension StatisticsCollector {
         recordVideoCodec(values, report: report, into: &statistics)
     }
 
-    mutating func noteResolution(
+    private mutating func noteResolution(
         width: Double?,
         height: Double?,
         in statistics: inout StreamStatistics
@@ -108,7 +104,7 @@ private extension StatisticsCollector {
         }
     }
 
-    mutating func recordVideoRates(
+    private mutating func recordVideoRates(
         _ values: [String: NSObject],
         timestamp: Double,
         into statistics: inout StreamStatistics
@@ -135,7 +131,7 @@ private extension StatisticsCollector {
         previousVideoTotals = totals
     }
 
-    mutating func recordVideoCodec(
+    private mutating func recordVideoCodec(
         _ values: [String: NSObject],
         report: [String: LKRTCStatistics],
         into statistics: inout StreamStatistics
@@ -155,7 +151,7 @@ private extension StatisticsCollector {
         statistics.codec = mimeType?.replacingOccurrences(of: "video/", with: "")
     }
 
-    mutating func recordAudio(_ entry: LKRTCStatistics, report: [String: LKRTCStatistics]) {
+    private mutating func recordAudio(_ entry: LKRTCStatistics, report: [String: LKRTCStatistics]) {
         diagnostics.audio = entry.values
         diagnostics.audioTimestamp = entry.timestamp_us
 
@@ -173,7 +169,7 @@ private extension StatisticsCollector {
         }
     }
 
-    mutating func recordSelectedPair(
+    private mutating func recordSelectedPair(
         _ entry: LKRTCStatistics,
         report: [String: LKRTCStatistics],
         into statistics: inout StreamStatistics
@@ -204,7 +200,7 @@ private extension StatisticsCollector {
         statistics.interface = local?["networkType"] as? String
     }
 
-    func number(_ value: NSObject?) -> Double? {
+    private func number(_ value: NSObject?) -> Double? {
         (value as? NSNumber)?.doubleValue
     }
 }

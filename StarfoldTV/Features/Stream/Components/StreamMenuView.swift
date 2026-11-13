@@ -51,21 +51,19 @@ struct StreamMenuView: View {
         .padding(dimensions.spaceXXXLarge)
         .presentationSizing(.fitted)
     }
-}
 
-private extension StreamMenuView {
-    func row(_ title: LocalizedStringResource, symbol: String) -> some View {
-        Label(title, systemImage: symbol)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    func openGuide() {
+    private func openGuide() {
         stream.openGuide()
 
         dismiss()
     }
 
-    func disconnect() {
+    private func row(_ title: LocalizedStringResource, symbol: String) -> some View {
+        Label(title, systemImage: symbol)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func disconnect() {
         dismiss()
 
         onDisconnect()

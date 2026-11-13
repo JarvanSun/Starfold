@@ -48,18 +48,16 @@ public struct PrimaryButtonStyle: ButtonStyle {
             #endif
             .contentShape(.capsule)
     }
-}
 
-private extension PrimaryButtonStyle {
-    var pressAnimation: Animation {
-        .spring(duration: 0.25, bounce: 0.4)
+    private func hoverLight(isPressed: Bool) -> some View {
+        let hoverLightOpacity = 0.14
+
+        return Capsule().fill(
+            .white.opacity(isHoverLit(isPressed: isPressed) ? hoverLightOpacity : 0)
+        )
     }
 
-    var hoverAnimation: Animation {
-        .easeOut(duration: 0.15)
-    }
-
-    var rim: some View {
+    private var rim: some View {
         let rimOpacity = 0.35
 
         return Capsule()
@@ -67,7 +65,14 @@ private extension PrimaryButtonStyle {
             .blendMode(.overlay)
     }
 
-    var glowColor: Color {
+    private func glow(isPressed: Bool) -> Color {
+        let glowOpacity = 0.45
+        let pressedGlowOpacity = 0.2
+
+        return glowColor.opacity(isPressed ? pressedGlowOpacity : glowOpacity)
+    }
+
+    private var glowColor: Color {
         let shadowOpacity = 0.6
 
         return switch palette.hasPrimaryGlow {
@@ -76,34 +81,27 @@ private extension PrimaryButtonStyle {
         }
     }
 
-    func hoverLight(isPressed: Bool) -> some View {
-        let hoverLightOpacity = 0.14
-
-        return Capsule().fill(
-            .white.opacity(isHoverLit(isPressed: isPressed) ? hoverLightOpacity : 0)
-        )
-    }
-
-    func glow(isPressed: Bool) -> Color {
-        let glowOpacity = 0.45
-        let pressedGlowOpacity = 0.2
-
-        return glowColor.opacity(isPressed ? pressedGlowOpacity : glowOpacity)
-    }
-
-    func glowRadius(isPressed: Bool) -> CGFloat {
+    private func glowRadius(isPressed: Bool) -> CGFloat {
         isPressed ? dimensions.shadowRadiusSmall : dimensions.shadowRadiusMedium
     }
 
-    func hoverScale(isPressed: Bool) -> CGFloat {
+    private func hoverScale(isPressed: Bool) -> CGFloat {
         let growsUnderPointer = isHoverLit(isPressed: isPressed) && !reduceMotion
         let hoverGrowth: CGFloat = 1.03
 
         return growsUnderPointer ? hoverGrowth : 1
     }
 
-    func isHoverLit(isPressed: Bool) -> Bool {
+    private func isHoverLit(isPressed: Bool) -> Bool {
         isHovering && isEnabled && !isPressed
+    }
+
+    private var pressAnimation: Animation {
+        .spring(duration: 0.25, bounce: 0.4)
+    }
+
+    private var hoverAnimation: Animation {
+        .easeOut(duration: 0.15)
     }
 }
 

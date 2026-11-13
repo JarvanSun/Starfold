@@ -57,6 +57,10 @@ public final class LibraryViewModel {
         !searchQuery.isEmpty
     }
 
+    private var searchQuery: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     public var hasNoSearchResults: Bool {
         isSearching && visibleGames.isEmpty
     }
@@ -114,6 +118,33 @@ public final class LibraryViewModel {
         }
     }
 
+    private func restore(_ snapshot: LibrarySnapshot) {
+        let gamesByID = Dictionary(
+            snapshot.games.map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let curated = snapshot.curated.compactMap { key, ids in
+            CatalogClient.List(rawValue: key).map { ($0, ids.compactMap { gamesByID[$0] }) }
+        }
+
+        show(
+            .init(
+                games: snapshot.games,
+                recentGames: snapshot.recentIDs.compactMap { gamesByID[$0] },
+                curated: .init(uniqueKeysWithValues: curated),
+                access: CloudAccess(rawValue: snapshot.cloudAccess) ?? .unknown
+            )
+        )
+    }
+
+    private func show(_ library: CloudLibrary) {
+        games = library.games.sorted { isNamed($0.name, before: $1.name) }
+        recentGames = library.recentGames
+        curated = library.curated
+        cloudAccess = library.access
+        cloudState = .loaded
+    }
+
     public func refresh() async {
         cloudState = .loading
 
@@ -127,6 +158,28 @@ public final class LibraryViewModel {
         } catch {
             recordFailure(error)
         }
+    }
+
+    private func saveSnapshot() {
+        let snapshot = LibrarySnapshot(
+            games: games,
+            recentIDs: recentGames.map(\.id),
+            curated: .init(
+                uniqueKeysWithValues: curated.map { ($0.key.rawValue, $0.value.map(\.id)) }
+            ),
+            cloudAccess: cloudAccess.rawValue
+        )
+        cache.save(snapshot, for: accountID)
+    }
+
+    private func recordFailure(_ error: Error) {
+        if case XboxAccountError.signInRequired = error {
+            onSignInRequired()
+        }
+
+        log.error("Cloud library failed: \(String(describing: error), privacy: .public)")
+
+        cloudState = .failed(error.localizedDescription)
     }
 
     public func play(_ game: CloudGame) {
@@ -165,62 +218,15 @@ public final class LibraryViewModel {
 
     func games(matching search: String) -> [CloudGame] {
         let query = search.trimmingCharacters(in: .whitespacesAndNewlines)
-        let matchingGames = games.filter { game($0, matches: query) }
+        let matchingGames = games.filter { $0.matches(query) }
 
         switch sort {
         case .name: return matchingGames
         case .recent: return sortedByRecentPlay(matchingGames)
         }
     }
-}
 
-// MARK: - Private
-
-private extension LibraryViewModel {
-    var searchQuery: String {
-        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    func show(_ library: CloudLibrary) {
-        games = library.games.sorted { isNamed($0.name, before: $1.name) }
-        recentGames = library.recentGames
-        curated = library.curated
-        cloudAccess = library.access
-        cloudState = .loaded
-    }
-
-    func restore(_ snapshot: LibrarySnapshot) {
-        let gamesByID = Dictionary(
-            snapshot.games.map { ($0.id, $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
-        let curated = snapshot.curated.compactMap { key, ids in
-            CatalogClient.List(rawValue: key).map { ($0, ids.compactMap { gamesByID[$0] }) }
-        }
-
-        show(
-            .init(
-                games: snapshot.games,
-                recentGames: snapshot.recentIDs.compactMap { gamesByID[$0] },
-                curated: .init(uniqueKeysWithValues: curated),
-                access: CloudAccess(rawValue: snapshot.cloudAccess) ?? .unknown
-            )
-        )
-    }
-
-    func saveSnapshot() {
-        let snapshot = LibrarySnapshot(
-            games: games,
-            recentIDs: recentGames.map(\.id),
-            curated: .init(
-                uniqueKeysWithValues: curated.map { ($0.key.rawValue, $0.value.map(\.id)) }
-            ),
-            cloudAccess: cloudAccess.rawValue
-        )
-        cache.save(snapshot, for: accountID)
-    }
-
-    func sortedByRecentPlay(_ games: [CloudGame]) -> [CloudGame] {
+    private func sortedByRecentPlay(_ games: [CloudGame]) -> [CloudGame] {
         let recentRank = Dictionary(
             recentGames.enumerated().map { ($1.id, $0) },
             uniquingKeysWith: { first, _ in first }
@@ -235,23 +241,15 @@ private extension LibraryViewModel {
         }
     }
 
-    func game(_ game: CloudGame, matches query: String) -> Bool {
-        let matchesName = game.name.localizedStandardContains(query)
-        let matchesPublisher = game.product?.publisher?.localizedStandardContains(query) ?? false
-        return query.isEmpty || matchesName || matchesPublisher
-    }
-
-    func isNamed(_ name: String, before otherName: String) -> Bool {
+    private func isNamed(_ name: String, before otherName: String) -> Bool {
         name.localizedStandardCompare(otherName) == .orderedAscending
     }
+}
 
-    func recordFailure(_ error: Error) {
-        if case XboxAccountError.signInRequired = error {
-            onSignInRequired()
-        }
-
-        log.error("Cloud library failed: \(String(describing: error), privacy: .public)")
-
-        cloudState = .failed(error.localizedDescription)
+private extension CloudGame {
+    func matches(_ query: String) -> Bool {
+        let matchesName = name.localizedStandardContains(query)
+        let matchesPublisher = product?.publisher?.localizedStandardContains(query) ?? false
+        return query.isEmpty || matchesName || matchesPublisher
     }
 }

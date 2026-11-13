@@ -27,10 +27,12 @@ struct ConsoleShelf: View {
             }
         }
     }
-}
 
-private extension ConsoleShelf {
-    var cards: some View {
+    private func refresh() {
+        Task { await home.refreshConsoles() }
+    }
+
+    private var cards: some View {
         ScrollView(.horizontal) {
             HStack(spacing: dimensions.spaceXLarge) {
                 ForEach(home.consoles) { console in
@@ -40,10 +42,6 @@ private extension ConsoleShelf {
         }
         .scrollIndicators(.hidden)
         .scrollClipDisabled()
-    }
-
-    func refresh() {
-        Task { await home.refreshConsoles() }
     }
 }
 

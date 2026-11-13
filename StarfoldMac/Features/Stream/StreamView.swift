@@ -83,33 +83,31 @@ struct StreamView: View {
         .onAppear { preparePictureInPicture() }
         .navigationTitle(stream.target.name)
     }
-}
 
-private extension StreamView {
-    var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
-    }
-
-    func movePointer(_ phase: HoverPhase) {
+    private func movePointer(_ phase: HoverPhase) {
         switch phase {
         case .active: stream.revealControls()
         case .ended: break
         }
     }
 
-    func hidePointer(whenControlsAreHidden areRevealed: Bool) {
+    private func hidePointer(whenControlsAreHidden areRevealed: Bool) {
         guard !areRevealed else { return }
 
         NSCursor.setHiddenUntilMouseMoves(true)
     }
 
-    func releaseKeyboard(unlessKey state: ControlActiveState) {
+    private func releaseKeyboard(unlessKey state: ControlActiveState) {
         guard state != .key else { return }
 
         stream.releaseKeyboard()
     }
 
-    func preparePictureInPicture() {
+    private var presentedDialog: Binding<SystemDialogRequest?> {
+        .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
+    }
+
+    private func preparePictureInPicture() {
         guard let renderer = stream.renderer else { return }
 
         let pictureInPicture = StreamPictureInPicture(renderer: renderer, dimensions: dimensions)

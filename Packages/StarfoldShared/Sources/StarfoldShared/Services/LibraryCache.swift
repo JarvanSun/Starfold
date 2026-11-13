@@ -28,8 +28,18 @@ public struct LibraryCache {
         load(from: snapshotFile(named: "library", for: xuid))
     }
 
+    private func load<Snapshot: Decodable>(from file: URL) -> Snapshot? {
+        guard let data = try? Data(contentsOf: file) else { return nil }
+
+        return try? JSONDecoder().decode(Snapshot.self, from: data)
+    }
+
     func save(_ snapshot: LibrarySnapshot, for xuid: String) {
         save(snapshot, to: snapshotFile(named: "library", for: xuid))
+    }
+
+    private func snapshotFile(named name: String, for xuid: String) -> URL {
+        directory.appending(path: "\(name)-\(xuid).json")
     }
 
     func saveLastFrame(_ jpeg: Data, console consoleID: String, for xuid: String) {
@@ -37,6 +47,12 @@ public struct LibraryCache {
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
 
         try? jpeg.write(to: folder.appending(path: frameFileName(for: consoleID)), options: .atomic)
+    }
+
+    private func frameFileName(for consoleID: String) -> String {
+        let name =
+            consoleID.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? consoleID
+        return name + "." + frameFileExtension
     }
 
     func lastFrames(for xuid: String) -> [String: Data] {
@@ -57,48 +73,30 @@ public struct LibraryCache {
         return frames
     }
 
-    func removeLastFrames(for xuid: String) {
-        try? FileManager.default.removeItem(at: framesDirectory(for: xuid))
-    }
-}
-
-private extension LibraryCache {
-    func snapshotFile(named name: String, for xuid: String) -> URL {
-        directory.appending(path: "\(name)-\(xuid).json")
-    }
-
-    func load<Snapshot: Decodable>(from file: URL) -> Snapshot? {
-        guard let data = try? Data(contentsOf: file) else { return nil }
-
-        return try? JSONDecoder().decode(Snapshot.self, from: data)
-    }
-
-    func save(_ snapshot: some Encodable, to file: URL) {
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-
-        guard let data = try? JSONEncoder().encode(snapshot) else { return }
-
-        try? data.write(to: file, options: .atomic)
-    }
-
-    func framesDirectory(for xuid: String) -> URL {
-        directory
-            .appending(path: "LastFrames", directoryHint: .isDirectory)
-            .appending(path: xuid, directoryHint: .isDirectory)
-    }
-
-    func frameFileName(for consoleID: String) -> String {
-        let name =
-            consoleID.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? consoleID
-        return name + "." + frameFileExtension
-    }
-
-    func frameFiles(for xuid: String) -> [URL] {
+    private func frameFiles(for xuid: String) -> [URL] {
         let files =
             (try? FileManager.default.contentsOfDirectory(
                 at: framesDirectory(for: xuid),
                 includingPropertiesForKeys: nil
             )) ?? []
         return files.filter { $0.pathExtension == frameFileExtension }
+    }
+
+    private func framesDirectory(for xuid: String) -> URL {
+        directory
+            .appending(path: "LastFrames", directoryHint: .isDirectory)
+            .appending(path: xuid, directoryHint: .isDirectory)
+    }
+
+    func removeLastFrames(for xuid: String) {
+        try? FileManager.default.removeItem(at: framesDirectory(for: xuid))
+    }
+
+    private func save(_ snapshot: some Encodable, to file: URL) {
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+        guard let data = try? JSONEncoder().encode(snapshot) else { return }
+
+        try? data.write(to: file, options: .atomic)
     }
 }

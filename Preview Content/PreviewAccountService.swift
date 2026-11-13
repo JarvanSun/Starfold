@@ -15,6 +15,10 @@ struct PreviewAccountService: AccountService {
     let profile: XboxProfile
     let signInPhase: SignInPhase
 
+    private var unanswered: PreviewReply {
+        .init(state: .loading)
+    }
+
     func restoreAccounts() async -> [SignedInAccount] {
         accounts
     }
@@ -46,11 +50,5 @@ struct PreviewAccountService: AccountService {
     }
 
     func signOut(_ account: SignedInAccount) throws {}
-}
-
-private extension PreviewAccountService {
-    var unanswered: PreviewReply {
-        .init(state: .loading)
-    }
 }
 #endif

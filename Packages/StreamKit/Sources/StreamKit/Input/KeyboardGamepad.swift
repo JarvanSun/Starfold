@@ -58,6 +58,16 @@ public struct KeyboardGamepad: Equatable, Sendable {
         return state
     }
 
+    private func control(for key: KeyboardKey) -> GamepadControl? {
+        bindings.first { $0.key == key }?.control
+    }
+
+    private func normalized(_ vector: SIMD2<Float>) -> SIMD2<Float> {
+        let clamped = SIMD2(max(-1, min(1, vector.x)), max(-1, min(1, vector.y)))
+        let length = (clamped * clamped).sum().squareRoot()
+        return length > 1 ? clamped / length : clamped
+    }
+
     public init() {}
 
     @discardableResult
@@ -74,17 +84,5 @@ public struct KeyboardGamepad: Equatable, Sendable {
 
     public mutating func releaseAll() {
         pressedKeys.removeAll()
-    }
-}
-
-private extension KeyboardGamepad {
-    func control(for key: KeyboardKey) -> GamepadControl? {
-        bindings.first { $0.key == key }?.control
-    }
-
-    func normalized(_ vector: SIMD2<Float>) -> SIMD2<Float> {
-        let clamped = SIMD2(max(-1, min(1, vector.x)), max(-1, min(1, vector.y)))
-        let length = (clamped * clamped).sum().squareRoot()
-        return length > 1 ? clamped / length : clamped
     }
 }

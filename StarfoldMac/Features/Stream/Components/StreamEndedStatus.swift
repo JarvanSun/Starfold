@@ -40,17 +40,23 @@ struct StreamEndedStatus: View {
             }
         }
     }
-}
 
-private extension StreamEndedStatus {
-    var closeButton: some View {
+    private func adviceText(_ advice: StreamFailureAdvice) -> some View {
+        Text(advice.text)
+            .font(.callout)
+            .foregroundStyle(.white.opacity(0.75))
+            .multilineTextAlignment(.center)
+            .textSelection(.enabled)
+    }
+
+    private var closeButton: some View {
         Button(String(localized: "stream.status.close")) { onClose() }
             .buttonStyle(.bordered)
             .controlSize(.large)
             .keyboardShortcut(.cancelAction)
     }
 
-    var tryAgainButton: some View {
+    private var tryAgainButton: some View {
         Button {
             onTryAgain()
         } label: {
@@ -58,14 +64,6 @@ private extension StreamEndedStatus {
         }
         .buttonStyle(.primary)
         .keyboardShortcut(.defaultAction)
-    }
-
-    func adviceText(_ advice: StreamFailureAdvice) -> some View {
-        Text(advice.text)
-            .font(.callout)
-            .foregroundStyle(.white.opacity(0.75))
-            .multilineTextAlignment(.center)
-            .textSelection(.enabled)
     }
 }
 

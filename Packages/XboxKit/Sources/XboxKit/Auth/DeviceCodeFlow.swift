@@ -56,6 +56,10 @@ struct DeviceCodeFlow: Sendable {
         )
     }
 
+    private func prefilledVerificationURL(_ url: URL, code: String) -> URL {
+        url.appending(queryItems: [URLQueryItem(name: "otc", value: code)])
+    }
+
     func waitForToken(_ prompt: DeviceCodePrompt) async throws -> MicrosoftAccountToken {
         var interval = prompt.pollInterval
 
@@ -78,6 +82,37 @@ struct DeviceCodeFlow: Sendable {
         }
 
         throw DeviceCodeError.expired
+    }
+
+    private func pollToken(deviceCode: String) async throws -> TokenResponse {
+        let form = FormBody([
+            ("client_id", configuration.clientID),
+            ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
+            ("device_code", deviceCode),
+        ])
+        let response = try await http.send(request(to: configuration.tokenURL, form: form))
+        return try JSONDecoder().decode(TokenResponse.self, from: response.body)
+    }
+
+    private func request(to url: URL, form: FormBody) -> HTTPClient.Request {
+        .init(url: url, method: "POST", headers: form.headers, body: form.encoded)
+    }
+
+    private func signedInToken(_ accessToken: String, from reply: TokenResponse)
+        -> MicrosoftAccountToken
+    {
+        .init(
+            accessToken: accessToken,
+            refreshToken: reply.refreshToken,
+            expiresAt: expiry(of: reply),
+            userID: reply.userID
+        )
+    }
+
+    private func expiry(of response: TokenResponse) -> Date {
+        let defaultTokenLifetime = 3600
+
+        return now().addingTimeInterval(TimeInterval(response.expiresIn ?? defaultTokenLifetime))
     }
 
     func refresh(_ token: MicrosoftAccountToken) async throws -> MicrosoftAccountToken {
@@ -105,6 +140,10 @@ struct DeviceCodeFlow: Sendable {
             expiresAt: expiry(of: response),
             userID: response.userID ?? token.userID
         )
+    }
+
+    private func serverError(from response: TokenResponse) -> DeviceCodeError {
+        .server(code: response.error ?? "unknown", description: response.errorDescription ?? "")
     }
 }
 
@@ -145,42 +184,5 @@ private extension DeviceCodeFlow {
         let userID: String?
         let error: String?
         let errorDescription: String?
-    }
-
-    func request(to url: URL, form: FormBody) -> HTTPClient.Request {
-        .init(url: url, method: "POST", headers: form.headers, body: form.encoded)
-    }
-
-    func prefilledVerificationURL(_ url: URL, code: String) -> URL {
-        url.appending(queryItems: [URLQueryItem(name: "otc", value: code)])
-    }
-
-    func pollToken(deviceCode: String) async throws -> TokenResponse {
-        let form = FormBody([
-            ("client_id", configuration.clientID),
-            ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
-            ("device_code", deviceCode),
-        ])
-        let response = try await http.send(request(to: configuration.tokenURL, form: form))
-        return try JSONDecoder().decode(TokenResponse.self, from: response.body)
-    }
-
-    func signedInToken(_ accessToken: String, from reply: TokenResponse) -> MicrosoftAccountToken {
-        .init(
-            accessToken: accessToken,
-            refreshToken: reply.refreshToken,
-            expiresAt: expiry(of: reply),
-            userID: reply.userID
-        )
-    }
-
-    func expiry(of response: TokenResponse) -> Date {
-        let defaultTokenLifetime = 3600
-
-        return now().addingTimeInterval(TimeInterval(response.expiresIn ?? defaultTokenLifetime))
-    }
-
-    func serverError(from response: TokenResponse) -> DeviceCodeError {
-        .server(code: response.error ?? "unknown", description: response.errorDescription ?? "")
     }
 }

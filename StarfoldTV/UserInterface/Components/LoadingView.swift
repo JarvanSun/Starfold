@@ -19,10 +19,8 @@ struct LoadingView: View {
         }
         .accessibilityLabel(Text("common.loading"))
     }
-}
 
-private extension LoadingView {
-    var placeholderCard: some View {
+    private var placeholderCard: some View {
         RoundedRectangle(cornerRadius: dimensions.cornerRadiusXLarge)
             .fill(Color.cardFill)
             .frame(width: dimensions.loadingCardWidth, height: dimensions.loadingCardHeight)

@@ -24,11 +24,9 @@ struct StreamWindowView: View {
             .preferredColorScheme(.dark)
             .onDisappear { endStream() }
     }
-}
 
-private extension StreamWindowView {
     @ViewBuilder
-    var streamContent: some View {
+    private var streamContent: some View {
         switch app.stream {
         case let stream?:
             StreamView(stream: stream, settings: app.settings, onClose: { closeWindow() })
@@ -37,7 +35,11 @@ private extension StreamWindowView {
         }
     }
 
-    var noStream: some View {
+    private func closeWindow() {
+        dismissWindow(id: SceneID.stream.rawValue)
+    }
+
+    private var noStream: some View {
         ContentUnavailableView(
             String(localized: "stream.noStream.title"),
             systemImage: "gamecontroller"
@@ -45,11 +47,7 @@ private extension StreamWindowView {
         .background { SkyBackground() }
     }
 
-    func closeWindow() {
-        dismissWindow(id: SceneID.stream.rawValue)
-    }
-
-    func endStream() {
+    private func endStream() {
         Task { await app.endStream() }
     }
 }

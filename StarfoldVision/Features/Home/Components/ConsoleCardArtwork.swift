@@ -22,15 +22,9 @@ struct ConsoleCardArtwork: View {
             .frame(height: dimensions.consoleCardArtworkHeight)
             .clipped()
     }
-}
-
-private extension ConsoleCardArtwork {
-    var fadeIn: Animation {
-        .easeOut(duration: 0.4)
-    }
 
     @ViewBuilder
-    var picture: some View {
+    private var picture: some View {
         switch cover {
         case .game(let url): gameCover(url)
         case .lastFrame(let image): Image(decorative: image, scale: 1).resizable().scaledToFill()
@@ -38,21 +32,25 @@ private extension ConsoleCardArtwork {
         }
     }
 
-    var modelName: some View {
-        Text(console.modelName)
-            .font(
-                .system(size: dimensions.consoleModelNameFontSize, weight: .bold, design: .rounded)
-            )
-            .foregroundStyle(.quaternary)
-    }
-
-    func gameCover(_ url: URL) -> some View {
+    private func gameCover(_ url: URL) -> some View {
         AsyncImage(url: url, transaction: .init(animation: fadeIn)) { phase in
             switch phase.image {
             case let image?: image.resizable().scaledToFill().transition(.opacity)
             case nil: EmptyView()
             }
         }
+    }
+
+    private var fadeIn: Animation {
+        .easeOut(duration: 0.4)
+    }
+
+    private var modelName: some View {
+        Text(console.modelName)
+            .font(
+                .system(size: dimensions.consoleModelNameFontSize, weight: .bold, design: .rounded)
+            )
+            .foregroundStyle(.quaternary)
     }
 }
 

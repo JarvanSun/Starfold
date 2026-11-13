@@ -25,11 +25,9 @@ struct RootView: View {
             }
             .onChange(of: app.streamPresentationRequest) { showStreamWindow() }
     }
-}
 
-private extension RootView {
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch (app.sessionState, app.home, app.library) {
         case (.signedIn, let home?, let library?): signedInTabs(home: home, library: library)
         case (.signedOut, _, _): signedOutTabs
@@ -37,11 +35,15 @@ private extension RootView {
         }
     }
 
-    func signedInTabs(home: HomeViewModel, library: LibraryViewModel) -> some View {
+    private func signedInTabs(home: HomeViewModel, library: LibraryViewModel) -> some View {
         SignedInTabView(home: home, library: library, onAddAccount: { presentSignIn() })
     }
 
-    var signedOutTabs: some View {
+    private func presentSignIn() {
+        isSignInPresented = true
+    }
+
+    private var signedOutTabs: some View {
         TabView {
             Tab("app.tab.signIn", systemImage: "person.crop.circle") {
                 SignInHostView { WelcomeView(signIn: $0) }
@@ -53,11 +55,7 @@ private extension RootView {
         }
     }
 
-    func presentSignIn() {
-        isSignInPresented = true
-    }
-
-    func showStreamWindow() {
+    private func showStreamWindow() {
         pushWindow(id: SceneID.stream.rawValue)
     }
 }

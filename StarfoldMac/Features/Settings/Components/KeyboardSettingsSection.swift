@@ -24,10 +24,8 @@ struct KeyboardSettingsSection: View {
                 .disabled(!settings.isKeyboardControllerEnabled)
         }
     }
-}
 
-private extension KeyboardSettingsSection {
-    var keyBindings: some View {
+    private var keyBindings: some View {
         Grid(
             alignment: .leading,
             horizontalSpacing: dimensions.spaceLarge,
@@ -37,7 +35,7 @@ private extension KeyboardSettingsSection {
         }
     }
 
-    func row(for binding: KeyBinding) -> some View {
+    private func row(for binding: KeyBinding) -> some View {
         GridRow {
             Text(binding.key.name).font(.body.monospaced())
 

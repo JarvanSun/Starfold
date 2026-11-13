@@ -24,6 +24,26 @@ public struct StatisticsReadout {
         kinds.compactMap(row(of:))
     }
 
+    private func row(of kind: StatisticsRowKind) -> StatisticsRow? {
+        value(of: kind).map { .init(kind: kind, value: $0) }
+    }
+
+    private var network: String? {
+        guard let path = statistics.path else { return nil }
+
+        return [String(localized: path.title), statistics.interface.flatMap(name(ofInterface:))]
+            .compactMap { $0 }
+            .joined(separator: separator)
+    }
+
+    private func name(ofInterface type: String) -> String? {
+        switch type {
+        case "wifi": "Wi-Fi"
+        case "ethernet": String(localized: "stream.statistics.network.ethernet", bundle: .module)
+        default: nil
+        }
+    }
+
     public init(
         statistics: StreamStatistics,
         kinds: [StatisticsRowKind],
@@ -35,53 +55,26 @@ public struct StatisticsReadout {
         self.usesAutomaticQuality = usesAutomaticQuality
         self.loweredFrom = loweredFrom
     }
-}
 
-// MARK: - Private
-
-private extension StatisticsReadout {
-    var toneMapping: String? {
+    private var toneMapping: String? {
         switch statistics.isToneMapped {
         case true: String(localized: "stream.statistics.toneMapping", bundle: .module)
         case false: nil
         }
     }
 
-    var network: String? {
-        guard let path = statistics.path else { return nil }
-
-        return [name(of: path), statistics.interface.flatMap(name(ofInterface:))]
-            .compactMap { $0 }
-            .joined(separator: separator)
-    }
-
-    func latency(of milliseconds: Double) -> StatisticsLatency {
+    private func latency(of milliseconds: Double) -> StatisticsLatency {
         let duration = duration(milliseconds)
         return .init(
             value: String(
                 localized: "stream.statistics.latency.value \(duration)",
                 bundle: .module
             ),
-            level: level(of: milliseconds)
+            level: LatencyLevel(milliseconds: milliseconds)
         )
     }
 
-    func level(of milliseconds: Double) -> LatencyLevel {
-        let lowLatencyLimit: Double = 50
-        let moderateLatencyLimit: Double = 90
-
-        return switch milliseconds {
-        case ..<lowLatencyLimit: .low
-        case ..<moderateLatencyLimit: .moderate
-        default: .high
-        }
-    }
-
-    func row(of kind: StatisticsRowKind) -> StatisticsRow? {
-        value(of: kind).map { .init(kind: kind, value: $0) }
-    }
-
-    func value(of kind: StatisticsRowKind) -> String? {
+    private func value(of kind: StatisticsRowKind) -> String? {
         switch kind {
         case .resolution: statistics.resolution.map(resolution(_:))
         case .codec: statistics.codec
@@ -99,7 +92,7 @@ private extension StatisticsReadout {
         }
     }
 
-    func resolution(_ size: CGSize) -> String {
+    private func resolution(_ size: CGSize) -> String {
         let size = dimensions(of: size)
 
         return switch usesAutomaticQuality {
@@ -109,50 +102,34 @@ private extension StatisticsReadout {
         }
     }
 
-    func upscaled(to size: CGSize) -> String {
+    private func upscaled(to size: CGSize) -> String {
         [dimensions(of: size), "MetalFX"].joined(separator: separator)
     }
 
-    func dimensions(of size: CGSize) -> String {
+    private func dimensions(of size: CGSize) -> String {
         "\(Int(size.width))×\(Int(size.height))"
     }
 
-    func lowered(from quality: StreamQuality) -> String {
+    private func lowered(from quality: StreamQuality) -> String {
         String(localized: "stream.statistics.loweredFrom \(quality.label)", bundle: .module)
     }
 
-    func frameRate(_ framesPerSecond: Double) -> String {
+    private func frameRate(_ framesPerSecond: Double) -> String {
         let number = framesPerSecond.formatted(.number.precision(.fractionLength(0)))
         return String(localized: "stream.statistics.frameRate.value \(number)", bundle: .module)
     }
 
-    func bitrate(_ megabitsPerSecond: Double) -> String {
+    private func bitrate(_ megabitsPerSecond: Double) -> String {
         let number = megabitsPerSecond.formatted(.number.precision(.fractionLength(1)))
         return String(localized: "stream.statistics.bitrate.value \(number)", bundle: .module)
     }
 
-    func name(of path: StreamStatistics.NetworkPath) -> String {
-        switch path {
-        case .local: String(localized: "stream.statistics.network.local", bundle: .module)
-        case .internet: String(localized: "stream.statistics.network.internet", bundle: .module)
-        case .relay: String(localized: "stream.statistics.network.relay", bundle: .module)
-        }
-    }
-
-    func name(ofInterface type: String) -> String? {
-        switch type {
-        case "wifi": "Wi-Fi"
-        case "ethernet": String(localized: "stream.statistics.network.ethernet", bundle: .module)
-        default: nil
-        }
-    }
-
-    func duration(_ milliseconds: Double) -> String {
+    private func duration(_ milliseconds: Double) -> String {
         Duration.milliseconds(milliseconds)
             .formatted(.units(allowed: [.milliseconds], width: .abbreviated))
     }
 
-    func percent(_ value: Double) -> String {
+    private func percent(_ value: Double) -> String {
         (value / 100).formatted(.percent.precision(.fractionLength(1)))
     }
 }

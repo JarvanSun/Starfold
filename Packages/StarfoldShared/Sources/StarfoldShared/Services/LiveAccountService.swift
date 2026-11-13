@@ -43,6 +43,17 @@ final class LiveAccountService: AccountService {
         return await signedIn(xboxAccount)
     }
 
+    private func signedIn(_ xboxAccount: XboxAccount) async -> SignedInAccount {
+        xboxAccounts[xboxAccount.xuid] = xboxAccount
+
+        return .init(
+            summary: .init(id: xboxAccount.xuid, gamertag: await xboxAccount.gamertag),
+            consoles: LiveConsoleService(account: xboxAccount, http: http),
+            cloudLibrary: LiveCloudLibraryService(account: xboxAccount, http: http),
+            streams: LiveStreamService(account: xboxAccount, http: http, runtime: streamRuntime)
+        )
+    }
+
     func profile(of account: SignedInAccount) async throws -> XboxProfile {
         guard let xboxAccount = xboxAccounts[account.id] else {
             throw XboxAccountError.signInRequired
@@ -55,18 +66,5 @@ final class LiveAccountService: AccountService {
         xboxAccounts[account.id] = nil
 
         try store.signOut(xuid: account.id)
-    }
-}
-
-private extension LiveAccountService {
-    func signedIn(_ xboxAccount: XboxAccount) async -> SignedInAccount {
-        xboxAccounts[xboxAccount.xuid] = xboxAccount
-
-        return .init(
-            summary: .init(id: xboxAccount.xuid, gamertag: await xboxAccount.gamertag),
-            consoles: LiveConsoleService(account: xboxAccount, http: http),
-            cloudLibrary: LiveCloudLibraryService(account: xboxAccount, http: http),
-            streams: LiveStreamService(account: xboxAccount, http: http, runtime: streamRuntime)
-        )
     }
 }

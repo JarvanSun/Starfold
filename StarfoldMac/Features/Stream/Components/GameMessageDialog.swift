@@ -32,7 +32,7 @@ struct GameMessageDialog: View {
 
                 ForEach(buttons) { button in
                     Button(button.title) { onAnswer(button.index) }
-                        .keyboardShortcut(shortcut(for: button.role))
+                        .keyboardShortcut(button.role.keyboardShortcut)
                 }
             }
         }
@@ -41,9 +41,9 @@ struct GameMessageDialog: View {
     }
 }
 
-private extension GameMessageDialog {
-    func shortcut(for role: DialogButtonRole) -> KeyboardShortcut? {
-        switch role {
+private extension DialogButtonRole {
+    var keyboardShortcut: KeyboardShortcut? {
+        switch self {
         case .primary: .defaultAction
         case .cancel: .cancelAction
         case .plain: nil

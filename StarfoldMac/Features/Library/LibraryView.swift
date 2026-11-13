@@ -38,10 +38,8 @@ struct LibraryView: View {
         .navigationTitle(Text("library.title"))
         .refreshable { await library.refresh() }
     }
-}
 
-private extension LibraryView {
-    func shelfRow(_ shelf: LibraryShelf) -> some View {
+    private func shelfRow(_ shelf: LibraryShelf) -> some View {
         ShelfRow(
             shelf: shelf,
             games: library.games(on: shelf),
@@ -50,7 +48,7 @@ private extension LibraryView {
         )
     }
 
-    func placeholderView(_ placeholder: LibraryPlaceholder) -> some View {
+    private func placeholderView(_ placeholder: LibraryPlaceholder) -> some View {
         LibraryPlaceholderView(
             placeholder: placeholder,
             searchText: library.searchText,
@@ -58,7 +56,7 @@ private extension LibraryView {
         )
     }
 
-    func refresh() {
+    private func refresh() {
         Task { await library.refresh() }
     }
 }

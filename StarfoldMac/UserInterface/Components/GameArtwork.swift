@@ -25,11 +25,9 @@ struct GameArtwork: View {
             }
             .clipShape(.rect(cornerRadius: dimensions.cornerRadiusMedium))
     }
-}
 
-private extension GameArtwork {
     @ViewBuilder
-    func image(for phase: AsyncImagePhase) -> some View {
+    private func image(for phase: AsyncImagePhase) -> some View {
         switch phase {
         case .success(let image): image.resizable().scaledToFill().transition(.opacity)
         case .failure:

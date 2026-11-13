@@ -49,20 +49,18 @@ public struct StatisticsReport: Sendable {
         return lines.joined(separator: "\n")
     }
 
+    private func milliseconds(_ value: Double?) -> String {
+        value.map { "\(Int($0.rounded())) ms" } ?? "–"
+    }
+
+    private func size(_ value: CGSize?) -> String {
+        value.map { "\(Int($0.width))×\(Int($0.height))" } ?? "–"
+    }
+
     public init(statistics: StreamStatistics, appName: String, appVersion: String, device: String) {
         self.statistics = statistics
         self.appName = appName
         self.appVersion = appVersion
         self.device = device
-    }
-}
-
-private extension StatisticsReport {
-    func milliseconds(_ value: Double?) -> String {
-        value.map { "\(Int($0.rounded())) ms" } ?? "–"
-    }
-
-    func size(_ value: CGSize?) -> String {
-        value.map { "\(Int($0.width))×\(Int($0.height))" } ?? "–"
     }
 }

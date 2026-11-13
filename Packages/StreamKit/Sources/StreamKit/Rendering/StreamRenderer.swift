@@ -90,60 +90,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         #endif
     }
 
-    public func lastFrameImage() -> CGImage? {
-        guard let buffer = lock.withLock({ $0.lastFrame })?.pixelBuffer else { return nil }
-
-        let image = CIImage(cvPixelBuffer: buffer)
-        let scale = min(1, lastFrameMaximumWidth / image.extent.width)
-        let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-        return CIContext().createCGImage(scaled, from: scaled.extent)
-    }
-
-    public func clear() {
-        lock.withLock { $0.lastFrame = nil }
-        #if os(visionOS) || os(tvOS)
-        systemVideo.clear()
-        #else
-        lock.withLock { $0.frames.removeAll() }
-
-        queue.async { [self] in
-            systemVideo.clear()
-            enhancer.clear()
-        }
-        #endif
-    }
-}
-
-// MARK: - Private
-
-private extension StreamRenderer {
-    var maximumPendingFrames: Int { 6 }
-
-    var lastFrameMaximumWidth: CGFloat { 640 }
-
-    var sharpeningThreshold: Float { 0.001 }
-
-    var latencySmoothing: Double { 0.1 }
-
-    func recordDisplayLatency(_ milliseconds: Double) {
-        guard milliseconds >= 0, milliseconds < 1000 else { return }
-
-        lock.withLock { state in
-            state.displayMs =
-                state.displayMs.map { $0 + (milliseconds - $0) * latencySmoothing } ?? milliseconds
-        }
-    }
-
-    func fireFirstFrame() {
-        let onFirstFrame = lock.withLock { state in
-            defer { state.onFirstFrame = nil }
-
-            return state.onFirstFrame
-        }
-        onFirstFrame?()
-    }
-
-    func schedule(_ frame: DecodedFrame) {
+    private func schedule(_ frame: DecodedFrame) {
         let maximumPendingFrames = maximumPendingFrames
         let shouldSchedule = lock.withLock { state in
             state.frames.append(frame)
@@ -163,7 +110,9 @@ private extension StreamRenderer {
         }
     }
 
-    func drainPending() {
+    private var maximumPendingFrames: Int { 6 }
+
+    private func drainPending() {
         while let (frame, enhancements, drawableSize) = nextPendingFrame() {
             autoreleasepool {
                 present(frame, enhancements: enhancements, drawableSize: drawableSize)
@@ -171,7 +120,7 @@ private extension StreamRenderer {
         }
     }
 
-    func nextPendingFrame() -> (DecodedFrame, RenderEnhancements, CGSize)? {
+    private func nextPendingFrame() -> (DecodedFrame, RenderEnhancements, CGSize)? {
         lock.withLock { state in
             guard !state.frames.isEmpty else {
                 state.isDrainScheduled = false
@@ -183,7 +132,11 @@ private extension StreamRenderer {
         }
     }
 
-    func present(_ frame: DecodedFrame, enhancements: RenderEnhancements, drawableSize: CGSize) {
+    private func present(
+        _ frame: DecodedFrame,
+        enhancements: RenderEnhancements,
+        drawableSize: CGSize
+    ) {
         guard
             let output = enhanced(
                 frame.pixelBuffer,
@@ -204,12 +157,13 @@ private extension StreamRenderer {
         fireFirstFrame()
     }
 
-    func enhanced(
+    private func enhanced(
         _ pixelBuffer: CVPixelBuffer,
         enhancements: RenderEnhancements,
         drawableSize: CGSize
     ) -> CVPixelBuffer? {
         let isUpscaling = enhancements.isUpscaling && enhancer.supportsUpscaling
+        let sharpeningThreshold: Float = 0.001
         let isSharpening = enhancements.sharpening > sharpeningThreshold
         let isEnhancing = isUpscaling || isSharpening || enhancements.isToneMappingHDR
         guard isEnhancing else { return pixelBuffer }
@@ -224,12 +178,56 @@ private extension StreamRenderer {
         return enhancer.enhance(pixelBuffer, request: request)
     }
 
-    func recordUpscaledSize(of output: CVPixelBuffer, from input: CVPixelBuffer) {
+    private func recordUpscaledSize(of output: CVPixelBuffer, from input: CVPixelBuffer) {
         let size = CGSize(
             width: CVPixelBufferGetWidth(output),
             height: CVPixelBufferGetHeight(output)
         )
         let upscaledTo = size.width > CGFloat(CVPixelBufferGetWidth(input)) ? size : nil
         lock.withLock { $0.upscaledTo = upscaledTo }
+    }
+
+    private func recordDisplayLatency(_ milliseconds: Double) {
+        guard milliseconds >= 0, milliseconds < 1000 else { return }
+
+        let latencySmoothing = 0.1
+
+        lock.withLock { state in
+            state.displayMs =
+                state.displayMs.map { $0 + (milliseconds - $0) * latencySmoothing } ?? milliseconds
+        }
+    }
+
+    private func fireFirstFrame() {
+        let onFirstFrame = lock.withLock { state in
+            defer { state.onFirstFrame = nil }
+
+            return state.onFirstFrame
+        }
+        onFirstFrame?()
+    }
+
+    public func lastFrameImage() -> CGImage? {
+        guard let buffer = lock.withLock({ $0.lastFrame })?.pixelBuffer else { return nil }
+
+        let image = CIImage(cvPixelBuffer: buffer)
+        let lastFrameMaximumWidth: CGFloat = 640
+        let scale = min(1, lastFrameMaximumWidth / image.extent.width)
+        let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        return CIContext().createCGImage(scaled, from: scaled.extent)
+    }
+
+    public func clear() {
+        lock.withLock { $0.lastFrame = nil }
+        #if os(visionOS) || os(tvOS)
+        systemVideo.clear()
+        #else
+        lock.withLock { $0.frames.removeAll() }
+
+        queue.async { [self] in
+            systemVideo.clear()
+            enhancer.clear()
+        }
+        #endif
     }
 }

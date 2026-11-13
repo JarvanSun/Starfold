@@ -25,10 +25,8 @@ struct StreamingSettings: View {
         }
         .formStyle(.grouped)
     }
-}
 
-private extension StreamingSettings {
-    func restartStream() {
+    private func restartStream() {
         Task { await settings.restartStream() }
     }
 }

@@ -27,20 +27,16 @@ struct RootView: View {
             .preferredColorScheme(.dark)
             .task { createStreamPresenter() }
     }
-}
 
-// MARK: - Private
-
-private extension RootView {
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch streamPresenter {
         case let presenter?: root(presenter)
         case nil: LoadingView()
         }
     }
 
-    func root(_ presenter: StreamPresenter) -> some View {
+    private func root(_ presenter: StreamPresenter) -> some View {
         @Bindable var presenter = presenter
         let presentationID = presenter.presentationID
         return ZStack {
@@ -75,15 +71,7 @@ private extension RootView {
     }
 
     @ViewBuilder
-    func background(isStreamPresented: Bool) -> some View {
-        switch isStreamPresented {
-        case true: Color.black.ignoresSafeArea()
-        case false: SkyBackground()
-        }
-    }
-
-    @ViewBuilder
-    func page(_ presenter: StreamPresenter) -> some View {
+    private func page(_ presenter: StreamPresenter) -> some View {
         switch app.sessionState {
         case .restoring: LoadingView()
         case .signedOut: SignInHostView { WelcomeView(signIn: $0) }
@@ -91,7 +79,7 @@ private extension RootView {
         }
     }
 
-    func tabs(_ presenter: StreamPresenter) -> some View {
+    private func tabs(_ presenter: StreamPresenter) -> some View {
         TabView(selection: $selectedTab) {
             Tab("app.tab.home", systemImage: "house", value: RootTab.home) {
                 HomeHostView(onBrowse: { selectedTab = .library })
@@ -111,7 +99,16 @@ private extension RootView {
         }
     }
 
-    func stream(_ presenter: StreamPresenter) -> some View {
+    private func streamCover(_ presenter: StreamPresenter, presentationID: Int) -> Binding<Bool> {
+        .init(
+            get: { presenter.isPresented },
+            set: { isPresented in
+                if !isPresented { Task { await presenter.end(presentationID: presentationID) } }
+            }
+        )
+    }
+
+    private func stream(_ presenter: StreamPresenter) -> some View {
         StreamView(
             presenter: presenter,
             stream: app.stream,
@@ -128,37 +125,13 @@ private extension RootView {
         }
     }
 
-    func streamCover(_ presenter: StreamPresenter, presentationID: Int) -> Binding<Bool> {
-        .init(
-            get: { presenter.isPresented },
-            set: { isPresented in
-                if !isPresented { Task { await presenter.end(presentationID: presentationID) } }
-            }
-        )
-    }
-
-    func signInExpiredAlert(_ presenter: StreamPresenter) -> Binding<Bool> {
-        .init(
-            get: { app.isSignInExpired && !presenter.isPresented },
-            set: { app.isSignInExpired = $0 }
-        )
-    }
-
-    func createStreamPresenter() {
-        guard streamPresenter == nil else { return }
-
-        let presenter = StreamPresenter(app: app)
-        app.onPlayRequest = { [weak presenter] in presenter?.start($0) }
-        streamPresenter = presenter
-    }
-
-    func signInAfterExpiry(_ presenter: StreamPresenter) {
+    private func signInAfterExpiry(_ presenter: StreamPresenter) {
         app.isSignInExpired = false
 
         endStreamAndSignIn(presenter)
     }
 
-    func endStreamAndSignIn(_ presenter: StreamPresenter) {
+    private func endStreamAndSignIn(_ presenter: StreamPresenter) {
         Task {
             await presenter.end()
 
@@ -166,19 +139,26 @@ private extension RootView {
         }
     }
 
-    func publish(_ snapshot: TopShelfSnapshot?) {
+    private func signInExpiredAlert(_ presenter: StreamPresenter) -> Binding<Bool> {
+        .init(
+            get: { app.isSignInExpired && !presenter.isPresented },
+            set: { app.isSignInExpired = $0 }
+        )
+    }
+
+    private func publish(_ snapshot: TopShelfSnapshot?) {
         guard let snapshot, TopShelfStore().save(snapshot) else { return }
 
         TVTopShelfContentProvider.topShelfContentDidChange()
     }
 
-    func open(_ url: URL, presenter: StreamPresenter) {
+    private func open(_ url: URL, presenter: StreamPresenter) {
         pendingLink = TopShelfLink(url: url)
 
         followPendingLink(presenter)
     }
 
-    func followPendingLink(_ presenter: StreamPresenter) {
+    private func followPendingLink(_ presenter: StreamPresenter) {
         guard let link = pendingLink, app.sessionState != .restoring else { return }
 
         pendingLink = nil
@@ -186,7 +166,7 @@ private extension RootView {
         follow(link, presenter: presenter)
     }
 
-    func follow(_ link: TopShelfLink, presenter: StreamPresenter) {
+    private func follow(_ link: TopShelfLink, presenter: StreamPresenter) {
         guard app.sessionState == .signedIn, !presenter.isPresented else { return }
 
         switch link {
@@ -203,12 +183,28 @@ private extension RootView {
         }
     }
 
-    func apply(_ phase: ScenePhase, presenter: StreamPresenter) {
+    private func apply(_ phase: ScenePhase, presenter: StreamPresenter) {
         presenter.moveToForeground(phase == .active)
 
         if phase != .active { app.controllers.routeInput(toGame: false) }
 
         if phase == .background { backgroundCleanup.end(presenter) }
+    }
+
+    @ViewBuilder
+    private func background(isStreamPresented: Bool) -> some View {
+        switch isStreamPresented {
+        case true: Color.black.ignoresSafeArea()
+        case false: SkyBackground()
+        }
+    }
+
+    private func createStreamPresenter() {
+        guard streamPresenter == nil else { return }
+
+        let presenter = StreamPresenter(app: app)
+        app.onPlayRequest = { [weak presenter] in presenter?.start($0) }
+        streamPresenter = presenter
     }
 }
 

@@ -29,10 +29,8 @@ struct PictureSettingsSection: View {
             )
         }
     }
-}
 
-private extension PictureSettingsSection {
-    var upscalingToggle: some View {
+    private var upscalingToggle: some View {
         Toggle(isOn: $settings.isUpscalingEnabled) {
             Text("settings.picture.upscaling.title")
 
@@ -40,7 +38,7 @@ private extension PictureSettingsSection {
         }
     }
 
-    var sharpeningSlider: some View {
+    private var sharpeningSlider: some View {
         LabeledContent {
             Slider(value: $settings.sharpening, in: 0...1) {
                 EmptyView()
@@ -56,7 +54,7 @@ private extension PictureSettingsSection {
         }
     }
 
-    var toneMappingToggle: some View {
+    private var toneMappingToggle: some View {
         Toggle(isOn: $settings.isHDRToneMappingEnabled) {
             Text("settings.picture.toneMapping.title")
 
@@ -64,7 +62,7 @@ private extension PictureSettingsSection {
         }
     }
 
-    var pictureFitPicker: some View {
+    private var pictureFitPicker: some View {
         Picker(String(localized: "settings.picture.pictureMode"), selection: $settings.pictureFit) {
             ForEach(settings.pictureFits, id: \.self) { fit in
                 Text(fit.title).tag(fit)

@@ -27,10 +27,25 @@ struct GameHero: View {
         .frame(height: dimensions.gameHeroHeight)
         .accessibilityHidden(true)
     }
-}
 
-private extension GameHero {
-    var fade: LinearGradient {
+    @ViewBuilder
+    private func image(for phase: AsyncImagePhase) -> some View {
+        switch phase.image {
+        case let image?: image.resizable().scaledToFill().transition(.opacity)
+        case nil: Color.clear
+        }
+    }
+
+    private func offset(scrolledBy minY: CGFloat) -> CGFloat {
+        let parallaxRate: CGFloat = 0.35
+
+        return switch minY > 0 {
+        case true: -minY
+        case false: -minY * parallaxRate
+        }
+    }
+
+    private var fade: LinearGradient {
         .init(
             stops: [
                 .init(color: .black, location: 0.45),
@@ -40,23 +55,6 @@ private extension GameHero {
             startPoint: .top,
             endPoint: .bottom
         )
-    }
-
-    @ViewBuilder
-    func image(for phase: AsyncImagePhase) -> some View {
-        switch phase.image {
-        case let image?: image.resizable().scaledToFill().transition(.opacity)
-        case nil: Color.clear
-        }
-    }
-
-    func offset(scrolledBy minY: CGFloat) -> CGFloat {
-        let parallaxRate: CGFloat = 0.35
-
-        return switch minY > 0 {
-        case true: -minY
-        case false: -minY * parallaxRate
-        }
     }
 }
 

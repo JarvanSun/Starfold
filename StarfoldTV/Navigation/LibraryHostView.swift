@@ -19,18 +19,16 @@ struct LibraryHostView: View {
         }
         .onChange(of: app.activeAccountID) { path.removeAll() }
     }
-}
 
-private extension LibraryHostView {
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch app.library {
         case let library?: page(library)
         case nil: LoadingView()
         }
     }
 
-    func page(_ library: LibraryViewModel) -> some View {
+    private func page(_ library: LibraryViewModel) -> some View {
         LibraryView(library: library)
             .navigationDestination(for: CloudGame.self) { game in
                 GameDetailView(detail: library.detail(for: game))

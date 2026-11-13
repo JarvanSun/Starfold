@@ -24,10 +24,8 @@ struct QualitySettingsSection: View {
             Text("settings.streaming.quality.footer")
         }
     }
-}
 
-private extension QualitySettingsSection {
-    var consoleQualityPicker: some View {
+    private var consoleQualityPicker: some View {
         Picker(
             String(localized: "settings.streaming.consoleQuality.title"),
             selection: $settings.consoleQuality
@@ -38,7 +36,7 @@ private extension QualitySettingsSection {
         }
     }
 
-    var cloudQualityPicker: some View {
+    private var cloudQualityPicker: some View {
         Picker(
             String(localized: "settings.streaming.cloudQuality.title"),
             selection: $settings.cloudQuality
@@ -49,7 +47,7 @@ private extension QualitySettingsSection {
         }
     }
 
-    var bitratePicker: some View {
+    private var bitratePicker: some View {
         Picker(
             String(localized: "settings.streaming.bitrate.title"),
             selection: $settings.maxBitrateMbps

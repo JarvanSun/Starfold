@@ -29,10 +29,8 @@ struct ConsoleCard: View {
             }
         }
     }
-}
 
-private extension ConsoleCard {
-    var heading: HomeCardHeading {
+    private var heading: HomeCardHeading {
         let status = home.status(of: console)
         return .init(
             title: Text(console.name),
@@ -46,7 +44,7 @@ private extension ConsoleCard {
         )
     }
 
-    var playAction: HomeCardAction {
+    private var playAction: HomeCardAction {
         .init(
             title: "home.console.play",
             systemImage: "play.fill",
@@ -55,18 +53,18 @@ private extension ConsoleCard {
         )
     }
 
-    var wirelessHint: some View {
-        Image(systemName: "wifi")
-            .foregroundStyle(.secondary)
-            .help(Text("home.console.wirelessHint"))
-    }
-
-    func play() {
+    private func play() {
         home.play(console)
     }
 
-    func togglePower() {
+    private func togglePower() {
         Task { await home.togglePower(of: console) }
+    }
+
+    private var wirelessHint: some View {
+        Image(systemName: "wifi")
+            .foregroundStyle(.secondary)
+            .help(Text("home.console.wirelessHint"))
     }
 }
 

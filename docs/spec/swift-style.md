@@ -47,8 +47,8 @@ succeed.
   app. A presentation returns `LocalizedStringResource`, never a resolved `String`, and only picks
   words, symbols and colours.
 - Nothing lives at file level except types and their extensions (the `Package.swift` manifest
-  excepted). A helper goes in the trailing `private extension <Type>`, in an extension of the
-  value type it works on, or in a small `private` helper type.
+  excepted). A helper goes below the member it serves ([Declaration order](#declaration-order)),
+  in an extension of the value type it works on, or in a small `private` helper type.
 
 ## Naming
 
@@ -85,8 +85,12 @@ Inside a type, one blank line between groups:
 6. `body` (views).
 7. Intents, in the order the user meets them.
 8. Queries.
-9. A trailing `private extension <Type>` with private computed properties and steps, in call
-   order.
+
+A private helper sits right below the member it serves, in call order: a step one method uses
+follows that method, a part of `body` follows `body`. A helper several members share follows the
+last of them; a private computed property several members share joins the computed properties.
+Extensions group protocol conformances, members of a type declared in another file, and private
+decoding types, never members by access level.
 
 ```swift
 @Observable
@@ -116,7 +120,7 @@ above each top-level extension, followed by one blank line:
 
 | Extension | Name |
 |---|---|
-| The trailing `private extension` of the file's type | `Private` |
+| The `private extension` holding a file's private nested types | `Private` |
 | A conformance | The protocol: `Equatable` |
 | Another extension of the file's type | What it groups: `Sections` |
 | An extension of another type | That type: `URL` |

@@ -14,6 +14,14 @@ public struct AccountStore: Sendable {
     private let now: @Sendable () -> Date
     private let accountKeyPrefix = "account."
 
+    private var deviceCodeFlow: DeviceCodeFlow {
+        .init(configuration: identity.deviceCodeConfiguration, http: http, now: now)
+    }
+
+    private var tokenClient: XboxLiveTokenClient {
+        .init(identity: identity, http: http, now: now)
+    }
+
     public init(
         microsoftClientID: String,
         secrets: SecretStoring,
@@ -67,29 +75,22 @@ public struct AccountStore: Sendable {
             .sorted { $0.xuid < $1.xuid }
     }
 
-    public func signOut(xuid: String) throws {
-        try secrets.delete(secretKey(for: xuid))
-    }
-}
-
-private extension AccountStore {
-    var deviceCodeFlow: DeviceCodeFlow {
-        .init(configuration: identity.deviceCodeConfiguration, http: http, now: now)
+    private func isAccountKey(_ key: String) -> Bool {
+        key.hasPrefix(accountKeyPrefix)
     }
 
-    var tokenClient: XboxLiveTokenClient {
-        .init(identity: identity, http: http, now: now)
+    private func restoredAccount(key: String) -> XboxAccount? {
+        guard
+            let secret = try? secrets.read(key),
+            let stored = try? JSONDecoder().decode(StoredAccount.self, from: secret)
+        else {
+            return nil
+        }
+
+        return account(for: stored)
     }
 
-    func save(_ stored: StoredAccount) throws {
-        try secrets.write(try JSONEncoder().encode(stored), for: secretKey(for: stored.xuid))
-    }
-
-    func secretKey(for xuid: String) -> String {
-        accountKeyPrefix + xuid
-    }
-
-    func account(for stored: StoredAccount) -> XboxAccount {
+    private func account(for stored: StoredAccount) -> XboxAccount {
         .init(
             stored: stored,
             deviceCodeFlow: deviceCodeFlow,
@@ -99,18 +100,15 @@ private extension AccountStore {
         )
     }
 
-    func isAccountKey(_ key: String) -> Bool {
-        key.hasPrefix(accountKeyPrefix)
+    private func save(_ stored: StoredAccount) throws {
+        try secrets.write(try JSONEncoder().encode(stored), for: secretKey(for: stored.xuid))
     }
 
-    func restoredAccount(key: String) -> XboxAccount? {
-        guard
-            let secret = try? secrets.read(key),
-            let stored = try? JSONDecoder().decode(StoredAccount.self, from: secret)
-        else {
-            return nil
-        }
+    private func secretKey(for xuid: String) -> String {
+        accountKeyPrefix + xuid
+    }
 
-        return account(for: stored)
+    public func signOut(xuid: String) throws {
+        try secrets.delete(secretKey(for: xuid))
     }
 }

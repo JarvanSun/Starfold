@@ -19,10 +19,8 @@ struct GameFacts: View {
         }
         .frame(width: dimensions.gameFactsWidth, alignment: .leading)
     }
-}
 
-private extension GameFacts {
-    func row(_ fact: GameFact) -> some View {
+    private func row(_ fact: GameFact) -> some View {
         VStack(alignment: .leading, spacing: dimensions.spaceXSmall) {
             Text(fact.label)
                 .font(.caption.weight(.semibold))

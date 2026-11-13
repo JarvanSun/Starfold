@@ -22,7 +22,7 @@ public final class SystemDialogsViewModel {
     }
 
     public func changeText(to newText: String) {
-        text = String(newText.prefix(maxTextLength ?? newText.count))
+        text = String(newText.prefix(presentedDialog?.maxTextLength ?? newText.count))
     }
 
     public func answer(_ dialog: SystemDialogRequest, buttonIndex: Int) {
@@ -45,6 +45,14 @@ public final class SystemDialogsViewModel {
         }
     }
 
+    private func answerKeyboard(_ dialog: SystemDialogRequest, text: String?) {
+        remove(id: dialog.id)
+
+        guard let connection else { return }
+
+        Task { await connection.answerKeyboard(id: dialog.id, text: text) }
+    }
+
     public func buttons(of dialog: SystemDialogRequest) -> [DialogButton] {
         switch dialog.kind {
         case .message(_, _, let titles, _, _) where titles.isEmpty: [acknowledgeButton]
@@ -53,8 +61,8 @@ public final class SystemDialogsViewModel {
                 .init(
                     index: index,
                     title: title,
-                    role: role(
-                        ofButtonAt: index,
+                    role: .init(
+                        buttonAt: index,
                         defaultIndex: defaultIndex,
                         cancelIndex: cancelIndex
                     )
@@ -62,6 +70,14 @@ public final class SystemDialogsViewModel {
             }
         case .keyboard: []
         }
+    }
+
+    private var acknowledgeButton: DialogButton {
+        .init(
+            index: 0,
+            title: String(localized: "stream.dialog.ok", bundle: .module),
+            role: .primary
+        )
     }
 
     public func textFieldTitle(of dialog: SystemDialogRequest) -> String {
@@ -87,50 +103,26 @@ public final class SystemDialogsViewModel {
 
         draftTextForPresentedDialog()
     }
-}
 
-private extension SystemDialogsViewModel {
-    var maxTextLength: Int? {
-        guard case .keyboard(_, _, _, let maxLength) = presentedDialog?.kind else { return nil }
-
-        return maxLength
-    }
-
-    var acknowledgeButton: DialogButton {
-        .init(
-            index: 0,
-            title: String(localized: "stream.dialog.ok", bundle: .module),
-            role: .primary
-        )
-    }
-
-    func draftTextForPresentedDialog() {
+    private func draftTextForPresentedDialog() {
         guard draftedDialogID != presentedDialog?.id else { return }
 
         draftedDialogID = presentedDialog?.id
-        text = presentedDialog.map(defaultText(of:)) ?? ""
+        text = presentedDialog?.defaultText ?? ""
     }
+}
 
-    func defaultText(of dialog: SystemDialogRequest) -> String {
-        switch dialog.kind {
+private extension SystemDialogRequest {
+    var defaultText: String {
+        switch kind {
         case .keyboard(_, _, let defaultText, _): defaultText
         case .message: ""
         }
     }
 
-    func answerKeyboard(_ dialog: SystemDialogRequest, text: String?) {
-        remove(id: dialog.id)
+    var maxTextLength: Int? {
+        guard case .keyboard(_, _, _, let maxLength) = kind else { return nil }
 
-        guard let connection else { return }
-
-        Task { await connection.answerKeyboard(id: dialog.id, text: text) }
-    }
-
-    func role(ofButtonAt index: Int, defaultIndex: Int, cancelIndex: Int?) -> DialogButtonRole {
-        switch (index == defaultIndex, index == cancelIndex) {
-        case (true, _): .primary
-        case (false, true): .cancel
-        case (false, false): .plain
-        }
+        return maxLength
     }
 }

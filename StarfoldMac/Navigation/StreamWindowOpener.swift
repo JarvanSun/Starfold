@@ -23,10 +23,8 @@ private struct StreamWindowOpener: ViewModifier {
         content
             .onChange(of: app.streamPresentationRequest) { openStreamWindow() }
     }
-}
 
-private extension StreamWindowOpener {
-    func openStreamWindow() {
+    private func openStreamWindow() {
         openWindow(id: SceneID.stream.rawValue)
 
         NSApp.activate()

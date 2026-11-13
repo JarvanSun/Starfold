@@ -25,8 +25,6 @@ enum ControlMessage: Equatable, Sendable {
         return (try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]))
             ?? Data()
     }
-}
 
-private extension ControlMessage {
-    var accessKey: String { "4BDB3609-C1F1-4195-9B37-FEFF45DA8B8E" }
+    private var accessKey: String { "4BDB3609-C1F1-4195-9B37-FEFF45DA8B8E" }
 }

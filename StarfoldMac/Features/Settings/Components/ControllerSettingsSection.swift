@@ -24,10 +24,8 @@ struct ControllerSettingsSection: View {
             Toggle(String(localized: "settings.controls.rumble"), isOn: $settings.isRumbleEnabled)
         }
     }
-}
 
-private extension ControllerSettingsSection {
-    func row(for controller: ConnectedController) -> some View {
+    private func row(for controller: ConnectedController) -> some View {
         ControllerRow(name: controller.name, playerNumber: settings.playerNumber(of: controller)) {
             settings.testRumble(on: controller)
         }

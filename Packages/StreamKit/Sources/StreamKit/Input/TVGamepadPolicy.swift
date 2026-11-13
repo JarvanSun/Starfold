@@ -17,6 +17,8 @@ struct TVGamepadPolicy {
     private var physical: [UInt8: GamepadState] = [:]
     private var blocked: [UInt8: GamepadState] = [:]
 
+    private var releaseThreshold: Float { 0.1 }
+
     @discardableResult
     mutating func setPlaying(_ isPlaying: Bool) -> Output {
         guard self.isPlaying != isPlaying else { return Output() }
@@ -43,12 +45,8 @@ struct TVGamepadPolicy {
 
         return Output(states: [slot: quarantine(state, slot: slot)])
     }
-}
 
-private extension TVGamepadPolicy {
-    var releaseThreshold: Float { 0.1 }
-
-    mutating func quarantine(_ state: GamepadState, slot: UInt8) -> GamepadState {
+    private mutating func quarantine(_ state: GamepadState, slot: UInt8) -> GamepadState {
         let barrier = releasedBarrier(blocked[slot] ?? GamepadState(), current: state)
         blocked[slot] = barrier
 
@@ -74,7 +72,9 @@ private extension TVGamepadPolicy {
         return clean
     }
 
-    func releasedBarrier(_ barrier: GamepadState, current state: GamepadState) -> GamepadState {
+    private func releasedBarrier(_ barrier: GamepadState, current state: GamepadState)
+        -> GamepadState
+    {
         var barrier = barrier
         barrier.buttons.formIntersection(state.buttons)
 
@@ -97,7 +97,7 @@ private extension TVGamepadPolicy {
         return barrier
     }
 
-    func isReleased(_ stick: SIMD2<Float>) -> Bool {
+    private func isReleased(_ stick: SIMD2<Float>) -> Bool {
         abs(stick.x) < releaseThreshold && abs(stick.y) < releaseThreshold
     }
 }

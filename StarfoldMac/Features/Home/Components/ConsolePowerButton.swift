@@ -24,18 +24,9 @@ struct ConsolePowerButton: View {
         .disabled(isDisabled)
         .help(help)
     }
-}
-
-private extension ConsolePowerButton {
-    var isDisabled: Bool {
-        switch control {
-        case .command: false
-        case .sending, .unavailable: true
-        }
-    }
 
     @ViewBuilder
-    var label: some View {
+    private var label: some View {
         switch control {
         case .command(let command): Label(command.title, systemImage: "power")
         case .sending: ProgressView().controlSize(.small)
@@ -43,7 +34,14 @@ private extension ConsolePowerButton {
         }
     }
 
-    var help: Text {
+    private var isDisabled: Bool {
+        switch control {
+        case .command: false
+        case .sending, .unavailable: true
+        }
+    }
+
+    private var help: Text {
         switch control {
         case .command(let command), .sending(let command): Text(command.title)
         case .unavailable: Text("home.console.wakeUnavailable")

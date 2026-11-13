@@ -23,28 +23,16 @@ struct HostICECandidate {
         }
     }
 
-    init(_ raw: String) {
-        var line = raw.trimmingCharacters(in: .whitespaces)
-
-        if line.hasPrefix("a=") {
-            line.removeFirst(2)
-        }
-
-        self.line = line
-    }
-}
-
-private extension HostICECandidate {
-    var isDiscarded: Bool {
+    private var isDiscarded: Bool {
         line.hasPrefix("end-of-candidates") || line.isEmpty || isUDPWithTCPType
     }
 
-    var isUDPWithTCPType: Bool {
+    private var isUDPWithTCPType: Bool {
         let lowercased = line.lowercased()
         return lowercased.contains(" udp ") && lowercased.contains("tcptype")
     }
 
-    var teredoAddress: TeredoAddress? {
+    private var teredoAddress: TeredoAddress? {
         let fields = line.split(separator: " ", omittingEmptySubsequences: true)
         guard fields.count > 5 else {
             return nil
@@ -56,5 +44,15 @@ private extension HostICECandidate {
         }
 
         return TeredoAddress(address)
+    }
+
+    init(_ raw: String) {
+        var line = raw.trimmingCharacters(in: .whitespaces)
+
+        if line.hasPrefix("a=") {
+            line.removeFirst(2)
+        }
+
+        self.line = line
     }
 }

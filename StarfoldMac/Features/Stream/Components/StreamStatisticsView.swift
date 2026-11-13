@@ -32,11 +32,9 @@ struct StreamStatisticsView: View {
         .glassEffect(in: .rect(cornerRadius: dimensions.cornerRadiusMedium))
         .environment(\.colorScheme, .dark)
     }
-}
 
-private extension StreamStatisticsView {
     @ViewBuilder
-    func latencyHeadline(_ latency: StatisticsLatency) -> some View {
+    private func latencyHeadline(_ latency: StatisticsLatency) -> some View {
         GridRow {
             Text("stream.statistics.latency.title")
                 .foregroundStyle(.secondary)
@@ -55,7 +53,7 @@ private extension StreamStatisticsView {
             .padding(.vertical, dimensions.spaceXSmall)
     }
 
-    func row(_ row: StatisticsRow) -> some View {
+    private func row(_ row: StatisticsRow) -> some View {
         GridRow {
             label(of: row.kind)
 
@@ -64,7 +62,7 @@ private extension StreamStatisticsView {
     }
 
     @ViewBuilder
-    func label(of kind: StatisticsRowKind) -> some View {
+    private func label(of kind: StatisticsRowKind) -> some View {
         switch kind.label {
         case let label?: Text(label).foregroundStyle(.secondary)
         case nil: Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])

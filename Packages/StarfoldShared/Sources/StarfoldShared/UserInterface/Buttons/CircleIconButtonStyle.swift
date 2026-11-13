@@ -41,18 +41,16 @@ public struct CircleIconButtonStyle: ButtonStyle {
             #endif
             .contentShape(.circle)
     }
-}
 
-private extension CircleIconButtonStyle {
-    var diameter: CGFloat {
+    private var diameter: CGFloat {
         size ?? dimensions.circleButtonSize
     }
 
-    var pressAnimation: Animation {
+    private var pressAnimation: Animation {
         .spring(duration: 0.2, bounce: 0.4)
     }
 
-    var hoverAnimation: Animation {
+    private var hoverAnimation: Animation {
         .easeOut(duration: 0.15)
     }
 }

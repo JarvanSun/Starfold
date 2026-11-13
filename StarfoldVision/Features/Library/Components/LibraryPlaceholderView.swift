@@ -24,10 +24,8 @@ struct LibraryPlaceholderView: View {
         case .noResults: ContentUnavailableView.search(text: searchText)
         }
     }
-}
 
-private extension LibraryPlaceholderView {
-    func loadFailure(_ message: String) -> some View {
+    private func loadFailure(_ message: String) -> some View {
         MessageView(
             symbol: "exclamationmark.triangle",
             title: "library.failed.title",
@@ -38,7 +36,7 @@ private extension LibraryPlaceholderView {
         .padding(dimensions.spaceXXLarge)
     }
 
-    var cloudUnavailable: some View {
+    private var cloudUnavailable: some View {
         MessageView(
             symbol: "cloud.slash",
             title: "library.unavailable.title",

@@ -22,10 +22,8 @@ struct GameScreenshots: View {
             }
         }
     }
-}
 
-private extension GameScreenshots {
-    var aspectRatio: CGFloat {
+    private var aspectRatio: CGFloat {
         16 / 9
     }
 }

@@ -29,10 +29,8 @@ public struct SkyBackground: View {
         .ignoresSafeArea()
         .accessibilityHidden(true)
     }
-}
 
-private extension SkyBackground {
-    var isPaused: Bool {
+    private var isPaused: Bool {
         #if os(macOS)
         reduceMotion || activeState == .inactive
         #else
@@ -40,16 +38,7 @@ private extension SkyBackground {
         #endif
     }
 
-    func shaderTime(at date: Date) -> Float {
-        let stillFrameTime: Float = 12
-
-        return switch reduceMotion {
-        case true: stillFrameTime
-        case false: Float(date.timeIntervalSince(start))
-        }
-    }
-
-    func sky(size: CGSize, time: Float) -> Shader {
+    private func sky(size: CGSize, time: Float) -> Shader {
         let sky = palette.sky
         return ShaderLibrary.bundle(.module).paletteSky(
             .float2(size),
@@ -63,6 +52,15 @@ private extension SkyBackground {
             sky.ribbons.third.shaderArgument,
             .float(sky.ribbons.strength)
         )
+    }
+
+    private func shaderTime(at date: Date) -> Float {
+        let stillFrameTime: Float = 12
+
+        return switch reduceMotion {
+        case true: stillFrameTime
+        case false: Float(date.timeIntervalSince(start))
+        }
     }
 }
 
