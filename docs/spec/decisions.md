@@ -19,6 +19,12 @@ In XboxKit.
 - **CatalogClient**: The service sometimes fails a whole batch with 5xx, so a failed batch is retried once, then split in half, and the call throws only when nothing was fetched.
 - **CatalogProduct**: Store image URLs are protocol-relative and get `https:` prepended.
 - **GSSVSession**: On tvOS `stop()` logs the DELETE outcome under `TVSessionCleanup` for the Apple TV background cleanup; with KeychainStore's, it is XboxKit's only `#if os`.
+- **CloudTitle**: It decodes a missing `touchBundleIDs` as empty so library caches written before touch support still load.
+- **ZipArchive**: Hand-written because Apple platforms have no public unzip API and the app takes no third-party dependency besides WebRTC; Compression's `COMPRESSION_ZLIB` is raw DEFLATE (RFC 1951), which is exactly zip method 8.
+- **ZipArchive**: It reads entries through the central directory, so local headers with data descriptors (sizes written after the data) are read correctly; an entry over 64 MB is refused so a forged size cannot exhaust memory.
+- **TouchJSONDecoder**: The Touch Adaptation Kit's own sample bundles save every JSON file with a UTF-8 byte-order mark, which is skipped before decoding.
+- **TouchLayout**: `$ref`s may point into `context.json` state, which the game patches at runtime, so a layout keeps its JSON and is resolved and decoded again for each context.
+- **TouchControlKind**: A control whose type is unknown, or whose fields do not decode, becomes `unsupported` instead of failing the layout, because newer layout schema versions add controls and fields.
 
 ## The stream
 
