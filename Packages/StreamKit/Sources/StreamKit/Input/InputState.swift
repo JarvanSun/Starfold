@@ -76,6 +76,9 @@ final class InputState: @unchecked Sendable {
             decoded: time,
             rendered: time
         )
+
+        let maximumPendingFrames = 29
+
         lock.withLock {
             if frames.count >= maximumPendingFrames {
                 frames.removeFirst()
@@ -84,8 +87,6 @@ final class InputState: @unchecked Sendable {
             frames.append(record)
         }
     }
-
-    private var maximumPendingFrames: Int { 29 }
 
     @discardableResult
     func drain(now: Double) -> InputSnapshot {

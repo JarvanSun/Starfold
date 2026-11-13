@@ -12,13 +12,13 @@ public enum QualityChoice: Hashable, Sendable {
     case fixed(StreamQuality)
 
     public var storageValue: String {
-        switch self {
+        let automaticStorageValue = "automatic"
+
+        return switch self {
         case .automatic: automaticStorageValue
         case .fixed(let quality): quality.rawValue
         }
     }
-
-    private var automaticStorageValue: String { "automatic" }
 
     public var requestedQuality: StreamQuality {
         switch self {

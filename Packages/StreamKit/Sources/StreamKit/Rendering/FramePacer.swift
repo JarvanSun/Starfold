@@ -96,6 +96,8 @@ struct FramePacer: Sendable {
     private var rtpClockRate: Double { 90_000 }
 
     private mutating func transitFloor(adding transit: Double, at second: Int) -> Double {
+        let floorWindow = 10
+
         switch floorBuckets.last {
         case let last? where last.second == second:
             floorBuckets[floorBuckets.count - 1].transit = min(last.transit, transit)
@@ -107,8 +109,6 @@ struct FramePacer: Sendable {
 
         return floorBuckets.map(\.transit).min() ?? transit
     }
-
-    private var floorWindow: Int { 10 }
 
     private mutating func updateDelay(lateness: Double, at second: Int, arrival: Double) {
         switch worstPerSecond.last {
@@ -131,6 +131,7 @@ struct FramePacer: Sendable {
     }
 
     private mutating func schedule(_ planned: Double, arrival: Double) -> Double {
+        let minimumSpacing = 0.001
         let spaced = lastPresentation.map { max(planned, $0 + minimumSpacing) } ?? planned
         let presentation = max(spaced, arrival)
 
@@ -141,8 +142,6 @@ struct FramePacer: Sendable {
         lastPresentation = presentation
         return presentation
     }
-
-    private var minimumSpacing: Double { 0.001 }
 
     mutating func setMode(_ mode: PacingMode) {
         configuration = .init(mode: mode)

@@ -304,6 +304,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         guard let delegate = lock.withLock({ self.delegate }) else { return false }
 
         let session = AVAudioSession.sharedInstance()
+        let preferredIOBufferDuration: TimeInterval = 0.005
 
         do {
             try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
@@ -346,8 +347,6 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
         return true
     }
-
-    private var preferredIOBufferDuration: TimeInterval { 0.005 }
 
     private func makeEngine(pulling pull: @escaping LKRTCAudioDeviceGetPlayoutDataBlock)
         -> AVAudioEngine?

@@ -196,7 +196,7 @@ struct MessageChannel: Sendable {
     }
 
     private mutating func dimensionsChanged(width: Int, height: Int) -> Data {
-        message(
+        return message(
             .dimensionsChanged,
             [
                 "horizontal": width,
@@ -215,6 +215,8 @@ struct MessageChannel: Sendable {
     private mutating func receiveUnknownMessage(target: String, id: String, isTransaction: Bool)
         -> [MessageChannelEvent]
     {
+
+        let touchControlsPrefix = "/streaming/touchcontrols/"
         let isTouchControls = target.hasPrefix(touchControlsPrefix)
         return switch (isTouchControls, isTransaction) {
         case (true, true): [.reply(cancel(id: id))]
@@ -222,8 +224,6 @@ struct MessageChannel: Sendable {
         case (false, _): [.reply(unhandled(id: id, target: target))]
         }
     }
-
-    private var touchControlsPrefix: String { "/streaming/touchcontrols/" }
 
     private mutating func unhandled(id: String, target: String) -> Data {
         encode([

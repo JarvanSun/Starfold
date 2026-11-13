@@ -112,6 +112,8 @@ public final class ControllerHub {
 
     private func freeSlot() -> UInt8? {
         let used = Set(slots.values)
+        let slotCount: UInt8 = 4
+
         return (0..<slotCount).first { !used.contains($0) }
     }
 
@@ -187,5 +189,4 @@ public final class ControllerHub {
         }
     }
 
-    private var slotCount: UInt8 { 4 }
 }

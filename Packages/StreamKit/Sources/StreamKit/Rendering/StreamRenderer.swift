@@ -163,6 +163,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         drawableSize: CGSize
     ) -> CVPixelBuffer? {
         let isUpscaling = enhancements.isUpscaling && enhancer.supportsUpscaling
+        let sharpeningThreshold: Float = 0.001
         let isSharpening = enhancements.sharpening > sharpeningThreshold
         let isEnhancing = isUpscaling || isSharpening || enhancements.isToneMappingHDR
         guard isEnhancing else { return pixelBuffer }
@@ -177,8 +178,6 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         return enhancer.enhance(pixelBuffer, request: request)
     }
 
-    private var sharpeningThreshold: Float { 0.001 }
-
     private func recordUpscaledSize(of output: CVPixelBuffer, from input: CVPixelBuffer) {
         let size = CGSize(
             width: CVPixelBufferGetWidth(output),
@@ -191,13 +190,13 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
     private func recordDisplayLatency(_ milliseconds: Double) {
         guard milliseconds >= 0, milliseconds < 1000 else { return }
 
+        let latencySmoothing = 0.1
+
         lock.withLock { state in
             state.displayMs =
                 state.displayMs.map { $0 + (milliseconds - $0) * latencySmoothing } ?? milliseconds
         }
     }
-
-    private var latencySmoothing: Double { 0.1 }
 
     private func fireFirstFrame() {
         let onFirstFrame = lock.withLock { state in
@@ -212,12 +211,11 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         guard let buffer = lock.withLock({ $0.lastFrame })?.pixelBuffer else { return nil }
 
         let image = CIImage(cvPixelBuffer: buffer)
+        let lastFrameMaximumWidth: CGFloat = 640
         let scale = min(1, lastFrameMaximumWidth / image.extent.width)
         let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
         return CIContext().createCGImage(scaled, from: scaled.extent)
     }
-
-    private var lastFrameMaximumWidth: CGFloat { 640 }
 
     public func clear() {
         lock.withLock { $0.lastFrame = nil }

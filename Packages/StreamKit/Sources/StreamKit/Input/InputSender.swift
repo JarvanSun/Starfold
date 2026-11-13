@@ -45,6 +45,8 @@ final class InputSender: @unchecked Sendable {
     }
 
     private func run() {
+        let idleWakeInterval: TimeInterval = 0.008
+
         while true {
             condition.lock()
 
@@ -67,9 +69,9 @@ final class InputSender: @unchecked Sendable {
         }
     }
 
-    private var idleWakeInterval: TimeInterval { 0.008 }
-
     private func send(on peer: PeerConnection) {
+        let maximumQueuedBytes: UInt64 = 4096
+
         guard peer.bufferedAmount(on: .input) < maximumQueuedBytes else { return }
 
         let timestamp = (CACurrentMediaTime() - clockOrigin) * 1000
@@ -128,5 +130,4 @@ final class InputSender: @unchecked Sendable {
         }
     }
 
-    private var maximumQueuedBytes: UInt64 { 4096 }
 }

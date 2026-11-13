@@ -173,18 +173,16 @@ public actor StreamController {
     }
 
     private func scheduleGamepadAnnouncement() {
-        let delay = gamepadAnnouncementDelay
+        let gamepadAnnouncementDelay: Duration = .milliseconds(500)
 
         tasks.append(
             Task { [weak self] in
-                try? await Task.sleep(for: delay)
+                try? await Task.sleep(for: gamepadAnnouncementDelay)
 
                 await self?.announceFirstGamepad()
             }
         )
     }
-
-    private var gamepadAnnouncementDelay: Duration { .milliseconds(500) }
 
     private func announceFirstGamepad() {
         guard let peer else { return }
@@ -223,6 +221,8 @@ public actor StreamController {
         self.session = session
         mark("session created")
 
+        let consoleProvisioningTimeout: Duration = .seconds(90)
+        let cloudProvisioningTimeout: Duration = .seconds(15 * 60)
         let timeout =
             switch target {
             case .console: consoleProvisioningTimeout
@@ -233,10 +233,6 @@ public actor StreamController {
             await self?.setPhase(.queued(estimatedWait: wait))
         }
     }
-
-    private var consoleProvisioningTimeout: Duration { .seconds(90) }
-
-    private var cloudProvisioningTimeout: Duration { .seconds(15 * 60) }
 
     private func connect(peer: PeerConnection, offer: String) async throws {
         guard let session else { return }
@@ -264,6 +260,8 @@ public actor StreamController {
             await peer.addRemoteCandidate(candidate)
         }
 
+        let connectionTimeout: Duration = .seconds(20)
+
         try await waitUntilConnected(timeout: connectionTimeout)
         mark("connected")
 
@@ -279,6 +277,9 @@ public actor StreamController {
     }
 
     private func waitForLocalCandidates() async throws {
+        let gatheringTimeout: Duration = .seconds(3)
+        let gatheringQuietPeriod: Duration = .milliseconds(300)
+        let gatheringPollInterval: Duration = .milliseconds(50)
         let deadline = ContinuousClock.now + gatheringTimeout
 
         while ContinuousClock.now < deadline,
@@ -291,12 +292,6 @@ public actor StreamController {
             "Gathered \(self.gathering.candidates.count) local candidates (complete: \(self.gathering.isComplete))"
         )
     }
-
-    private var gatheringTimeout: Duration { .seconds(3) }
-
-    private var gatheringQuietPeriod: Duration { .milliseconds(300) }
-
-    private var gatheringPollInterval: Duration { .milliseconds(50) }
 
     private func waitUntilConnected(timeout: Duration) async throws {
         guard !isConnected else { return }
@@ -317,8 +312,6 @@ public actor StreamController {
             Task { await self.resolveConnection(.failure(CancellationError())) }
         }
     }
-
-    private var connectionTimeout: Duration { .seconds(20) }
 
     private func startKeepAlive() {
         guard let session else { return }
@@ -346,19 +339,18 @@ public actor StreamController {
     }
 
     private func startStatisticsLoop() {
-        let interval = statisticsInterval
+        let statisticsInterval: Duration = .seconds(1)
+
         tasks.append(
             Task { [weak self] in
                 while !Task.isCancelled {
-                    try? await Task.sleep(for: interval)
+                    try? await Task.sleep(for: statisticsInterval)
 
                     await self?.publishStatistics()
                 }
             }
         )
     }
-
-    private var statisticsInterval: Duration { .seconds(1) }
 
     private func publishStatistics() async {
         guard let peer else { return }
@@ -412,10 +404,10 @@ public actor StreamController {
     }
 
     public func pressGuide() {
+        let guideTapDuration: TimeInterval = 0.12
+
         input.pulse(.nexus, on: 0, duration: guideTapDuration)
     }
-
-    private var guideTapDuration: TimeInterval { 0.12 }
 
     public func requestKeyframe() {
         peer?.send(ControlMessage.keyframeRequest.json, on: .control)

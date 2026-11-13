@@ -43,6 +43,8 @@ final class OutputBufferPool {
             kCVPixelBufferIOSurfacePropertiesKey: [CFString: Any](),
             kCVPixelBufferMetalCompatibilityKey: true,
         ]
+
+        let minimumBuffers = 4
         let poolAttributes: [CFString: Any] = [
             kCVPixelBufferPoolMinimumBufferCountKey: minimumBuffers
         ]
@@ -59,11 +61,10 @@ final class OutputBufferPool {
         hasLoggedExhaustion = false
     }
 
-    private var minimumBuffers: Int { 4 }
-
     private func makeBuffer() -> CVPixelBuffer? {
         guard let pool else { return nil }
 
+        let maximumBuffers = 12
         var buffer: CVPixelBuffer?
         let limit = [kCVPixelBufferPoolAllocationThresholdKey: maximumBuffers] as CFDictionary
         let status = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(nil, pool, limit, &buffer)
@@ -75,8 +76,6 @@ final class OutputBufferPool {
 
         return buffer
     }
-
-    private var maximumBuffers: Int { 12 }
 
     private func logExhaustion(status: CVReturn) {
         guard !hasLoggedExhaustion else { return }
