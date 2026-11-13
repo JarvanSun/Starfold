@@ -34,10 +34,8 @@ struct SkeletonCard: View {
         .shimmering()
         .accessibilityLabel(Text("common.loading"))
     }
-}
 
-private extension SkeletonCard {
-    func line(widthRatio: CGFloat, height: CGFloat) -> some View {
+    private func line(widthRatio: CGFloat, height: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: dimensions.cornerRadiusSmall)
             .fill(Color.cardFill)
             .frame(width: width * widthRatio, height: height)

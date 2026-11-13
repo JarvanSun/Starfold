@@ -19,10 +19,8 @@ struct QRCodeView: View {
         case nil: EmptyView()
         }
     }
-}
 
-private extension QRCodeView {
-    func picture(_ image: CGImage) -> some View {
+    private func picture(_ image: CGImage) -> some View {
         Image(decorative: image, scale: 1)
             .interpolation(.none)
             .resizable()

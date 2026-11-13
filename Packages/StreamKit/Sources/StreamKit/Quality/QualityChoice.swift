@@ -12,7 +12,9 @@ public enum QualityChoice: Hashable, Sendable {
     case fixed(StreamQuality)
 
     public var storageValue: String {
-        switch self {
+        let automaticStorageValue = "automatic"
+
+        return switch self {
         case .automatic: automaticStorageValue
         case .fixed(let quality): quality.rawValue
         }
@@ -31,8 +33,4 @@ public enum QualityChoice: Hashable, Sendable {
         case nil: self = .automatic
         }
     }
-}
-
-private extension QualityChoice {
-    var automaticStorageValue: String { "automatic" }
 }

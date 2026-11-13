@@ -35,6 +35,21 @@ public final class SystemVideoPresenter: @unchecked Sendable {
         layer.controlTimebase = hostClockTimebase()
     }
 
+    private func hostClockTimebase() -> CMTimebase? {
+        var timebase: CMTimebase?
+        CMTimebaseCreateWithSourceClock(
+            allocator: nil,
+            sourceClock: CMClockGetHostTimeClock(),
+            timebaseOut: &timebase
+        )
+        guard let timebase else { return nil }
+
+        CMTimebaseSetTime(timebase, time: CMClockGetTime(CMClockGetHostTimeClock()))
+        CMTimebaseSetRate(timebase, rate: 1)
+
+        return timebase
+    }
+
     public func setPacing(_ mode: PacingMode) {
         lock.withLock { state in
             switch state.pacer {
@@ -66,35 +81,15 @@ public final class SystemVideoPresenter: @unchecked Sendable {
         return presentAt
     }
 
-    func clear() {
-        videoRenderer.flush(removingDisplayedImage: true, completionHandler: nil)
-    }
-}
-
-private extension SystemVideoPresenter {
-    func hostClockTimebase() -> CMTimebase? {
-        var timebase: CMTimebase?
-        CMTimebaseCreateWithSourceClock(
-            allocator: nil,
-            sourceClock: CMClockGetHostTimeClock(),
-            timebaseOut: &timebase
-        )
-        guard let timebase else { return nil }
-
-        CMTimebaseSetTime(timebase, time: CMClockGetTime(CMClockGetHostTimeClock()))
-        CMTimebaseSetRate(timebase, rate: 1)
-
-        return timebase
-    }
-
-    func presentationTime(of timing: DecodedFrameTiming) -> CFTimeInterval {
+    private func presentationTime(of timing: DecodedFrameTiming) -> CFTimeInterval {
         let paced = lock.withLock {
             $0.pacer?.presentationTime(arrival: timing.arrival, rtp: timing.rtpTimestamp)
         }
         return paced ?? timing.arrival
     }
 
-    func sampleBuffer(for pixelBuffer: CVPixelBuffer, presentAt: Double) -> CMSampleBuffer? {
+    private func sampleBuffer(for pixelBuffer: CVPixelBuffer, presentAt: Double) -> CMSampleBuffer?
+    {
         guard let format = formatDescription(for: pixelBuffer) else { return nil }
 
         var timing = CMSampleTimingInfo(
@@ -115,7 +110,7 @@ private extension SystemVideoPresenter {
         return sample
     }
 
-    func formatDescription(for pixelBuffer: CVPixelBuffer) -> CMVideoFormatDescription? {
+    private func formatDescription(for pixelBuffer: CVPixelBuffer) -> CMVideoFormatDescription? {
         let cached = lock.withLock { $0.format }
 
         if let cached, CMVideoFormatDescriptionMatchesImageBuffer(cached, imageBuffer: pixelBuffer)
@@ -134,12 +129,16 @@ private extension SystemVideoPresenter {
         return created
     }
 
-    func flushIfFailed() {
+    private func flushIfFailed() {
         guard videoRenderer.status == .failed else { return }
 
         log.error(
             "System video renderer failed: \(String(describing: self.videoRenderer.error), privacy: .public)"
         )
         videoRenderer.flush()
+    }
+
+    func clear() {
+        videoRenderer.flush(removingDisplayedImage: true, completionHandler: nil)
     }
 }

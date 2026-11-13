@@ -58,6 +58,49 @@ final class PeerConnection: NSObject, @unchecked Sendable {
         openDataChannels()
     }
 
+    private func addTransceivers() {
+        let audio = LKRTCRtpTransceiverInit()
+        audio.direction = .sendRecv
+        connection.addTransceiver(of: .audio, init: audio)
+
+        let video = LKRTCRtpTransceiverInit()
+        video.direction = .recvOnly
+
+        if let transceiver = connection.addTransceiver(of: .video, init: video) {
+            preferH264(on: transceiver)
+        }
+    }
+
+    private func preferH264(on transceiver: LKRTCRtpTransceiver) {
+        let codecs = factory.rtpReceiverCapabilities(forKind: "video").codecs
+        let order = SDPMunger().preferredH264Order(
+            mimeTypes: codecs.map(\.mimeType),
+            profileLevelIDs: codecs.map { $0.parameters["profile-level-id"] }
+        )
+
+        do {
+            try transceiver.setCodecPreferences(order.map { codecs[$0] }, error: ())
+        } catch {
+            log.error("setCodecPreferences failed: \(error.localizedDescription)")
+        }
+    }
+
+    private func openDataChannels() {
+        for label in DataChannelLabel.allCases {
+            let configuration = LKRTCDataChannelConfiguration()
+            configuration.isOrdered = true
+            configuration.protocol = label.protocolName
+
+            if let channel = connection.dataChannel(
+                forLabel: label.rawValue,
+                configuration: configuration
+            ) {
+                channel.delegate = delegateProxy
+                channels[label] = channel
+            }
+        }
+    }
+
     func createOffer(videoBitrateKbps: Int?) async throws -> String {
         let offer = try await makeOffer()
         let sdp = munged(offer.sdp, videoBitrateKbps: videoBitrateKbps)
@@ -73,6 +116,35 @@ final class PeerConnection: NSObject, @unchecked Sendable {
         }
 
         return sdp
+    }
+
+    private func makeOffer() async throws -> LKRTCSessionDescription {
+        let constraints = LKRTCMediaConstraints(
+            mandatoryConstraints: ["OfferToReceiveAudio": "true", "OfferToReceiveVideo": "true"],
+            optionalConstraints: nil
+        )
+        return try await withCheckedThrowingContinuation { continuation in
+            connection.offer(for: constraints) { description, error in
+                switch (description, error) {
+                case (let description?, _):
+                    continuation.resume(returning: description)
+                case (nil, let error):
+                    continuation.resume(
+                        throwing: error ?? StreamError.webRTC("createOffer returned nothing")
+                    )
+                }
+            }
+        }
+    }
+
+    private func munged(_ sdp: String, videoBitrateKbps: Int?) -> String {
+        let munger = SDPMunger()
+        let stereo = munger.forcingStereoOpus(sdp)
+
+        return switch videoBitrateKbps {
+        case let kbps?: munger.limitingVideoBitrate(stereo, kbps: kbps)
+        case nil: stereo
+        }
     }
 
     func setAnswer(_ sdp: String) async throws {
@@ -138,94 +210,18 @@ final class PeerConnection: NSObject, @unchecked Sendable {
 
         connection.close()
     }
-}
 
-// MARK: - Private
-
-private extension PeerConnection {
-    func addTransceivers() {
-        let audio = LKRTCRtpTransceiverInit()
-        audio.direction = .sendRecv
-        connection.addTransceiver(of: .audio, init: audio)
-
-        let video = LKRTCRtpTransceiverInit()
-        video.direction = .recvOnly
-
-        if let transceiver = connection.addTransceiver(of: .video, init: video) {
-            preferH264(on: transceiver)
-        }
-    }
-
-    func preferH264(on transceiver: LKRTCRtpTransceiver) {
-        let codecs = factory.rtpReceiverCapabilities(forKind: "video").codecs
-        let order = SDPMunger().preferredH264Order(
-            mimeTypes: codecs.map(\.mimeType),
-            profileLevelIDs: codecs.map { $0.parameters["profile-level-id"] }
-        )
-
-        do {
-            try transceiver.setCodecPreferences(order.map { codecs[$0] }, error: ())
-        } catch {
-            log.error("setCodecPreferences failed: \(error.localizedDescription)")
-        }
-    }
-
-    func openDataChannels() {
-        for label in DataChannelLabel.allCases {
-            let configuration = LKRTCDataChannelConfiguration()
-            configuration.isOrdered = true
-            configuration.protocol = label.protocolName
-
-            if let channel = connection.dataChannel(
-                forLabel: label.rawValue,
-                configuration: configuration
-            ) {
-                channel.delegate = delegateProxy
-                channels[label] = channel
-            }
-        }
-    }
-
-    func makeOffer() async throws -> LKRTCSessionDescription {
-        let constraints = LKRTCMediaConstraints(
-            mandatoryConstraints: ["OfferToReceiveAudio": "true", "OfferToReceiveVideo": "true"],
-            optionalConstraints: nil
-        )
-        return try await withCheckedThrowingContinuation { continuation in
-            connection.offer(for: constraints) { description, error in
-                switch (description, error) {
-                case (let description?, _):
-                    continuation.resume(returning: description)
-                case (nil, let error):
-                    continuation.resume(
-                        throwing: error ?? StreamError.webRTC("createOffer returned nothing")
-                    )
-                }
-            }
-        }
-    }
-
-    func munged(_ sdp: String, videoBitrateKbps: Int?) -> String {
-        let munger = SDPMunger()
-        let stereo = munger.forcingStereoOpus(sdp)
-
-        return switch videoBitrateKbps {
-        case let kbps?: munger.limitingVideoBitrate(stereo, kbps: kbps)
-        case nil: stereo
-        }
-    }
-
-    func handleICEState(_ state: LKRTCIceConnectionState) {
+    fileprivate func handleICEState(_ state: LKRTCIceConnectionState) {
         log.info("ICE state \(state.rawValue)")
     }
 
-    func handleGathering(_ state: LKRTCIceGatheringState) {
+    fileprivate func handleGathering(_ state: LKRTCIceGatheringState) {
         if state == .complete {
             events(.gatheringComplete)
         }
     }
 
-    func handleCandidate(_ candidate: LKRTCIceCandidate) {
+    fileprivate func handleCandidate(_ candidate: LKRTCIceCandidate) {
         let local = LocalICECandidate(
             candidate: candidate.sdp,
             sdpMid: candidate.sdpMid,
@@ -234,7 +230,7 @@ private extension PeerConnection {
         events(.localCandidate(local))
     }
 
-    func handleConnectionState(_ state: LKRTCPeerConnectionState) {
+    fileprivate func handleConnectionState(_ state: LKRTCPeerConnectionState) {
         let mapped: PeerConnectionState =
             switch state {
             case .new: .new
@@ -248,7 +244,7 @@ private extension PeerConnection {
         events(.connectionState(mapped))
     }
 
-    func handleReceiver(_ receiver: LKRTCRtpReceiver) {
+    fileprivate func handleReceiver(_ receiver: LKRTCRtpReceiver) {
         let hasBothTracks = lock.withLock {
             switch receiver.track {
             case let track as LKRTCVideoTrack:
@@ -269,7 +265,7 @@ private extension PeerConnection {
         }
     }
 
-    func handleChannelState(_ channel: LKRTCDataChannel) {
+    fileprivate func handleChannelState(_ channel: LKRTCDataChannel) {
         guard let label = DataChannelLabel(rawValue: channel.label) else { return }
 
         switch channel.readyState {
@@ -279,7 +275,7 @@ private extension PeerConnection {
         }
     }
 
-    func handleMessage(_ channel: LKRTCDataChannel, _ buffer: LKRTCDataBuffer) {
+    fileprivate func handleMessage(_ channel: LKRTCDataChannel, _ buffer: LKRTCDataBuffer) {
         guard let label = DataChannelLabel(rawValue: channel.label) else { return }
 
         events(.channelMessage(label, buffer.data))

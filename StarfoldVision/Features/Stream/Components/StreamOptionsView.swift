@@ -22,10 +22,8 @@ struct StreamOptionsView: View {
         .padding(dimensions.spaceXLarge)
         .frame(width: dimensions.streamOptionsWidth)
     }
-}
 
-private extension StreamOptionsView {
-    var buffer: some View {
+    private var buffer: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
             Text("stream.options.buffer")
                 .font(.headline)
@@ -39,7 +37,7 @@ private extension StreamOptionsView {
         }
     }
 
-    var sound: some View {
+    private var sound: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
             Text("stream.options.sound")
                 .font(.headline)

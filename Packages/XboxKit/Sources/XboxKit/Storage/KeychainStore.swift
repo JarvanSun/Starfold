@@ -47,6 +47,31 @@ public struct KeychainStore: SecretStoring {
         }
     }
 
+    private func addItem(account: String, attributes: [String: Any]) throws {
+        let item = itemQuery(account: account).merging(attributes) { _, new in new }
+        let status = SecItemAdd(item as CFDictionary, nil)
+        guard status == errSecSuccess else {
+            throw KeychainError(status: status)
+        }
+    }
+
+    private func itemQuery(account: String?) -> [String: Any] {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+        ]
+
+        if usesDataProtectionKeychain {
+            query[kSecUseDataProtectionKeychain as String] = true
+        }
+
+        if let account {
+            query[kSecAttrAccount as String] = account
+        }
+
+        return query
+    }
+
     public func delete(_ key: String) throws {
         let status = SecItemDelete(itemQuery(account: key) as CFDictionary)
 
@@ -70,6 +95,11 @@ public struct KeychainStore: SecretStoring {
         default: throw KeychainError(status: status)
         }
     }
+
+    private func accounts(in result: CFTypeRef?) -> [String] {
+        let items = result as? [[String: Any]] ?? []
+        return items.compactMap { $0[kSecAttrAccount as String] as? String }
+    }
 }
 
 private extension KeychainStore {
@@ -78,34 +108,4 @@ private extension KeychainStore {
     #else
     var usesDataProtectionKeychain: Bool { true }
     #endif
-
-    func itemQuery(account: String?) -> [String: Any] {
-        var query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-        ]
-
-        if usesDataProtectionKeychain {
-            query[kSecUseDataProtectionKeychain as String] = true
-        }
-
-        if let account {
-            query[kSecAttrAccount as String] = account
-        }
-
-        return query
-    }
-
-    func addItem(account: String, attributes: [String: Any]) throws {
-        let item = itemQuery(account: account).merging(attributes) { _, new in new }
-        let status = SecItemAdd(item as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            throw KeychainError(status: status)
-        }
-    }
-
-    func accounts(in result: CFTypeRef?) -> [String] {
-        let items = result as? [[String: Any]] ?? []
-        return items.compactMap { $0[kSecAttrAccount as String] as? String }
-    }
 }

@@ -54,6 +54,13 @@ public final class GamepadRouter: @unchecked Sendable {
         }
     }
 
+    private func state(for slot: UInt8) -> GamepadState? {
+        switch (slot, routing) {
+        case (0, .direct): pads[0].map { $0.merged(with: keyboard) } ?? keyboard
+        default: pads[slot]
+        }
+    }
+
     func clearPendingPhysicalInput(slots: [UInt8]) {
         lock.withLock {
             if slots.contains(0) {
@@ -65,15 +72,6 @@ public final class GamepadRouter: @unchecked Sendable {
 
                 pads[slot] = GamepadState()
             }
-        }
-    }
-}
-
-private extension GamepadRouter {
-    func state(for slot: UInt8) -> GamepadState? {
-        switch (slot, routing) {
-        case (0, .direct): pads[0].map { $0.merged(with: keyboard) } ?? keyboard
-        default: pads[slot]
         }
     }
 }

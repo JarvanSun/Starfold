@@ -32,10 +32,8 @@ struct CloudCard: View {
             )
         }
     }
-}
 
-private extension CloudCard {
-    var subtitle: Text {
+    private var subtitle: Text {
         switch library.cloudAccess.cardSubtitle(gameCount: library.games.count) {
         case let subtitle?: Text(subtitle)
         case nil: Text(verbatim: "")

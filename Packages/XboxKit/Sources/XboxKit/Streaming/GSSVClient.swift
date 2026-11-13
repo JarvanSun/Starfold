@@ -88,6 +88,18 @@ public struct GSSVClient: Sendable {
         return .init(client: self, url: try sessionURL(path: sessionPath), titleID: titleID)
     }
 
+    private func decoded<Body: Decodable>(_ type: Body.Type, from body: Data) throws -> Body {
+        try JSONDecoder(dateParser: .init()).decode(type, from: body)
+    }
+
+    private func sessionURL(path: String) throws -> URL {
+        switch (path.hasPrefix("http"), URL(string: path)) {
+        case (true, let absoluteURL?): return absoluteURL
+        case (true, nil): throw GSSVSessionError.malformedResponse("sessionPath \(path)")
+        case (false, _): return baseURL.appending(path: path)
+        }
+    }
+
     func estimatedWait(titleID: String) async throws -> Duration? {
         let response = try await send(to: baseURL.appending(path: "v1/waittime/\(titleID)"))
         let estimate = try JSONSerialization.jsonObject(with: response.body) as? [String: Any]
@@ -113,11 +125,45 @@ public struct GSSVClient: Sendable {
                 .init(url: url, method: method, headers: headers, body: body)
             )
 
-            switch (isTokenRejected(response), freshness) {
+            switch (response.isAuthorizationRejected, freshness) {
             case (true, .cachedAllowed): freshness = .refreshRequired
             default: return try successful(response, from: url)
             }
         }
+    }
+
+    private func successful(_ response: HTTPClient.Response, from url: URL) throws
+        -> HTTPClient.Response
+    {
+        guard (200..<300).contains(response.statusCode) else {
+            throw XboxHTTPError(
+                url: url,
+                statusCode: response.statusCode,
+                body: String(decoding: response.body, as: UTF8.self),
+                headers: response.headers
+            )
+        }
+
+        return response
+    }
+
+    private func headers(
+        freshness: TokenFreshness,
+        hasBody: Bool,
+        adding extraHeaders: [String: String]
+    ) async throws -> [String: String] {
+        var headers = [
+            "Authorization": "Bearer \(try await token(freshness))",
+            "Accept": "application/json",
+            "X-Gssv-Client": "XboxComBrowser",
+        ]
+
+        if hasBody {
+            headers["Content-Type"] = "application/json"
+        }
+
+        headers.merge(extraHeaders) { _, new in new }
+        return headers
     }
 }
 
@@ -211,53 +257,5 @@ private extension GSSVClient {
 
     struct SessionResponse: Decodable, Sendable {
         let sessionPath: String
-    }
-
-    func headers(
-        freshness: TokenFreshness,
-        hasBody: Bool,
-        adding extraHeaders: [String: String]
-    ) async throws -> [String: String] {
-        var headers = [
-            "Authorization": "Bearer \(try await token(freshness))",
-            "Accept": "application/json",
-            "X-Gssv-Client": "XboxComBrowser",
-        ]
-
-        if hasBody {
-            headers["Content-Type"] = "application/json"
-        }
-
-        headers.merge(extraHeaders) { _, new in new }
-        return headers
-    }
-
-    func isTokenRejected(_ response: HTTPClient.Response) -> Bool {
-        response.statusCode == 401 || response.statusCode == 403
-    }
-
-    func successful(_ response: HTTPClient.Response, from url: URL) throws -> HTTPClient.Response {
-        guard (200..<300).contains(response.statusCode) else {
-            throw XboxHTTPError(
-                url: url,
-                statusCode: response.statusCode,
-                body: String(decoding: response.body, as: UTF8.self),
-                headers: response.headers
-            )
-        }
-
-        return response
-    }
-
-    func decoded<Body: Decodable>(_ type: Body.Type, from body: Data) throws -> Body {
-        try JSONDecoder(dateParser: .init()).decode(type, from: body)
-    }
-
-    func sessionURL(path: String) throws -> URL {
-        switch (path.hasPrefix("http"), URL(string: path)) {
-        case (true, let absoluteURL?): return absoluteURL
-        case (true, nil): throw GSSVSessionError.malformedResponse("sessionPath \(path)")
-        case (false, _): return baseURL.appending(path: path)
-        }
     }
 }

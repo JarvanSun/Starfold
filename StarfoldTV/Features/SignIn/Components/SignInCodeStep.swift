@@ -26,10 +26,8 @@ struct SignInCodeStep: View {
             waitingStatus
         }
     }
-}
 
-private extension SignInCodeStep {
-    var userCode: some View {
+    private var userCode: some View {
         Text(verbatim: code.text)
             .font(
                 .system(
@@ -41,7 +39,7 @@ private extension SignInCodeStep {
             .accessibilityLabel(Text("signIn.code.accessibilityLabel \(code.spelledOut)"))
     }
 
-    var waitingStatus: some View {
+    private var waitingStatus: some View {
         HStack(spacing: dimensions.spaceMedium) {
             ProgressView()
 

@@ -33,10 +33,8 @@ public final class StreamRuntime: @unchecked Sendable {
             return factory
         }
     }
-}
 
-private extension StreamRuntime {
-    func makeFactory() -> LKRTCPeerConnectionFactory {
+    private func makeFactory() -> LKRTCPeerConnectionFactory {
         enableNetworkPathMonitor()
 
         LKRTCInitializeSSL()
@@ -53,7 +51,7 @@ private extension StreamRuntime {
         return factory
     }
 
-    func enableNetworkPathMonitor() {
+    private func enableNetworkPathMonitor() {
         #if !os(macOS)
         LKRTCInitFieldTrialDictionary([
             kLKRTCFieldTrialUseNWPathMonitor: kLKRTCFieldTrialEnabledValue

@@ -21,18 +21,16 @@ struct HomeHostView: View {
         }
         .onChange(of: app.activeAccountID) { path.removeAll() }
     }
-}
 
-private extension HomeHostView {
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         switch (app.home, app.library) {
         case (let home?, let library?): page(home: home, library: library)
         default: LoadingView()
         }
     }
 
-    func page(home: HomeViewModel, library: LibraryViewModel) -> some View {
+    private func page(home: HomeViewModel, library: LibraryViewModel) -> some View {
         HomeView(home: home, library: library, onBrowse: onBrowse)
             .navigationDestination(for: CloudGame.self) { game in
                 GameDetailView(detail: library.detail(for: game))

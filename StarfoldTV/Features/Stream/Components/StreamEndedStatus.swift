@@ -34,10 +34,8 @@ struct StreamEndedStatus: View {
             Button("stream.ended.back") { onEnd() }
         }
     }
-}
 
-private extension StreamEndedStatus {
-    func adviceText(_ advice: StreamFailureAdvice) -> some View {
+    private func adviceText(_ advice: StreamFailureAdvice) -> some View {
         Text(advice.text)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)

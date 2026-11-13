@@ -41,18 +41,16 @@ struct GameHeader: View {
             }
         }
     }
-}
 
-private extension GameHeader {
     @ViewBuilder
-    var publisher: some View {
+    private var publisher: some View {
         switch (detail.publisher, detail.publisherInitial) {
         case (let publisher?, let initial?): publisherLabel(publisher, initial: initial)
         default: EmptyView()
         }
     }
 
-    func publisherLabel(_ publisher: String, initial: String) -> some View {
+    private func publisherLabel(_ publisher: String, initial: String) -> some View {
         HStack(spacing: dimensions.spaceSmall) {
             Text(initial)
                 .font(.caption.bold())
@@ -69,7 +67,7 @@ private extension GameHeader {
         }
     }
 
-    var playButton: some View {
+    private var playButton: some View {
         Button {
             detail.play()
         } label: {

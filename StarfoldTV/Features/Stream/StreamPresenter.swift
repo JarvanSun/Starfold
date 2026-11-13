@@ -35,6 +35,10 @@ final class StreamPresenter {
         isControllerConnected()
     }
 
+    private var isUnobstructed: Bool {
+        !isEnding && !isSignInExpired()
+    }
+
     init(
         play: @escaping (StreamTarget) async -> Void,
         stop: @escaping () async -> Void,
@@ -64,6 +68,20 @@ final class StreamPresenter {
         switch isControllerConnected() {
         case true: present(target)
         case false: isControllerPromptPresented = true
+        }
+    }
+
+    private func present(_ target: StreamTarget) {
+        isControllerPromptPresented = false
+        isMenuPresented = false
+        isPresented = true
+        presentationID += 1
+
+        let presentation = presentationID
+        startTask = Task {
+            await play(target)
+
+            if presentation == presentationID { startTask = nil }
         }
     }
 
@@ -110,58 +128,14 @@ final class StreamPresenter {
         await finish()
     }
 
-    func end(presentationID: Int) async {
-        guard presentationID == self.presentationID else { return }
-
-        await end()
-    }
-
-    func moveToForeground(_ isInForeground: Bool) {
-        self.isInForeground = isInForeground
-    }
-
-    func isRawInputEnabled(for stream: StreamViewModel?) -> Bool {
-        guard let stream, isUnobstructed else { return false }
-
-        return stream.isPlayable && !isMenuPresented && isInForeground
-    }
-
-    func canOpenMenu(for stream: StreamViewModel?) -> Bool {
-        guard let stream, isUnobstructed else { return false }
-
-        return stream.canOpenMenu
-    }
-}
-
-// MARK: - Private
-
-private extension StreamPresenter {
-    var isUnobstructed: Bool {
-        !isEnding && !isSignInExpired()
-    }
-
-    func present(_ target: StreamTarget) {
-        isControllerPromptPresented = false
-        isMenuPresented = false
-        isPresented = true
-        presentationID += 1
-
-        let presentation = presentationID
-        startTask = Task {
-            await play(target)
-
-            if presentation == presentationID { startTask = nil }
-        }
-    }
-
-    func finish() async {
+    private func finish() async {
         switch endTask {
         case let endTask?: await endTask.value
         case nil: await stopPresentedStream()
         }
     }
 
-    func stopPresentedStream() async {
+    private func stopPresentedStream() async {
         guard isPresented else { return }
 
         isEnding = true
@@ -184,5 +158,27 @@ private extension StreamPresenter {
         isPresented = false
         isMenuPresented = false
         isEnding = false
+    }
+
+    func end(presentationID: Int) async {
+        guard presentationID == self.presentationID else { return }
+
+        await end()
+    }
+
+    func moveToForeground(_ isInForeground: Bool) {
+        self.isInForeground = isInForeground
+    }
+
+    func isRawInputEnabled(for stream: StreamViewModel?) -> Bool {
+        guard let stream, isUnobstructed else { return false }
+
+        return stream.isPlayable && !isMenuPresented && isInForeground
+    }
+
+    func canOpenMenu(for stream: StreamViewModel?) -> Bool {
+        guard let stream, isUnobstructed else { return false }
+
+        return stream.canOpenMenu
     }
 }

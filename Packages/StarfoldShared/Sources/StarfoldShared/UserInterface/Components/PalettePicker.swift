@@ -22,14 +22,12 @@ public struct PalettePicker: View {
             Text("palette.picker.title", bundle: .module)
         }
     }
-}
 
-private extension PalettePicker {
-    var palettes: [Palette] {
+    private var palettes: [Palette] {
         PaletteID.allCases.map(Palette.init)
     }
 
-    func option(for palette: Palette) -> some View {
+    private func option(for palette: Palette) -> some View {
         Label {
             Text(palette.name)
         } icon: {

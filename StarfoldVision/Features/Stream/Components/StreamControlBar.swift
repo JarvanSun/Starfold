@@ -36,10 +36,8 @@ struct StreamControlBar: View {
         .glassBackgroundEffect()
         .padding(.top, dimensions.spaceLarge)
     }
-}
 
-private extension StreamControlBar {
-    var guideButton: some View {
+    private var guideButton: some View {
         Button {
             stream.openGuide()
         } label: {
@@ -47,13 +45,13 @@ private extension StreamControlBar {
         }
     }
 
-    var statisticsToggle: some View {
+    private var statisticsToggle: some View {
         Toggle(isOn: $settings.shouldShowStatistics) {
             Label("stream.controls.statistics", systemImage: "chart.bar.xaxis")
         }
     }
 
-    var optionsButton: some View {
+    private var optionsButton: some View {
         Button {
             isShowingOptions = true
         } label: {
@@ -64,7 +62,7 @@ private extension StreamControlBar {
         }
     }
 
-    var disconnectButton: some View {
+    private var disconnectButton: some View {
         Button(role: .destructive) {
             onDisconnect()
         } label: {

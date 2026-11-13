@@ -19,6 +19,10 @@ struct HomeCard<Artwork: View, Actions: View>: View {
     @ViewBuilder let artwork: Artwork
     @ViewBuilder let actions: Actions
 
+    private var isLifted: Bool {
+        isHovering && !reduceMotion
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             artworkArea
@@ -48,16 +52,8 @@ struct HomeCard<Artwork: View, Actions: View>: View {
             Text("home.card.accessibilityLabel \(heading.title) \(heading.status.text)")
         )
     }
-}
 
-// MARK: - Private
-
-private extension HomeCard {
-    var isLifted: Bool {
-        isHovering && !reduceMotion
-    }
-
-    var artworkArea: some View {
+    private var artworkArea: some View {
         let artworkHoverScale: CGFloat = 1.04
 
         return
@@ -67,7 +63,7 @@ private extension HomeCard {
             .scaleEffect(isLifted ? artworkHoverScale : 1)
     }
 
-    var information: some View {
+    private var information: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
             HStack(alignment: .firstTextBaseline) {
                 heading.title
@@ -96,7 +92,7 @@ private extension HomeCard {
         .frame(maxHeight: .infinity, alignment: .top)
     }
 
-    var statusLabel: some View {
+    private var statusLabel: some View {
         HStack(spacing: dimensions.spaceXSmall) {
             StatusDot(color: heading.status.color, pulsing: heading.status.isPulsing)
 
@@ -110,7 +106,7 @@ private extension HomeCard {
         .accessibilityLabel(heading.status.text)
     }
 
-    var primaryButton: some View {
+    private var primaryButton: some View {
         Button {
             primaryAction.onPerform()
         } label: {
@@ -122,13 +118,13 @@ private extension HomeCard {
         .help(Text(primaryAction.title))
     }
 
-    func performPrimaryActionIfEnabled() {
+    private func performPrimaryActionIfEnabled() {
         guard primaryAction.isEnabled else { return }
 
         primaryAction.onPerform()
     }
 
-    func pressReturn() -> KeyPress.Result {
+    private func pressReturn() -> KeyPress.Result {
         guard primaryAction.isEnabled else { return .ignored }
 
         primaryAction.onPerform()

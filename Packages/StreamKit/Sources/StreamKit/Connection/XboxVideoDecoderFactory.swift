@@ -15,13 +15,7 @@ final class XboxVideoDecoderFactory: NSObject, LKRTCVideoDecoderFactory {
         [h264Main] + base.supportedCodecs()
     }
 
-    func createDecoder(_ info: LKRTCVideoCodecInfo) -> LKRTCVideoDecoder? {
-        base.createDecoder(info)
-    }
-}
-
-private extension XboxVideoDecoderFactory {
-    var h264Main: LKRTCVideoCodecInfo {
+    private var h264Main: LKRTCVideoCodecInfo {
         .init(
             name: kLKRTCVideoCodecH264Name,
             parameters: [
@@ -30,5 +24,9 @@ private extension XboxVideoDecoderFactory {
                 "packetization-mode": "1",
             ]
         )
+    }
+
+    func createDecoder(_ info: LKRTCVideoCodecInfo) -> LKRTCVideoDecoder? {
+        base.createDecoder(info)
     }
 }

@@ -23,18 +23,8 @@ struct ConsolePowerButton: View {
         case .unavailable: EmptyView()
         }
     }
-}
 
-private extension ConsolePowerButton {
-    var progress: some View {
-        ProgressView()
-            .frame(
-                width: dimensions.consolePowerButtonSize,
-                height: dimensions.consolePowerButtonSize
-            )
-    }
-
-    func button(for command: XboxLiveClient.PowerCommand) -> some View {
+    private func button(for command: XboxLiveClient.PowerCommand) -> some View {
         Button {
             onToggle()
         } label: {
@@ -43,6 +33,14 @@ private extension ConsolePowerButton {
         .labelStyle(.iconOnly)
         .buttonBorderShape(.circle)
         .help(Text(command.title))
+    }
+
+    private var progress: some View {
+        ProgressView()
+            .frame(
+                width: dimensions.consolePowerButtonSize,
+                height: dimensions.consolePowerButtonSize
+            )
     }
 }
 

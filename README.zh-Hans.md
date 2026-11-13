@@ -69,12 +69,6 @@
 
 1. 克隆仓库，打开 `Starfold.xcodeproj`。
 2. 选择 `StarfoldMac`、`StarfoldVision` 或 `StarfoldTV` scheme。
-3. 运行。要用自己的团队签名，新建 `Configuration/Local.xcconfig`（不会进入 git）：
-
-   ```
-   STARFOLD_BUNDLE_ID = com.example.starfold
-   DEVELOPMENT_TEAM = ABCDE12345
-   ```
 
 ```sh
 scripts/build.sh   # 构建三个应用

@@ -48,10 +48,8 @@ struct StreamView: View {
         }
         .sheet(item: presentedDialog) { SystemDialogView(dialogs: stream.dialogs, dialog: $0) }
     }
-}
 
-private extension StreamView {
-    var presentedDialog: Binding<SystemDialogRequest?> {
+    private var presentedDialog: Binding<SystemDialogRequest?> {
         .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
     }
 }

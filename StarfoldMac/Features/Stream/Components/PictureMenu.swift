@@ -37,24 +37,22 @@ struct PictureMenu: View {
         .contentShape(.capsule)
         .glassEffect(.regular.interactive(), in: .capsule)
     }
-}
 
-private extension PictureMenu {
-    var upscalingToggle: some View {
+    private var upscalingToggle: some View {
         Toggle(
             String(localized: "stream.controlBar.picture.upscaling"),
             isOn: $settings.isUpscalingEnabled
         )
     }
 
-    var toneMappingToggle: some View {
+    private var toneMappingToggle: some View {
         Toggle(
             String(localized: "stream.controlBar.picture.toneMapping"),
             isOn: $settings.isHDRToneMappingEnabled
         )
     }
 
-    var pictureFitPicker: some View {
+    private var pictureFitPicker: some View {
         Picker(
             String(localized: "stream.controlBar.picture.pictureMode"),
             selection: $settings.pictureFit
@@ -65,7 +63,7 @@ private extension PictureMenu {
         }
     }
 
-    var sharpeningPicker: some View {
+    private var sharpeningPicker: some View {
         Picker(
             String(localized: "stream.controlBar.picture.sharpening.title"),
             selection: $stream.sharpeningLevel
@@ -76,7 +74,7 @@ private extension PictureMenu {
         }
     }
 
-    var pacingPicker: some View {
+    private var pacingPicker: some View {
         Picker(
             String(localized: "stream.controlBar.picture.buffer"),
             selection: $settings.pacingMode

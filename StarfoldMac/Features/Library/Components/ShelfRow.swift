@@ -33,10 +33,8 @@ struct ShelfRow: View {
             .scrollClipDisabled()
         }
     }
-}
 
-private extension ShelfRow {
-    func tile(for game: CloudGame) -> some View {
+    private func tile(for game: CloudGame) -> some View {
         GameTile(game: game, badge: shelf.badge) {
             onPlay(game)
         } onOpen: {

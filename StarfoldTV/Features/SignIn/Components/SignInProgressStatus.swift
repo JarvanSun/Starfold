@@ -24,10 +24,8 @@ struct SignInProgressStatus: View {
         }
         .frame(minHeight: dimensions.signInStatusMinimumHeight)
     }
-}
 
-private extension SignInProgressStatus {
-    var symbolStyle: AnyShapeStyle {
+    private var symbolStyle: AnyShapeStyle {
         switch progress {
         case .signingIn: .init(.primary)
         case .signedIn: .init(Color.online)

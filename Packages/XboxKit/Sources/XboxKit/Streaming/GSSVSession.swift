@@ -16,6 +16,10 @@ public struct GSSVSession: Sendable {
     let url: URL
     let titleID: String?
 
+    private var backoff: PollingBackoff {
+        .init()
+    }
+
     public func waitUntilProvisioned(
         transferToken: @Sendable () async throws -> String,
         pollInterval: Duration? = nil,
@@ -52,6 +56,29 @@ public struct GSSVSession: Sendable {
         throw GSSVSessionError.timedOut("state")
     }
 
+    private func state() async throws -> SessionState {
+        let response = try await client.send(to: url.appending(path: "state"))
+        let fields =
+            (try JSONSerialization.jsonObject(with: response.body) as? [String: Any]) ?? [:]
+        return .init(fields: fields)
+    }
+
+    private func connect(userToken: String) async throws {
+        _ = try await client.send(
+            to: url.appending(path: "connect"),
+            method: "POST",
+            body: try JSONSerialization.data(withJSONObject: ["userToken": userToken])
+        )
+    }
+
+    private func estimatedQueueWait() async -> Duration? {
+        guard let titleID else {
+            return nil
+        }
+
+        return try? await client.estimatedWait(titleID: titleID)
+    }
+
     public func keepAliveInterval() async throws -> Duration {
         let response = try await client.send(to: url.appending(path: "configuration"))
         let configuration =
@@ -86,6 +113,26 @@ public struct GSSVSession: Sendable {
         }
     }
 
+    private func sdpOfferBody(_ offer: String) -> [String: Any] {
+        [
+            "messageType": "offer",
+            "sdp": offer,
+            "configuration": [
+                "chatConfiguration": [
+                    "bytesPerSample": 2,
+                    "expectedClipDurationMs": 20,
+                    "format": ["codec": "opus", "container": "webm"],
+                    "numChannels": 1,
+                    "sampleFrequencyHz": 24000,
+                ],
+                "chat": ["minVersion": 1, "maxVersion": 1],
+                "control": ["minVersion": 1, "maxVersion": 3],
+                "input": ["minVersion": 1, "maxVersion": 8],
+                "message": ["minVersion": 1, "maxVersion": 1],
+            ],
+        ]
+    }
+
     public func exchangeICE(
         _ candidates: [LocalICECandidate],
         timeout: Duration = .seconds(30)
@@ -109,6 +156,29 @@ public struct GSSVSession: Sendable {
         return try await poll("ice", timeout: timeout) { body in
             try SignalingAnswerParser().iceCandidates(from: body)
         }
+    }
+
+    private func poll<Answer: Sendable>(
+        _ resource: String,
+        timeout: Duration,
+        parse: (Data) throws -> Answer?
+    ) async throws -> Answer {
+        let clock = ContinuousClock()
+        let start = clock.now
+        let deadline = start + timeout
+
+        while clock.now < deadline {
+            let response = try await client.send(to: url.appending(path: resource))
+            let hasAnswerBody = response.statusCode != 204 && !response.body.isEmpty
+
+            if hasAnswerBody, let answer = try parse(response.body) {
+                return answer
+            }
+
+            try await Task.sleep(for: backoff.delay(after: clock.now - start))
+        }
+
+        throw GSSVSessionError.timedOut(resource)
     }
 
     public func keepAlive() async throws {
@@ -135,79 +205,5 @@ public struct GSSVSession: Sendable {
         #else
         _ = try? await client.send(to: url, method: "DELETE")
         #endif
-    }
-}
-
-// MARK: - Private
-
-private extension GSSVSession {
-    var backoff: PollingBackoff {
-        .init()
-    }
-
-    func state() async throws -> SessionState {
-        let response = try await client.send(to: url.appending(path: "state"))
-        let fields =
-            (try JSONSerialization.jsonObject(with: response.body) as? [String: Any]) ?? [:]
-        return .init(fields: fields)
-    }
-
-    func connect(userToken: String) async throws {
-        _ = try await client.send(
-            to: url.appending(path: "connect"),
-            method: "POST",
-            body: try JSONSerialization.data(withJSONObject: ["userToken": userToken])
-        )
-    }
-
-    func estimatedQueueWait() async -> Duration? {
-        guard let titleID else {
-            return nil
-        }
-
-        return try? await client.estimatedWait(titleID: titleID)
-    }
-
-    func sdpOfferBody(_ offer: String) -> [String: Any] {
-        [
-            "messageType": "offer",
-            "sdp": offer,
-            "configuration": [
-                "chatConfiguration": [
-                    "bytesPerSample": 2,
-                    "expectedClipDurationMs": 20,
-                    "format": ["codec": "opus", "container": "webm"],
-                    "numChannels": 1,
-                    "sampleFrequencyHz": 24000,
-                ],
-                "chat": ["minVersion": 1, "maxVersion": 1],
-                "control": ["minVersion": 1, "maxVersion": 3],
-                "input": ["minVersion": 1, "maxVersion": 8],
-                "message": ["minVersion": 1, "maxVersion": 1],
-            ],
-        ]
-    }
-
-    func poll<Answer: Sendable>(
-        _ resource: String,
-        timeout: Duration,
-        parse: (Data) throws -> Answer?
-    ) async throws -> Answer {
-        let clock = ContinuousClock()
-        let start = clock.now
-        let deadline = start + timeout
-
-        while clock.now < deadline {
-            let response = try await client.send(to: url.appending(path: resource))
-            let hasAnswerBody = response.statusCode != 204 && !response.body.isEmpty
-
-            if hasAnswerBody, let answer = try parse(response.body) {
-                return answer
-            }
-
-            try await Task.sleep(for: backoff.delay(after: clock.now - start))
-        }
-
-        throw GSSVSessionError.timedOut(resource)
     }
 }

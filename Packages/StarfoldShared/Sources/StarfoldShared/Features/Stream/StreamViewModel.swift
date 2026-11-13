@@ -77,6 +77,12 @@ public final class StreamViewModel {
         }
     }
 
+    private func queueEstimate(_ wait: Duration) -> String {
+        let shortestQueueEstimate: Duration = .seconds(60)
+
+        return max(wait, shortestQueueEstimate).formatted(.units(allowed: [.minutes], width: .wide))
+    }
+
     public var isShowingControls: Bool {
         isStreaming && areControlsRevealed
     }
@@ -123,6 +129,18 @@ public final class StreamViewModel {
         qualityOverride == nil && startedSettings?.choice == .automatic
     }
 
+    private var preferences: Preferences {
+        dependencies.preferences
+    }
+
+    private var controllers: ControllerHub {
+        dependencies.controllers
+    }
+
+    private var playbackSettings: StreamPlaybackSettings {
+        .init(preferences: preferences, picture: dependencies.picture)
+    }
+
     public init(
         target: StreamTarget,
         backdrop: StreamBackdrop,
@@ -140,6 +158,37 @@ public final class StreamViewModel {
         apply(playbackSettings)
 
         observeSettings()
+    }
+
+    private func observeSettings() {
+        settingsTask = Task { [weak self] in
+            for await settings in Observations({ self?.playbackSettings }) {
+                guard let self, let settings, !hasEnded else { return }
+
+                apply(settings)
+            }
+        }
+    }
+
+    private func apply(_ settings: StreamPlaybackSettings) {
+        guard settings != appliedSettings else { return }
+
+        appliedSettings = settings
+
+        service.setDirectStereo(settings.isDirectStereo)
+
+        guard let renderer else { return }
+
+        renderer.systemVideo.setPacing(settings.pacing)
+        renderer.systemVideo.layer.videoGravity = settings.videoGravity
+
+        if let dynamicRange = settings.dynamicRange {
+            renderer.systemVideo.layer.preferredDynamicRange = dynamicRange
+        }
+
+        if let enhancements = settings.enhancements {
+            renderer.setEnhancements(enhancements)
+        }
     }
 
     public func start() {
@@ -164,6 +213,141 @@ public final class StreamViewModel {
 
         startedAt = .now
         connectTask = Task { await connect(with: options) }
+    }
+
+    private func connect(with options: StreamOptions) async {
+        do {
+            let connection = try await service.connect(to: target, options: options)
+            guard !Task.isCancelled, let renderer else { return }
+
+            run(connection, on: renderer)
+        } catch XboxAccountError.signInRequired {
+            onSignInRequired()
+
+            fail(String(localized: "stream.failure.signInExpired", bundle: .module))
+        } catch {
+            guard !Task.isCancelled else { return }
+
+            fail(error.localizedDescription)
+        }
+    }
+
+    private func run(_ connection: StreamConnection, on renderer: StreamRenderer) {
+        self.connection = connection
+
+        renderer.notifyFirstFrame { [weak self] in
+            Task { @MainActor in self?.didPresentFirstFrame() }
+        }
+
+        updatesTask = Task { [weak self] in
+            for await update in connection.updates {
+                self?.apply(update)
+            }
+        }
+
+        dialogs.attach(connection)
+
+        wireInput(to: connection)
+
+        runTask = Task { await connection.start(sink: renderer) }
+    }
+
+    private func didPresentFirstFrame() {
+        guard !hasFirstFrame else { return }
+
+        hasFirstFrame = true
+        log.info(
+            "Startup first frame on screen +\((ContinuousClock.now - self.startedAt).formatted(.units(allowed: [.milliseconds])), privacy: .public)"
+        )
+    }
+
+    private func apply(_ update: StreamUpdate) {
+        switch update {
+        case .phase(let phase): apply(phase)
+        case .statistics(let statistics): apply(statistics)
+        case .dialog(let request): dialogs.add(request)
+        case .dialogDismissed(let id): dialogs.remove(id: id)
+        case .vibration(let effect): play(effect)
+        case .videoSize: break
+        }
+    }
+
+    private func play(_ effect: VibrationEffect) {
+        logFirstRumble(effect)
+
+        guard controllers.isRoutingToGame, preferences.isRumbleEnabled else { return }
+
+        controllers.playRumble(effect)
+    }
+
+    private func logFirstRumble(_ effect: VibrationEffect) {
+        guard !hasLoggedFirstRumble else { return }
+
+        hasLoggedFirstRumble = true
+        log.info(
+            "Host sent rumble for pad \(effect.gamepadIndex): \(effect.leftMotor) / \(effect.rightMotor), enabled \(self.preferences.isRumbleEnabled)"
+        )
+    }
+
+    private func apply(_ phase: StreamPhase) {
+        self.phase = phase
+
+        switch phase {
+        case .streaming: revealControls()
+        case .ended: finishAfterEnd()
+        case .provisioning, .queued, .connecting: break
+        }
+    }
+
+    private func finishAfterEnd() {
+        hideControlsTask?.cancel()
+        settingsTask?.cancel()
+
+        controllers.stopRumble()
+
+        onEnd()
+    }
+
+    private func apply(_ statistics: StreamStatistics) {
+        var statistics = statistics
+        statistics.displayMs = renderer?.displayLatencyMs
+        statistics.upscaledTo = renderer?.upscaledTo
+        statistics.isToneMapped = renderer?.isToneMapping ?? false
+        self.statistics = statistics
+
+        logPacing()
+
+        noteResolution(statistics.resolution)
+    }
+
+    private func logPacing() {
+        statisticsTicks += 1
+
+        let pacingLogInterval = 5
+
+        guard statisticsTicks.isMultiple(of: pacingLogInterval), let renderer else { return }
+
+        let pacing = renderer.systemVideo.takeCounters()
+        log.info(
+            "Pacing 5s: \(String(describing: self.preferences.pacingMode), privacy: .public) \(Int(pacing.pacingDelayMs.rounded())) ms, late \(pacing.lateFrames) frames"
+        )
+    }
+
+    private func noteResolution(_ received: CGSize?) {
+        guard let received, let quality else { return }
+
+        isResolutionLowered = AdaptiveQuality(target: target)
+            .isLoweredByHost(received: received, requested: quality)
+    }
+
+    private func wireInput(to connection: StreamConnection) {
+        controllers.router.setDestination { slot, state in
+            connection.setGamepad(slot, state: state)
+        }
+    }
+
+    private func fail(_ message: String) {
+        phase = .ended(.failed(message))
     }
 
     func stop() async {
@@ -204,6 +388,14 @@ public final class StreamViewModel {
         guard let delay = dependencies.overlays.controlsHideDelay else { return }
 
         hideControlsTask = Task { await hideControls(after: delay) }
+    }
+
+    private func hideControls(after delay: Duration) async {
+        try? await Task.sleep(for: delay)
+
+        guard !Task.isCancelled else { return }
+
+        areControlsRevealed = false
     }
 
     public func openGuide() {
@@ -251,201 +443,5 @@ public final class StreamViewModel {
             device: device
         )
         .text
-    }
-}
-
-// MARK: - Private
-
-private extension StreamViewModel {
-    var preferences: Preferences {
-        dependencies.preferences
-    }
-
-    var controllers: ControllerHub {
-        dependencies.controllers
-    }
-
-    var playbackSettings: StreamPlaybackSettings {
-        .init(preferences: preferences, picture: dependencies.picture)
-    }
-
-    func apply(_ settings: StreamPlaybackSettings) {
-        guard settings != appliedSettings else { return }
-
-        appliedSettings = settings
-
-        service.setDirectStereo(settings.isDirectStereo)
-
-        guard let renderer else { return }
-
-        renderer.systemVideo.setPacing(settings.pacing)
-        renderer.systemVideo.layer.videoGravity = settings.videoGravity
-
-        if let dynamicRange = settings.dynamicRange {
-            renderer.systemVideo.layer.preferredDynamicRange = dynamicRange
-        }
-
-        if let enhancements = settings.enhancements {
-            renderer.setEnhancements(enhancements)
-        }
-    }
-
-    func observeSettings() {
-        settingsTask = Task { [weak self] in
-            for await settings in Observations({ self?.playbackSettings }) {
-                guard let self, let settings, !hasEnded else { return }
-
-                apply(settings)
-            }
-        }
-    }
-
-    func fail(_ message: String) {
-        phase = .ended(.failed(message))
-    }
-
-    func connect(with options: StreamOptions) async {
-        do {
-            let connection = try await service.connect(to: target, options: options)
-            guard !Task.isCancelled, let renderer else { return }
-
-            run(connection, on: renderer)
-        } catch XboxAccountError.signInRequired {
-            onSignInRequired()
-
-            fail(String(localized: "stream.failure.signInExpired", bundle: .module))
-        } catch {
-            guard !Task.isCancelled else { return }
-
-            fail(error.localizedDescription)
-        }
-    }
-
-    func run(_ connection: StreamConnection, on renderer: StreamRenderer) {
-        self.connection = connection
-
-        renderer.notifyFirstFrame { [weak self] in
-            Task { @MainActor in self?.didPresentFirstFrame() }
-        }
-
-        updatesTask = Task { [weak self] in
-            for await update in connection.updates {
-                self?.apply(update)
-            }
-        }
-
-        dialogs.attach(connection)
-
-        wireInput(to: connection)
-
-        runTask = Task { await connection.start(sink: renderer) }
-    }
-
-    func didPresentFirstFrame() {
-        guard !hasFirstFrame else { return }
-
-        hasFirstFrame = true
-        log.info(
-            "Startup first frame on screen +\((ContinuousClock.now - self.startedAt).formatted(.units(allowed: [.milliseconds])), privacy: .public)"
-        )
-    }
-
-    func apply(_ update: StreamUpdate) {
-        switch update {
-        case .phase(let phase): apply(phase)
-        case .statistics(let statistics): apply(statistics)
-        case .dialog(let request): dialogs.add(request)
-        case .dialogDismissed(let id): dialogs.remove(id: id)
-        case .vibration(let effect): play(effect)
-        case .videoSize: break
-        }
-    }
-
-    func apply(_ phase: StreamPhase) {
-        self.phase = phase
-
-        switch phase {
-        case .streaming: revealControls()
-        case .ended: finishAfterEnd()
-        case .provisioning, .queued, .connecting: break
-        }
-    }
-
-    func finishAfterEnd() {
-        hideControlsTask?.cancel()
-        settingsTask?.cancel()
-
-        controllers.stopRumble()
-
-        onEnd()
-    }
-
-    func hideControls(after delay: Duration) async {
-        try? await Task.sleep(for: delay)
-
-        guard !Task.isCancelled else { return }
-
-        areControlsRevealed = false
-    }
-
-    func queueEstimate(_ wait: Duration) -> String {
-        let shortestQueueEstimate: Duration = .seconds(60)
-
-        return max(wait, shortestQueueEstimate).formatted(.units(allowed: [.minutes], width: .wide))
-    }
-
-    func apply(_ statistics: StreamStatistics) {
-        var statistics = statistics
-        statistics.displayMs = renderer?.displayLatencyMs
-        statistics.upscaledTo = renderer?.upscaledTo
-        statistics.isToneMapped = renderer?.isToneMapping ?? false
-        self.statistics = statistics
-
-        logPacing()
-
-        noteResolution(statistics.resolution)
-    }
-
-    func logPacing() {
-        statisticsTicks += 1
-
-        let pacingLogInterval = 5
-
-        guard statisticsTicks.isMultiple(of: pacingLogInterval), let renderer else { return }
-
-        let pacing = renderer.systemVideo.takeCounters()
-        log.info(
-            "Pacing 5s: \(String(describing: self.preferences.pacingMode), privacy: .public) \(Int(pacing.pacingDelayMs.rounded())) ms, late \(pacing.lateFrames) frames"
-        )
-    }
-
-    func noteResolution(_ received: CGSize?) {
-        guard let received, let quality else { return }
-
-        isResolutionLowered = AdaptiveQuality(target: target)
-            .isLoweredByHost(received: received, requested: quality)
-    }
-
-    func play(_ effect: VibrationEffect) {
-        logFirstRumble(effect)
-
-        guard controllers.isRoutingToGame, preferences.isRumbleEnabled else { return }
-
-        controllers.playRumble(effect)
-    }
-
-    func logFirstRumble(_ effect: VibrationEffect) {
-        guard !hasLoggedFirstRumble else { return }
-
-        hasLoggedFirstRumble = true
-        log.info(
-            "Host sent rumble for pad \(effect.gamepadIndex): \(effect.leftMotor) / \(effect.rightMotor), enabled \(self.preferences.isRumbleEnabled)"
-        )
-    }
-
-    func wireInput(to connection: StreamConnection) {
-        controllers.router.setDestination { slot, state in
-            connection.setGamepad(slot, state: state)
-        }
     }
 }

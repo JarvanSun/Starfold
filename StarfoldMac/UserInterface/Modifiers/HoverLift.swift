@@ -32,10 +32,8 @@ private struct HoverLift: ViewModifier {
                 y: isHovering ? dimensions.shadowOffsetMedium : dimensions.shadowOffsetSmall
             )
     }
-}
 
-private extension HoverLift {
-    var isLifted: Bool {
+    private var isLifted: Bool {
         isHovering && !reduceMotion
     }
 }

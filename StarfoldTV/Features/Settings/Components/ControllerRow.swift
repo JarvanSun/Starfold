@@ -23,11 +23,9 @@ struct ControllerRow: View {
             battery
         }
     }
-}
 
-private extension ControllerRow {
     @ViewBuilder
-    var battery: some View {
+    private var battery: some View {
         switch batteryLevel {
         case let level?:
             Text(level, format: .percent.precision(.fractionLength(0)))

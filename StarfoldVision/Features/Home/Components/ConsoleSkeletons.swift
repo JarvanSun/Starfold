@@ -18,10 +18,8 @@ struct ConsoleSkeletons: View {
             skeleton
         }
     }
-}
 
-private extension ConsoleSkeletons {
-    var skeleton: some View {
+    private var skeleton: some View {
         RoundedRectangle(cornerRadius: dimensions.cornerRadiusXXLarge)
             .fill(.thinMaterial)
             .frame(width: dimensions.consoleCardWidth, height: dimensions.consoleCardHeight)

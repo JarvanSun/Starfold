@@ -36,10 +36,8 @@ struct HomeCard<Picture: View>: View {
         }
         .buttonStyle(.card)
     }
-}
 
-private extension HomeCard {
-    var caption: some View {
+    private var caption: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
             HStack(spacing: dimensions.spaceMedium) {
                 statusDot
@@ -53,7 +51,7 @@ private extension HomeCard {
         .frame(width: width, alignment: .leading)
     }
 
-    var statusDot: some View {
+    private var statusDot: some View {
         Circle()
             .fill(statusColor)
             .frame(

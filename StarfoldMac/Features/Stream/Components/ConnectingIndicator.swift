@@ -28,19 +28,8 @@ struct ConnectingIndicator: View {
         .onAppear { startSpinning() }
         .accessibilityHidden(true)
     }
-}
 
-private extension ConnectingIndicator {
-    var arcGradient: AngularGradient {
-        .init(
-            colors: [palette.accent.color.opacity(0), palette.accent.color, palette.primaryTint],
-            center: .center,
-            startAngle: .degrees(0),
-            endAngle: .degrees(108)
-        )
-    }
-
-    var arc: some View {
+    private var arc: some View {
         let arcLength: CGFloat = 0.3
 
         return Circle()
@@ -56,7 +45,16 @@ private extension ConnectingIndicator {
             .shadow(color: palette.primaryTint.opacity(0.6), radius: dimensions.shadowRadiusSmall)
     }
 
-    func startSpinning() {
+    private var arcGradient: AngularGradient {
+        .init(
+            colors: [palette.accent.color.opacity(0), palette.accent.color, palette.primaryTint],
+            center: .center,
+            startAngle: .degrees(0),
+            endAngle: .degrees(108)
+        )
+    }
+
+    private func startSpinning() {
         guard !reduceMotion else { return }
 
         withAnimation(.linear(duration: 1.1).repeatForever(autoreverses: false)) {

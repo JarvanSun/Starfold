@@ -21,10 +21,8 @@ struct StreamBackdropView: View {
         case .console: SkyBackground()
         }
     }
-}
 
-private extension StreamBackdropView {
-    func gameArtwork(_ url: URL?) -> some View {
+    private func gameArtwork(_ url: URL?) -> some View {
         ZStack {
             SkyBackground()
 
@@ -40,7 +38,7 @@ private extension StreamBackdropView {
         .ignoresSafeArea()
     }
 
-    func blurred(_ image: Image) -> some View {
+    private func blurred(_ image: Image) -> some View {
         image.resizable().scaledToFill()
             .blur(radius: dimensions.streamBackdropBlurRadius, opaque: true)
             .overlay(palette.night.color.opacity(0.55))

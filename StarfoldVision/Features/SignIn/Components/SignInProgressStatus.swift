@@ -24,10 +24,8 @@ struct SignInProgressStatus: View {
                 .font(.title2.bold())
         }
     }
-}
 
-private extension SignInProgressStatus {
-    var symbolStyle: AnyShapeStyle {
+    private var symbolStyle: AnyShapeStyle {
         switch progress {
         case .signingIn: .init(.tint)
         case .signedIn: .init(Color.online)

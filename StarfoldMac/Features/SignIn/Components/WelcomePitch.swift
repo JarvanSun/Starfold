@@ -24,10 +24,8 @@ struct WelcomePitch: View {
         }
         .offset(y: isInPlace ? 0 : dimensions.spaceMedium)
     }
-}
 
-private extension WelcomePitch {
-    var headline: some View {
+    private var headline: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceLarge) {
             AppGlyph(size: dimensions.welcomeGlyphSize)
                 .scaleEffect(isInPlace ? 1 : 0.8, anchor: .leading)

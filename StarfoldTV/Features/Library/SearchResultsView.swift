@@ -19,10 +19,8 @@ struct SearchResultsView: View {
         case false: grid
         }
     }
-}
 
-private extension SearchResultsView {
-    var grid: some View {
+    private var grid: some View {
         ScrollView {
             GameGrid(games: library.searchResults)
                 .padding(.horizontal, dimensions.spaceHuge)

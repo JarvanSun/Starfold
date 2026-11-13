@@ -33,10 +33,8 @@ struct CandidateGathering {
             false
         }
     }
-}
 
-private extension CandidateGathering {
-    var hasPublicCandidate: Bool {
+    private var hasPublicCandidate: Bool {
         candidates.contains { $0.candidate.contains(" typ srflx") }
     }
 }

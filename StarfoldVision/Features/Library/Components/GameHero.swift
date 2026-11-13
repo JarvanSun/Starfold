@@ -39,14 +39,12 @@ struct GameHero: View {
         .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXXLarge))
         .padding(.horizontal, dimensions.spaceXLarge)
     }
-}
 
-private extension GameHero {
-    var aspectRatio: CGFloat {
+    private var aspectRatio: CGFloat {
         16 / 7
     }
 
-    var badges: some View {
+    private var badges: some View {
         HStack(spacing: dimensions.spaceLarge) {
             switch detail.publisher {
             case let publisher?: Text(publisher)
@@ -61,7 +59,7 @@ private extension GameHero {
         .foregroundStyle(.secondary)
     }
 
-    var actions: some View {
+    private var actions: some View {
         HStack(spacing: dimensions.spaceMedium) {
             playButton
 
@@ -69,7 +67,7 @@ private extension GameHero {
         }
     }
 
-    var playButton: some View {
+    private var playButton: some View {
         Button {
             detail.play()
         } label: {

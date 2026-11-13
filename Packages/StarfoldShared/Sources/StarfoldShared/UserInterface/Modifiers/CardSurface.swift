@@ -35,21 +35,19 @@ private struct CardSurface: ViewModifier {
                     .strokeBorder(border, lineWidth: borderWidth)
             }
     }
-}
 
-private extension CardSurface {
-    var radius: CGFloat {
+    private var radius: CGFloat {
         cornerRadius ?? dimensions.cornerRadiusXLarge
     }
 
-    var border: AnyShapeStyle {
+    private var border: AnyShapeStyle {
         switch isHighlighted {
         case true: .init(palette.primaryFill)
         case false: .init(.cardStroke)
         }
     }
 
-    var borderWidth: CGFloat {
+    private var borderWidth: CGFloat {
         isHighlighted ? dimensions.highlightBorderWidth : dimensions.hairline
     }
 }

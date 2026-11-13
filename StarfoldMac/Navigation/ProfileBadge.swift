@@ -33,22 +33,8 @@ struct ProfileBadge: View {
         .padding(.vertical, dimensions.spaceXSmall)
         .contentShape(.rect)
     }
-}
 
-private struct GamerscoreLabelStyle: LabelStyle {
-    let spacing: CGFloat
-
-    func makeBody(configuration: Configuration) -> some View {
-        HStack(spacing: spacing) {
-            configuration.icon
-
-            configuration.title
-        }
-    }
-}
-
-private extension ProfileBadge {
-    var picture: some View {
+    private var picture: some View {
         AsyncImage(url: profile?.pictureURL) { image in
             image.resizable().scaledToFill()
         } placeholder: {
@@ -61,13 +47,13 @@ private extension ProfileBadge {
         .overlay(Circle().strokeBorder(.white.opacity(0.18), lineWidth: dimensions.hairline))
     }
 
-    var name: some View {
+    private var name: some View {
         Text(gamertag)
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
     }
 
-    func gamerscoreLabel(_ gamerscore: Int) -> some View {
+    private func gamerscoreLabel(_ gamerscore: Int) -> some View {
         Label {
             Text(gamerscore, format: .number)
         } icon: {
@@ -78,11 +64,23 @@ private extension ProfileBadge {
         .foregroundStyle(.secondary)
     }
 
-    var gamerscoreSymbol: some View {
+    private var gamerscoreSymbol: some View {
         Text("account.badge.gamerscoreSymbol")
             .font(.caption2.bold())
             .frame(width: dimensions.gamerscoreSymbolSize, height: dimensions.gamerscoreSymbolSize)
             .background(.secondary.opacity(0.3), in: .circle)
+    }
+}
+
+private struct GamerscoreLabelStyle: LabelStyle {
+    let spacing: CGFloat
+
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: spacing) {
+            configuration.icon
+
+            configuration.title
+        }
     }
 }
 

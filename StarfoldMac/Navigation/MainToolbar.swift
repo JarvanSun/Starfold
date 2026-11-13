@@ -33,10 +33,8 @@ struct MainToolbar: ToolbarContent {
             settingsLink
         }
     }
-}
 
-private extension MainToolbar {
-    var settingsLink: some View {
+    private var settingsLink: some View {
         SettingsLink {
             Label(String(localized: "toolbar.settings.label"), systemImage: "gearshape")
         }

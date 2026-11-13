@@ -24,6 +24,56 @@ final class StreamEventViewController<Content: View>: GCEventViewController {
         }
     }
 
+    private func applyRawInput() {
+        controllerUserInteractionEnabled = !isRawInputEnabled
+
+        switch isRawInputEnabled {
+        case true:
+            installRemoteHandlers()
+
+            becomeFirstResponder()
+        case false:
+            removeRemoteHandlers()
+
+            resignFirstResponder()
+
+            setNeedsFocusUpdate()
+            updateFocusIfNeeded()
+        }
+    }
+
+    private func installRemoteHandlers() {
+        for controller in GCController.controllers() where controller.extendedGamepad == nil {
+            guard let remote = controller.microGamepad else { continue }
+
+            if !remotes.contains(where: { $0 === controller }) { remotes.append(controller) }
+
+            remote.buttonMenu.pressedChangedHandler = handlerOnRelease(perform: .back)
+            remote.buttonX.pressedChangedHandler = handlerOnRelease(perform: .playPause)
+        }
+    }
+
+    private func handlerOnRelease(perform command: RemoteCommand)
+        -> GCControllerButtonValueChangedHandler
+    {
+        { [weak self] _, _, isPressed in
+            guard !isPressed else { return }
+
+            Task { @MainActor in
+                guard let self, self.isRawInputEnabled else { return }
+
+                self.perform(command)
+            }
+        }
+    }
+
+    private func perform(_ command: RemoteCommand) {
+        switch command {
+        case .back: onBack()
+        case .playPause: onPlayPause()
+        }
+    }
+
     var onBack: @MainActor @Sendable () -> Void
     var onPlayPause: @MainActor @Sendable () -> Void
 
@@ -69,24 +119,7 @@ final class StreamEventViewController<Content: View>: GCEventViewController {
         observeControllerConnections()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        if isRawInputEnabled { becomeFirstResponder() }
-    }
-
-    func removeRemoteHandlers() {
-        for controller in remotes {
-            controller.microGamepad?.buttonMenu.pressedChangedHandler = nil
-            controller.microGamepad?.buttonX.pressedChangedHandler = nil
-        }
-
-        remotes.removeAll()
-    }
-}
-
-private extension StreamEventViewController {
-    func embedHost() {
+    private func embedHost() {
         host.view.backgroundColor = .black
 
         addChild(host)
@@ -105,7 +138,7 @@ private extension StreamEventViewController {
         host.didMove(toParent: self)
     }
 
-    func observeControllerConnections() {
+    private func observeControllerConnections() {
         controllerConnectionObserver = NotificationCenter.default.addObserver(
             forName: .GCControllerDidConnect,
             object: nil,
@@ -115,57 +148,22 @@ private extension StreamEventViewController {
         }
     }
 
-    func adoptConnectedRemotes() {
+    private func adoptConnectedRemotes() {
         if isRawInputEnabled { installRemoteHandlers() }
     }
 
-    func applyRawInput() {
-        controllerUserInteractionEnabled = !isRawInputEnabled
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
 
-        switch isRawInputEnabled {
-        case true:
-            installRemoteHandlers()
-
-            becomeFirstResponder()
-        case false:
-            removeRemoteHandlers()
-
-            resignFirstResponder()
-
-            setNeedsFocusUpdate()
-            updateFocusIfNeeded()
-        }
+        if isRawInputEnabled { becomeFirstResponder() }
     }
 
-    func installRemoteHandlers() {
-        for controller in GCController.controllers() where controller.extendedGamepad == nil {
-            guard let remote = controller.microGamepad else { continue }
-
-            if !remotes.contains(where: { $0 === controller }) { remotes.append(controller) }
-
-            remote.buttonMenu.pressedChangedHandler = handlerOnRelease(perform: .back)
-            remote.buttonX.pressedChangedHandler = handlerOnRelease(perform: .playPause)
+    func removeRemoteHandlers() {
+        for controller in remotes {
+            controller.microGamepad?.buttonMenu.pressedChangedHandler = nil
+            controller.microGamepad?.buttonX.pressedChangedHandler = nil
         }
-    }
 
-    private func handlerOnRelease(perform command: RemoteCommand)
-        -> GCControllerButtonValueChangedHandler
-    {
-        { [weak self] _, _, isPressed in
-            guard !isPressed else { return }
-
-            Task { @MainActor in
-                guard let self, self.isRawInputEnabled else { return }
-
-                self.perform(command)
-            }
-        }
-    }
-
-    private func perform(_ command: RemoteCommand) {
-        switch command {
-        case .back: onBack()
-        case .playPause: onPlayPause()
-        }
+        remotes.removeAll()
     }
 }

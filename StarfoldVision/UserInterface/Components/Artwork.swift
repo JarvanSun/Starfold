@@ -21,15 +21,13 @@ struct Artwork: View {
             .clipped()
             .accessibilityHidden(true)
     }
-}
 
-private extension Artwork {
-    var fadeIn: Animation {
+    private var fadeIn: Animation {
         .easeOut(duration: 0.3)
     }
 
     @ViewBuilder
-    func image(for phase: AsyncImagePhase) -> some View {
+    private func image(for phase: AsyncImagePhase) -> some View {
         switch phase.image {
         case let image?: image.resizable().scaledToFill().transition(.opacity)
         case nil: Rectangle().fill(.thinMaterial)

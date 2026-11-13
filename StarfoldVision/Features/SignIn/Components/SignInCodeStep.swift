@@ -24,10 +24,8 @@ struct SignInCodeStep: View {
             waitingStatus
         }
     }
-}
 
-private extension SignInCodeStep {
-    var signInButton: some View {
+    private var signInButton: some View {
         Button {
             copyCodeAndOpenPage()
         } label: {
@@ -41,7 +39,13 @@ private extension SignInCodeStep {
         .controlSize(.extraLarge)
     }
 
-    var enterCode: some View {
+    private func copyCodeAndOpenPage() {
+        UIPasteboard.general.string = code.text
+
+        openURL(code.page)
+    }
+
+    private var enterCode: some View {
         VStack(spacing: dimensions.spaceMedium) {
             Text("signIn.code.instructions \(code.address)")
                 .font(.callout)
@@ -52,7 +56,7 @@ private extension SignInCodeStep {
         }
     }
 
-    var waitingStatus: some View {
+    private var waitingStatus: some View {
         HStack(spacing: dimensions.spaceSmall) {
             ProgressView()
                 .controlSize(.small)
@@ -61,12 +65,6 @@ private extension SignInCodeStep {
         }
         .font(.callout)
         .foregroundStyle(.secondary)
-    }
-
-    func copyCodeAndOpenPage() {
-        UIPasteboard.general.string = code.text
-
-        openURL(code.page)
     }
 }
 

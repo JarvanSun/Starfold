@@ -22,19 +22,17 @@ struct FormBody {
         return Data(text.utf8)
     }
 
-    init(_ fields: [(String, String)]) {
-        self.fields = fields
+    private func percentEncoded(_ text: String) -> String {
+        text.addingPercentEncoding(withAllowedCharacters: unreservedCharacters) ?? text
     }
-}
 
-private extension FormBody {
-    var unreservedCharacters: CharacterSet {
+    private var unreservedCharacters: CharacterSet {
         var characters = CharacterSet.alphanumerics
         characters.insert(charactersIn: "-._~")
         return characters
     }
 
-    func percentEncoded(_ text: String) -> String {
-        text.addingPercentEncoding(withAllowedCharacters: unreservedCharacters) ?? text
+    init(_ fields: [(String, String)]) {
+        self.fields = fields
     }
 }

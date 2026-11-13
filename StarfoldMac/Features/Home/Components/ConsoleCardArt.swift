@@ -32,17 +32,8 @@ struct ConsoleCardArt: View {
         }
         .clipped()
     }
-}
 
-private extension ConsoleCardArt {
-    var modelName: some View {
-        Text(console.modelName)
-            .font(.system(size: dimensions.consoleModelNameSize, weight: .bold, design: .rounded))
-            .foregroundStyle(.white.opacity(0.16))
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    func gameArtwork(_ url: URL) -> some View {
+    private func gameArtwork(_ url: URL) -> some View {
         AsyncImage(url: url, transaction: .init(animation: .easeOut(duration: 0.4))) {
             phase in
             switch phase.image {
@@ -52,7 +43,14 @@ private extension ConsoleCardArt {
         }
     }
 
-    func lastFrame(_ image: CGImage) -> some View {
+    private func lastFrame(_ image: CGImage) -> some View {
         Image(decorative: image, scale: 1).resizable().scaledToFill()
+    }
+
+    private var modelName: some View {
+        Text(console.modelName)
+            .font(.system(size: dimensions.consoleModelNameSize, weight: .bold, design: .rounded))
+            .foregroundStyle(.white.opacity(0.16))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

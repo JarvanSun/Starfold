@@ -41,19 +41,12 @@ struct HomeCardRow: View {
         .scrollClipDisabled()
         .scrollIndicators(.hidden)
     }
-}
 
-private extension HomeCardRow {
-    var emptyMessage: some View {
-        ConsolesMessageCard(
-            title: "home.consoles.empty.title",
-            message: Text("home.consoles.empty.message"),
-            width: cardWidth,
-            onRefresh: { refreshConsoles() }
-        )
+    private func consoleCard(_ console: Console) -> some View {
+        ConsoleCard(console: console, home: home, width: cardWidth)
     }
 
-    func failedMessage(_ reason: String) -> some View {
+    private func failedMessage(_ reason: String) -> some View {
         ConsolesMessageCard(
             title: "home.consoles.failed.title",
             message: Text(reason),
@@ -62,12 +55,17 @@ private extension HomeCardRow {
         )
     }
 
-    func consoleCard(_ console: Console) -> some View {
-        ConsoleCard(console: console, home: home, width: cardWidth)
+    private func refreshConsoles() {
+        Task { await home.refreshConsoles() }
     }
 
-    func refreshConsoles() {
-        Task { await home.refreshConsoles() }
+    private var emptyMessage: some View {
+        ConsolesMessageCard(
+            title: "home.consoles.empty.title",
+            message: Text("home.consoles.empty.message"),
+            width: cardWidth,
+            onRefresh: { refreshConsoles() }
+        )
     }
 }
 

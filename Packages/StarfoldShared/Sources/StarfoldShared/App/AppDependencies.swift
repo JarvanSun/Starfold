@@ -46,18 +46,16 @@ public struct AppDependencies {
             )
         )
     }
-}
 
-private extension AppDependencies {
-    var bundleID: String {
+    private var bundleID: String {
         Bundle.main.bundleIdentifier ?? "Starfold"
     }
 
-    var microsoftClientID: String {
+    private var microsoftClientID: String {
         Bundle.main.infoDictionary?["StarfoldMicrosoftClientID"] as? String ?? ""
     }
 
-    var savedLibrariesDirectory: URL {
+    private var savedLibrariesDirectory: URL {
         .cachesDirectory.appending(path: "SavedLibraries", directoryHint: .isDirectory)
     }
 }

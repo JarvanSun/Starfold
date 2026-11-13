@@ -71,27 +71,11 @@ public final class SignInViewModel {
         }
     }
 
-    public func retry() {
-        attempt += 1
-    }
-}
-
-private extension SignInViewModel {
-    func show(_ phase: SignInPhase) {
-        step = makeStep(for: phase)
+    private func show(_ phase: SignInPhase) {
+        step = phase.makeStep()
     }
 
-    func makeStep(for phase: SignInPhase) -> SignInStep {
-        switch phase {
-        case .requesting: .preparing
-        case .waiting(let prompt): .code(.init(prompt: prompt))
-        case .finishing: .progress(.signingIn)
-        case .done: .progress(.signedIn)
-        case .failed(let message): .failure(message)
-        }
-    }
-
-    func closeAfterShowingSuccess() async {
+    private func closeAfterShowingSuccess() async {
         let successPause: Duration = .milliseconds(900)
 
         try? await clock.sleep(for: successPause)
@@ -99,5 +83,9 @@ private extension SignInViewModel {
         guard !Task.isCancelled else { return }
 
         shouldClose = true
+    }
+
+    public func retry() {
+        attempt += 1
     }
 }

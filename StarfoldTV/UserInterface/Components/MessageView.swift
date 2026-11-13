@@ -32,17 +32,15 @@ struct MessageView: View {
         .frame(maxWidth: .infinity)
         .padding(padding)
     }
-}
 
-private extension MessageView {
-    var titleFont: Font {
+    private var titleFont: Font {
         switch size {
         case .regular: .title.bold()
         case .compact: .headline
         }
     }
 
-    var padding: CGFloat {
+    private var padding: CGFloat {
         switch size {
         case .regular: dimensions.spaceXXXLarge
         case .compact: dimensions.spaceXLarge

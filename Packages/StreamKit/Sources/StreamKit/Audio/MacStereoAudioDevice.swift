@@ -60,6 +60,10 @@ final class MacStereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendabl
 
     var isRecording: Bool { false }
 
+    private var preferredIOBufferDuration: TimeInterval { 0.005 }
+
+    private var watchdogInterval: Int { 5 }
+
     func initialize(with delegate: LKRTCAudioDeviceDelegate) -> Bool {
         lock.withLock { self.delegate = delegate }
 
@@ -68,74 +72,56 @@ final class MacStereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendabl
         return true
     }
 
-    func terminateDevice() -> Bool {
-        stopPlayout()
-
-        let observer = lock.withLock {
-            defer {
-                isPlayoutReady = false
-                delegate = nil
-                self.observer = nil
-            }
+    private func observeConfigurationChanges() {
+        let observer = NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange,
+            object: nil,
+            queue: nil
+        ) { [weak self] notification in
+            self?.rebuildIfCurrent(notification.object as? AVAudioEngine)
+        }
+        let previous = lock.withLock {
+            defer { self.observer = observer }
             return self.observer
         }
 
-        if let observer {
-            NotificationCenter.default.removeObserver(observer)
+        if let previous {
+            NotificationCenter.default.removeObserver(previous)
         }
-
-        return true
     }
 
-    func initializePlayout() -> Bool {
+    private func rebuildIfCurrent(_ engine: AVAudioEngine?) {
+        guard let engine, lock.withLock({ engine === self.engine }) else { return }
+
+        rebuild("configuration change")
+    }
+
+    private func rebuild(_ reason: String) {
+        guard let delegate = lock.withLock({ self.delegate }) else { return }
+
+        delegate.dispatchAsync { [weak self] in
+            self?.rebuildOnAudioThread(reason)
+        }
+    }
+
+    private func rebuildOnAudioThread(_ reason: String) {
+        let (isWanted, current) = lock.withLock { (isPlayoutWanted, engine) }
+        guard isWanted else { return }
+
         lock.withLock {
-            isPlayoutReady = delegate != nil
-            return isPlayoutReady
+            if self.engine === current { self.engine = nil }
+        }
+        current?.stop()
+
+        switch startEngine() {
+        case true: log.info("Audio engine rebuilt: \(reason, privacy: .public)")
+        case false:
+            log.error("Audio still unavailable after \(reason, privacy: .public); will retry")
         }
     }
 
-    func startPlayout() -> Bool {
-        lock.withLock { isPlayoutWanted = true }
-
-        startWatchdog()
-
-        startEngine()
-
-        return true
-    }
-
     @discardableResult
-    func stopPlayout() -> Bool {
-        let engine = lock.withLock {
-            defer {
-                self.engine = nil
-                isPlayoutWanted = false
-            }
-            return self.engine
-        }
-        engine?.stop()
-
-        stopWatchdog()
-
-        return true
-    }
-
-    func initializeRecording() -> Bool { false }
-
-    func startRecording() -> Bool { false }
-
-    func stopRecording() -> Bool { true }
-}
-
-// MARK: - Private
-
-private extension MacStereoAudioDevice {
-    var preferredIOBufferDuration: TimeInterval { 0.005 }
-
-    var watchdogInterval: Int { 5 }
-
-    @discardableResult
-    func startEngine() -> Bool {
+    private func startEngine() -> Bool {
         guard let delegate = lock.withLock({ self.delegate }),
             let engine = makeEngine(pulling: delegate.getPlayoutData)
         else { return false }
@@ -173,7 +159,9 @@ private extension MacStereoAudioDevice {
         return true
     }
 
-    func makeEngine(pulling pull: @escaping LKRTCAudioDeviceGetPlayoutDataBlock) -> AVAudioEngine? {
+    private func makeEngine(pulling pull: @escaping LKRTCAudioDeviceGetPlayoutDataBlock)
+        -> AVAudioEngine?
+    {
         guard let (source, stereo) = playout.makeSource(pulling: pull) else { return nil }
 
         let engine = AVAudioEngine()
@@ -184,7 +172,7 @@ private extension MacStereoAudioDevice {
         return engine
     }
 
-    func applyIOBuffer(to engine: AVAudioEngine) -> TimeInterval? {
+    private func applyIOBuffer(to engine: AVAudioEngine) -> TimeInterval? {
         guard let unit = engine.outputNode.audioUnit else { return nil }
 
         let rate = engine.outputNode.outputFormat(forBus: 0).sampleRate
@@ -224,7 +212,43 @@ private extension MacStereoAudioDevice {
         return Double(granted) / rate
     }
 
-    func startWatchdog() {
+    func terminateDevice() -> Bool {
+        stopPlayout()
+
+        let observer = lock.withLock {
+            defer {
+                isPlayoutReady = false
+                delegate = nil
+                self.observer = nil
+            }
+            return self.observer
+        }
+
+        if let observer {
+            NotificationCenter.default.removeObserver(observer)
+        }
+
+        return true
+    }
+
+    func initializePlayout() -> Bool {
+        lock.withLock {
+            isPlayoutReady = delegate != nil
+            return isPlayoutReady
+        }
+    }
+
+    func startPlayout() -> Bool {
+        lock.withLock { isPlayoutWanted = true }
+
+        startWatchdog()
+
+        startEngine()
+
+        return true
+    }
+
+    private func startWatchdog() {
         let timer = DispatchSource.makeTimerSource(queue: .global(qos: .utility))
         timer.schedule(
             deadline: .now() + .seconds(watchdogInterval),
@@ -244,7 +268,7 @@ private extension MacStereoAudioDevice {
         timer.resume()
     }
 
-    func checkPlayout() {
+    private func checkPlayout() {
         let (pulls, frames, peak) = playout.meter.take()
         let (engine, isWanted) = lock.withLock { (self.engine, isPlayoutWanted) }
         log.info(
@@ -262,7 +286,23 @@ private extension MacStereoAudioDevice {
         rebuild(reason)
     }
 
-    func stopWatchdog() {
+    @discardableResult
+    func stopPlayout() -> Bool {
+        let engine = lock.withLock {
+            defer {
+                self.engine = nil
+                isPlayoutWanted = false
+            }
+            return self.engine
+        }
+        engine?.stop()
+
+        stopWatchdog()
+
+        return true
+    }
+
+    private func stopWatchdog() {
         let timer = lock.withLock {
             defer { meterTimer = nil }
             return meterTimer
@@ -270,52 +310,10 @@ private extension MacStereoAudioDevice {
         timer?.cancel()
     }
 
-    func rebuild(_ reason: String) {
-        guard let delegate = lock.withLock({ self.delegate }) else { return }
+    func initializeRecording() -> Bool { false }
 
-        delegate.dispatchAsync { [weak self] in
-            self?.rebuildOnAudioThread(reason)
-        }
-    }
+    func startRecording() -> Bool { false }
 
-    func rebuildOnAudioThread(_ reason: String) {
-        let (isWanted, current) = lock.withLock { (isPlayoutWanted, engine) }
-        guard isWanted else { return }
-
-        lock.withLock {
-            if self.engine === current { self.engine = nil }
-        }
-        current?.stop()
-
-        switch startEngine() {
-        case true: log.info("Audio engine rebuilt: \(reason, privacy: .public)")
-        case false:
-            log.error("Audio still unavailable after \(reason, privacy: .public); will retry")
-        }
-    }
-
-    func observeConfigurationChanges() {
-        let observer = NotificationCenter.default.addObserver(
-            forName: .AVAudioEngineConfigurationChange,
-            object: nil,
-            queue: nil
-        ) { [weak self] notification in
-            self?.rebuildIfCurrent(notification.object as? AVAudioEngine)
-        }
-        let previous = lock.withLock {
-            defer { self.observer = observer }
-            return self.observer
-        }
-
-        if let previous {
-            NotificationCenter.default.removeObserver(previous)
-        }
-    }
-
-    func rebuildIfCurrent(_ engine: AVAudioEngine?) {
-        guard let engine, lock.withLock({ engine === self.engine }) else { return }
-
-        rebuild("configuration change")
-    }
+    func stopRecording() -> Bool { true }
 }
 #endif

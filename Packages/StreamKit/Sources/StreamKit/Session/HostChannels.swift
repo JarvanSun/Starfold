@@ -42,23 +42,7 @@ struct HostChannels {
         }
     }
 
-    mutating func answerDialog(id: String, buttonIndex: Int) -> HostChannelAction {
-        .send(messageChannel.completeMessageDialog(id: id, buttonIndex: buttonIndex), on: .message)
-    }
-
-    mutating func answerKeyboard(id: String, text: String?) -> HostChannelAction {
-        let reply =
-            switch text {
-            case let text?: messageChannel.completeKeyboard(id: id, text: text)
-            case nil: messageChannel.cancel(id: id)
-            }
-
-        return .send(reply, on: .message)
-    }
-}
-
-private extension HostChannels {
-    mutating func actions(
+    private mutating func actions(
         for event: MessageChannelEvent,
         timestamp: Double
     ) -> [HostChannelAction] {
@@ -71,7 +55,7 @@ private extension HostChannels {
         }
     }
 
-    mutating func completeHandshake(timestamp: Double) -> [HostChannelAction] {
+    private mutating func completeHandshake(timestamp: Double) -> [HostChannelAction] {
         guard !hasStartedHandshake else { return [] }
 
         hasStartedHandshake = true
@@ -96,10 +80,24 @@ private extension HostChannels {
         return authorization + configuration.map { .send($0, on: .message) } + firstGamepad
     }
 
-    func action(for event: ServerInputEvent) -> HostChannelAction {
+    private func action(for event: ServerInputEvent) -> HostChannelAction {
         switch event {
         case .videoSize(let width, let height): .update(.videoSize(width: width, height: height))
         case .vibration(let effect): .update(.vibration(effect))
         }
+    }
+
+    mutating func answerDialog(id: String, buttonIndex: Int) -> HostChannelAction {
+        .send(messageChannel.completeMessageDialog(id: id, buttonIndex: buttonIndex), on: .message)
+    }
+
+    mutating func answerKeyboard(id: String, text: String?) -> HostChannelAction {
+        let reply =
+            switch text {
+            case let text?: messageChannel.completeKeyboard(id: id, text: text)
+            case nil: messageChannel.cancel(id: id)
+            }
+
+        return .send(reply, on: .message)
     }
 }

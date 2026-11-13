@@ -19,10 +19,8 @@ struct GameAbout: View {
         case nil: EmptyView()
         }
     }
-}
 
-private extension GameAbout {
-    func section(_ about: String) -> some View {
+    private func section(_ about: String) -> some View {
         VStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
             Text("game.about.title").font(.title2.bold())
 

@@ -24,6 +24,10 @@ final class StreamPictureInPicture {
         true
     }
 
+    private var window: NSWindow? {
+        host?.window
+    }
+
     init(renderer: StreamRenderer, dimensions: Dimensions) {
         self.renderer = renderer
         self.dimensions = dimensions
@@ -36,50 +40,7 @@ final class StreamPictureInPicture {
         }
     }
 
-    func stop() {
-        guard isActive else { return }
-
-        returnToWindow()
-    }
-
-    func dismiss() {
-        guard isActive else { return }
-
-        closePanel()
-    }
-}
-
-private extension StreamPictureInPicture {
-    var window: NSWindow? {
-        host?.window
-    }
-
-    var panelSize: NSSize {
-        size(width: dimensions.pictureInPictureWidth)
-    }
-
-    var minimumPanelSize: NSSize {
-        size(width: dimensions.pictureInPictureMinimumWidth)
-    }
-
-    var panelFrame: NSRect {
-        let fallbackVisibleFrame = NSRect(origin: .zero, size: panelSize).insetBy(
-            dx: -dimensions.spaceXLarge,
-            dy: -dimensions.spaceXLarge
-        )
-        let visibleFrame = (window?.screen ?? NSScreen.main)?.visibleFrame ?? fallbackVisibleFrame
-        let origin = NSPoint(
-            x: visibleFrame.maxX - panelSize.width - dimensions.spaceXLarge,
-            y: visibleFrame.minY + dimensions.spaceXLarge
-        )
-        return .init(origin: origin, size: panelSize)
-    }
-
-    func size(width: CGFloat) -> NSSize {
-        .init(width: width, height: width * panelAspectRatio.height / panelAspectRatio.width)
-    }
-
-    func start() {
+    private func start() {
         let panel = makePanel()
         panel.orderFrontRegardless()
         self.panel = panel
@@ -91,7 +52,7 @@ private extension StreamPictureInPicture {
         isActive = true
     }
 
-    func makePanel() -> NSPanel {
+    private func makePanel() -> NSPanel {
         let panel = NSPanel(
             contentRect: panelFrame,
             styleMask: [.borderless, .resizable, .nonactivatingPanel],
@@ -116,7 +77,32 @@ private extension StreamPictureInPicture {
         return panel
     }
 
-    func returnToWindow() {
+    private var panelFrame: NSRect {
+        let fallbackVisibleFrame = NSRect(origin: .zero, size: panelSize).insetBy(
+            dx: -dimensions.spaceXLarge,
+            dy: -dimensions.spaceXLarge
+        )
+        let visibleFrame = (window?.screen ?? NSScreen.main)?.visibleFrame ?? fallbackVisibleFrame
+        let origin = NSPoint(
+            x: visibleFrame.maxX - panelSize.width - dimensions.spaceXLarge,
+            y: visibleFrame.minY + dimensions.spaceXLarge
+        )
+        return .init(origin: origin, size: panelSize)
+    }
+
+    private func size(width: CGFloat) -> NSSize {
+        .init(width: width, height: width * panelAspectRatio.height / panelAspectRatio.width)
+    }
+
+    private var panelSize: NSSize {
+        size(width: dimensions.pictureInPictureWidth)
+    }
+
+    private var minimumPanelSize: NSSize {
+        size(width: dimensions.pictureInPictureMinimumWidth)
+    }
+
+    private func returnToWindow() {
         closePanel()
 
         window?.makeKeyAndOrderFront(nil)
@@ -124,7 +110,13 @@ private extension StreamPictureInPicture {
         NSApp.activate()
     }
 
-    func closePanel() {
+    private func endStream() {
+        closePanel()
+
+        window?.close()
+    }
+
+    private func closePanel() {
         panel?.orderOut(nil)
         panel?.contentView = nil
         panel = nil
@@ -136,9 +128,15 @@ private extension StreamPictureInPicture {
         isActive = false
     }
 
-    func endStream() {
-        closePanel()
+    func stop() {
+        guard isActive else { return }
 
-        window?.close()
+        returnToWindow()
+    }
+
+    func dismiss() {
+        guard isActive else { return }
+
+        closePanel()
     }
 }

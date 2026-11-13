@@ -57,6 +57,22 @@ public final class GameDetailViewModel {
         [genres, developer, released].compactMap { $0 }
     }
 
+    private var genres: GameFact? {
+        guard let categories = game.product?.categories, !categories.isEmpty else { return nil }
+
+        return .init(kind: .genres, value: categories.formatted(.list(type: .and, width: .narrow)))
+    }
+
+    private var developer: GameFact? {
+        game.product?.developer.map { .init(kind: .developer, value: $0) }
+    }
+
+    private var released: GameFact? {
+        game.product?.releaseDate.map {
+            .init(kind: .released, value: $0.formatted(date: .long, time: .omitted))
+        }
+    }
+
     public var isFavorite: Bool {
         favorites.contains(game.id)
     }
@@ -80,23 +96,5 @@ public final class GameDetailViewModel {
 
     public func toggleFavorite() {
         favorites.toggle(game.id)
-    }
-}
-
-private extension GameDetailViewModel {
-    var genres: GameFact? {
-        guard let categories = game.product?.categories, !categories.isEmpty else { return nil }
-
-        return .init(kind: .genres, value: categories.formatted(.list(type: .and, width: .narrow)))
-    }
-
-    var developer: GameFact? {
-        game.product?.developer.map { .init(kind: .developer, value: $0) }
-    }
-
-    var released: GameFact? {
-        game.product?.releaseDate.map {
-            .init(kind: .released, value: $0.formatted(date: .long, time: .omitted))
-        }
     }
 }

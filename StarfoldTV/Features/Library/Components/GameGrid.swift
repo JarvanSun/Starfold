@@ -19,10 +19,8 @@ struct GameGrid: View {
             ForEach(games) { GameLink(game: $0) }
         }
     }
-}
 
-private extension GameGrid {
-    var columns: [GridItem] {
+    private var columns: [GridItem] {
         [
             GridItem(
                 .adaptive(minimum: dimensions.gameTileMinimumWidth),

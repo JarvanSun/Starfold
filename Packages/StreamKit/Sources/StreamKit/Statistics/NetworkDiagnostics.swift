@@ -37,12 +37,29 @@ struct NetworkDiagnostics {
         defer { startNextPeriod() }
         return line
     }
-}
 
-// MARK: - Private
+    private mutating func takeFirstSamplesAsBaseline() {
+        if videoStartTime == 0, !video.isEmpty {
+            videoStart = video
+            videoStartTime = videoTimestamp
+        }
 
-private extension NetworkDiagnostics {
-    var line: String {
+        if audioStartTime == 0, !audio.isEmpty {
+            audioStart = audio
+            audioStartTime = audioTimestamp
+        }
+    }
+
+    private mutating func startNextPeriod() {
+        videoStart = video
+        audioStart = audio
+        videoStartTime = videoTimestamp
+        audioStartTime = audioTimestamp
+
+        roundTrips.removeAll()
+    }
+
+    private var line: String {
         let videoSeconds = (videoTimestamp - videoStartTime) / 1_000_000
         let audioSeconds = (audioTimestamp - audioStartTime) / 1_000_000
         let videoKbps = videoSeconds > 0 ? videoDelta("bytesReceived") * 8 / videoSeconds / 1000 : 0
@@ -67,25 +84,36 @@ private extension NetworkDiagnostics {
             + "min \(audioJitterBufferMinimum)) ms, concealed \(concealedShare)"
     }
 
-    var roundTripRange: String {
+    private var roundTripRange: String {
         guard let shortest = roundTrips.min(), let longest = roundTrips.max() else { return "-" }
 
         return "\(Int(shortest.rounded()))…\(Int(longest.rounded()))"
     }
 
-    var videoJitterBuffer: String {
+    private func bitsPerPixel(width: Double, height: Double) -> String {
+        let decoded = videoDelta("framesDecoded")
+        guard decoded > 0, width * height > 0 else { return "-" }
+
+        return String(format: "%.3f", videoDelta("bytesReceived") * 8 / decoded / (width * height))
+    }
+
+    private func videoDelta(_ key: String) -> Double {
+        delta(key, in: video, from: videoStart)
+    }
+
+    private var videoJitterBuffer: String {
         average(videoDelta("jitterBufferDelay"), over: videoDelta("jitterBufferEmittedCount"))
     }
 
-    var videoJitterBufferTarget: String {
+    private var videoJitterBufferTarget: String {
         average(videoDelta("jitterBufferTargetDelay"), over: videoDelta("jitterBufferEmittedCount"))
     }
 
-    var decodeTime: String {
+    private var decodeTime: String {
         average(videoDelta("totalDecodeTime"), over: videoDelta("framesDecoded"))
     }
 
-    var interFrameGap: String {
+    private var interFrameGap: String {
         let decoded = videoDelta("framesDecoded")
         guard decoded > 1 else { return "-" }
 
@@ -94,80 +122,49 @@ private extension NetworkDiagnostics {
         return "\(milliseconds(mean))±\(milliseconds(variance.squareRoot()))"
     }
 
-    var audioJitterBuffer: String {
+    private var audioJitterBuffer: String {
         average(audioDelta("jitterBufferDelay"), over: audioDelta("jitterBufferEmittedCount"))
     }
 
-    var audioJitterBufferTarget: String {
+    private var audioJitterBufferTarget: String {
         average(audioDelta("jitterBufferTargetDelay"), over: audioDelta("jitterBufferEmittedCount"))
     }
 
-    var audioJitterBufferMinimum: String {
+    private var audioJitterBufferMinimum: String {
         average(
             audioDelta("jitterBufferMinimumDelay"),
             over: audioDelta("jitterBufferEmittedCount")
         )
     }
 
-    var concealedShare: String {
+    private func average(_ total: Double, over count: Double) -> String {
+        count > 0 ? milliseconds(total / count) : "-"
+    }
+
+    private func count(_ value: Double) -> String {
+        "\(Int(value.rounded()))"
+    }
+
+    private func milliseconds(_ seconds: Double) -> String {
+        seconds.isFinite ? "\(Int((seconds * 1000).rounded()))" : "-"
+    }
+
+    private var concealedShare: String {
         let samples = audioDelta("totalSamplesReceived")
         guard samples > 0 else { return "-" }
 
         return String(format: "%.1f%%", audioDelta("concealedSamples") / samples * 100)
     }
 
-    mutating func takeFirstSamplesAsBaseline() {
-        if videoStartTime == 0, !video.isEmpty {
-            videoStart = video
-            videoStartTime = videoTimestamp
-        }
-
-        if audioStartTime == 0, !audio.isEmpty {
-            audioStart = audio
-            audioStartTime = audioTimestamp
-        }
-    }
-
-    mutating func startNextPeriod() {
-        videoStart = video
-        audioStart = audio
-        videoStartTime = videoTimestamp
-        audioStartTime = audioTimestamp
-
-        roundTrips.removeAll()
-    }
-
-    func bitsPerPixel(width: Double, height: Double) -> String {
-        let decoded = videoDelta("framesDecoded")
-        guard decoded > 0, width * height > 0 else { return "-" }
-
-        return String(format: "%.3f", videoDelta("bytesReceived") * 8 / decoded / (width * height))
-    }
-
-    func average(_ total: Double, over count: Double) -> String {
-        count > 0 ? milliseconds(total / count) : "-"
-    }
-
-    func videoDelta(_ key: String) -> Double {
-        delta(key, in: video, from: videoStart)
-    }
-
-    func audioDelta(_ key: String) -> Double {
+    private func audioDelta(_ key: String) -> Double {
         delta(key, in: audio, from: audioStart)
     }
 
-    func delta(_ key: String, in now: [String: NSObject], from start: [String: NSObject]) -> Double
+    private func delta(_ key: String, in now: [String: NSObject], from start: [String: NSObject])
+        -> Double
     {
         let current = (now[key] as? NSNumber)?.doubleValue ?? 0
         let previous = (start[key] as? NSNumber)?.doubleValue ?? 0
         return current - previous
-    }
-
-    func milliseconds(_ seconds: Double) -> String {
-        seconds.isFinite ? "\(Int((seconds * 1000).rounded()))" : "-"
-    }
-
-    func count(_ value: Double) -> String {
-        "\(Int(value.rounded()))"
     }
 }
