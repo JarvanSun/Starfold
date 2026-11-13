@@ -24,7 +24,7 @@
 - **云游戏**：无需主机即可游玩 Xbox Cloud Gaming 游戏。免费游戏无需订阅，其他云游戏需要你自己的 Game Pass 会员。
 - **为每个 Apple 平台打造**：不是网页套壳，而是 Mac、Apple Vision Pro 和 Apple TV 上的原生应用，各自遵循平台的设计习惯。
 - **清晰、跟手**：最高 80 Mbps 码率、低延迟模式；Mac 上还有 MetalFX 超分与锐化、HDR 色调映射和帧节奏控制。
-- **你的手柄**：所有平台都支持游戏手柄，Apple TV 支持 Siri Remote，Mac 上还可以把键盘当手柄用。
+- **你的手柄**：所有平台都支持游戏手柄，Mac 上还可以把键盘当手柄用。
 
 ## Mac
 
@@ -55,7 +55,6 @@
   <tr>
     <td><img src=".github/assets/zh-Hans/tv-remote-play.jpg" alt="在电视上串流你的主机"></td>
     <td><img src=".github/assets/zh-Hans/tv-cloud-gaming.jpg" alt="Apple TV 上的云游戏"></td>
-    <td><img src=".github/assets/zh-Hans/tv-siri-remote.jpg" alt="为 Siri Remote 设计"></td>
   </tr>
 </table>
 

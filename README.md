@@ -29,8 +29,8 @@
   Apple TV, each in its platform's own idiom.
 - **Sharp and responsive.** Up to 80 Mbps, a low-latency mode, MetalFX upscaling and sharpening,
   HDR tone mapping and frame pacing on Mac.
-- **Your controller.** Game controllers on every platform, the Siri Remote on Apple TV, and the
-  keyboard as a controller on Mac.
+- **Your controller.** Game controllers on every platform, and the keyboard as a controller on
+  Mac.
 
 ## Mac
 
@@ -61,7 +61,6 @@
   <tr>
     <td><img src=".github/assets/en/tv-remote-play.jpg" alt="Your console on your TV"></td>
     <td><img src=".github/assets/en/tv-cloud-gaming.jpg" alt="Cloud Gaming on Apple TV"></td>
-    <td><img src=".github/assets/en/tv-siri-remote.jpg" alt="Made for the Siri Remote"></td>
   </tr>
 </table>
 
