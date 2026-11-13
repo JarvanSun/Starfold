@@ -17,6 +17,7 @@ struct StarfoldiOSApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .windowTint()
                 .appPalette()
                 .environment(app)
                 .environment(appDelegate.orientation)

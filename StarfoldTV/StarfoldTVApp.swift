@@ -16,7 +16,8 @@ struct StarfoldTVApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
-                .untintedAppPalette()
+                .windowTint()
+                .appPalette()
                 .environment(app)
                 .task { await app.restore() }
         }

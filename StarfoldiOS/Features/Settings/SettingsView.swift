@@ -18,23 +18,15 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            QualitySettingsSection(settings: settings)
+            StreamingSettingsSection(settings: settings)
 
-            CloudGamingSettingsSection(settings: settings)
+            DisplaySettingsSection(settings: settings)
 
-            PictureSettingsSection(settings: settings)
-
-            if settings.hasTouchControls {
-                TouchControlsSettingsSection(settings: settings) { editTouchLayout() }
-            }
-
-            ControllerSettingsSection(settings: settings)
+            ControlsSettingsSection(settings: settings) { editTouchLayout() }
 
             if settings.hasAccounts {
                 accountSection
             }
-
-            AppearanceSettingsSection(settings: settings)
         }
         .navigationTitle(Text("settings.title"))
         .confirmationDialog(

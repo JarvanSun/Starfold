@@ -1,5 +1,5 @@
 //
-//  ControllerSettingsSection.swift
+//  ControlsSettingsSection.swift
 //  Starfold
 //
 //  Created by Jiawen Sun on 2026/11/13.
@@ -9,11 +9,17 @@ import StarfoldShared
 import StreamKit
 import SwiftUI
 
-struct ControllerSettingsSection: View {
+struct ControlsSettingsSection: View {
     @Bindable var settings: SettingsViewModel
 
+    let onEditTouchLayout: () -> Void
+
     var body: some View {
-        Section {
+        Section("settings.controls.header") {
+            if settings.hasTouchControls {
+                touchRows
+            }
+
             if settings.isControllerMissing {
                 Text("controller.missing.instructions").foregroundStyle(.secondary)
             }
@@ -27,10 +33,15 @@ struct ControllerSettingsSection: View {
             Toggle("settings.controllers.rumble", isOn: $settings.isRumbleEnabled)
 
             Toggle("settings.controllers.keyboard", isOn: $settings.isKeyboardControllerEnabled)
-        } header: {
-            Text("settings.controllers.header")
-        } footer: {
-            Text("settings.controllers.footer")
+        }
+    }
+
+    @ViewBuilder
+    private var touchRows: some View {
+        Button("settings.touch.editLayout") { onEditTouchLayout() }
+
+        if settings.canPlayTouchHaptics {
+            Toggle("settings.touch.haptics", isOn: $settings.isTouchHapticsEnabled)
         }
     }
 
@@ -41,7 +52,6 @@ struct ControllerSettingsSection: View {
             }
         } label: {
             Text("settings.controllers.xboxButton.title")
-
             Text("settings.controllers.xboxButton.detail")
         }
     }
@@ -58,7 +68,7 @@ struct ControllerSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        ControllerSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        ControlsSettingsSection(settings: PreviewObjectPool.settingsViewModel) {}
     }
 }
 #endif

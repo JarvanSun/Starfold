@@ -9,6 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct EditableTouchControl: View {
+    @Environment(\.palette) private var palette
     @Environment(\.dimensions) private var dimensions
     @State private var drops = 0
     @GestureState private var isDragging = false
@@ -22,7 +23,7 @@ struct EditableTouchControl: View {
 
     var body: some View {
         Circle()
-            .strokeBorder(.tint, lineWidth: dimensions.highlightLineWidth)
+            .strokeBorder(palette.accent.color, lineWidth: dimensions.highlightLineWidth)
             .opacity(isSelected ? 1 : 0)
             .frame(width: placement.diameter, height: placement.diameter)
             .contentShape(.circle)

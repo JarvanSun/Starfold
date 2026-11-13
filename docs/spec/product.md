@@ -272,10 +272,13 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
 - **Cellular:** a stream that starts on cellular data uses the Cellular quality ceiling. Quality
   is fixed for the session, so moving between Wi-Fi and cellular mid-stream changes nothing; the
   Xbox lowers resolution itself if bandwidth runs short. Statistics name the path.
-- **Settings tab:** Quality (with Cellular quality), Cloud Gaming, Picture (Picture Mode, Buffer,
-  statistics), Touch Controls (Edit Layout, Touch haptics on iPhone), Controllers (with keyboard
-  as controller and the Xbox button note), Account (switch, Add Account, Sign Out…), Appearance
-  (palette). Cellular quality shows only on a device that has cellular data.
+- **Settings tab:** four sections and no standing explanations. Streaming (console, cloud and
+  Cellular quality, Maximum Bitrate, Buffer, Game language), Display (Picture Mode, statistics,
+  Color), Controls (Edit Layout and Touch haptics when touch controls exist, the controllers, the
+  Xbox button note, Rumble, Keyboard as controller), Account (switch, Add Account, Sign Out…).
+  Only a state the player must act on (no controller, the Xbox button taken) adds a line. Cellular
+  quality shows only on a device that has cellular data. Choices name the option alone
+  ("Automatic"), never a recommendation.
 
 ### Touch controls
 

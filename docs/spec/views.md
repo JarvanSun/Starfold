@@ -89,7 +89,7 @@ ViewModel query or a presentation extension ([view-models.md](view-models.md#int
 | Platform | Navigation | Primary input | Notes |
 |---|---|---|---|
 | Mac | One main window (`MainWindowView`) with a `NavigationStack` of `HomeRoute`s; a stream window; a Settings window; a menu bar extra | Pointer and keyboard | Every stream control also has a menu command and shortcut |
-| Vision Pro | `TabView` with `…HostView` roots; the stream window replaces the main window | Gaze and pinch, game controller | Glass and the system accent; controls in an ornament |
+| Vision Pro | `TabView` with `…HostView` roots; the stream window replaces the main window | Gaze and pinch, game controller | Glass, with the palette accent where the system uses its accent; controls in an ornament |
 | Apple TV | `TabView` with `…HostView` roots; the stream is a full-screen cover | Siri Remote focus, game controller | System cards and colours; the stream menu is a system sheet |
 | iPhone, iPad | `TabView` (bottom on iPhone, top on iPad) with `…HostView` roots; the stream is a full-screen cover | Touch, game controller, keyboard on iPad | Layout follows size classes, never the device; touch controls are Apple Touch Controller over the picture |
 

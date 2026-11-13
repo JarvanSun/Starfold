@@ -1,5 +1,5 @@
 //
-//  PictureSettingsSection.swift
+//  DisplaySettingsSection.swift
 //  Starfold
 //
 //  Created by Jiawen Sun on 2026/11/13.
@@ -8,28 +8,20 @@
 import StarfoldShared
 import SwiftUI
 
-struct PictureSettingsSection: View {
+struct DisplaySettingsSection: View {
     @Bindable var settings: SettingsViewModel
 
     var body: some View {
-        Section {
+        Section("settings.display.header") {
             Picker("settings.picture.mode.title", selection: $settings.pictureFit) {
                 ForEach(settings.pictureFits, id: \.self) { fit in
                     Text(fit.title).tag(fit)
                 }
             }
 
-            Picker("settings.picture.buffer.title", selection: $settings.pacingMode) {
-                ForEach(settings.pacingModes, id: \.self) { mode in
-                    Text(mode.title).tag(mode)
-                }
-            }
-
             Toggle("settings.picture.statistics", isOn: $settings.shouldShowStatistics)
-        } header: {
-            Text("settings.picture.header")
-        } footer: {
-            Text("settings.picture.footer")
+
+            PalettePicker(selection: $settings.palette)
         }
     }
 }
@@ -37,7 +29,7 @@ struct PictureSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        PictureSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        DisplaySettingsSection(settings: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

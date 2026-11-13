@@ -115,7 +115,7 @@ struct RootView: View {
             settings: app.settings,
             controllers: app.controllers
         )
-        .untintedAppPalette()
+        .appPalette()
         .alert("signIn.expired.title", isPresented: Bindable(app).isSignInExpired) {
             Button("signIn.expired.signIn") { signInAfterExpiry(presenter) }
 

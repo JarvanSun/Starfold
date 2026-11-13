@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B1F020426D930FB7A9AA95C2 /* StarfoldShared in Frameworks */ = {isa = PBXBuildFile; productRef = 9255CDF62151C6CB62A20213 /* StarfoldShared */; };
-		BE712B612CB3CE2714C649DD /* XboxKit in Frameworks */ = {isa = PBXBuildFile; productRef = 739A38C6B7080DD00BC8811F /* XboxKit */; };
-		BAB6D464E90EECD03AE013DD /* StreamKit in Frameworks */ = {isa = PBXBuildFile; productRef = B667A9222DB9C5105AC86060 /* StreamKit */; };
 		1B55FD1F06297E1255A9A4D5 /* StarfoldShared in Frameworks */ = {isa = PBXBuildFile; productRef = 2D38B7055DDB9F97FE63F000 /* StarfoldShared */; };
 		1C2BA72CC4CD30DBC3A23186 /* StreamKit in Frameworks */ = {isa = PBXBuildFile; productRef = 10975C5661244B28D33F369C /* StreamKit */; };
 		23D6B4FD4C5BFBC143306F86 /* TopShelfKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2AFE8BCE02F0BF10841D3127 /* TopShelfKit */; };
@@ -20,6 +17,9 @@
 		808FC34F30F2C78A78CFA8FA /* TopShelfKit in Frameworks */ = {isa = PBXBuildFile; productRef = F7A265E241CC9E1887295AC7 /* TopShelfKit */; };
 		A3E524E7B91F44CBAEB4B8CD /* XboxKit in Frameworks */ = {isa = PBXBuildFile; productRef = D6EABE9C9796563F502DC075 /* XboxKit */; };
 		AF7FFE608F1689FBD6FB5166 /* StarfoldTopShelf.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5A576C5A62ECBECB951C44CF /* StarfoldTopShelf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B1F020426D930FB7A9AA95C2 /* StarfoldShared in Frameworks */ = {isa = PBXBuildFile; productRef = 9255CDF62151C6CB62A20213 /* StarfoldShared */; };
+		BAB6D464E90EECD03AE013DD /* StreamKit in Frameworks */ = {isa = PBXBuildFile; productRef = B667A9222DB9C5105AC86060 /* StreamKit */; };
+		BE712B612CB3CE2714C649DD /* XboxKit in Frameworks */ = {isa = PBXBuildFile; productRef = 739A38C6B7080DD00BC8811F /* XboxKit */; };
 		BFCA15AF77AADDA70119E031 /* XboxKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4FE8DB69B82826F40D090FFB /* XboxKit */; };
 		C8C477E0F8DECD02937C56FD /* StarfoldShared in Frameworks */ = {isa = PBXBuildFile; productRef = 8EC9541E61940224464BD255 /* StarfoldShared */; };
 		E690B5EFF77AA87313907ED0 /* TopShelfKit in Frameworks */ = {isa = PBXBuildFile; productRef = C9BD934E52927F1913CE0134 /* TopShelfKit */; };
@@ -57,12 +57,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		C4DF4B594A30CAE10428E518 /* Starfold.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Starfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		57E89E12CCA6EAFCD7EDDB7B /* Starfold.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Starfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A576C5A62ECBECB951C44CF /* StarfoldTopShelf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StarfoldTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		81E235ECC848196B8D46A3ED /* StarfoldTVTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarfoldTVTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B06E090DAD67A818D9CDEFAE /* Starfold.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Starfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3EE75492399794E8DF18CB1 /* Starfold.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Starfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C4DF4B594A30CAE10428E518 /* Starfold.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Starfold.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA4455C3F01CE1393E6DF024 /* Starfold.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Starfold.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -105,14 +105,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		AE34BA44961571160A203E78 /* StarfoldiOS */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				12BFAC18008432998665DA6B /* Exceptions for "StarfoldiOS" folder in "StarfoldiOS" target */,
-			);
-			path = StarfoldiOS;
-			sourceTree = "<group>";
-		};
 		165A7D5847D458AF6AEEE410 /* StarfoldTVTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = StarfoldTVTests;
@@ -132,6 +124,14 @@
 				E639D8B1F728506975DF437A /* Exceptions for "StarfoldVision" folder in "StarfoldVision" target */,
 			);
 			path = StarfoldVision;
+			sourceTree = "<group>";
+		};
+		AE34BA44961571160A203E78 /* StarfoldiOS */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				12BFAC18008432998665DA6B /* Exceptions for "StarfoldiOS" folder in "StarfoldiOS" target */,
+			);
+			path = StarfoldiOS;
 			sourceTree = "<group>";
 		};
 		DBD8A8436BF0C232DCC6195B /* StarfoldTopShelf */ = {
@@ -260,32 +260,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8DF4933412851305CF1196AC /* StarfoldiOS */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F591E9425AEFCBA2D3177CE2 /* Build configuration list for PBXNativeTarget "StarfoldiOS" */;
-			buildPhases = (
-				C06EEAB27FF45ED8A1236AD0 /* Sources */,
-				3CA9DD53E6EC47AD1FE8F996 /* Resources */,
-				09D8B9027BE731117DB72170 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				AE34BA44961571160A203E78 /* StarfoldiOS */,
-				F4C383C5743918A46D79E974 /* Preview Content */,
-			);
-			name = StarfoldiOS;
-			packageProductDependencies = (
-				9255CDF62151C6CB62A20213 /* StarfoldShared */,
-				739A38C6B7080DD00BC8811F /* XboxKit */,
-				B667A9222DB9C5105AC86060 /* StreamKit */,
-			);
-			productName = StarfoldiOS;
-			productReference = C4DF4B594A30CAE10428E518 /* Starfold.app */;
-			productType = "com.apple.product-type.application";
-		};
 		5ACCD6FDEC0F495FB9AC891C /* StarfoldTV */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 63565CFCA84FBDAEC7E66226 /* Build configuration list for PBXNativeTarget "StarfoldTV" */;
@@ -339,6 +313,32 @@
 			);
 			productName = StarfoldVision;
 			productReference = 57E89E12CCA6EAFCD7EDDB7B /* Starfold.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8DF4933412851305CF1196AC /* StarfoldiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F591E9425AEFCBA2D3177CE2 /* Build configuration list for PBXNativeTarget "StarfoldiOS" */;
+			buildPhases = (
+				C06EEAB27FF45ED8A1236AD0 /* Sources */,
+				3CA9DD53E6EC47AD1FE8F996 /* Resources */,
+				09D8B9027BE731117DB72170 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AE34BA44961571160A203E78 /* StarfoldiOS */,
+				F4C383C5743918A46D79E974 /* Preview Content */,
+			);
+			name = StarfoldiOS;
+			packageProductDependencies = (
+				9255CDF62151C6CB62A20213 /* StarfoldShared */,
+				739A38C6B7080DD00BC8811F /* XboxKit */,
+				B667A9222DB9C5105AC86060 /* StreamKit */,
+			);
+			productName = StarfoldiOS;
+			productReference = C4DF4B594A30CAE10428E518 /* Starfold.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A05EB36146F2C3819DE3896D /* StarfoldMac */ = {
@@ -429,6 +429,9 @@
 					7730693E34A5D3EBBB2CEA1C = {
 						ProvisioningStyle = Automatic;
 					};
+					8DF4933412851305CF1196AC = {
+						ProvisioningStyle = Automatic;
+					};
 					A05EB36146F2C3819DE3896D = {
 						ProvisioningStyle = Automatic;
 					};
@@ -436,9 +439,6 @@
 						ProvisioningStyle = Automatic;
 					};
 					E37DC3C1A47AD4DCDED0F2FB = {
-						ProvisioningStyle = Automatic;
-					};
-					8DF4933412851305CF1196AC = {
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -473,13 +473,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		3CA9DD53E6EC47AD1FE8F996 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		075A7A8FDF690292A7EF148E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -488,6 +481,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		3C5811DFEB347F83C38287E7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CA9DD53E6EC47AD1FE8F996 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -518,13 +518,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		C06EEAB27FF45ED8A1236AD0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		0E5C0CA59AAB85F4431EFF91 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -547,6 +540,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AC5F7C7101B5CF43FDA46D75 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C06EEAB27FF45ED8A1236AD0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -576,52 +576,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		1DF7FD732AA9EF244D88739E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
-				INFOPLIST_FILE = StarfoldiOS/Configuration/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
-				PRODUCT_MODULE_NAME = Starfold;
-				PRODUCT_NAME = Starfold;
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		12A0BC183391BF9B9AB6DD5D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
-				INFOPLIST_FILE = StarfoldiOS/Configuration/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
-				PRODUCT_MODULE_NAME = Starfold;
-				PRODUCT_NAME = Starfold;
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		109094D5C1320BC73D48CC8C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -639,6 +593,50 @@
 				TARGETED_DEVICE_FAMILY = 3;
 			};
 			name = Release;
+		};
+		12A0BC183391BF9B9AB6DD5D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
+				INFOPLIST_FILE = StarfoldiOS/Configuration/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = Starfold;
+				PRODUCT_NAME = Starfold;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1DF7FD732AA9EF244D88739E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
+				INFOPLIST_FILE = StarfoldiOS/Configuration/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(STARFOLD_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = Starfold;
+				PRODUCT_NAME = Starfold;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		26E96BA19C15E380565B1AE5 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -741,7 +739,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = StarfoldMac/Configuration/StarfoldMac.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
@@ -781,7 +778,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = StarfoldMac/Configuration/StarfoldMac.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
@@ -966,15 +962,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F591E9425AEFCBA2D3177CE2 /* Build configuration list for PBXNativeTarget "StarfoldiOS" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1DF7FD732AA9EF244D88739E /* Debug */,
-				12A0BC183391BF9B9AB6DD5D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		06B0D6B986C35EBB1B7621D6 /* Build configuration list for PBXNativeTarget "StarfoldTVTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1020,6 +1007,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		F591E9425AEFCBA2D3177CE2 /* Build configuration list for PBXNativeTarget "StarfoldiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DF7FD732AA9EF244D88739E /* Debug */,
+				12A0BC183391BF9B9AB6DD5D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		F8B63FBBDAF6B7CA55ECE4EC /* Build configuration list for PBXProject "Starfold" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1047,18 +1043,6 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		B667A9222DB9C5105AC86060 /* StreamKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = StreamKit;
-		};
-		739A38C6B7080DD00BC8811F /* XboxKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = XboxKit;
-		};
-		9255CDF62151C6CB62A20213 /* StarfoldShared */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = StarfoldShared;
-		};
 		10975C5661244B28D33F369C /* StreamKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StreamKit;
@@ -1079,9 +1063,21 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = XboxKit;
 		};
+		739A38C6B7080DD00BC8811F /* XboxKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XboxKit;
+		};
 		8EC9541E61940224464BD255 /* StarfoldShared */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StarfoldShared;
+		};
+		9255CDF62151C6CB62A20213 /* StarfoldShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StarfoldShared;
+		};
+		B667A9222DB9C5105AC86060 /* StreamKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StreamKit;
 		};
 		C9BD934E52927F1913CE0134 /* TopShelfKit */ = {
 			isa = XCSwiftPackageProductDependency;

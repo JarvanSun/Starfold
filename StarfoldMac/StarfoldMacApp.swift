@@ -53,6 +53,7 @@ struct StarfoldMacApp: App {
     private var mainWindow: some View {
         MainWindowView()
             .opensStreamWindow()
+            .paletteTint()
             .appPalette()
             .environment(app)
             .task { await launch() }
@@ -68,12 +69,16 @@ struct StarfoldMacApp: App {
 
     private var streamWindow: some View {
         StreamWindowView()
+            .paletteTint()
             .appPalette()
             .environment(app)
     }
 
     private var settingsWindow: some View {
         SettingsView(settings: app.settings)
+            .paletteTint()
+            .appPalette()
+            .environment(app)
     }
 
     private var isMenuBarIconInserted: Binding<Bool> {

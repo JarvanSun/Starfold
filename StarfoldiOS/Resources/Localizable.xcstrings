@@ -783,57 +783,6 @@
         }
       }
     },
-    "settings.appearance.header" : {
-      "comment" : "Settings: header of the section with the colour palette",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appearance"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "外观"
-          }
-        }
-      }
-    },
-    "settings.cloud.footer" : {
-      "comment" : "Settings: footnote under the game language picker",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not every game offers every language."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "不是每款游戏都支持所有语言。"
-          }
-        }
-      }
-    },
-    "settings.cloud.header" : {
-      "comment" : "Settings: header of the cloud gaming section",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cloud Gaming"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "云游戏"
-          }
-        }
-      }
-    },
     "settings.cloud.language.title" : {
       "comment" : "Settings: picker for the language cloud games run in",
       "localizations" : {
@@ -847,40 +796,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "游戏语言"
-          }
-        }
-      }
-    },
-    "settings.controllers.footer" : {
-      "comment" : "Settings, Controllers: footer explaining the keyboard as a controller",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "With a keyboard connected, WASD moves, the arrow keys are the D-pad and Space is A."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接键盘后，WASD 控制移动，方向键对应十字键，空格键对应 A。"
-          }
-        }
-      }
-    },
-    "settings.controllers.header" : {
-      "comment" : "Settings: header of the controllers section",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Controllers"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "手柄"
           }
         }
       }
@@ -987,6 +902,40 @@
         }
       }
     },
+    "settings.controls.header" : {
+      "comment" : "Settings section: touch controls, controllers and keyboard",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controls"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "操控"
+          }
+        }
+      }
+    },
+    "settings.display.header" : {
+      "comment" : "Settings section: picture fit, statistics and the app colour",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示"
+          }
+        }
+      }
+    },
     "settings.picture.buffer.title" : {
       "comment" : "Settings: picker for how much the stream buffers for smoothness",
       "localizations" : {
@@ -1000,40 +949,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "缓冲"
-          }
-        }
-      }
-    },
-    "settings.picture.footer" : {
-      "comment" : "Settings: footnote under the buffer picker",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Standard keeps the picture smooth and buffers only as much as your network needs. Low Latency shows frames sooner but stutters when Wi-Fi is uneven."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“标准”画面流畅，只按网络需要缓冲；“低延迟”画面更快，但 Wi-Fi 不稳时会卡顿。"
-          }
-        }
-      }
-    },
-    "settings.picture.header" : {
-      "comment" : "Settings: header of the picture section",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Picture"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "画面"
           }
         }
       }
@@ -1140,40 +1055,6 @@
         }
       }
     },
-    "settings.quality.footer" : {
-      "comment" : "Settings: footnote under the stream quality pickers",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatic lowers the resolution when the network can’t keep up. Changes apply to the next stream."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "网络跟不上时自动降低分辨率。更改在下次串流时生效。"
-          }
-        }
-      }
-    },
-    "settings.quality.header" : {
-      "comment" : "Settings: header of the stream quality section",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quality"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "画质"
-          }
-        }
-      }
-    },
     "settings.signOut.confirm" : {
       "comment" : "Settings: destructive button in the sign-out confirmation",
       "localizations" : {
@@ -1204,6 +1085,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要退出“%@”吗？"
+          }
+        }
+      }
+    },
+    "settings.streaming.header" : {
+      "comment" : "Settings section: stream quality, bitrate, buffering and game language",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streaming"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "串流"
           }
         }
       }
@@ -1242,23 +1140,6 @@
         }
       }
     },
-    "settings.touch.footer" : {
-      "comment" : "Settings, Touch Controls: footer saying when touch controls show",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch controls hide while you use a controller. Touch the screen to bring them back."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用手柄时触控按键会隐藏，触摸屏幕即可重新显示。"
-          }
-        }
-      }
-    },
     "settings.touch.haptics" : {
       "comment" : "Settings, Touch Controls: toggle for taps on touch controls and rumble on the iPhone itself",
       "localizations" : {
@@ -1272,23 +1153,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "触控触感"
-          }
-        }
-      }
-    },
-    "settings.touch.header" : {
-      "comment" : "Settings: header of the touch controls section",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch Controls"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "触控按键"
           }
         }
       }
@@ -1718,19 +1582,19 @@
         }
       }
     },
-    "touchEditor.done" : {
-      "comment" : "Touch layout editor: button that closes the editor",
+    "touchEditor.close" : {
+      "comment" : "Touch layout editor: VoiceOver label of the button that closes the editor",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Done"
+            "value" : "Close"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完成"
+            "value" : "关闭"
           }
         }
       }

@@ -17,6 +17,8 @@ struct StarfoldVisionApp: App {
     var body: some Scene {
         WindowGroup(id: SceneID.main.rawValue) {
             RootView()
+                .windowTint()
+                .appPalette()
                 .environment(app)
                 .frame(
                     minWidth: dimensions.mainWindowMinimumWidth,
@@ -34,6 +36,8 @@ struct StarfoldVisionApp: App {
 
         WindowGroup(id: SceneID.stream.rawValue) {
             StreamWindowView()
+                .windowTint()
+                .appPalette()
                 .environment(app)
         }
         .windowStyle(.plain)

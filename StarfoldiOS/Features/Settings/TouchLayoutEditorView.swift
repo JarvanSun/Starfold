@@ -29,9 +29,21 @@ struct TouchLayoutEditorView: View {
                     }
             }
 
-            TouchLayoutEditorPanel(editor: editor) { dismiss() }
+            TouchLayoutEditorPanel(editor: editor)
                 .padding(.top, dimensions.spaceLarge)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+            Button(role: .close) {
+                dismiss()
+            } label: {
+                Label("touchEditor.close", systemImage: "xmark")
+                    .labelStyle(.iconOnly)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
+            .controlSize(.large)
+            .padding(dimensions.spaceLarge)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)

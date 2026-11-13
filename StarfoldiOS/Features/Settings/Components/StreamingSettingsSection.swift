@@ -1,5 +1,5 @@
 //
-//  QualitySettingsSection.swift
+//  StreamingSettingsSection.swift
 //  Starfold
 //
 //  Created by Jiawen Sun on 2026/11/13.
@@ -8,11 +8,11 @@
 import StarfoldShared
 import SwiftUI
 
-struct QualitySettingsSection: View {
+struct StreamingSettingsSection: View {
     @Bindable var settings: SettingsViewModel
 
     var body: some View {
-        Section {
+        Section("settings.streaming.header") {
             Picker("settings.quality.console.title", selection: $settings.consoleQuality) {
                 ForEach(settings.qualityChoices, id: \.self) { choice in
                     Text(choice.consoleTitle).tag(choice)
@@ -34,10 +34,18 @@ struct QualitySettingsSection: View {
                     Text(settings.title(ofBitrate: bitrate)).tag(bitrate)
                 }
             }
-        } header: {
-            Text("settings.quality.header")
-        } footer: {
-            Text("settings.quality.footer")
+
+            Picker("settings.picture.buffer.title", selection: $settings.pacingMode) {
+                ForEach(settings.pacingModes, id: \.self) { mode in
+                    Text(mode.title).tag(mode)
+                }
+            }
+
+            Picker("settings.cloud.language.title", selection: $settings.gameLanguage) {
+                ForEach(settings.gameLanguages, id: \.self) { code in
+                    Text(verbatim: settings.name(ofGameLanguage: code)).tag(code)
+                }
+            }
         }
     }
 
@@ -53,7 +61,7 @@ struct QualitySettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        QualitySettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        StreamingSettingsSection(settings: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

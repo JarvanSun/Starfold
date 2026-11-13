@@ -110,7 +110,7 @@ In StarfoldShared.
 - **LiveAccountService**: It keeps each account's `XboxAccount` by xuid, because the actor holds the cached tokens and re-reading the store would refresh them per request.
 - **Palette**: Nebula matches the app icon's #6652E8; Sunrise keeps the original pre-palette values, including the 85 % black label and coral glow.
 - **PrimaryButtonStyle**: Under Reduce Motion the hover growth is dropped; the hover lightening stays.
-- **AppPalette**: Apple TV uses `untintedAppPalette()` because there the palette only colours the sky.
+- **AppPalette**: On UIKit platforms the palette accent is the window's `tintColor`, not a SwiftUI `.tint`, because an explicit `.tint` also recolours controls the system draws neutral (menu values in a Form, glass buttons), which lowered their contrast; the window tint only replaces the system accent. No target sets a global accent colour.
 - **LiveNetworkPath**: The cellular state sits behind an unfair lock because NWPathMonitor reports on its own queue while ViewModels read it on the main actor.
 - **StreamViewModel**: Keys play as a gamepad only while nothing covers the game (no stream menu, no game dialog); a key that arrives otherwise releases every held key, so none stays pressed.
 - **StreamViewModel**: The Cellular quality ceiling caps the quality after the AdaptiveQuality override, so a pinned cloud stream still respects it.

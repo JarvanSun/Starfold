@@ -12,12 +12,10 @@ struct TouchLayoutEditorPanel: View {
     @Environment(\.dimensions) private var dimensions
     @Bindable var editor: TouchLayoutEditorViewModel
 
-    let onDone: () -> Void
-
     var body: some View {
         VStack(spacing: dimensions.spaceMedium) {
             Text("touchEditor.title")
-                .font(.headline)
+                .font(.subheadline.weight(.semibold))
                 .multilineTextAlignment(.center)
 
             stickVisibility
@@ -28,14 +26,8 @@ struct TouchLayoutEditorPanel: View {
 
             slider("touchEditor.opacity", value: $editor.opacity, range: editor.opacityRange)
 
-            HStack {
-                Button("touchEditor.reset", role: .destructive) { editor.reset() }
-
-                Spacer()
-
-                Button("touchEditor.done") { onDone() }
-                    .buttonStyle(.glassProminent)
-            }
+            Button("touchEditor.reset", role: .destructive) { editor.reset() }
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(dimensions.spaceLarge)
         .frame(maxWidth: dimensions.touchEditorPanelWidth)
@@ -69,7 +61,7 @@ struct TouchLayoutEditorPanel: View {
 #if DEBUG
 #Preview {
     if let editor = PreviewObjectPool.touchLayoutEditor {
-        TouchLayoutEditorPanel(editor: editor) {}
+        TouchLayoutEditorPanel(editor: editor)
             .padding()
             .background(.black)
             .environment(\.colorScheme, .dark)
