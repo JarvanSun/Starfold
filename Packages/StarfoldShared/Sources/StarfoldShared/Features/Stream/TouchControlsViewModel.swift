@@ -55,12 +55,15 @@ public final class TouchControlsViewModel {
         switch titleLayout {
         case let layout?:
             let adjustments = TouchLayoutAdjustments(opacity: standardAdjustments.opacity)
-            return TouchLayoutPlanner(metrics: metrics, adjustments: adjustments).plan(
-                for: layout.base
-            )
+            return TouchLayoutPlanner(metrics: metrics, adjustments: adjustments, sticks: .init())
+                .plan(for: layout.base)
         case nil:
-            return TouchLayoutPlanner(metrics: metrics, adjustments: standardAdjustments)
-                .plan(for: standard.layout.base)
+            return TouchLayoutPlanner(
+                metrics: metrics,
+                adjustments: standardAdjustments,
+                sticks: preferences.touchSticks
+            )
+            .plan(for: standard.layout.base)
         }
     }
 

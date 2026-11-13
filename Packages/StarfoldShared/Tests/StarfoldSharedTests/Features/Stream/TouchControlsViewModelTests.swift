@@ -102,6 +102,20 @@ struct TouchControlsViewModelTests {
         #expect(portrait.opacity == 0.4)
         #expect(landscape.opacity == TouchLayoutAdjustments().opacity)
     }
+
+    @Test
+    func planWhenTheStandardLayoutIsShownThenUsesTheStickSettings() {
+        // Given
+        let preferences = Preferences(defaults: .dummyEmpty)
+        preferences.touchSticks.setVisibility(.onTouch, of: .leftStick)
+        let touch = makeTouchControls(preferences: preferences)
+
+        // When
+        let plan = touch.plan(for: .dummy, in: .landscape)
+
+        // Then
+        #expect(plan.sticks.visibility(of: .leftStick) == .onTouch)
+    }
 }
 
 private extension TouchControlsViewModelTests {

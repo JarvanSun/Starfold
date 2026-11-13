@@ -12,8 +12,11 @@ import TouchController
 
 struct TouchControlBuilder {
     let controller: TCTouchController
+    let sticks: TouchSticks
 
     func add(_ placement: TouchControlPlacement) {
+        guard sticks.visibility(of: placement.input) != .off else { return }
+
         switch placement.input {
         case .leftStick: addThumbstick(placement, label: .leftThumbstick, collider: .leftSide)
         case .rightStick: addThumbstick(placement, label: .rightThumbstick, collider: .rightSide)
@@ -62,6 +65,7 @@ struct TouchControlBuilder {
         descriptor.size = size
         descriptor.stickSize = stickSize
         descriptor.colliderShape = collider
+        descriptor.hidesWhenNotPressed = sticks.visibility(of: placement.input) == .onTouch
         descriptor.backgroundContents = .thumbstickStickBackgroundContents(
             size: size,
             controller: controller

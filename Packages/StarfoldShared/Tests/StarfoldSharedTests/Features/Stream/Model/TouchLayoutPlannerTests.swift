@@ -79,7 +79,7 @@ struct TouchLayoutPlannerTests {
 
 private extension TouchLayoutPlannerTests {
     func makePlan(adjustments: TouchLayoutAdjustments = .init()) -> TouchControlPlan {
-        TouchLayoutPlanner(metrics: .dummy, adjustments: adjustments)
+        TouchLayoutPlanner(metrics: .dummy, adjustments: adjustments, sticks: .init())
             .plan(for: StandardTouchLayout().layout.base)
     }
 

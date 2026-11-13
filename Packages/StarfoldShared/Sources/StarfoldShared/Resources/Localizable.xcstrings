@@ -2246,6 +2246,57 @@
           }
         }
       }
+    },
+    "touch.stick.always" : {
+      "comment" : "Edit Layout: a touch stick is always drawn",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "始终显示"
+          }
+        }
+      }
+    },
+    "touch.stick.off" : {
+      "comment" : "Edit Layout: a touch stick is removed",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "touch.stick.onTouch" : {
+      "comment" : "Edit Layout: a touch stick is hidden until a finger lands on its half of the screen, then appears under the finger",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On Touch"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按下时出现"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

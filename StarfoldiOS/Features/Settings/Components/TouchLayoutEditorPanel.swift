@@ -16,8 +16,12 @@ struct TouchLayoutEditorPanel: View {
 
     var body: some View {
         VStack(spacing: dimensions.spaceMedium) {
+            if editor.isStickSelected {
+                stickVisibility
+            }
+
             slider("touchEditor.size", value: $editor.selectedScale, range: editor.scaleRange)
-                .disabled(!editor.hasSelection)
+                .disabled(!editor.canResizeSelection)
 
             slider("touchEditor.opacity", value: $editor.opacity, range: editor.opacityRange)
 
@@ -33,6 +37,16 @@ struct TouchLayoutEditorPanel: View {
         .padding(dimensions.spaceLarge)
         .frame(maxWidth: dimensions.touchEditorPanelWidth)
         .glassEffect(in: .rect(cornerRadius: dimensions.cornerRadiusXLarge))
+    }
+
+    private var stickVisibility: some View {
+        Picker("touchEditor.stick", selection: $editor.selectedStickVisibility) {
+            ForEach(TouchStickVisibility.allCases, id: \.self) { visibility in
+                Text(visibility.title)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
     }
 
     private func slider(

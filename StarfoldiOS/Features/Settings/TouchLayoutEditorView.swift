@@ -54,20 +54,28 @@ struct TouchLayoutEditorView: View {
             )
 
             ForEach(plan.controls) { placement in
-                control(placement)
+                control(placement, in: plan)
                     .position(placement.position(in: size))
             }
         }
     }
 
-    private func control(_ placement: TouchControlPlacement) -> some View {
-        EditableTouchControl(
-            placement: placement,
-            isSelected: editor.selectedID == placement.id,
-            onMove: { editor.move(placement.id, by: $0) },
-            onEndMove: { editor.endMove() },
-            onSelect: { editor.select(placement.id) }
-        )
+    private func control(_ placement: TouchControlPlacement, in plan: TouchControlPlan) -> some View
+    {
+        ZStack {
+            TouchStickPlaceholder(
+                visibility: plan.sticks.visibility(of: placement.input),
+                diameter: placement.diameter
+            )
+
+            EditableTouchControl(
+                placement: placement,
+                isSelected: editor.selectedID == placement.id,
+                onMove: { editor.move(placement, by: $0) },
+                onEndMove: { editor.endMove() },
+                onSelect: { editor.select(placement) }
+            )
+        }
     }
 }
 

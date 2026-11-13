@@ -116,6 +116,7 @@ In StarfoldShared.
 - **TouchLayoutPlanner**: Microsoft does not publish where its renderer puts TAK slots, so outer slots are spread evenly over a 100° arc around their wheel, the right wheel running from the top towards the centre to match the order of the standard sample.
 - **TouchControlsViewModel**: A title layout is used only when every visible control has a Touch Controller counterpart (`TouchLayer.isDrawable`); a partly drawn layout could leave out the control a game needs.
 - **TouchControlsViewModel**: Edits apply only to the standard layout because a title layout's positions come from the game's own design.
+- **TouchSticks**: Stick visibility is one setting for both orientations, not part of the per-orientation adjustments, because whether a game needs a stick does not depend on the screen's shape. The plan carries it, so the planner still places every stick and the editor can draw an outline where a hidden stick sits.
 - **Preferences**: Touch layout edits are kept in an observed property as well as `UserDefaults`, so a stream redraws as soon as the editor changes them.
 - **StandardTouchLayout**: The standard layout is Microsoft's MIT `standard-controller.json`, decoded like any title layout so both go through one planner.
 
@@ -198,6 +199,7 @@ In `StarfoldiOS/`.
 - **TouchControllerView**: Touches reach Touch Controller by a per-finger index because it does not track `UITouch`; `point(inside:with:)` is true only over a control, so taps elsewhere reach the stream and its menu handle.
 - **TouchControllerView**: Controls draw in their own transparent Metal view above the picture, never into video frames.
 - **TouchControlBuilder**: Sticks take half the screen as their touch area, and Touch Controller gives an overlapping touch to the higher `zIndex` (at equal `zIndex`, to the control added last), so sticks sit on a lower layer than every button.
+- **TouchControlBuilder**: A stick set to On Touch uses Touch Controller's `hidesWhenNotPressed`; a stick set to Off is not added, so its half of the screen passes touches through to the stream.
 - **TouchLayoutEditorView**: The editor draws the real Touch Controller controls, non-interactive, under transparent drag handles, so what is edited is exactly what is played.
 - **TouchPlatform**: `maxTouchPoints` 5 is an assumption about what a phone browser reports to xbox.com; it is not confirmed against the service.
 - **RootView**: Going to the background ends the stream inside a background task, as Apple TV does, because a suspended app cannot delete the host session.

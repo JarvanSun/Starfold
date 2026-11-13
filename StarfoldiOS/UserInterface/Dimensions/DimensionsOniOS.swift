@@ -67,6 +67,7 @@ extension Dimensions {
     var highlightLineWidth: CGFloat { 2 }
     var touchEditorPanelWidth: CGFloat { 320 }
     var touchEditorSliderWidth: CGFloat { 160 }
+    var touchPlaceholderDash: CGFloat { 6 }
 
     func touchMetrics(forVerticalSizeClass sizeClass: UserInterfaceSizeClass?) -> TouchMetrics {
         switch sizeClass {

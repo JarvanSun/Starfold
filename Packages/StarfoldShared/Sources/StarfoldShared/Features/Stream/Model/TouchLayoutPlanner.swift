@@ -18,6 +18,7 @@ struct TouchLayoutPlanner {
 
     let metrics: TouchMetrics
     let adjustments: TouchLayoutAdjustments
+    let sticks: TouchSticks
 
     private let wheelArcDegrees: Double = 100
     private let clusterSpacing: CGFloat = 1.05
@@ -26,7 +27,11 @@ struct TouchLayoutPlanner {
         let placements =
             leftWheel(layer.left) + rightWheel(layer.right)
             + edge(layer.upper, isTop: true) + edge(layer.lower, isTop: false)
-        return .init(controls: placements.map(adjusted), opacity: adjustments.opacity)
+        return .init(
+            controls: placements.map(adjusted),
+            opacity: adjustments.opacity,
+            sticks: sticks
+        )
     }
 
     private var clusterRadius: CGFloat {

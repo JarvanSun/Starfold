@@ -18,11 +18,32 @@ public final class TouchLayoutEditorViewModel {
     private let standard = StandardTouchLayout()
 
     private var adjustments = TouchLayoutAdjustments()
+    private var selectedInput: TouchInput?
     private var movingFrom: CGPoint?
 
     public var opacity: Double {
         get { adjustments.opacity }
         set { change { $0.opacity = newValue } }
+    }
+
+    public var selectedStickVisibility: TouchStickVisibility {
+        get { selectedInput.map(preferences.touchSticks.visibility(of:)) ?? .always }
+        set {
+            guard let selectedInput else { return }
+
+            preferences.touchSticks.setVisibility(newValue, of: selectedInput)
+        }
+    }
+
+    public var isStickSelected: Bool {
+        switch selectedInput {
+        case .leftStick, .rightStick: true
+        case .button, .leftTrigger, .rightTrigger, .directionPad, nil: false
+        }
+    }
+
+    public var canResizeSelection: Bool {
+        hasSelection && selectedStickVisibility != .off
     }
 
     public var selectedScale: Double {
@@ -52,21 +73,22 @@ public final class TouchLayoutEditorViewModel {
 
         self.orientation = orientation
         adjustments = preferences.touchLayoutAdjustments(for: orientation)
-        selectedID = nil
+        select(nil)
     }
 
-    public func select(_ id: String?) {
-        selectedID = id
+    public func select(_ placement: TouchControlPlacement?) {
+        selectedID = placement?.id
+        selectedInput = placement?.input
     }
 
-    public func move(_ id: String, by translation: CGSize) {
-        selectedID = id
+    public func move(_ placement: TouchControlPlacement, by translation: CGSize) {
+        select(placement)
 
-        let start = movingFrom ?? adjustments.adjustment(for: id).offset
+        let start = movingFrom ?? adjustments.adjustment(for: placement.id).offset
         movingFrom = start
 
         change {
-            $0.controls[id, default: .init()].offset = CGPoint(
+            $0.controls[placement.id, default: .init()].offset = CGPoint(
                 x: start.x + translation.width,
                 y: start.y + translation.height
             )
@@ -79,15 +101,19 @@ public final class TouchLayoutEditorViewModel {
 
     public func reset() {
         adjustments = TouchLayoutAdjustments()
-        selectedID = nil
+        preferences.touchSticks = .init()
+        select(nil)
 
         save()
     }
 
     public func plan(for metrics: TouchMetrics) -> TouchControlPlan {
-        TouchLayoutPlanner(metrics: metrics, adjustments: adjustments).plan(
-            for: standard.layout.base
+        TouchLayoutPlanner(
+            metrics: metrics,
+            adjustments: adjustments,
+            sticks: preferences.touchSticks
         )
+        .plan(for: standard.layout.base)
     }
 
     private func changeSelected(_ update: (inout TouchControlAdjustment) -> Void) {

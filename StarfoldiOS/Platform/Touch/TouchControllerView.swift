@@ -48,8 +48,9 @@ final class TouchControllerView: MTKView {
         let controller = connectedController()
         controller.removeAllControls()
 
+        let builder = TouchControlBuilder(controller: controller, sticks: plan.sticks)
         for placement in plan.controls {
-            TouchControlBuilder(controller: controller).add(placement)
+            builder.add(placement)
         }
     }
 

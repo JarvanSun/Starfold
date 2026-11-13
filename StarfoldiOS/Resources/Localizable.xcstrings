@@ -1786,6 +1786,23 @@
         }
       }
     },
+    "touchEditor.stick" : {
+      "comment" : "Touch layout editor: VoiceOver label of the choice of when the selected stick is shown",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Stick"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摇杆显示"
+          }
+        }
+      }
+    },
     "welcome.feature.console.detail" : {
       "comment" : "Welcome: detail of the console feature",
       "localizations" : {

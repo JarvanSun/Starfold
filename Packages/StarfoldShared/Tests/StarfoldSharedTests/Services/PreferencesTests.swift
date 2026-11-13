@@ -149,6 +149,20 @@ struct PreferencesTests {
     }
 
     @Test
+    func touchSticksWhenRelaunchedThenRestoresEachStick() {
+        // Given
+        let defaults = UserDefaults.dummyEmpty
+        Preferences(defaults: defaults).touchSticks.setVisibility(.off, of: .rightStick)
+
+        // When
+        let relaunched = Preferences(defaults: defaults)
+
+        // Then
+        #expect(relaunched.touchSticks.visibility(of: .rightStick) == .off)
+        #expect(relaunched.touchSticks.visibility(of: .leftStick) == .always)
+    }
+
+    @Test
     func favoritesWhenOneAccountTogglesThenOtherAccountIsUnaffected() {
         // Given
         let preferences = Preferences(defaults: .dummyEmpty)

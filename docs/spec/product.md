@@ -302,8 +302,16 @@ Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
   Buttons carry Xbox names (A, LB, View…) because Starfold cannot know what each does in a game.
 - **Edit Layout** (Settings, and the stream menu) adjusts the standard layout only: drag a control
   to move it, select it and use the Size slider to resize it, and set the layout's opacity; Reset
-  restores the
-  default. Edits are kept per device and orientation. A title's own layout is never edited.
+  restores the default. Edits are kept per device and orientation. A title's own layout is never
+  edited.
+- **Sticks.** Selecting a stick in Edit Layout adds a choice of when it shows: Always, On Touch
+  (not drawn until a thumb lands on its half of the screen, then drawn under the thumb until it
+  lifts) or Off (not drawn, and its half does nothing). Every other control keeps its place, so
+  turning a stick back on restores the layout as it was; to put the D-pad where the stick was,
+  drag it there. A stick that is On Touch or Off shows as a dashed outline in the editor, which
+  can be selected to turn it back on; Size is unavailable while a stick is Off. The choice is the
+  same in both orientations, Reset restores Always, and a title's own layout always shows its
+  sticks.
 - **Rumble** plays on the controller when there is one; with only touch controls it plays as
   haptics on iPhone while Touch haptics is on.
 

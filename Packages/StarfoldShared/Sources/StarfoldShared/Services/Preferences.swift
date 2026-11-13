@@ -67,6 +67,10 @@ public final class Preferences {
         didSet { defaults.set(librarySort.rawValue, for: .librarySort) }
     }
 
+    var touchSticks = TouchSticks() {
+        didSet { defaults.set(try? JSONEncoder().encode(touchSticks), for: .touchSticks) }
+    }
+
     private(set) var touchLayouts: [TouchOrientation: TouchLayoutAdjustments] = [:]
 
     private let defaults: UserDefaults
@@ -136,6 +140,7 @@ public final class Preferences {
                 storedTouchLayout(for: orientation).map { (orientation, $0) }
             }
         )
+        touchSticks = storedTouchSticks() ?? .init()
     }
 
     func touchLayoutAdjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
@@ -155,6 +160,11 @@ public final class Preferences {
     private func storedTouchLayout(for orientation: TouchOrientation) -> TouchLayoutAdjustments? {
         let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
         return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
+    }
+
+    private func storedTouchSticks() -> TouchSticks? {
+        let stored: Data? = defaults.object(for: .touchSticks)
+        return stored.flatMap { try? JSONDecoder().decode(TouchSticks.self, from: $0) }
     }
 
     private func touchLayoutKey(for orientation: TouchOrientation) -> String {
@@ -187,6 +197,7 @@ private enum PreferenceKey: String {
     case keyboardAsController
     case rumble
     case touchHaptics
+    case touchSticks
     case showInMenuBar
     case pacingMode
     case soundStage
