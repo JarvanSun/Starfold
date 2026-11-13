@@ -76,8 +76,6 @@ Requires Xcode 27 or later.
 
 1. Clone the repository and open `Starfold.xcodeproj`.
 2. Choose the `StarfoldMac`, `StarfoldVision` or `StarfoldTV` scheme.
-3. Set `STARFOLD_BUNDLE_ID` in `Configuration/Starfold.xcconfig` to an identifier of your own,
-   choose your team under Signing & Capabilities, then run.
 
 ```sh
 scripts/build.sh   # builds all three apps

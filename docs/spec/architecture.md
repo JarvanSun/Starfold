@@ -13,7 +13,8 @@ packages; what a person sees and touches is written per platform.
 
 ```text
 Starfold.xcodeproj
-├── Configuration/          Starfold.xcconfig: bundle identifier, App Group, Microsoft client ID
+├── Configuration/          Starfold.xcconfig: bundle identifier, App Group, Microsoft client ID;
+│                           an optional, git-ignored Local.xcconfig overrides them and sets the team
 ├── StarfoldMac/            the Mac app: entry point, its views of every feature, navigation,
 │                           AppKit bridges
 ├── StarfoldVision/         the Vision Pro app, same shape

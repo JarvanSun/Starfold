@@ -117,6 +117,27 @@ struct XboxAccountTests {
             _ = try await account.webAuthorization()
         }
     }
+
+    @Test
+    func webAuthorizationWhenMicrosoftReportsARequestLoopThenKeepsTheSignIn() async throws {
+        // Given
+        let server = XboxServerStub()
+        let clock = ClockStub()
+        clock.advance(7200)
+
+        server.on(
+            .token,
+            status: 400,
+            json:
+                #"{"error":"invalid_grant","error_description":"AADSTS50196: client request loop"}"#
+        )
+        let (account, _) = try makeAccount(server: server, clock: clock)
+
+        // When / Then
+        await #expect(throws: XboxHTTPError.self) {
+            _ = try await account.webAuthorization()
+        }
+    }
 }
 
 private extension XboxAccountTests {

@@ -69,7 +69,6 @@
 
 1. 克隆仓库，打开 `Starfold.xcodeproj`。
 2. 选择 `StarfoldMac`、`StarfoldVision` 或 `StarfoldTV` scheme。
-3. 把 `Configuration/Starfold.xcconfig` 里的 `STARFOLD_BUNDLE_ID` 改成你自己的标识符，在 Signing & Capabilities 中选择你的团队，然后运行。
 
 ```sh
 scripts/build.sh   # 构建三个应用
