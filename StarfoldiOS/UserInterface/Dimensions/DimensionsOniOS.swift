@@ -16,7 +16,7 @@ extension Dimensions {
     var accountPictureSize: CGFloat { 32 }
 
     var homeCardWidth: CGFloat { 300 }
-    var homeCardHeight: CGFloat { 356 }
+    var homeCardHeight: CGFloat { 342 }
     var homeCardArtworkHeight: CGFloat { 220 }
     var homeCardCompactHeight: CGFloat { 200 }
     var homeCardCompactArtworkWidth: CGFloat { 356 }

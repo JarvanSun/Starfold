@@ -28,8 +28,8 @@ struct HomeCard<Artwork: View, Actions: View>: View {
         layout
             .frame(maxWidth: .infinity)
             .frame(height: height)
-            .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
             .cardSurface(highlighted: isFocused)
+            .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
             .shadow(
                 color: .black.opacity(isHovering ? 0.55 : 0.3),
                 radius: isHovering ? dimensions.shadowRadiusLarge : dimensions.shadowRadiusMedium,
@@ -89,23 +89,25 @@ struct HomeCard<Artwork: View, Actions: View>: View {
     }
 
     private var information: some View {
-        VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
-            HStack(alignment: .firstTextBaseline) {
-                heading.title
-                    .font(.headline)
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
+                HStack(alignment: .firstTextBaseline) {
+                    heading.title
+                        .font(.headline)
+                        .lineLimit(1)
+
+                    Spacer(minLength: dimensions.spaceSmall)
+
+                    statusLabel
+                }
+
+                heading.subtitle
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
-
-                Spacer(minLength: dimensions.spaceSmall)
-
-                statusLabel
             }
 
-            heading.subtitle
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-
-            Spacer(minLength: 0)
+            Spacer(minLength: dimensions.spaceMedium)
 
             HStack(spacing: dimensions.spaceSmall) {
                 actions
