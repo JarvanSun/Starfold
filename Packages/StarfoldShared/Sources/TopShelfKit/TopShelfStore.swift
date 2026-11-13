@@ -47,12 +47,10 @@ public nonisolated struct TopShelfStore: Sendable {
 }
 
 nonisolated private extension TopShelfStore {
-    var fileName: String {
-        "TopShelf.json"
-    }
-
     var file: URL? {
-        directory?.appending(path: fileName)
+        let fileName = "TopShelf.json"
+
+        return directory?.appending(path: fileName)
     }
 
     func write(_ snapshot: TopShelfSnapshot, to file: URL) {

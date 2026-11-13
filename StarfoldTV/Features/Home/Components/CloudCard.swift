@@ -15,6 +15,8 @@ struct CloudCard: View {
     let onBrowse: () -> Void
 
     var body: some View {
+        let coverLimit = 3
+
         HomeCard(
             title: Text("home.sources.cloud.title"),
             subtitle: subtitle,
@@ -33,10 +35,6 @@ struct CloudCard: View {
 }
 
 private extension CloudCard {
-    var coverLimit: Int {
-        3
-    }
-
     var subtitle: Text {
         switch library.cloudAccess.cardSubtitle(gameCount: library.games.count) {
         case let subtitle?: Text(subtitle)

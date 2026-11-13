@@ -31,10 +31,6 @@ struct ConnectingIndicator: View {
 }
 
 private extension ConnectingIndicator {
-    var arcLength: CGFloat {
-        0.3
-    }
-
     var arcGradient: AngularGradient {
         .init(
             colors: [palette.accent.color.opacity(0), palette.accent.color, palette.primaryTint],
@@ -45,7 +41,9 @@ private extension ConnectingIndicator {
     }
 
     var arc: some View {
-        Circle()
+        let arcLength: CGFloat = 0.3
+
+        return Circle()
             .trim(from: 0, to: arcLength)
             .stroke(
                 arcGradient,

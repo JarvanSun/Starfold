@@ -217,10 +217,6 @@ public final class HomeViewModel {
 // MARK: - Private
 
 private extension HomeViewModel {
-    var lastFrameJPEGQuality: Double {
-        0.8
-    }
-
     var consoleThatIsOn: Console? {
         consoles.first { $0.powerState == .on }
     }
@@ -266,6 +262,8 @@ private extension HomeViewModel {
         else {
             return nil
         }
+
+        let lastFrameJPEGQuality = 0.8
 
         CGImageDestinationAddImage(
             destination,

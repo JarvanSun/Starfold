@@ -77,10 +77,6 @@ public final class SignInViewModel {
 }
 
 private extension SignInViewModel {
-    var successPause: Duration {
-        .milliseconds(900)
-    }
-
     func show(_ phase: SignInPhase) {
         step = makeStep(for: phase)
     }
@@ -96,6 +92,8 @@ private extension SignInViewModel {
     }
 
     func closeAfterShowingSuccess() async {
+        let successPause: Duration = .milliseconds(900)
+
         try? await clock.sleep(for: successPause)
 
         guard !Task.isCancelled else { return }

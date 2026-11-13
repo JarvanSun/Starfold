@@ -54,20 +54,16 @@ struct HomeView: View {
 }
 
 private extension HomeView {
-    var cardsPerRow: CGFloat {
-        3
-    }
-
-    var shelfTilesPerRow: CGFloat {
-        4
-    }
-
     func cardWidth(in width: CGFloat) -> CGFloat {
-        max(dimensions.homeCardMinimumWidth, columnWidth(in: width, count: cardsPerRow))
+        let cardsPerRow: CGFloat = 3
+
+        return max(dimensions.homeCardMinimumWidth, columnWidth(in: width, count: cardsPerRow))
     }
 
     func shelfTileWidth(in width: CGFloat) -> CGFloat {
-        max(dimensions.gameTileMinimumWidth, columnWidth(in: width, count: shelfTilesPerRow))
+        let shelfTilesPerRow: CGFloat = 4
+
+        return max(dimensions.gameTileMinimumWidth, columnWidth(in: width, count: shelfTilesPerRow))
     }
 
     func columnWidth(in width: CGFloat, count: CGFloat) -> CGFloat {

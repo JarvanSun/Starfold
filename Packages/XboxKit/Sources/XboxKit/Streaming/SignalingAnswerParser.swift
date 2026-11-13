@@ -43,10 +43,6 @@ struct SignalingAnswerParser: Sendable {
 }
 
 private extension SignalingAnswerParser {
-    var defaultChannelVersion: Int {
-        1
-    }
-
     func exchangeResponse(in body: Data) throws -> Any? {
         guard let outer = try JSONSerialization.jsonObject(with: body) as? [String: Any] else {
             return nil
@@ -83,7 +79,9 @@ private extension SignalingAnswerParser {
     }
 
     func negotiatedVersion(_ channel: String, in answer: [String: Any]) -> Int {
-        (answer[channel] as? NSNumber)?.intValue ?? defaultChannelVersion
+        let defaultChannelVersion = 1
+
+        return (answer[channel] as? NSNumber)?.intValue ?? defaultChannelVersion
     }
 
     func remoteCandidates(in entry: [String: Any]) -> [RemoteICECandidate] {

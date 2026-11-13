@@ -53,16 +53,15 @@ struct HomeCard<Artwork: View, Actions: View>: View {
 // MARK: - Private
 
 private extension HomeCard {
-    var artworkHoverScale: CGFloat {
-        1.04
-    }
-
     var isLifted: Bool {
         isHovering && !reduceMotion
     }
 
     var artworkArea: some View {
-        artwork
+        let artworkHoverScale: CGFloat = 1.04
+
+        return
+            artwork
             .frame(width: dimensions.homeCardWidth, height: dimensions.homeCardArtworkHeight)
             .clipped()
             .scaleEffect(isLifted ? artworkHoverScale : 1)

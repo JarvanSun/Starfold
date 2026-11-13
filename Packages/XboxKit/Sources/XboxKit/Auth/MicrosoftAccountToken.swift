@@ -14,12 +14,8 @@ struct MicrosoftAccountToken: Codable, Sendable, Equatable {
     var userID: String?
 
     func isValid(at date: Date) -> Bool {
-        expiresAt.timeIntervalSince(date) > refreshMargin
-    }
-}
+        let refreshMargin: TimeInterval = 60
 
-private extension MicrosoftAccountToken {
-    var refreshMargin: TimeInterval {
-        60
+        return expiresAt.timeIntervalSince(date) > refreshMargin
     }
 }

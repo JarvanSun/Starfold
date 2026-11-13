@@ -31,24 +31,12 @@ private struct Shimmer: ViewModifier {
 }
 
 private extension Shimmer {
-    var highlightOpacity: Double {
-        0.10
-    }
-
-    var highlightWidthFraction: CGFloat {
-        0.6
-    }
-
-    var travelFraction: CGFloat {
-        1.4
-    }
-
-    var sweepAnimation: Animation {
-        .linear(duration: 1.4).repeatForever(autoreverses: false)
-    }
-
     var highlight: some View {
-        GeometryReader { proxy in
+        let highlightOpacity = 0.10
+        let highlightWidthFraction: CGFloat = 0.6
+        let travelFraction: CGFloat = 1.4
+
+        return GeometryReader { proxy in
             LinearGradient(
                 colors: [.clear, .white.opacity(highlightOpacity), .clear],
                 startPoint: .leading,
@@ -61,6 +49,8 @@ private extension Shimmer {
 
     func sweep() {
         guard !reduceMotion else { return }
+
+        let sweepAnimation: Animation = .linear(duration: 1.4).repeatForever(autoreverses: false)
 
         withAnimation(sweepAnimation) {
             phase = 1

@@ -19,6 +19,7 @@ public struct CatalogClient: Sendable {
     private let http: HTTPClient
     private let market: String
     private let language: String
+    private let batchSize = 100
 
     public init(http: HTTPClient, market: String, language: String) {
         self.http = http
@@ -69,10 +70,6 @@ public struct CatalogClient: Sendable {
 // MARK: - Private
 
 private extension CatalogClient {
-    var batchSize: Int {
-        100
-    }
-
     func batches(of ids: [String]) -> [[String]] {
         stride(from: 0, to: ids.count, by: batchSize).map { start in
             Array(ids[start..<min(start + batchSize, ids.count)])

@@ -11,6 +11,8 @@ public struct ClockView: View {
     public init() {}
 
     public var body: some View {
+        let textOpacity = 0.9
+
         TimelineView(.everyMinute) { context in
             Text(context.date, format: .dateTime.hour().minute())
                 .font(.system(.headline, design: .monospaced).weight(.semibold))
@@ -19,12 +21,6 @@ public struct ClockView: View {
                 .animation(.smooth, value: context.date)
         }
         .accessibilityLabel(Text("theme.clock.accessibilityLabel", bundle: .module))
-    }
-}
-
-private extension ClockView {
-    var textOpacity: Double {
-        0.9
     }
 }
 

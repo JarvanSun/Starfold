@@ -23,10 +23,6 @@ struct StreamBackdropView: View {
 }
 
 private extension StreamBackdropView {
-    var artworkOpacity: Double {
-        0.35
-    }
-
     func gameArtwork(_ url: URL?) -> some View {
         AsyncImage(url: url, transaction: .init(animation: .easeOut(duration: 0.6))) { phase in
             switch phase.image {
@@ -37,7 +33,10 @@ private extension StreamBackdropView {
     }
 
     func blurred(_ image: Image) -> some View {
-        image
+        let artworkOpacity = 0.35
+
+        return
+            image
             .resizable()
             .scaledToFill()
             .blur(radius: dimensions.streamBackdropBlurRadius, opaque: true)

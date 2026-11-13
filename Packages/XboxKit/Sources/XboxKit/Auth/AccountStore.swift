@@ -12,6 +12,7 @@ public struct AccountStore: Sendable {
     private let secrets: SecretStoring
     private let http: HTTPClient
     private let now: @Sendable () -> Date
+    private let accountKeyPrefix = "account."
 
     public init(
         microsoftClientID: String,
@@ -72,10 +73,6 @@ public struct AccountStore: Sendable {
 }
 
 private extension AccountStore {
-    var accountKeyPrefix: String {
-        "account."
-    }
-
     var deviceCodeFlow: DeviceCodeFlow {
         .init(configuration: identity.deviceCodeConfiguration, http: http, now: now)
     }

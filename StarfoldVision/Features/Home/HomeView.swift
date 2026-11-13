@@ -15,6 +15,8 @@ struct HomeView: View {
     let library: LibraryViewModel
 
     var body: some View {
+        let recentGameLimit = 8
+
         ScrollView {
             VStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
                 ConsoleShelf(home: home)
@@ -39,12 +41,6 @@ struct HomeView: View {
         } message: { problem in
             Text(problem.message)
         }
-    }
-}
-
-private extension HomeView {
-    var recentGameLimit: Int {
-        8
     }
 }
 

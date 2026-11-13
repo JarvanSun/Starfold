@@ -44,7 +44,9 @@ enum PreviewObjectPool {
 
 extension PreviewObjectPool {
     static var preferences: Preferences {
-        .init(defaults: userDefaults)
+        let userDefaults = UserDefaults(suiteName: "Starfold.previews")!
+
+        return .init(defaults: userDefaults)
     }
 
     static var controllers: ControllerHub {
@@ -104,10 +106,6 @@ extension PreviewObjectPool {
 }
 
 private extension PreviewObjectPool {
-    static var userDefaults: UserDefaults {
-        .init(suiteName: "Starfold.previews")!
-    }
-
     static var picture: PictureCapabilities {
         .init(
             canFit: true,

@@ -58,10 +58,6 @@ struct SDPMunger {
 private extension SDPMunger {
     var lineBreak: String { "\r\n" }
 
-    var replacedOpusParameters: Set<String> {
-        ["stereo", "minptime", "useinbandfec", "sprop-stereo"]
-    }
-
     var stereoOpusParameters: [String] { ["stereo=1", "minptime=10", "useinbandfec=1"] }
 
     func opusPayloadTypes(in lines: [String]) -> Set<String> {
@@ -85,6 +81,9 @@ private extension SDPMunger {
         let payload = String(rest[..<space])
         guard opusPayloads.contains(payload) else { return nil }
 
+        let replacedOpusParameters: Set<String> = [
+            "stereo", "minptime", "useinbandfec", "sprop-stereo",
+        ]
         let kept = rest[rest.index(after: space)...]
             .split(separator: ";")
             .map { $0.trimmingCharacters(in: .whitespaces) }

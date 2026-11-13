@@ -19,12 +19,8 @@ struct XboxToken: Codable, Sendable, Equatable {
     }
 
     func isValid(at date: Date) -> Bool {
-        notAfter.timeIntervalSince(date) > refreshMargin
-    }
-}
+        let refreshMargin: TimeInterval = 60
 
-private extension XboxToken {
-    var refreshMargin: TimeInterval {
-        60
+        return notAfter.timeIntervalSince(date) > refreshMargin
     }
 }

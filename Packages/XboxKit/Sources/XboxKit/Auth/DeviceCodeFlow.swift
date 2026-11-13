@@ -43,6 +43,8 @@ struct DeviceCodeFlow: Sendable {
             throw URLError(.badServerResponse)
         }
 
+        let defaultPollSeconds = 5
+
         return .init(
             userCode: response.userCode,
             verificationURL: verificationURL,
@@ -56,6 +58,8 @@ struct DeviceCodeFlow: Sendable {
 
     func waitForToken(_ prompt: DeviceCodePrompt) async throws -> MicrosoftAccountToken {
         var interval = prompt.pollInterval
+
+        let slowDownIncrement: Duration = .seconds(5)
 
         while now() < prompt.expiresAt {
             try await Task.sleep(for: interval)
@@ -143,18 +147,6 @@ private extension DeviceCodeFlow {
         let errorDescription: String?
     }
 
-    var defaultPollSeconds: Int {
-        5
-    }
-
-    var slowDownIncrement: Duration {
-        .seconds(5)
-    }
-
-    var defaultTokenLifetime: Int {
-        3600
-    }
-
     func request(to url: URL, form: FormBody) -> HTTPClient.Request {
         .init(url: url, method: "POST", headers: form.headers, body: form.encoded)
     }
@@ -183,7 +175,9 @@ private extension DeviceCodeFlow {
     }
 
     func expiry(of response: TokenResponse) -> Date {
-        now().addingTimeInterval(TimeInterval(response.expiresIn ?? defaultTokenLifetime))
+        let defaultTokenLifetime = 3600
+
+        return now().addingTimeInterval(TimeInterval(response.expiresIn ?? defaultTokenLifetime))
     }
 
     func serverError(from response: TokenResponse) -> DeviceCodeError {

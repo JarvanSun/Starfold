@@ -35,6 +35,9 @@ public nonisolated enum TopShelfLink: Equatable, Sendable {
         components.host = host.rawValue
         components.path = "/" + id
         components.queryItems = queryItems
+
+        let schemeOnlyURL: URL = .init(string: "starfold:")!
+
         return components.url ?? schemeOnlyURL
     }
 
@@ -70,18 +73,15 @@ nonisolated private extension TopShelfLink {
     }
 
     var queryItems: [URLQueryItem] {
-        switch self {
+        let playItem: URLQueryItem = .init(
+            name: QueryKey.play.rawValue,
+            value: PlayFlag.on.rawValue
+        )
+
+        return switch self {
         case .game(_, let name, shouldPlay: true): [nameItem(name), playItem]
         case .game(_, let name, shouldPlay: false), .console(_, let name): [nameItem(name)]
         }
-    }
-
-    var playItem: URLQueryItem {
-        .init(name: QueryKey.play.rawValue, value: PlayFlag.on.rawValue)
-    }
-
-    var schemeOnlyURL: URL {
-        .init(string: "starfold:")!
     }
 
     private var host: Host {

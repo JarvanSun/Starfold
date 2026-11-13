@@ -37,16 +37,16 @@ final class FullScreenObserverView: NSView {
 }
 
 private extension FullScreenObserverView {
-    var fullScreenNotifications: [Notification.Name] {
-        [NSWindow.didEnterFullScreenNotification, NSWindow.didExitFullScreenNotification]
-    }
-
     func stopObserving() {
         observers.forEach(NotificationCenter.default.removeObserver)
         observers = []
     }
 
     func observeFullScreenChanges(of window: NSWindow) {
+        let fullScreenNotifications: [Notification.Name] = [
+            NSWindow.didEnterFullScreenNotification, NSWindow.didExitFullScreenNotification,
+        ]
+
         observers = fullScreenNotifications.map { name in
             NotificationCenter.default.addObserver(forName: name, object: window, queue: .main) {
                 [weak self] _ in

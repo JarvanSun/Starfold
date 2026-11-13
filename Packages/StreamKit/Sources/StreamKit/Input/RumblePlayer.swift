@@ -48,11 +48,11 @@ final class RumblePlayer {
 private extension RumblePlayer {
     var minimumIntensity: Float { 0.01 }
 
-    var localities: [GCHapticsLocality] {
-        [.leftHandle, .rightHandle, .leftTrigger, .rightTrigger]
-    }
-
     func startLocalizedEngines(_ haptics: GCDeviceHaptics) {
+        let localities: [GCHapticsLocality] = [
+            .leftHandle, .rightHandle, .leftTrigger, .rightTrigger,
+        ]
+
         for locality in localities where haptics.supportedLocalities.contains(locality) {
             if let engine = haptics.createEngine(withLocality: locality) {
                 engine.playsHapticsOnly = true

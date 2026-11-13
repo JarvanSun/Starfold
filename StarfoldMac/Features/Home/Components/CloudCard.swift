@@ -26,10 +26,6 @@ struct CloudCard: View {
 }
 
 private extension CloudCard {
-    var coverLimit: Int {
-        3
-    }
-
     var heading: HomeCardHeading {
         .init(
             title: Text("home.cloud.title"),
@@ -60,7 +56,9 @@ private extension CloudCard {
     }
 
     var artwork: some View {
-        CloudCardArt(
+        let coverLimit = 3
+
+        return CloudCardArt(
             covers: library.coverArtwork(limit: coverLimit),
             access: library.cloudAccess,
             isLoading: library.isLoading

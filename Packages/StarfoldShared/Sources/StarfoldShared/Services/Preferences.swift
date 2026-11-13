@@ -155,10 +155,6 @@ private struct FactorySettings {
 // MARK: - Private
 
 private extension Preferences {
-    var favoritesKeyPrefix: String {
-        "favorites."
-    }
-
     var systemGameLanguage: String {
         let locale = Locale.current
         let language = locale.language.languageCode?.identifier ?? "en"
@@ -167,7 +163,9 @@ private extension Preferences {
     }
 
     func favoritesKey(for xuid: String) -> String {
-        favoritesKeyPrefix + xuid
+        let favoritesKeyPrefix = "favorites."
+
+        return favoritesKeyPrefix + xuid
     }
 
     func makeInstallID() -> UUID {

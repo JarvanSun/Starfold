@@ -98,6 +98,8 @@ public struct XboxLiveClient: Sendable {
             "parameters": [],
             "linkedXboxId": consoleID,
         ]
+
+        let spinnerTimeout: Duration = .seconds(10)
         let reply = try await http.successfulBody(
             for: .init(
                 url: URL(string: "https://xccs.xboxlive.com/commands")!,
@@ -179,12 +181,11 @@ private extension XboxLiveClient {
         let images: [Image]?
 
         var wideImageURL: URL? {
+            let wideArtTypes = [
+                "SuperHeroArt", "TitledHeroArt", "BrandedKeyArt", "Screenshot", "Poster", "BoxArt",
+            ]
             let wideArt = wideArtTypes.lazy.compactMap(image(ofType:)).first
             return (wideArt ?? displayImage).flatMap(URL.init(upgradingXboxImageToHTTPS:))
-        }
-
-        private var wideArtTypes: [String] {
-            ["SuperHeroArt", "TitledHeroArt", "BrandedKeyArt", "Screenshot", "Poster", "BoxArt"]
         }
 
         private func image(ofType type: String) -> String? {
@@ -210,18 +211,6 @@ private extension XboxLiveClient {
         }
 
         let status: Status?
-    }
-
-    var dashboardTitleID: String {
-        "750323071"
-    }
-
-    var consoleDeviceTypes: Set<String> {
-        ["Scarlett", "XboxOne"]
-    }
-
-    var spinnerTimeout: Duration {
-        .seconds(10)
     }
 
     func headers(
@@ -262,13 +251,17 @@ private extension XboxLiveClient {
                 headers: try await headers(contractVersion: 3)
             )
         )
+
+        let consoleDeviceTypes: Set<String> = ["Scarlett", "XboxOne"]
         let consoles = (response.devices ?? []).filter { consoleDeviceTypes.contains($0.type) }
         let titles = consoles.flatMap { $0.titles ?? [] }.filter(isActiveGame)
         return titles.first { $0.placement == "Full" } ?? titles.first
     }
 
     func isActiveGame(_ title: PresenceResponse.Title) -> Bool {
-        title.id != dashboardTitleID && title.state != "Inactive"
+        let dashboardTitleID = "750323071"
+
+        return title.id != dashboardTitleID && title.state != "Inactive"
     }
 
     func recentTitles(xuid: String) async throws -> [HistoryTitle] {

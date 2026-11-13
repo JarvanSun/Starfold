@@ -10,6 +10,7 @@ import XboxKit
 
 public struct LibraryCache {
     private let directory: URL
+    private let frameFileExtension = "jpg"
 
     public init(directory: URL) {
         self.directory = directory
@@ -62,10 +63,6 @@ public struct LibraryCache {
 }
 
 private extension LibraryCache {
-    var frameFileExtension: String {
-        "jpg"
-    }
-
     func snapshotFile(named name: String, for xuid: String) -> URL {
         directory.appending(path: "\(name)-\(xuid).json")
     }

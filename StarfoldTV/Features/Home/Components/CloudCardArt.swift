@@ -28,22 +28,6 @@ struct CloudCardArt: View {
 }
 
 private extension CloudCardArt {
-    var coverWidthRatio: CGFloat {
-        0.32
-    }
-
-    var coverHeightRatio: CGFloat {
-        0.46
-    }
-
-    var fanAngle: Double {
-        9
-    }
-
-    var fanSpreadRatio: CGFloat {
-        0.25
-    }
-
     var placeholder: some View {
         Image(systemName: access.placeholderSymbol)
             .font(.largeTitle)
@@ -58,7 +42,12 @@ private extension CloudCardArt {
     }
 
     func cover(_ url: URL, position: Double) -> some View {
-        Artwork(url: url)
+        let coverWidthRatio: CGFloat = 0.32
+        let coverHeightRatio: CGFloat = 0.46
+        let fanAngle: Double = 9
+        let fanSpreadRatio: CGFloat = 0.25
+
+        return Artwork(url: url)
             .frame(width: width * coverWidthRatio, height: width * coverHeightRatio)
             .clipShape(.rect(cornerRadius: dimensions.cornerRadiusMedium))
             .rotationEffect(.degrees(position * fanAngle), anchor: .bottom)

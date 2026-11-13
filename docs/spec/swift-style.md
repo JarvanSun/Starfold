@@ -195,7 +195,13 @@ view built in a `body` or `@ViewBuilder`, and where `.init` is ambiguous (`Strin
 
 ## No magic values
 
-A literal that carries meaning is named once, where it is owned. Never a `Constants` type.
+A literal that carries meaning gets a name, as close to its use as it can be. Never a `Constants`
+type.
+
+- Used in one function: a local `let` there (`let staggerInterval = 0.08`).
+- Shared by several members of a type: a `private let` on the type.
+- Differs per platform or caller: an initializer argument (`StreamPlatform`).
+- A computed property only for a value derived from state.
 
 | Literal | Lives in |
 |---|---|
@@ -206,9 +212,7 @@ A literal that carries meaning is named once, where it is owned. Never a `Consta
 | Endpoints, headers, JSON keys | The XboxKit client that sends them, `CodingKeys` |
 | Protocol bytes and message names | StreamKit enums (`GamepadButton`, `InputReportType`) |
 | `UserDefaults` keys | `Preferences`' private key enum |
-| Durations, limits, retry counts, other values one type uses | A computed property in its `private extension`, or an initializer argument |
 | A closed set of names | An `enum` with raw values |
-| A value that differs per platform | An initializer argument (`StreamPlatform`) |
 
 `0`, `1`, `""` and `[]` as neutral starting values are not magic; dummy data may be literal.
 

@@ -37,12 +37,10 @@ struct SignInPlaceholder: View {
 }
 
 private extension SignInPlaceholder {
-    var codeLength: Int {
-        8
-    }
-
     var codeBoxes: some View {
-        HStack(spacing: dimensions.spaceXSmall) {
+        let codeLength = 8
+
+        return HStack(spacing: dimensions.spaceXSmall) {
             ForEach(0..<codeLength, id: \.self) { _ in
                 RoundedRectangle(cornerRadius: dimensions.cornerRadiusSmall)
                     .fill(Color.cardFill)

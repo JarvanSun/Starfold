@@ -12,6 +12,8 @@ struct LoadingView: View {
     @Environment(\.dimensions) private var dimensions
 
     var body: some View {
+        let cardCount = 3
+
         HStack(spacing: dimensions.spaceXXLarge) {
             ForEach(0..<cardCount, id: \.self) { _ in placeholderCard }
         }
@@ -20,10 +22,6 @@ struct LoadingView: View {
 }
 
 private extension LoadingView {
-    var cardCount: Int {
-        3
-    }
-
     var placeholderCard: some View {
         RoundedRectangle(cornerRadius: dimensions.cornerRadiusXLarge)
             .fill(Color.cardFill)

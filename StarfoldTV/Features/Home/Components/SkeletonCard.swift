@@ -14,6 +14,9 @@ struct SkeletonCard: View {
     let width: CGFloat
 
     var body: some View {
+        let titleWidthRatio: CGFloat = 0.6
+        let subtitleWidthRatio: CGFloat = 0.4
+
         VStack(alignment: .leading, spacing: dimensions.spaceLarge) {
             RoundedRectangle(cornerRadius: dimensions.cornerRadiusLarge)
                 .fill(Color.cardFill)
@@ -34,14 +37,6 @@ struct SkeletonCard: View {
 }
 
 private extension SkeletonCard {
-    var titleWidthRatio: CGFloat {
-        0.6
-    }
-
-    var subtitleWidthRatio: CGFloat {
-        0.4
-    }
-
     func line(widthRatio: CGFloat, height: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: dimensions.cornerRadiusSmall)
             .fill(Color.cardFill)
