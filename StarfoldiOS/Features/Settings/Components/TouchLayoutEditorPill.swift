@@ -23,23 +23,36 @@ struct TouchLayoutEditorPill: View {
                 .font(.subheadline.weight(.semibold))
                 .lineLimit(1)
                 .minimumScaleFactor(minimumTitleScale)
-                .padding(.horizontal, dimensions.spaceSmall)
+                .padding(.leading, dimensions.spaceLarge)
+                .padding(.trailing, dimensions.spaceXSmall)
 
-            Button("touchEditor.opacity", systemImage: "circle.lefthalf.filled") {
+            iconButton("touchEditor.opacity", systemImage: "circle.lefthalf.filled") {
                 isShowingOpacity = true
             }
             .popover(isPresented: $isShowingOpacity) { opacity }
 
-            Button("touchEditor.reset", systemImage: "arrow.counterclockwise") { reset() }
+            iconButton("touchEditor.reset", systemImage: "arrow.counterclockwise") { reset() }
         }
-        .labelStyle(.iconOnly)
         .buttonStyle(.borderless)
-        .buttonBorderShape(.circle)
-        .controlSize(.large)
-        .padding(dimensions.spaceXSmall)
-        .padding(.leading, dimensions.spaceXSmall)
         .glassEffect(in: .capsule)
         .sensoryFeedback(.impact(weight: .medium), trigger: resets)
+    }
+
+    private func iconButton(
+        _ title: LocalizedStringKey,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .labelStyle(.iconOnly)
+                .font(.title3)
+                .frame(
+                    width: dimensions.touchEditorButtonSize,
+                    height: dimensions.touchEditorButtonSize
+                )
+                .contentShape(.circle)
+        }
     }
 
     private func reset() {
