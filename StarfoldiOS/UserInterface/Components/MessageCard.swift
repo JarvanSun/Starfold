@@ -9,6 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct MessageCard<Action: View>: View {
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.palette) private var palette
     @Environment(\.dimensions) private var dimensions
 
@@ -18,31 +19,79 @@ struct MessageCard<Action: View>: View {
     @ViewBuilder let action: Action
 
     var body: some View {
-        VStack(spacing: dimensions.spaceLarge) {
-            Spacer()
+        layout
+            .padding(dimensions.spaceXLarge)
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .cardSurface()
+    }
 
-            Image(systemName: symbol)
-                .font(.system(size: dimensions.messageSymbolSize))
-                .foregroundStyle(palette.primaryFill)
+    @ViewBuilder
+    private var layout: some View {
+        switch verticalSizeClass {
+        case .compact:
+            HStack(spacing: dimensions.spaceXLarge) {
+                symbolImage
 
+                VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
+                    texts(alignment: .leading, spacing: dimensions.spaceSmall)
+
+                    actionButton
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        default:
+            VStack(spacing: dimensions.spaceLarge) {
+                Spacer()
+
+                symbolImage
+
+                texts(alignment: .center, spacing: dimensions.spaceLarge)
+
+                actionButton
+
+                Spacer()
+            }
+        }
+    }
+
+    private var height: CGFloat {
+        switch verticalSizeClass {
+        case .compact: dimensions.homeCardCompactHeight
+        default: dimensions.homeCardHeight
+        }
+    }
+
+    private var symbolImage: some View {
+        Image(systemName: symbol)
+            .font(.system(size: dimensions.messageSymbolSize))
+            .foregroundStyle(palette.primaryFill)
+    }
+
+    private func texts(alignment: TextAlignment, spacing: CGFloat) -> some View {
+        VStack(alignment: stackAlignment(for: alignment), spacing: spacing) {
             Text(title)
                 .font(.headline)
 
             Text(message)
                 .font(.callout)
                 .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+                .multilineTextAlignment(alignment)
                 .fixedSize(horizontal: false, vertical: true)
-
-            action
-                .buttonStyle(.primary)
-
-            Spacer()
         }
-        .padding(dimensions.spaceXLarge)
-        .frame(maxWidth: .infinity)
-        .frame(height: dimensions.homeCardHeight)
-        .cardSurface()
+    }
+
+    private func stackAlignment(for alignment: TextAlignment) -> HorizontalAlignment {
+        switch alignment {
+        case .leading: .leading
+        case .center: .center
+        case .trailing: .trailing
+        }
+    }
+
+    private var actionButton: some View {
+        action
+            .buttonStyle(.primary)
     }
 }
 

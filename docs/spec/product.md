@@ -262,7 +262,9 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
   line.
 - **Home:** console cards, then an Xbox Cloud Gaming row (three covers, availability and game
   count), then Continue Playing (up to 10). On iPhone one console card fills the width and the
-  cards page sideways; on iPad they are Mac-sized and sit in a row. With no cloud access the row
+  cards page sideways; in iPhone landscape the card turns sideways (art on the left, name, status
+  and buttons on the right, 200 pt tall) so its buttons stay on screen. On iPad they are Mac-sized
+  and sit in a row. With no cloud access the row
   says why and does not open.
 - **Cloud Gaming** opens from that row on Home's stack: the Mac's rows and All Games, a sort
   button at the top right (a menu: Name, Recently Played) and a search field under the title that

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct HomeCard<Artwork: View, Actions: View>: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.dimensions) private var dimensions
     @State private var isHovering = false
     @FocusState private var isFocused: Bool
@@ -24,45 +25,67 @@ struct HomeCard<Artwork: View, Actions: View>: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            artworkArea
+        layout
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
+            .cardSurface(highlighted: isFocused)
+            .shadow(
+                color: .black.opacity(isHovering ? 0.55 : 0.3),
+                radius: isHovering ? dimensions.shadowRadiusLarge : dimensions.shadowRadiusMedium,
+                y: isHovering ? dimensions.shadowOffsetLarge : dimensions.shadowOffsetMedium
+            )
+            .offset(y: isLifted ? -dimensions.spaceSmall : 0)
+            .animation(.spring(duration: 0.35, bounce: 0.3), value: isHovering)
+            .animation(.easeOut(duration: 0.15), value: isFocused)
+            .contentShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
+            .onHover { isHovering = $0 }
+            .onTapGesture { performPrimaryActionIfEnabled() }
+            .focusable()
+            .focusEffectDisabled()
+            .focused($isFocused)
+            .onKeyPress(.return) { pressReturn() }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(
+                Text("home.card.accessibilityLabel \(heading.title) \(heading.status.text)")
+            )
+    }
 
-            information
+    @ViewBuilder
+    private var layout: some View {
+        switch verticalSizeClass {
+        case .compact:
+            HStack(spacing: 0) {
+                artworkArea
+                    .frame(width: dimensions.homeCardCompactArtworkWidth)
+                    .frame(maxHeight: .infinity)
+                    .clipped()
+
+                information
+            }
+        default:
+            VStack(spacing: 0) {
+                artworkArea
+                    .frame(maxWidth: .infinity)
+                    .frame(height: dimensions.homeCardArtworkHeight)
+                    .clipped()
+
+                information
+            }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: dimensions.homeCardHeight)
-        .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
-        .cardSurface(highlighted: isFocused)
-        .shadow(
-            color: .black.opacity(isHovering ? 0.55 : 0.3),
-            radius: isHovering ? dimensions.shadowRadiusLarge : dimensions.shadowRadiusMedium,
-            y: isHovering ? dimensions.shadowOffsetLarge : dimensions.shadowOffsetMedium
-        )
-        .offset(y: isLifted ? -dimensions.spaceSmall : 0)
-        .animation(.spring(duration: 0.35, bounce: 0.3), value: isHovering)
-        .animation(.easeOut(duration: 0.15), value: isFocused)
-        .contentShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
-        .onHover { isHovering = $0 }
-        .onTapGesture { performPrimaryActionIfEnabled() }
-        .focusable()
-        .focusEffectDisabled()
-        .focused($isFocused)
-        .onKeyPress(.return) { pressReturn() }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(
-            Text("home.card.accessibilityLabel \(heading.title) \(heading.status.text)")
-        )
+    }
+
+    private var height: CGFloat {
+        switch verticalSizeClass {
+        case .compact: dimensions.homeCardCompactHeight
+        default: dimensions.homeCardHeight
+        }
     }
 
     private var artworkArea: some View {
         let artworkHoverScale: CGFloat = 1.04
 
-        return
-            artwork
-            .frame(maxWidth: .infinity)
-            .frame(height: dimensions.homeCardArtworkHeight)
-            .clipped()
-            .scaleEffect(isLifted ? artworkHoverScale : 1)
+        return artwork.scaleEffect(isLifted ? artworkHoverScale : 1)
     }
 
     private var information: some View {
@@ -81,6 +104,8 @@ struct HomeCard<Artwork: View, Actions: View>: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+
+            Spacer(minLength: 0)
 
             HStack(spacing: dimensions.spaceSmall) {
                 actions

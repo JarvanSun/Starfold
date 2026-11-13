@@ -18,6 +18,8 @@ extension Dimensions {
     var homeCardWidth: CGFloat { 300 }
     var homeCardHeight: CGFloat { 356 }
     var homeCardArtworkHeight: CGFloat { 220 }
+    var homeCardCompactHeight: CGFloat { 200 }
+    var homeCardCompactArtworkWidth: CGFloat { 356 }
     var cloudRowCoverSize: CGFloat { 44 }
     var consoleModelNameSize: CGFloat { 28 }
     var messageSymbolSize: CGFloat { 44 }

@@ -9,14 +9,53 @@ import StarfoldShared
 import SwiftUI
 
 struct SkeletonCard: View {
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.dimensions) private var dimensions
 
     var body: some View {
-        VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
-            RoundedRectangle(cornerRadius: dimensions.cornerRadiusMedium)
-                .fill(.white.opacity(0.06))
-                .frame(height: dimensions.homeCardArtworkHeight - dimensions.spaceXLarge)
+        layout
+            .padding(dimensions.spaceMedium)
+            .frame(maxWidth: .infinity)
+            .frame(height: height, alignment: .top)
+            .shimmering()
+            .cardSurface()
+            .accessibilityLabel(Text("skeleton.loading.accessibilityLabel"))
+    }
 
+    @ViewBuilder
+    private var layout: some View {
+        switch verticalSizeClass {
+        case .compact:
+            HStack(spacing: dimensions.spaceLarge) {
+                artwork
+                    .frame(width: dimensions.homeCardCompactArtworkWidth - dimensions.spaceXLarge)
+
+                details
+            }
+        default:
+            VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
+                artwork
+                    .frame(height: dimensions.homeCardArtworkHeight - dimensions.spaceXLarge)
+
+                details
+            }
+        }
+    }
+
+    private var height: CGFloat {
+        switch verticalSizeClass {
+        case .compact: dimensions.homeCardCompactHeight
+        default: dimensions.homeCardHeight
+        }
+    }
+
+    private var artwork: some View {
+        RoundedRectangle(cornerRadius: dimensions.cornerRadiusMedium)
+            .fill(.white.opacity(0.06))
+    }
+
+    private var details: some View {
+        VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
             RoundedRectangle(cornerRadius: dimensions.cornerRadiusSmall)
                 .fill(.white.opacity(0.10))
                 .frame(width: dimensions.skeletonTitleWidth, height: dimensions.skeletonTitleHeight)
@@ -27,6 +66,8 @@ struct SkeletonCard: View {
                     width: dimensions.skeletonSubtitleWidth,
                     height: dimensions.skeletonSubtitleHeight
                 )
+
+            Spacer(minLength: 0)
 
             HStack {
                 Circle()
@@ -43,12 +84,6 @@ struct SkeletonCard: View {
                     )
             }
         }
-        .padding(dimensions.spaceMedium)
-        .frame(maxWidth: .infinity)
-        .frame(height: dimensions.homeCardHeight, alignment: .top)
-        .shimmering()
-        .cardSurface()
-        .accessibilityLabel(Text("skeleton.loading.accessibilityLabel"))
     }
 }
 
