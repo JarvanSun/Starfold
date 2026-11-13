@@ -24,6 +24,10 @@ public struct XboxHTTPError: LocalizedError, Sendable, CustomStringConvertible {
         return "\(url.host() ?? "Server") returned \(statusCode)" + detail
     }
 
+    var isRequestLoop: Bool {
+        statusCode == 400 && body.contains("AADSTS50196")
+    }
+
     public init(url: URL, statusCode: Int, body: String, headers: [String: String]) {
         self.url = url
         self.statusCode = statusCode

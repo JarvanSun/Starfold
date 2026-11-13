@@ -9,3 +9,4 @@ Packages/*/Package.resolved
 *.ipa
 *.dSYM
 *.dSYM.zip
+Configuration/Local.xcconfig

@@ -1,3 +1,5 @@
 STARFOLD_BUNDLE_ID = com.jarvansun.sunbox
 STARFOLD_APP_GROUP = group.$(STARFOLD_BUNDLE_ID)
 STARFOLD_MICROSOFT_CLIENT_ID = 1f907974-e22b-4810-a9de-d9647380c97e
+
+#include? "Local.xcconfig"

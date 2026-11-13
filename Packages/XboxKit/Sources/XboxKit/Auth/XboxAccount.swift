@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 
 public actor XboxAccount {
     public nonisolated let xuid: String
@@ -14,6 +15,10 @@ public actor XboxAccount {
     private let tokenClient: XboxLiveTokenClient
     private let persist: @Sendable (StoredAccount) throws -> Void
     private let now: @Sendable () -> Date
+    private let log = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "Starfold",
+        category: "Account"
+    )
 
     private var stored: StoredAccount
     private var userToken: XboxToken?
@@ -232,6 +237,8 @@ private extension XboxAccount {
             save()
 
             return refreshed
+        } catch let error as XboxHTTPError where error.isRequestLoop {
+            throw error
         } catch let error as XboxHTTPError where [400, 401].contains(error.statusCode) {
             throw XboxAccountError.signInRequired
         } catch DeviceCodeError.expired {
@@ -240,6 +247,10 @@ private extension XboxAccount {
     }
 
     func save() {
-        try? persist(stored)
+        do {
+            try persist(stored)
+        } catch {
+            log.error("Saving the account failed: \(String(describing: error), privacy: .public)")
+        }
     }
 }
