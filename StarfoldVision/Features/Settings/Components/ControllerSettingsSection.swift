@@ -21,7 +21,22 @@ struct ControllerSettingsSection: View {
 
             ForEach(settings.connectedControllers) { row(for: $0) }
 
+            if settings.isXboxButtonTakenBySystem {
+                xboxButtonRow
+            }
+
             Toggle("settings.controllers.rumble", isOn: $settings.isRumbleEnabled)
+        }
+    }
+
+    private var xboxButtonRow: some View {
+        LabeledContent {
+            Button("settings.controllers.xboxButton.openSettings") {
+                settings.openXboxButtonSettings()
+            }
+        } label: {
+            Text("settings.controllers.xboxButton.title")
+            Text("settings.controllers.xboxButton.detail")
         }
     }
 

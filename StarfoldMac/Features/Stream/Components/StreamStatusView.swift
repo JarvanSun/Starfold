@@ -15,9 +15,11 @@ struct StreamStatusView: View {
     let name: String
     let status: StreamStatus
     let backdrop: StreamBackdrop
+    var isXboxButtonTakenBySystem = false
 
     let onClose: () -> Void
     let onTryAgain: () -> Void
+    var onOpenXboxButtonSettings: () -> Void = {}
 
     var body: some View {
         VStack(spacing: dimensions.spaceXLarge) {
@@ -27,7 +29,13 @@ struct StreamStatusView: View {
                 .shadow(color: .black.opacity(0.6), radius: dimensions.shadowRadiusMedium)
 
             switch status {
-            case .connecting, .queued: StreamProgressStatus(title: status.title, onCancel: onClose)
+            case .connecting, .queued:
+                StreamProgressStatus(
+                    title: status.title,
+                    isXboxButtonTakenBySystem: isXboxButtonTakenBySystem,
+                    onOpenXboxButtonSettings: onOpenXboxButtonSettings,
+                    onCancel: onClose
+                )
             case .ended(let reason, let advice):
                 StreamEndedStatus(
                     reason: reason,

@@ -26,8 +26,10 @@ struct StreamView: View {
                     name: stream.target.name,
                     status: stream.status,
                     backdrop: stream.backdrop,
+                    isXboxButtonTakenBySystem: stream.isXboxButtonTakenBySystem,
                     onClose: onClose,
-                    onTryAgain: { stream.tryAgain() }
+                    onTryAgain: { stream.tryAgain() },
+                    onOpenXboxButtonSettings: { stream.openXboxButtonSettings() }
                 )
             }
 

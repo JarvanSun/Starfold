@@ -44,6 +44,7 @@ In StreamKit.
 - **ControllerHub**: Connect and disconnect notifications only trigger a diff against `GCController.controllers()`, keeping non-Sendable controllers out of main-actor closures.
 - **ControllerHub**: A new controller's first state goes through the handler queue to stay ordered with its own callbacks and a later disconnect.
 - **ControllerInputDestination**: Direct routing disables the system gesture on Home, Menu and Options so the Xbox / PS button reaches the game; on TV, TVControllerInput toggles it with gameplay.
+- **XboxButtonSettings**: From OS 27 the user's in-app Home button setting wins over `preferredSystemGestureState` unless it is Defer; an app can only read it (and only while a controller is connected) and open its settings screen, so Starfold says so instead of fixing it.
 - **RumblePlayer**: It uses the standard pattern player because on macOS 27 an advanced player's events are rejected by gamecontrollerd and silence later rumble; a stopped engine is restarted and retried once.
 - **TVControllerInput**: All TV filtering runs on the controller queue; main-actor commands join it rather than add a hop to each input.
 - **TVControllerInput**: UIKit may consume button releases while it has focus, so the held-control barrier is refreshed from the gamepads before gameplay resumes.

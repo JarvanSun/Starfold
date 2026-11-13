@@ -1480,6 +1480,57 @@
         }
       }
     },
+    "settings.controls.xboxButton.detail" : {
+      "comment" : "Settings, Controls: line under “Xbox button” saying the system handles the button instead of the streamed Xbox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS handles it instead of your Xbox."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前由 macOS 处理，不会发送到 Xbox。"
+          }
+        }
+      }
+    },
+    "settings.controls.xboxButton.openSettings" : {
+      "comment" : "Settings, Controls: button that opens the system’s game controller settings for the Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开系统设置"
+          }
+        }
+      }
+    },
+    "settings.controls.xboxButton.title" : {
+      "comment" : "Settings, Controls: label of the row shown when the system keeps the controller’s Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox 键"
+          }
+        }
+      }
+    },
     "settings.picture.buffer.footer" : {
       "comment" : "Settings, Picture: footnote under the buffer picker",
       "localizations" : {
@@ -2530,6 +2581,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重试"
+          }
+        }
+      }
+    },
+    "stream.status.xboxButton.notice" : {
+      "comment" : "Stream window, while connecting: line shown when the system keeps the controller’s Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS is handling the Xbox button."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox 键目前由 macOS 处理。"
+          }
+        }
+      }
+    },
+    "stream.status.xboxButton.openSettings" : {
+      "comment" : "Stream window, while connecting: link that opens the system’s game controller settings for the Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开系统设置"
           }
         }
       }

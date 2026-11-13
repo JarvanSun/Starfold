@@ -99,6 +99,10 @@ public final class StreamViewModel {
         isStreaming && controllers.connected.isEmpty
     }
 
+    public var isXboxButtonTakenBySystem: Bool {
+        controllers.xboxButton.owner == .system
+    }
+
     public var isShowingStatistics: Bool {
         isStreaming && preferences.shouldShowStatistics
     }
@@ -402,6 +406,10 @@ public final class StreamViewModel {
         guard let connection else { return }
 
         Task { await connection.pressGuide() }
+    }
+
+    public func openXboxButtonSettings() {
+        controllers.xboxButton.openSettings()
     }
 
     public func requestKeyframe() {

@@ -145,6 +145,10 @@ public final class SettingsViewModel {
         controllers.connected.isEmpty
     }
 
+    public var isXboxButtonTakenBySystem: Bool {
+        controllers.xboxButton.owner == .system
+    }
+
     public var keyBindings: [KeyBinding] {
         KeyboardGamepad().bindings
     }
@@ -193,6 +197,10 @@ public final class SettingsViewModel {
 
     public func testRumble(on controller: ConnectedController) {
         controllers.testRumble(slot: controller.slot)
+    }
+
+    public func openXboxButtonSettings() {
+        controllers.xboxButton.openSettings()
     }
 
     public func switchAccount(to choice: AccountChoice) async {

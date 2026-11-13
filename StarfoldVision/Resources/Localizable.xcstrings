@@ -817,6 +817,57 @@
         }
       }
     },
+    "settings.controllers.xboxButton.detail" : {
+      "comment" : "Settings, Controllers: line under “Xbox button” saying the system handles the button instead of the streamed Xbox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "visionOS handles it instead of your Xbox."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目前由 visionOS 处理，不会发送到 Xbox。"
+          }
+        }
+      }
+    },
+    "settings.controllers.xboxButton.openSettings" : {
+      "comment" : "Settings, Controllers: button that opens the system’s game controller settings for the Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开设置"
+          }
+        }
+      }
+    },
+    "settings.controllers.xboxButton.title" : {
+      "comment" : "Settings, Controllers: label of the row shown when the system keeps the controller’s Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox 键"
+          }
+        }
+      }
+    },
     "settings.picture.buffer" : {
       "comment" : "Settings picture section: picker for how much the stream buffers for smoothness",
       "localizations" : {
@@ -1374,6 +1425,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "取消"
+          }
+        }
+      }
+    },
+    "stream.status.xboxButton.notice" : {
+      "comment" : "Stream window, while connecting: line shown when the system keeps the controller’s Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "visionOS is handling the Xbox button."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox 键目前由 visionOS 处理。"
+          }
+        }
+      }
+    },
+    "stream.status.xboxButton.openSettings" : {
+      "comment" : "Stream window, while connecting: button that opens the system’s game controller settings for the Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开设置"
           }
         }
       }

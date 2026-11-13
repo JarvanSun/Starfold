@@ -1,0 +1,37 @@
+//
+//  XboxButtonSettingsSourceStub.swift
+//  StreamKitTests
+//
+//  Created by Jiawen Sun on 2026/11/13.
+//
+
+@testable import StreamKit
+
+@MainActor
+final class XboxButtonSettingsSourceStub {
+    struct ReadFailure: Error {}
+
+    var owner: Result<XboxButtonOwner, ReadFailure> = .success(.system)
+    private(set) var openedSettingsCount = 0
+    private(set) var readCount = 0
+
+    private var onChange: (@MainActor () -> Void)?
+
+    var source: XboxButtonSettings.Source {
+        .init(
+            readOwner: {
+                self.readCount += 1
+                return try self.owner.get()
+            },
+            openSettings: { self.openedSettingsCount += 1 },
+            observeChanges: { onChange in
+                self.onChange = onChange
+                return Task {}
+            }
+        )
+    }
+
+    func sendChange() {
+        onChange?()
+    }
+}
