@@ -326,7 +326,9 @@ services before relying on a value. Until it is built, every platform keeps the 
 - A transaction on this scope is still answered with `ReceiverCancel`.
 - Layout controls (`button`, `joystick`, `directionalPad`, `throttle`, `touchpad`, `arcadeButtons`,
   wheels, `layer` actions, `turbo`) produce a virtual gamepad: ordinary Gamepad records on `input`,
-  with virtual physicality. A layout may also emit relative mouse, and a `NativeTouch` title takes
+  with virtual physicality. On iPhone and iPad the layout becomes Apple Touch Controller controls,
+  whose `GCController` is read like any controller and merged into slot 0; its engaged controls
+  go in the virtual physicality field, never the physical one. A layout may also emit relative mouse, and a `NativeTouch` title takes
   Pointer reports (report type 4); both need their encodings pinned down here before they are
   sent.
 - The standard layout matches the MIT sample `standard-controller.json`: left joystick in

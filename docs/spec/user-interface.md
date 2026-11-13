@@ -87,6 +87,7 @@ A status colour always comes with words: visible text or the dot's VoiceOver lab
 | Mac | 300 × 356 pt | `cornerRadiusXLarge` | 220 pt tall |
 | Vision Pro | 400 × 360 pt, regular material, highlight hover effect | `cornerRadiusXXLarge` | 16:9 |
 | Apple TV | A third of the screen width, at least 360 pt; system `.card` button | `cornerRadiusXLarge` | 16:9 |
+| iPhone, iPad | Compact width: the readable width, paged sideways; regular width: the Mac's 300 × 356 pt | `cornerRadiusXLarge` | 16:9 |
 
 - Loading, empty, error and real cards in one row have the same size.
 - On the Mac a card lifts `spaceSmall` on hover and its artwork scales 4 %; cards enter with a
@@ -148,6 +149,10 @@ HStack(spacing: dimensions.spaceXLarge) { … }
 - Overlays are neutral and dark in every palette: statistics top-leading (glass, or material on
   Apple TV) and, on the Mac, the control bar centred 24 pt above the bottom, icon-only glass buttons
   in a `GlassEffectContainer`. When controls show and hide is in [product.md](product.md).
+- On iPhone and iPad the stream menu opens from a glass handle centred at the top, and touch
+  controls use Touch Controller's system contents, never the palette. They draw in their own
+  layer above the picture and below the menu and dialogs, inside the safe area and clear of an
+  active fold.
 - The waiting and end pages centre name, status and buttons in the window; the artwork is a
   background, not a layout sibling.
 

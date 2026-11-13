@@ -9,7 +9,7 @@ How code in this repository is written.
 
 | File | Answers |
 |---|---|
-| [product.md](product.md) | What the app does, and what differs on Mac, Vision Pro and Apple TV |
+| [product.md](product.md) | What the app does, and what differs on Mac, Vision Pro, Apple TV, iPhone and iPad |
 | [architecture.md](architecture.md) | Which modules and targets exist, what may import what, where a file goes |
 | [swift-style.md](swift-style.md) | Formatting, naming, declaration order, access control, control flow |
 | [view-models.md](view-models.md) | The ViewModels, the services they use, and their shape |

@@ -88,7 +88,7 @@ Chinese; the welcome screen says Starfold isn't affiliated with or endorsed by M
 |---|---|---|---|
 | Console quality | Automatic, 720p, 1080p, 1080p High Bitrate | Automatic | All |
 | Cloud quality | Automatic, 720p, 1080p, 1440p (Game Pass Ultimate) | Automatic | All |
-| Cellular quality | Automatic, 720p, 1080p; a ceiling over the console and cloud quality while on cellular data | 720p | iPhone, iPad with cellular |
+| Cellular quality | Automatic, 720p, 1080p; a ceiling over the console and cloud quality for a stream that starts on cellular data | 720p | iPhone, iPad with cellular |
 | Maximum bitrate | Automatic, 10–80 Mbps | Automatic | Mac, Vision Pro, iPhone, iPad |
 | MetalFX upscaling | On, Off | On | Mac |
 | Sharpening | Off to High | Low | Mac |
@@ -261,16 +261,17 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
   waiting and end pages are the Mac's.
 - **Stream menu:** a small handle at the top centre opens it. The handle dims after 3 s; while a
   controller is in use it hides and a tap brings it back. The menu is a glass panel: Xbox Guide,
-  Statistics, Picture in Picture and Disconnect, then Picture (Fit, Fill), Buffer and Edit Touch
-  Controls. Tapping outside closes it. A game dialog or keyboard prompt is a sheet, as on Mac.
-- **Leaving the app** during play continues the picture in system Picture in Picture and keeps the
-  session; tapping it returns. Input does not reach the Xbox while Starfold is in the background.
-  When Picture in Picture is off in the system's settings, leaving ends the stream and session,
-  as on Apple TV.
+  Statistics and Disconnect, then Picture (Fit, Fill), Buffer and Edit Touch Controls. Tapping
+  outside closes it. A game dialog or keyboard prompt is a sheet, as on Mac.
+- **Leaving the app** works as on Apple TV: Control Center, a notification or an incoming call
+  sends the Xbox a neutral controller, and a control held through it counts only after release;
+  going to the background ends the stream and the session. Coming back shows the end page with
+  Close and Try Again. There is no Picture in Picture.
 - **Sound** plays with the Ring/Silent switch on silent, like video, pauses for calls and returns
   after them, and is released when the stream ends.
-- **Cellular:** the Cellular quality ceiling applies while the stream runs over cellular data;
-  statistics name the path.
+- **Cellular:** a stream that starts on cellular data uses the Cellular quality ceiling. Quality
+  is fixed for the session, so moving between Wi-Fi and cellular mid-stream changes nothing; the
+  Xbox lowers resolution itself if bandwidth runs short. Statistics name the path.
 - **Settings tab:** Quality (with Cellular quality), Cloud Gaming, Picture (Picture Mode, Buffer,
   statistics), Touch Controls (Edit Layout, Touch haptics on iPhone), Controllers (with keyboard
   as controller on iPad), Account (switch, Add Account, Sign Out…), Appearance (palette).
@@ -288,13 +289,16 @@ Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
   Xbox layout: left stick, D-pad, LB, LT and left stick click on the left; A, B, X, Y, RB, RT, right
   stick and right stick click on the right; View and Menu at the top. A title that reads touch
   directly receives the player's touches instead of a layout.
-- **Look and feel.** Controls are translucent and neutral in every palette, at least 44 × 44 pt
-  (menus 28 × 28 pt), clear of the Dynamic Island, Home indicator and an active fold. A press
-  shows at once with a glow visible around the finger and, with Touch haptics on, a light tap.
-  On the standard layout the left stick starts where the thumb lands in the left half.
+- **Look and feel.** Controls are the system's touch controls (Apple Touch Controller), drawn
+  over the picture, neutral in every palette, at least 44 × 44 pt (View and Menu 28 × 28 pt), clear
+  of the Dynamic Island, Home indicator and an active fold. A press highlights at once, visible
+  around the finger, and with Touch haptics on gives a light tap. On the standard layout the left
+  half of the screen is the left stick's area, so the stick starts where the thumb lands. The
+  standard layout labels buttons with Xbox names (A, LB, View…), because it cannot know what each
+  does in a game; a title's own layout uses its own icons.
 - **Edit Layout** (Settings, and the stream menu) adjusts the standard layout only: drag a control
-  to move it, and set its size and the layout's opacity; Reset restores the default. Edits are per
-  device and orientation. A title's own layout is never edited.
+  to move it, pinch or use a slider to resize it, and set the layout's opacity; Reset restores the
+  default. Edits are kept per device and orientation. A title's own layout is never edited.
 - **Rumble** plays on the controller when there is one; with only touch controls it plays as
   haptics on iPhone while Touch haptics is on.
 

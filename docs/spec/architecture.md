@@ -3,7 +3,7 @@
 What every platform shares (accounts, library, stream, settings, palette) is written once in the
 packages; what a person sees and touches is written per platform.
 
-- macOS 26, visionOS 26 and tvOS 26 or later. No iOS build.
+- macOS 26, visionOS 26, tvOS 26, and iOS 26 on iPhone and iPad, or later.
 - Swift 6 language mode, Swift tools 6.2, Xcode 26. SwiftUI and Observation only. MVVM.
 - No backend of our own, no analytics, no third-party SDK except WebRTC.
 
@@ -19,6 +19,7 @@ Starfold.xcodeproj
 │                           AppKit bridges
 ├── StarfoldVision/         the Vision Pro app, same shape
 ├── StarfoldTV/             the Apple TV app, same shape
+├── StarfoldiOS/            the iPhone and iPad app, same shape
 ├── StarfoldTopShelf/       the Apple TV Top Shelf extension
 ├── StarfoldTVTests/        tests of the Apple TV app's own code, hosted by the Apple TV app
 ├── Preview Content/        PreviewObjectPool and its preview services, compiled into the three
@@ -35,7 +36,7 @@ Starfold.xcodeproj
 | A platform app | StarfoldShared, XboxKit, StreamKit, its platform's frameworks | another platform's folder |
 | StarfoldShared | XboxKit, StreamKit, SwiftUI, frameworks every platform has | AppKit, UIKit, RealityKit, an app |
 | StreamKit | XboxKit, LiveKitWebRTC, AVFoundation, CoreAudio, CoreMedia, CoreVideo, Metal, MetalFX, CoreHaptics, GameController, UIKit outside macOS | SwiftUI |
-| XboxKit | Foundation, Security, Synchronization, os | SwiftUI, WebRTC, StreamKit |
+| XboxKit | Foundation, Security, Synchronization, Compression, os | SwiftUI, WebRTC, StreamKit |
 | TopShelfKit | Foundation | everything else |
 | StarfoldTopShelf | TVServices, TopShelfKit | everything else |
 
@@ -56,7 +57,7 @@ A dependency not in this table is not allowed; adding one changes the table firs
 
 ## One target per platform
 
-`StarfoldMac`, `StarfoldVision` and `StarfoldTV` share the bundle identifier
+`StarfoldMac`, `StarfoldVision`, `StarfoldTV` and `StarfoldiOS` share the bundle identifier
 `$(STARFOLD_BUNDLE_ID)`, product name `Starfold` and module name `Starfold`. A target compiles its
 own folder and `Preview Content/`, and links the three packages (Apple TV also TopShelfKit).
 
@@ -66,12 +67,18 @@ own folder and `Preview Content/`, and links the three packages (Apple TV also T
 - Behaviour that differs is passed in by the platform app: an initializer argument, a closure, or
   a platform-owned value (`StreamPlatform`).
 - A platform folder (`Starfold<Platform>/`) never contains `#if os(…)`.
-- StreamKit renders with Metal on Mac and the system video layer elsewhere; its `#if os(…)` blocks
-  sit in the rendering and input types that wrap those APIs.
+- StreamKit renders with Metal on Mac, iPhone and iPad and with the system video layer on Vision
+  Pro and Apple TV; its `#if os(…)` blocks sit in the rendering and input types that wrap those
+  APIs.
+- Touch controls use Apple's Touch Controller, which exists only on iOS: only
+  `StarfoldiOS/Platform/Touch/` imports it. StreamKit treats the controller it creates like any
+  other and learns which one it is from the product category `StreamPlatform` passes in.
 - Info.plists and entitlements are in each target's `Configuration/`: `StarfoldMac.entitlements`
   (App Sandbox, network client and server, microphone, USB and Bluetooth controllers),
   `StarfoldVision.entitlements` (low-latency streaming), `StarfoldTV.entitlements` and
-  `StarfoldTopShelf.entitlements` (App Group `$(STARFOLD_APP_GROUP)`).
+  `StarfoldTopShelf.entitlements` (App Group `$(STARFOLD_APP_GROUP)`). `StarfoldiOS` has no
+  entitlements; its Info.plist names a launch screen and all four iPad orientations, without
+  which an upload is rejected.
 - The Mac target keeps `@executable_path/../Frameworks` in its runpath, or the installed app quits
   at launch (`LiveKitWebRTC.framework` is in `Contents/Frameworks`).
 
@@ -139,6 +146,10 @@ StarfoldMac/
 - `StarfoldVision/` and `StarfoldTV/` have the same shape. Their `Navigation/` holds `RootView`
   and a `…HostView` per tab (Apple TV's Search results view lives in `Features/Library/`);
   `StarfoldTV/Platform/` also holds `Controller/`, `TopShelf/` and `Background/`.
+- `StarfoldiOS/` has the same shape, with Vision Pro's `RootView` and `…HostView`s. Its
+  `Platform/` holds `Touch/` (the Touch Controller overlay: drawing, touches, translating a layout
+  into controls), `Keyboard/` (`GCKeyCode` to `KeyboardKey`) and `Orientation/` (landscape while
+  an iPhone streams).
 
 ## StarfoldShared
 
