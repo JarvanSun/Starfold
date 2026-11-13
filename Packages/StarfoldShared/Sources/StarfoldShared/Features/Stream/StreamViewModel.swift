@@ -53,6 +53,8 @@ public final class StreamViewModel {
     private var hasLoggedFirstRumble = false
     private var statisticsTicks = 0
     private var isInForeground = true
+    private var touchTitleID: String?
+    private var touchBundleTask: Task<Void, Never>?
     private var startedAt = ContinuousClock.now
 
     public var sharpeningLevel: SharpeningLevel {
@@ -104,6 +106,10 @@ public final class StreamViewModel {
 
     private var hasInput: Bool {
         dependencies.touch != nil || !controllers.connected.isEmpty
+    }
+
+    public var isShowingMenuHandle: Bool {
+        isStreaming && !isMenuOpen && (areControlsRevealed || touchControls?.isShowing == true)
     }
 
     public var isShowingTouchControls: Bool {
@@ -173,7 +179,9 @@ public final class StreamViewModel {
         self.service = service
         self.dependencies = dependencies
         renderer = StreamRenderer(keepsLastFrame: dependencies.picture.shouldKeepLastFrame)
-        touchControls = dependencies.touch.map { _ in .init(controllers: dependencies.controllers) }
+        touchControls = dependencies.touch.map { _ in
+            .init(controllers: dependencies.controllers, preferences: dependencies.preferences)
+        }
 
         apply(playbackSettings)
 
@@ -300,7 +308,36 @@ public final class StreamViewModel {
         case .vibration(let effect): play(effect)
         case .videoSize: break
         case .touchControls(let command): touchControls?.apply(command)
-        case .runningTitle: break
+        case .runningTitle(let title): loadTouchLayouts(for: title)
+        }
+    }
+
+    private func loadTouchLayouts(for title: RunningTitle) {
+        guard let touchControls, title.isFocused, title.titleID != touchTitleID else { return }
+
+        touchTitleID = title.titleID
+        touchBundleTask?.cancel()
+        touchBundleTask = Task { await loadTouchBundle(for: title.titleID, into: touchControls) }
+    }
+
+    private func loadTouchBundle(for titleID: String, into touchControls: TouchControlsViewModel)
+        async
+    {
+        do {
+            guard let bundle = try await service.touchBundle(forTitle: titleID, on: target),
+                !Task.isCancelled
+            else { return }
+
+            touchControls.load(bundle)
+
+            await connection?.announceTouchBundle(
+                version: bundle.manifest.version,
+                versionName: bundle.manifest.versionName ?? bundle.manifest.version
+            )
+        } catch {
+            log.error(
+                "Touch layouts for \(titleID, privacy: .public) could not be loaded: \(error)"
+            )
         }
     }
 
@@ -392,6 +429,7 @@ public final class StreamViewModel {
         runTask?.cancel()
         hideControlsTask?.cancel()
         settingsTask?.cancel()
+        touchBundleTask?.cancel()
 
         if let connection {
             await connection.stop(reason: .userStopped)

@@ -38,7 +38,11 @@ public struct CloudTitle: Codable, Sendable, Hashable, Identifiable {
     }
 
     public var supportsTouch: Bool {
-        supportedInputTypes.contains("NativeTouch")
+        let touchInputTypes: Set<TitleInputType> = [.nativeTouch, .customTouchOverlay]
+        let hasTouchInput = supportedInputTypes.contains {
+            touchInputTypes.contains(.init(name: $0))
+        }
+        return hasTouchInput || !touchBundleIDs.isEmpty
     }
 
     public var supportsMouseAndKeyboard: Bool {

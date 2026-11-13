@@ -1974,6 +1974,278 @@
           }
         }
       }
+    },
+    "touch.control.a" : {
+      "comment" : "Touch control name read by VoiceOver: the A button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A 键"
+          }
+        }
+      }
+    },
+    "touch.control.b" : {
+      "comment" : "Touch control name read by VoiceOver: the B button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "B button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "B 键"
+          }
+        }
+      }
+    },
+    "touch.control.directionPad" : {
+      "comment" : "Touch control name read by VoiceOver: the directional pad",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Directional pad"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方向键"
+          }
+        }
+      }
+    },
+    "touch.control.guide" : {
+      "comment" : "Touch control name read by VoiceOver: the Xbox button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xbox 键"
+          }
+        }
+      }
+    },
+    "touch.control.leftBumper" : {
+      "comment" : "Touch control name read by VoiceOver: the left bumper",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left bumper"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左肩键"
+          }
+        }
+      }
+    },
+    "touch.control.leftStick" : {
+      "comment" : "Touch control name read by VoiceOver: the left stick",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left stick"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左摇杆"
+          }
+        }
+      }
+    },
+    "touch.control.leftStickPress" : {
+      "comment" : "Touch control name read by VoiceOver: pressing the left stick",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left stick press"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按下左摇杆"
+          }
+        }
+      }
+    },
+    "touch.control.leftTrigger" : {
+      "comment" : "Touch control name read by VoiceOver: the left trigger",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left trigger"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "左扳机"
+          }
+        }
+      }
+    },
+    "touch.control.menu" : {
+      "comment" : "Touch control name read by VoiceOver: the Menu button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menu button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜单键"
+          }
+        }
+      }
+    },
+    "touch.control.rightBumper" : {
+      "comment" : "Touch control name read by VoiceOver: the right bumper",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Right bumper"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "右肩键"
+          }
+        }
+      }
+    },
+    "touch.control.rightStick" : {
+      "comment" : "Touch control name read by VoiceOver: the right stick",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Right stick"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "右摇杆"
+          }
+        }
+      }
+    },
+    "touch.control.rightStickPress" : {
+      "comment" : "Touch control name read by VoiceOver: pressing the right stick",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Right stick press"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按下右摇杆"
+          }
+        }
+      }
+    },
+    "touch.control.rightTrigger" : {
+      "comment" : "Touch control name read by VoiceOver: the right trigger",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Right trigger"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "右扳机"
+          }
+        }
+      }
+    },
+    "touch.control.view" : {
+      "comment" : "Touch control name read by VoiceOver: the View button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "视图键"
+          }
+        }
+      }
+    },
+    "touch.control.x" : {
+      "comment" : "Touch control name read by VoiceOver: the X button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "X button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "X 键"
+          }
+        }
+      }
+    },
+    "touch.control.y" : {
+      "comment" : "Touch control name read by VoiceOver: the Y button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Y button"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Y 键"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -72,16 +72,18 @@ struct TouchControlBuilder {
     }
 
     private func addDirectionPad(_ placement: TouchControlPlacement) {
+        let elementScale: CGFloat = 0.36
         let label = TCControlLabel.directionPad
         let size = square(placement.diameter)
+        let element = square(placement.diameter * elementScale)
 
         let descriptor = TCDirectionPadDescriptor()
         descriptor.compositeLabel = label
         descriptor.size = size
-        descriptor.upContents = directionContents(label, size: size, direction: .up)
-        descriptor.downContents = directionContents(label, size: size, direction: .down)
-        descriptor.leftContents = directionContents(label, size: size, direction: .left)
-        descriptor.rightContents = directionContents(label, size: size, direction: .right)
+        descriptor.upContents = directionContents(label, size: element, direction: .up)
+        descriptor.downContents = directionContents(label, size: element, direction: .down)
+        descriptor.leftContents = directionContents(label, size: element, direction: .left)
+        descriptor.rightContents = directionContents(label, size: element, direction: .right)
 
         place(controller.addDirectionPad(descriptor: descriptor), at: placement)
     }

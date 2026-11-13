@@ -37,7 +37,7 @@ extension View {
 }
 
 private struct LandscapeOnPhone: ViewModifier {
-    @Environment(OrientationLock.self) private var orientation
+    @Environment(OrientationLock.self) private var orientation: OrientationLock?
 
     func body(content: Content) -> some View {
         content
@@ -54,12 +54,12 @@ private struct LandscapeOnPhone: ViewModifier {
     private func lock(_ scene: UIWindowScene) {
         guard isPhone else { return }
 
-        orientation.lockToLandscape(in: scene)
+        orientation?.lockToLandscape(in: scene)
     }
 
     private func unlock(_ scene: UIWindowScene) {
         guard isPhone else { return }
 
-        orientation.unlock(in: scene)
+        orientation?.unlock(in: scene)
     }
 }

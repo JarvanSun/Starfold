@@ -5,6 +5,7 @@
 //  Created by Jiawen Sun on 2026/11/13.
 //
 
+import Foundation
 import StreamKit
 import Testing
 
@@ -18,7 +19,8 @@ struct TouchControlsViewModelTests {
 
         // Then
         #expect(touch.isShowing)
-        #expect(touch.layout == .standard)
+        #expect(touch.reference == .standard)
+        #expect(!touch.isShowingTitleLayout)
     }
 
     @Test
@@ -44,14 +46,51 @@ struct TouchControlsViewModelTests {
 
         // Then
         #expect(touch.isShowing)
-        #expect(touch.layout == .named("driving"))
+        #expect(touch.reference == .named("driving"))
+    }
+
+    @Test
+    func applyWhenTheGameAsksForItsLayoutWithoutABundleThenKeepsTheStandardLayout() {
+        // Given
+        let touch = makeTouchControls()
+
+        // When
+        touch.apply(.showLayout(.titleDefault, statePatch: Data("[]".utf8)))
+
+        // Then
+        #expect(!touch.isShowingTitleLayout)
+        #expect(touch.plan(for: .dummy, in: .landscape).controls.count == 15)
+    }
+
+    @Test
+    func planWhenTheStandardLayoutIsAdjustedThenUsesThatOrientationsAdjustments() {
+        // Given
+        let preferences = Preferences(defaults: .dummyEmpty)
+        var adjustments = TouchLayoutAdjustments()
+        adjustments.opacity = 0.4
+        preferences.setTouchLayoutAdjustments(adjustments, for: .portrait)
+        let touch = makeTouchControls(preferences: preferences)
+
+        // When
+        let portrait = touch.plan(for: .dummy, in: .portrait)
+        let landscape = touch.plan(for: .dummy, in: .landscape)
+
+        // Then
+        #expect(portrait.opacity == 0.4)
+        #expect(landscape.opacity == TouchLayoutAdjustments().opacity)
     }
 }
 
 private extension TouchControlsViewModelTests {
-    func makeTouchControls() -> TouchControlsViewModel {
+    func makeTouchControls(
+        preferences: Preferences = .init(defaults: .dummyEmpty)
+    ) -> TouchControlsViewModel {
         .init(
-            controllers: ControllerHub(routing: .gated, touchControllerCategory: "Touch Controller")
+            controllers: ControllerHub(
+                routing: .gated,
+                touchControllerCategory: "Touch Controller"
+            ),
+            preferences: preferences
         )
     }
 }

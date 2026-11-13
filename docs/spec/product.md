@@ -97,7 +97,7 @@ Chinese; the welcome screen says Starfold isn't affiliated with or endorsed by M
 | Buffer | Standard, Low Latency | Standard | All |
 | Show statistics | On, Off | Off | All |
 | Game language (cloud) | System or one of 12 languages | System | All |
-| Keyboard as controller, Rumble | On, Off | On | Keyboard: Mac, iPad; Rumble: all |
+| Keyboard as controller, Rumble | On, Off | On | Keyboard: Mac, iPhone, iPad; Rumble: all |
 | Touch haptics | On, Off: a tap on a touch control and, with no controller, host rumble play on the device | On | iPhone |
 
 - Automatic asks for 1080p; when bandwidth runs short the Xbox lowers resolution mid-stream and
@@ -144,7 +144,7 @@ Chinese; the welcome screen says Starfold isn't affiliated with or endorsed by M
   name) with Open System Settings (Open Settings on Vision Pro, iPhone, iPad), and the connecting
   page shows "macOS is handling the Xbox button." with the same link. The stream's own Xbox Guide
   control always works. Apple TV hands the button to the Xbox only during play.
-- Keyboard as controller (Mac; iPad with a hardware keyboard) uses key positions: WASD left stick, IJKL right stick, arrows D-pad,
+- Keyboard as controller (Mac; iPhone and iPad with a hardware keyboard) uses key positions: WASD left stick, IJKL right stick, arrows D-pad,
   Space A, Esc or Delete B, F X, R Y, Q LB, E RB, Z and C triggers, Return Menu, Tab View, Shift
   and V stick presses.
 - Diagonals stay on the unit circle, opposite keys cancel, keyboard and controller on one player
@@ -261,12 +261,12 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
   waiting and end pages are the Mac's.
 - **Stream menu:** a small handle at the top centre opens it. The handle dims after 3 s; while a
   controller is in use it hides and a tap brings it back. The menu is a glass panel: Xbox Guide,
-  Statistics and Disconnect, then Picture (Fit, Fill), Buffer and Edit Touch Controls. Tapping
+  Statistics and Disconnect, then Picture Mode, Buffer and Edit Touch Controls. Tapping
   outside closes it. A game dialog or keyboard prompt is a sheet, as on Mac.
 - **Leaving the app** works as on Apple TV: Control Center, a notification or an incoming call
   sends the Xbox a neutral controller, and a control held through it counts only after release;
-  going to the background ends the stream and the session. Coming back shows the end page with
-  Close and Try Again. There is no Picture in Picture.
+  going to the background ends the stream and the session, and coming back shows the page the
+  stream started from. There is no Picture in Picture.
 - **Sound** plays with the Ring/Silent switch on silent, like video, pauses for calls and returns
   after them, and is released when the stream ends.
 - **Cellular:** a stream that starts on cellular data uses the Cellular quality ceiling. Quality
@@ -274,7 +274,8 @@ Manager windows and an unfolded iPhone Duo each get the layout that fits.
   Xbox lowers resolution itself if bandwidth runs short. Statistics name the path.
 - **Settings tab:** Quality (with Cellular quality), Cloud Gaming, Picture (Picture Mode, Buffer,
   statistics), Touch Controls (Edit Layout, Touch haptics on iPhone), Controllers (with keyboard
-  as controller on iPad), Account (switch, Add Account, Sign Out…), Appearance (palette).
+  as controller and the Xbox button note), Account (switch, Add Account, Sign Out…), Appearance
+  (palette). Cellular quality shows only on a device that has cellular data.
 
 ### Touch controls
 
@@ -282,22 +283,26 @@ Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
 
 - **When they show.** With no controller connected the touch controls are on screen. Input from a
   controller hides them; touching the screen brings them back; disconnecting the last controller
-  brings them back. A keyboard counts as a controller on iPad. There is no on/off setting.
-- **Which layout.** A title with its own touch layout (Xbox Touch Adaptation Kit) uses it, in cloud
-  and remote play alike, including the layers, wheels and state the game switches at run time;
-  the game decides when its layout shows, hides or changes. Every other title gets the standard
-  Xbox layout: left stick, D-pad, LB, LT and left stick click on the left; A, B, X, Y, RB, RT, right
-  stick and right stick click on the right; View and Menu at the top. A title that reads touch
-  directly receives the player's touches instead of a layout.
+  brings them back. A keyboard counts as a controller. There is no on/off setting.
+- **Which layout.** When the running title has its own touch layout (Xbox Touch Adaptation Kit), in
+  cloud and remote play alike, Starfold loads it and the game decides when it shows, hides or
+  changes and what state it is in. Touch Controller draws buttons, sticks, triggers and D-pads; a
+  layout that also needs throttles, touchpads, arcade button groups, layer switches, turbo or
+  mouse output falls back to the standard layout, rather than leaving out a control the game
+  needs. Every other title gets the standard Xbox layout (Microsoft's sample
+  `standard-controller.json`): left stick, D-pad, LB, LT and left stick click on the left; A, B,
+  X, Y, RB, RT, right stick and right stick click on the right; View and Menu at the top right.
+  A title that reads touch directly also gets the standard layout until the Pointer report is
+  specified in [streaming.md](streaming.md).
 - **Look and feel.** Controls are the system's touch controls (Apple Touch Controller), drawn
   over the picture, neutral in every palette, at least 44 × 44 pt (View and Menu 28 × 28 pt), clear
-  of the Dynamic Island, Home indicator and an active fold. A press highlights at once, visible
+  of the Dynamic Island and Home indicator. A press highlights at once, visible
   around the finger, and with Touch haptics on gives a light tap. On the standard layout the left
-  half of the screen is the left stick's area, so the stick starts where the thumb lands. The
-  standard layout labels buttons with Xbox names (A, LB, View…), because it cannot know what each
-  does in a game; a title's own layout uses its own icons.
+  and right halves of the screen are the sticks' areas, so a stick starts where the thumb lands.
+  Buttons carry Xbox names (A, LB, View…) because Starfold cannot know what each does in a game.
 - **Edit Layout** (Settings, and the stream menu) adjusts the standard layout only: drag a control
-  to move it, pinch or use a slider to resize it, and set the layout's opacity; Reset restores the
+  to move it, select it and use the Size slider to resize it, and set the layout's opacity; Reset
+  restores the
   default. Edits are kept per device and orientation. A title's own layout is never edited.
 - **Rumble** plays on the controller when there is one; with only touch controls it plays as
   haptics on iPhone while Touch haptics is on.

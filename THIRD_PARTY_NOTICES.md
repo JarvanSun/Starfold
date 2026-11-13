@@ -103,7 +103,9 @@ of the date such litigation is filed.
 
 Two sample layouts and a sample touch adaptation bundle from Microsoft's Touch Adaptation Kit,
 embedded as test fixtures in `Packages/XboxKit/Tests/XboxKitTests/Dummies/`
-(`standard-controller.json`, `first-person-shooter.json` and `sample-layouts.takx`).
+(`standard-controller.json`, `first-person-shooter.json` and `sample-layouts.takx`). The iPhone and
+iPad app ships `standard-controller.json` as its standard touch layout
+(`Packages/StarfoldShared/Sources/StarfoldShared/Resources/StandardTouchLayout.json`).
 
 - Source: https://github.com/microsoft/xbox-game-streaming-tools
 - Licence: MIT

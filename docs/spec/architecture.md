@@ -147,9 +147,11 @@ StarfoldMac/
   and a `…HostView` per tab (Apple TV's Search results view lives in `Features/Library/`);
   `StarfoldTV/Platform/` also holds `Controller/`, `TopShelf/` and `Background/`.
 - `StarfoldiOS/` has the same shape, with Vision Pro's `RootView` and `…HostView`s. Its
-  `Platform/` holds `Touch/` (the Touch Controller overlay: drawing, touches, translating a layout
-  into controls), `Keyboard/` (`GCKeyCode` to `KeyboardKey`) and `Orientation/` (landscape while
-  an iPhone streams).
+  `Platform/` holds `Touch/` (the Touch Controller overlay: drawing, touches, turning a
+  `TouchControlPlan` into controls), `Video/`, `Keyboard/` (`GCKeyCode` to `KeyboardKey`),
+  `Orientation/` (landscape while an iPhone streams) and `Background/` (ending the session on
+  leaving the app). Which controls a layout has and where they go is decided in StarfoldShared
+  (`TouchLayoutPlanner`), so it is tested on macOS.
 
 ## StarfoldShared
 

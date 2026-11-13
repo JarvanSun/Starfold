@@ -47,4 +47,33 @@ struct CloudTitleTests {
         // Then
         #expect(decoded == title)
     }
+
+    @Test(
+        arguments: [
+            (["Controller"], [String](), false),
+            (["Controller", "NativeTouch"], [], true),
+            (["Controller", "CustomTouchOverlay"], [], true),
+            (["Controller"], ["7c1e2f-touch"], true),
+        ]
+    )
+    func supportsTouchThenCountsTouchInputAndTouchLayouts(
+        inputTypes: [String],
+        touchBundleIDs: [String],
+        supportsTouch: Bool
+    ) {
+        // Given / When
+        let title = CloudTitle(
+            id: "FORTNITE",
+            productID: "9NBLGGH4RR2Z",
+            hasEntitlement: true,
+            isFreeInStore: false,
+            supportedInputTypes: inputTypes,
+            touchBundleIDs: touchBundleIDs,
+            lastPlayed: nil,
+            userSubscriptions: []
+        )
+
+        // Then
+        #expect(title.supportsTouch == supportsTouch)
+    }
 }

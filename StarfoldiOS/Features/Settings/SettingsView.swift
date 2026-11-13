@@ -45,7 +45,7 @@ struct SettingsView: View {
             Button("settings.signOut.confirm", role: .destructive) { settings.signOut() }
         }
         .fullScreenCover(isPresented: $isEditingTouchLayout) {
-            TouchLayoutEditorHost()
+            TouchLayoutEditorView(editor: settings.touchLayoutEditor())
         }
     }
 

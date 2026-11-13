@@ -45,5 +45,6 @@ struct SignedInTabView: View {
         library: PreviewObjectPool.libraryViewModel()
     ) {}
     .environment(PreviewObjectPool.appViewModel(signedIn: true))
+    .preferredColorScheme(.dark)
 }
 #endif

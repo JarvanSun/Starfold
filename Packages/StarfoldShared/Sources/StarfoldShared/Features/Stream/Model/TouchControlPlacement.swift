@@ -30,4 +30,9 @@ public struct TouchControlPlacement: Identifiable, Hashable, Sendable {
         self.diameter = diameter
         self.symbol = symbol
     }
+
+    public func position(in size: CGSize) -> CGPoint {
+        let corner = anchor.point(in: size)
+        return CGPoint(x: corner.x + offset.x, y: corner.y + offset.y)
+    }
 }

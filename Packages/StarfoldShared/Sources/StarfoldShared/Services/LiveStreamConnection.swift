@@ -47,4 +47,8 @@ struct LiveStreamConnection: StreamConnection {
     func answerKeyboard(id: String, text: String?) async {
         await controller.answerKeyboard(id: id, text: text)
     }
+
+    func announceTouchBundle(version: String, versionName: String) async {
+        await controller.announceTouchBundle(version: version, versionName: versionName)
+    }
 }

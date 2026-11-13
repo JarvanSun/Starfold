@@ -111,6 +111,12 @@ In StarfoldShared.
 - **Palette**: Nebula matches the app icon's #6652E8; Sunrise keeps the original pre-palette values, including the 85 % black label and coral glow.
 - **PrimaryButtonStyle**: Under Reduce Motion the hover growth is dropped; the hover lightening stays.
 - **AppPalette**: Apple TV uses `untintedAppPalette()` because there the palette only colours the sky.
+- **LiveNetworkPath**: The cellular state sits behind an unfair lock because NWPathMonitor reports on its own queue while ViewModels read it on the main actor.
+- **StreamViewModel**: The Cellular quality ceiling caps the quality after the AdaptiveQuality override, so a pinned cloud stream still respects it.
+- **TouchLayoutPlanner**: Microsoft does not publish where its renderer puts TAK slots, so outer slots are spread evenly over a 100° arc around their wheel, the right wheel running from the top towards the centre to match the order of the standard sample.
+- **TouchControlsViewModel**: A title layout is used only when every visible control has a Touch Controller counterpart (`TouchLayer.isDrawable`); a partly drawn layout could leave out the control a game needs.
+- **TouchControlsViewModel**: Edits apply only to the standard layout because a title layout's positions come from the game's own design.
+- **StandardTouchLayout**: The standard layout is Microsoft's MIT `standard-controller.json`, decoded like any title layout so both go through one planner.
 
 ## Mac
 
@@ -182,3 +188,14 @@ In `StarfoldTV/`, TopShelfKit and `StarfoldTopShelf/`.
 - **TopShelfSnapshot**: Game items prefer wide art with the title logo so a row of pictures says which game each is.
 - **TopShelfSnapshot**: `rowItemLimit` is 10, enough to span the screen; more is never visible without scrolling.
 - **TopShelfStore**: `save(_:)` returns whether the snapshot changed, so callers nudge the system only then.
+
+## iPhone and iPad
+
+In `StarfoldiOS/`.
+
+- **OrientationLock**: iPhone streams in landscape, so the lock checks the `.phone` idiom; size classes cannot tell an iPhone from an iPad window of the same size. The app delegate reports the lock because SwiftUI has no supported-orientations API.
+- **TouchControllerView**: Touches reach Touch Controller by a per-finger index because it does not track `UITouch`; `point(inside:with:)` is true only over a control, so taps elsewhere reach the stream and its menu handle.
+- **TouchControllerView**: Controls draw in their own transparent Metal view above the picture, never into video frames.
+- **TouchLayoutEditorView**: The editor draws the real Touch Controller controls, non-interactive, under transparent drag handles, so what is edited is exactly what is played.
+- **TouchPlatform**: `maxTouchPoints` 5 is an assumption about what a phone browser reports to xbox.com; it is not confirmed against the service.
+- **RootView**: Going to the background ends the stream inside a background task, as Apple TV does, because a suspended app cannot delete the host session.

@@ -232,6 +232,10 @@ public final class SettingsViewModel {
         controllers.testRumble(slot: controller.slot)
     }
 
+    public func touchLayoutEditor() -> TouchLayoutEditorViewModel {
+        .init(preferences: preferences)
+    }
+
     public func openXboxButtonSettings() {
         controllers.xboxButton.openSettings()
     }

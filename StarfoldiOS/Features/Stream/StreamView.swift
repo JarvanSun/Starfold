@@ -12,6 +12,7 @@ import SwiftUI
 struct StreamView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dimensions) private var dimensions
+    @State private var isEditingTouchLayout = false
 
     let stream: StreamViewModel
     let settings: SettingsViewModel
@@ -30,6 +31,11 @@ struct StreamView: View {
                 statusView
             }
 
+            switch stream.touchControls {
+            case let touch?: touchLayer(touch)
+            case nil: EmptyView()
+            }
+
             if stream.isShowingStatistics {
                 StreamStatisticsView(readout: stream.statisticsReadout)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -42,7 +48,7 @@ struct StreamView: View {
             }
         }
         .contentShape(.rect)
-        .onTapGesture { stream.revealControls() }
+        .onTapGesture { reveal() }
         .animation(.smooth(duration: 0.3), value: stream.isMenuOpen)
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
@@ -59,10 +65,27 @@ struct StreamView: View {
             if phase != .active { stream.releaseKeyboard() }
         }
         .onDisappear { controllers.routeInput(toGame: false) }
+        .fullScreenCover(isPresented: $isEditingTouchLayout) {
+            TouchLayoutEditorView(editor: settings.touchLayoutEditor())
+        }
         .sheet(item: presentedDialog) { dialog in
             SystemDialogView(dialogs: stream.dialogs, dialog: dialog)
                 .interactiveDismissDisabled()
         }
+    }
+
+    private func touchLayer(_ touch: TouchControlsViewModel) -> some View {
+        TouchControlsLayer(
+            touch: touch,
+            isActive: stream.isShowingTouchControls,
+            onConnect: { controllers.checkControllers() }
+        )
+    }
+
+    private func reveal() {
+        stream.revealControls()
+
+        stream.touchControls?.reveal()
     }
 
     private var statusView: some View {
@@ -80,9 +103,10 @@ struct StreamView: View {
 
     @ViewBuilder
     private var menuLayer: some View {
-        switch stream.isMenuOpen {
-        case true: openMenu
-        case false: menuHandle
+        switch (stream.isMenuOpen, stream.isShowingMenuHandle) {
+        case (true, _): openMenu
+        case (false, true): menuHandle
+        case (false, false): EmptyView()
         }
     }
 
@@ -95,13 +119,19 @@ struct StreamView: View {
             StreamMenu(
                 settings: settings,
                 stream: stream,
-                onEditTouchControls: { stream.closeMenu() },
+                onEditTouchControls: { editTouchLayout() },
                 onDisconnect: onClose
             )
             .padding(.top, dimensions.spaceSmall)
             .padding(.horizontal, dimensions.spaceLarge)
             .transition(.move(edge: .top).combined(with: .opacity))
         }
+    }
+
+    private func editTouchLayout() {
+        stream.closeMenu()
+
+        isEditingTouchLayout = true
     }
 
     private var menuHandle: some View {

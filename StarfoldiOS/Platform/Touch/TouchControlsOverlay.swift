@@ -11,6 +11,7 @@ import SwiftUI
 struct TouchControlsOverlay: UIViewRepresentable {
     let plan: TouchControlPlan
     let isActive: Bool
+    let isInteractive: Bool
     let isHapticsEnabled: Bool
 
     let onConnect: () -> Void
@@ -24,7 +25,7 @@ struct TouchControlsOverlay: UIViewRepresentable {
 
     func updateUIView(_ view: TouchControllerView, context: Context) {
         view.show(plan)
-        view.setActive(isActive)
+        view.setActive(isActive, isInteractive: isInteractive)
         view.isHapticsEnabled = isHapticsEnabled
     }
 

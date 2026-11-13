@@ -341,6 +341,12 @@ Built in StreamKit:
   `useTouchControls()`. It changes on the main actor only when it flips.
 - Not sent: Pointer reports (report type 4) and relative mouse.
 
+Built in XboxKit (`Touch/`): `GSSVClient.inputConfigurations(xboxTitleIDs:)` and
+`touchBundleArchive(id:)`, `TouchBundle` (zip, manifest, locale fallback, assets), `TouchLayout`
+(schemas v1–v4.1, `$ref`s, layers) and `TouchContext` with `JSONPatch`. StarfoldShared asks for a
+title's bundle when `titleinfo` names a focused title, sends `touchBundleMetadataChanged` once it
+is loaded, and re-resolves the layout after each `patchstate`.
+
 | What | Where |
 |---|---|
 | Does the title have touch? | `POST /v2/titles/inputconfigs` `{titleIds, titleIdType}` (remote play: `xboxTitleId`, after `/streaming/properties/titleinfo` names the running title); each entry has `supportedTabs` (`[{id}]`) and `supportedInputTypes` (`Controller`, `MKB`, `CustomTouchOverlay`, `GenericTouch`, `NativeTouch`, `NativeSensor`). Cloud titles carry the same two fields. A non-empty `supportedTabs` means a title layout. |

@@ -7,6 +7,7 @@
 
 import CoreGraphics
 import StarfoldShared
+import SwiftUI
 
 extension Dimensions {
     var welcomeSideBySideMinimumWidth: CGFloat { 820 }
@@ -63,4 +64,16 @@ extension Dimensions {
     var streamMenuActionHeight: CGFloat { 52 }
     var streamMenuHandleWidth: CGFloat { 44 }
     var streamMenuHandleHeight: CGFloat { 22 }
+    var highlightLineWidth: CGFloat { 2 }
+    var touchEditorPanelWidth: CGFloat { 320 }
+    var touchEditorSliderWidth: CGFloat { 160 }
+
+    func touchMetrics(forVerticalSizeClass sizeClass: UserInterfaceSizeClass?) -> TouchMetrics {
+        switch sizeClass {
+        case .regular:
+            .init(stickDiameter: 160, buttonDiameter: 64, smallButtonDiameter: 40, edgeMargin: 28)
+        default:
+            .init(stickDiameter: 124, buttonDiameter: 52, smallButtonDiameter: 36, edgeMargin: 16)
+        }
+    }
 }

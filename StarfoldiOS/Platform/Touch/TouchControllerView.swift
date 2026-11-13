@@ -53,12 +53,12 @@ final class TouchControllerView: MTKView {
         }
     }
 
-    func setActive(_ isActive: Bool) {
+    func setActive(_ isActive: Bool, isInteractive: Bool) {
         isPaused = !isActive
         isHidden = !isActive
-        isUserInteractionEnabled = isActive
+        isUserInteractionEnabled = isActive && isInteractive
 
-        if !isActive { releaseAllTouches() }
+        if !isUserInteractionEnabled { releaseAllTouches() }
     }
 
     func disconnect() {
