@@ -70,11 +70,6 @@
 1. 克隆仓库，打开 `Starfold.xcodeproj`。
 2. 选择 `StarfoldMac`、`StarfoldVision` 或 `StarfoldTV` scheme。
 
-```sh
-scripts/build.sh   # 构建三个应用
-scripts/test.sh    # 运行所有包的测试
-```
-
 登录用的是微软 Xbox 网页版的公开客户端 ID（`STARFOLD_MICROSOFT_CLIENT_ID`）。微软随时可能限制它；换成自己的 ID 能登录，但可能无法串流。
 
 ## 代码
