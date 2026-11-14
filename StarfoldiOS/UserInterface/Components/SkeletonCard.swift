@@ -16,7 +16,10 @@ struct SkeletonCard: View {
         layout
             .padding(dimensions.spaceMedium)
             .frame(maxWidth: .infinity)
-            .frame(height: height, alignment: .top)
+            .frame(
+                height: dimensions.homeCardHeight(forVerticalSizeClass: verticalSizeClass),
+                alignment: .top
+            )
             .shimmering()
             .cardSurface()
             .accessibilityLabel(Text("skeleton.loading.accessibilityLabel"))
@@ -39,13 +42,6 @@ struct SkeletonCard: View {
 
                 details
             }
-        }
-    }
-
-    private var height: CGFloat {
-        switch verticalSizeClass {
-        case .compact: dimensions.homeCardCompactHeight
-        default: dimensions.homeCardHeight
         }
     }
 

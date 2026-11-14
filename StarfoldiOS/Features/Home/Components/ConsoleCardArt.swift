@@ -14,7 +14,7 @@ struct ConsoleCardArt: View {
     @Environment(\.dimensions) private var dimensions
 
     let console: Console
-    let cover: ConsoleCover
+    let consoleCover: ConsoleCover
 
     var body: some View {
         LinearGradient(
@@ -23,7 +23,7 @@ struct ConsoleCardArt: View {
             endPoint: .bottom
         )
         .overlay {
-            switch cover {
+            switch consoleCover {
             case .game(let url): gameArtwork(url)
             case .lastFrame(let image): lastFrame(image)
             case .placeholder: modelName

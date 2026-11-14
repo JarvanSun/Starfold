@@ -12,11 +12,11 @@ struct GameHeader: View {
     @Environment(\.palette) private var palette
     @Environment(\.dimensions) private var dimensions
 
-    let detail: GameDetailViewModel
+    let gameDetailViewModel: GameDetailViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceLarge) {
-            Text(detail.name)
+            Text(gameDetailViewModel.name)
                 .font(.system(size: dimensions.gameTitleSize, weight: .bold, design: .rounded))
                 .shadow(color: .black.opacity(0.5), radius: dimensions.shadowRadiusMedium)
 
@@ -25,7 +25,7 @@ struct GameHeader: View {
                 .foregroundStyle(.secondary)
 
             HStack(spacing: dimensions.spaceLarge) {
-                ForEach(detail.inputs) { input in
+                ForEach(gameDetailViewModel.inputs) { input in
                     Label(input.title, systemImage: input.symbol)
                 }
             }
@@ -36,9 +36,9 @@ struct GameHeader: View {
                 playButton
 
                 FavoriteButton(
-                    action: detail.favoriteAction,
-                    isFavorite: detail.isFavorite,
-                    onToggle: { detail.toggleFavorite() }
+                    action: gameDetailViewModel.favoriteAction,
+                    isFavorite: gameDetailViewModel.isFavorite,
+                    onToggle: { gameDetailViewModel.toggleFavorite() }
                 )
             }
         }
@@ -46,7 +46,7 @@ struct GameHeader: View {
 
     @ViewBuilder
     private var publisher: some View {
-        switch (detail.publisher, detail.publisherInitial) {
+        switch (gameDetailViewModel.publisher, gameDetailViewModel.publisherInitial) {
         case (let publisher?, let initial?): publisherLabel(publisher, initial: initial)
         default: EmptyView()
         }
@@ -71,7 +71,7 @@ struct GameHeader: View {
 
     private var playButton: some View {
         Button {
-            detail.play()
+            gameDetailViewModel.play()
         } label: {
             Label(String(localized: "gameDetail.play"), systemImage: "play.fill")
                 .frame(minWidth: dimensions.gamePlayButtonMinimumWidth)
@@ -83,7 +83,7 @@ struct GameHeader: View {
 
 #if DEBUG
 #Preview {
-    GameHeader(detail: PreviewObjectPool.gameDetailViewModel)
+    GameHeader(gameDetailViewModel: PreviewObjectPool.gameDetailViewModel)
         .padding()
         .environment(\.colorScheme, .dark)
 }

@@ -10,29 +10,32 @@ import StreamKit
 import SwiftUI
 
 struct ControlsSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     let onEditTouchLayout: () -> Void
 
     var body: some View {
         Section("settings.controls.header") {
-            if settings.hasTouchControls {
+            if settingsViewModel.hasTouchControls {
                 touchRows
             }
 
-            if settings.isControllerMissing {
+            if settingsViewModel.isControllerMissing {
                 Text("controller.missing.instructions").foregroundStyle(.secondary)
             }
 
-            ForEach(settings.connectedControllers) { row(for: $0) }
+            ForEach(settingsViewModel.connectedControllers) { row(for: $0) }
 
-            if settings.isXboxButtonTakenBySystem {
+            if settingsViewModel.isXboxButtonTakenBySystem {
                 xboxButtonRow
             }
 
-            Toggle("settings.controllers.rumble", isOn: $settings.isRumbleEnabled)
+            Toggle("settings.controllers.rumble", isOn: $settingsViewModel.isRumbleEnabled)
 
-            Toggle("settings.controllers.keyboard", isOn: $settings.isKeyboardControllerEnabled)
+            Toggle(
+                "settings.controllers.keyboard",
+                isOn: $settingsViewModel.isKeyboardControllerEnabled
+            )
         }
     }
 
@@ -40,15 +43,15 @@ struct ControlsSettingsSection: View {
     private var touchRows: some View {
         Button("settings.touch.editLayout") { onEditTouchLayout() }
 
-        if settings.canPlayTouchHaptics {
-            Toggle("settings.touch.haptics", isOn: $settings.isTouchHapticsEnabled)
+        if settingsViewModel.canPlayTouchHaptics {
+            Toggle("settings.touch.haptics", isOn: $settingsViewModel.isTouchHapticsEnabled)
         }
     }
 
     private var xboxButtonRow: some View {
         LabeledContent {
             Button("settings.controllers.xboxButton.openSettings") {
-                settings.openXboxButtonSettings()
+                settingsViewModel.openXboxButtonSettings()
             }
         } label: {
             Text("settings.controllers.xboxButton.title")
@@ -59,8 +62,8 @@ struct ControlsSettingsSection: View {
     private func row(for controller: ConnectedController) -> some View {
         ControllerRow(
             name: controller.name,
-            playerNumber: settings.playerNumber(of: controller),
-            batteryLevel: settings.batteryLevel(of: controller)
+            playerNumber: settingsViewModel.playerNumber(of: controller),
+            batteryLevel: settingsViewModel.batteryLevel(of: controller)
         )
     }
 }
@@ -68,7 +71,7 @@ struct ControlsSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        ControlsSettingsSection(settings: PreviewObjectPool.settingsViewModel) {}
+        ControlsSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel) {}
     }
 }
 #endif

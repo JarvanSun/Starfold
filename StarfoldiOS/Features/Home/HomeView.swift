@@ -11,8 +11,8 @@ import SwiftUI
 struct HomeView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let home: HomeViewModel
-    let library: LibraryViewModel
+    let homeViewModel: HomeViewModel
+    let libraryViewModel: LibraryViewModel
 
     let onOpenCloudGaming: () -> Void
 
@@ -21,25 +21,25 @@ struct HomeView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
-                HomeCardRow(home: home)
+                HomeCardRow(homeViewModel: homeViewModel)
 
-                CloudGamingRow(library: library, onOpen: onOpenCloudGaming)
+                CloudGamingRow(libraryViewModel: libraryViewModel, onOpen: onOpenCloudGaming)
                     .pageMargins()
 
-                if !library.recentGames.isEmpty {
+                if !libraryViewModel.recentGames.isEmpty {
                     RecentGamesRow(
-                        games: library.recentGames(limit: recentGameLimit),
-                        onPlay: { library.play($0) }
+                        games: libraryViewModel.recentGames(limit: recentGameLimit),
+                        onPlay: { libraryViewModel.play($0) }
                     )
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
             .padding(.bottom, dimensions.spaceXLarge)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .animation(.smooth(duration: 0.45), value: library.recentGames)
+            .animation(.smooth(duration: 0.45), value: libraryViewModel.recentGames)
         }
         .scrollIndicators(.hidden)
-        .refreshable { await home.refreshAccount() }
+        .refreshable { await homeViewModel.refreshAccount() }
     }
 }
 
@@ -49,8 +49,8 @@ struct HomeView: View {
     state in
     NavigationStack {
         HomeView(
-            home: PreviewObjectPool.homeViewModel(state: state),
-            library: PreviewObjectPool.libraryViewModel(state: state)
+            homeViewModel: PreviewObjectPool.homeViewModel(state: state),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(state: state)
         ) {}
         .background { SkyBackground() }
     }
@@ -61,8 +61,8 @@ struct HomeView: View {
 #Preview("No consoles") {
     NavigationStack {
         HomeView(
-            home: PreviewObjectPool.homeViewModel(consoles: []),
-            library: PreviewObjectPool.libraryViewModel(access: .unavailable)
+            homeViewModel: PreviewObjectPool.homeViewModel(consoles: []),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(access: .unavailable)
         ) {}
         .background { SkyBackground() }
     }

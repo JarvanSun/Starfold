@@ -222,7 +222,7 @@ private extension GSSVClient {
                     hasEntitlement: details.hasEntitlement ?? false,
                     isFreeInStore: details.isFreeInStore ?? false,
                     supportedInputTypes: details.supportedInputTypes ?? [],
-                    touchBundleIDs: details.supportedTabs?.map(\.id) ?? [],
+                    touchBundleIDs: details.supportedTabs?.compactMap(\.id) ?? [],
                     lastPlayed: titleHistory?.lastTimePlayed,
                     userSubscriptions: details.userSubscriptions ?? []
                 )
@@ -240,7 +240,7 @@ private extension GSSVClient {
             }
 
             struct Tab: Decodable, Sendable {
-                let id: String
+                let id: String?
             }
 
             let productID: String?

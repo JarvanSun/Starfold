@@ -9,7 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct RootView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.scenePhase) private var scenePhase
     @State private var isSignInPresented = false
     @State private var isStreamPresented = false
@@ -18,7 +18,9 @@ struct RootView: View {
     var body: some View {
         content
             .preferredColorScheme(.dark)
-            .sheet(isPresented: $isSignInPresented) { SignInHostView { SignInView(signIn: $0) } }
+            .sheet(isPresented: $isSignInPresented) {
+                SignInHostView { SignInView(signInViewModel: $0) }
+            }
             .fullScreenCover(isPresented: $isStreamPresented) {
                 endStream()
             } content: {
@@ -31,21 +33,28 @@ struct RootView: View {
             } message: {
                 Text("app.signInExpired.message")
             }
-            .onChange(of: app.streamPresentationRequest) { isStreamPresented = true }
+            .onChange(of: appViewModel.streamPresentationRequest) { isStreamPresented = true }
             .onChange(of: scenePhase) { _, phase in apply(phase) }
     }
 
     @ViewBuilder
     private var content: some View {
-        switch (app.sessionState, app.home, app.library) {
-        case (.signedIn, let home?, let library?): signedInTabs(home: home, library: library)
+        switch (appViewModel.sessionState, appViewModel.home, appViewModel.library) {
+        case (.signedIn, let homeViewModel?, let libraryViewModel?):
+            signedInTabs(homeViewModel: homeViewModel, libraryViewModel: libraryViewModel)
         case (.signedOut, _, _): SignedOutView()
         case (.restoring, _, _), (.signedIn, _, _): restoring
         }
     }
 
-    private func signedInTabs(home: HomeViewModel, library: LibraryViewModel) -> some View {
-        SignedInTabView(home: home, library: library, onAddAccount: { presentSignIn() })
+    private func signedInTabs(homeViewModel: HomeViewModel, libraryViewModel: LibraryViewModel)
+        -> some View
+    {
+        SignedInTabView(
+            homeViewModel: homeViewModel,
+            libraryViewModel: libraryViewModel,
+            onAddAccount: { presentSignIn() }
+        )
     }
 
     private func presentSignIn() {
@@ -60,8 +69,8 @@ struct RootView: View {
 
     private var signInExpiredAlert: Binding<Bool> {
         .init(
-            get: { app.isSignInExpired && !isStreamPresented },
-            set: { app.isSignInExpired = $0 }
+            get: { appViewModel.isSignInExpired && !isStreamPresented },
+            set: { appViewModel.isSignInExpired = $0 }
         )
     }
 
@@ -74,7 +83,7 @@ struct RootView: View {
     }
 
     private func endStream() {
-        backgroundStreamEnd.end { await app.endStream() }
+        backgroundStreamEnd.end { await appViewModel.endStream() }
     }
 }
 

@@ -98,6 +98,26 @@ struct GSSVClientTests {
     }
 
     @Test
+    func titlesWhenATouchBundleHasNoIDThenSkipsOnlyThatBundle() async throws {
+        // Given
+        let server = XboxServerStub()
+        server.on(
+            "\(XboxEndpoint.cloudRegion.rawValue)/v2/titles",
+            json: """
+                {"results":[{"titleId":"FORTNITE","details":{"productId":"9NBLGGH4RR2Z","hasEntitlement":true,
+                 "supportedTabs":[{"name":"Untitled"},{"id":"7c1e2f-touch"}]}}]}
+                """
+        )
+        let client = makeClient(server: server)
+
+        // When
+        let titles = try await client.titles()
+
+        // Then
+        #expect(titles.map(\.touchBundleIDs) == [["7c1e2f-touch"]])
+    }
+
+    @Test
     func startSessionThenAsksForQualityTierThroughReportedOperatingSystem() async throws {
         // Given
         let server = XboxServerStub()

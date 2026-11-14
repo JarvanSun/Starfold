@@ -14,8 +14,8 @@ struct StreamView: View {
     @Environment(\.dimensions) private var dimensions
     @State private var isEditingTouchLayout = false
 
-    let stream: StreamViewModel
-    let settings: SettingsViewModel
+    let streamViewModel: StreamViewModel
+    let settingsViewModel: SettingsViewModel
     let controllers: ControllerHub
 
     let onClose: () -> Void
@@ -25,92 +25,97 @@ struct StreamView: View {
             Color.black
                 .ignoresSafeArea()
 
-            StreamPicture(renderer: stream.renderer, isVisible: stream.hasFirstFrame)
+            StreamPicture(
+                renderer: streamViewModel.renderer,
+                isVisible: streamViewModel.hasFirstFrame
+            )
 
-            if stream.isWaitingForPicture {
+            if streamViewModel.isWaitingForPicture {
                 statusView
             }
 
-            switch stream.touchControls {
-            case let touch?: touchLayer(touch)
+            switch streamViewModel.touchControls {
+            case let touchControlsViewModel?: touchLayer(touchControlsViewModel)
             case nil: EmptyView()
             }
 
-            if stream.isShowingStatistics {
-                StreamStatisticsView(readout: stream.statisticsReadout)
+            if streamViewModel.isShowingStatistics {
+                StreamStatisticsView(readout: streamViewModel.statisticsReadout)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .padding(dimensions.spaceLarge)
                     .allowsHitTesting(false)
             }
 
-            if stream.isStreaming {
+            if streamViewModel.isStreaming {
                 menuLayer
             }
         }
         .contentShape(.rect)
         .onTapGesture { reveal() }
-        .animation(.smooth(duration: 0.3), value: stream.isMenuOpen)
+        .animation(.smooth(duration: 0.3), value: streamViewModel.isMenuOpen)
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
         .defersSystemGestures(on: .all)
-        .sensoryFeedback(trigger: stream.phase) { _, phase in phase.arrivalFeedback }
+        .sensoryFeedback(trigger: streamViewModel.phase) { _, phase in phase.arrivalFeedback }
         .sensoryFeedback(.impact(weight: .light), trigger: controllers.connected.count)
-        .sensoryFeedback(.impact(weight: .light), trigger: stream.isMenuOpen) { _, isOpen in
+        .sensoryFeedback(.impact(weight: .light), trigger: streamViewModel.isMenuOpen) {
+            _,
+            isOpen in
             isOpen
         }
         .landscapeOnPhone()
-        .streamKeyboardInput(stream)
-        .onAppear { stream.revealControls() }
-        .onChange(of: stream.isRoutingInputToGame, initial: true) { _, isRouting in
+        .streamKeyboardInput(streamViewModel)
+        .onAppear { streamViewModel.revealControls() }
+        .onChange(of: streamViewModel.isRoutingInputToGame, initial: true) { _, isRouting in
             controllers.routeInput(toGame: isRouting)
         }
         .onChange(of: scenePhase, initial: true) { _, phase in
-            stream.moveToForeground(phase == .active)
-
-            if phase != .active { stream.releaseKeyboard() }
+            switch phase {
+            case .active: streamViewModel.enterForeground()
+            default: streamViewModel.enterBackground()
+            }
         }
         .onDisappear { controllers.routeInput(toGame: false) }
-        .fullScreenCover(isPresented: $isEditingTouchLayout) {
-            settings.finishEditingTouchLayout()
-        } content: {
-            touchLayoutEditor
-        }
+        .touchLayoutEditorCover(
+            isPresented: $isEditingTouchLayout,
+            settingsViewModel: settingsViewModel
+        )
         .sheet(item: presentedDialog) { dialog in
-            SystemDialogView(dialogs: stream.dialogs, dialog: dialog)
+            SystemDialogView(systemDialogsViewModel: streamViewModel.dialogs, dialog: dialog)
                 .interactiveDismissDisabled()
         }
     }
 
-    private func touchLayer(_ touch: TouchControlsViewModel) -> some View {
+    private func touchLayer(_ touchControlsViewModel: TouchControlsViewModel) -> some View {
         TouchControlsLayer(
-            touch: touch,
-            isActive: stream.isShowingTouchControls,
+            touchControlsViewModel: touchControlsViewModel,
+            isActive: streamViewModel.isShowingTouchControls,
             onConnect: { controllers.checkControllers() }
         )
     }
 
     private func reveal() {
-        stream.revealControls()
+        streamViewModel.revealControls()
 
-        stream.touchControls?.reveal()
+        streamViewModel.touchControls?.reveal()
     }
 
     private var statusView: some View {
         StreamStatusView(
-            name: stream.target.name,
-            status: stream.status,
-            backdrop: stream.backdrop,
-            isXboxButtonTakenBySystem: stream.isXboxButtonTakenBySystem,
+            name: streamViewModel.target.name,
+            status: streamViewModel.status,
+            backdrop: streamViewModel.backdrop,
+            isXboxButtonTakenBySystem: streamViewModel.isXboxButtonTakenBySystem,
             onClose: onClose,
-            onTryAgain: { stream.tryAgain() },
-            onOpenXboxButtonSettings: { stream.openXboxButtonSettings() }
+            onTryAgain: { streamViewModel.tryAgain() },
+            onOpenXboxButtonSettings: { streamViewModel.openXboxButtonSettings() }
         )
         .ignoresSafeArea()
     }
 
     @ViewBuilder
     private var menuLayer: some View {
-        switch (stream.isMenuOpen, stream.isShowingMenuHandle) {
+        switch (streamViewModel.isMenuOpen, streamViewModel.isShowingMenuHandle) {
         case (true, _): openMenu
         case (false, true): menuHandle
         case (false, false): EmptyView()
@@ -121,11 +126,11 @@ struct StreamView: View {
         ZStack(alignment: .top) {
             Color.clear
                 .contentShape(.rect)
-                .onTapGesture { stream.closeMenu() }
+                .onTapGesture { streamViewModel.closeMenu() }
 
             StreamMenu(
-                settings: settings,
-                stream: stream,
+                settingsViewModel: settingsViewModel,
+                streamViewModel: streamViewModel,
                 onEditTouchControls: { editTouchLayout() },
                 onDisconnect: onClose
             )
@@ -136,28 +141,22 @@ struct StreamView: View {
     }
 
     private func editTouchLayout() {
-        stream.closeMenu()
-        settings.editTouchLayout()
-
+        streamViewModel.closeMenu()
+        settingsViewModel.editTouchLayout()
         isEditingTouchLayout = true
     }
 
-    @ViewBuilder
-    private var touchLayoutEditor: some View {
-        if let editor = settings.touchLayoutEditor {
-            TouchLayoutEditorView(editor: editor)
-        }
-    }
-
     private var menuHandle: some View {
-        StreamMenuHandle(isDimmed: !stream.areControlsRevealed) { stream.openMenu() }
-            .padding(.top, dimensions.spaceXSmall)
-            .frame(maxHeight: .infinity, alignment: .top)
-            .transition(.opacity)
+        StreamMenuHandle(isDimmed: !streamViewModel.areControlsRevealed) {
+            streamViewModel.openMenu()
+        }
+        .padding(.top, dimensions.spaceXSmall)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .transition(.opacity)
     }
 
     private var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
+        .init(get: { streamViewModel.dialogs.presentedDialog }, set: { _ in })
     }
 }
 
@@ -169,8 +168,8 @@ struct StreamView: View {
     )
 
     StreamView(
-        stream: preview.stream,
-        settings: preview.settings,
+        streamViewModel: preview.stream,
+        settingsViewModel: preview.settings,
         controllers: .init(routing: .direct)
     ) {}
 }
@@ -179,8 +178,8 @@ struct StreamView: View {
     let preview = PreviewObjectPool.cloudStreamPreview(phase: .connecting)
 
     StreamView(
-        stream: preview.stream,
-        settings: preview.settings,
+        streamViewModel: preview.stream,
+        settingsViewModel: preview.settings,
         controllers: .init(routing: .direct)
     ) {}
 }

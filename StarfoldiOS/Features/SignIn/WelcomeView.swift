@@ -9,13 +9,17 @@ import StarfoldShared
 import SwiftUI
 
 struct WelcomeView: View {
+    private enum Arrangement {
+        case sideBySide, column, landscape, stacked
+    }
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.skipsEntranceAnimations) private var skipsEntranceAnimations
     @Environment(\.dimensions) private var dimensions
     @State private var hasEntered = false
 
-    let signIn: SignInViewModel
+    let signInViewModel: SignInViewModel
 
     private var isVisible: Bool {
         hasEntered || skipsEntranceAnimations
@@ -26,26 +30,30 @@ struct WelcomeView: View {
             layout(in: geometry.size)
         }
         .onAppear { enter() }
-        .task(id: signIn.attempt) { await signIn.run() }
+        .task(id: signInViewModel.attempt) { await signInViewModel.run() }
     }
 
     @ViewBuilder
     private func layout(in size: CGSize) -> some View {
-        if hasRoomSideBySide(in: size) {
-            sideBySide
-        } else if horizontalSizeClass == .regular {
-            column
-        } else if size.width > size.height {
-            landscape
-        } else {
-            stacked
+        switch arrangement(in: size) {
+        case .sideBySide: sideBySide
+        case .column: column
+        case .landscape: landscape
+        case .stacked: stacked
         }
     }
 
-    private func hasRoomSideBySide(in size: CGSize) -> Bool {
-        let isWideEnough = size.width >= dimensions.welcomeSideBySideMinimumWidth
-        let isTallEnough = size.height >= dimensions.welcomeSideBySideMinimumHeight
-        return isWideEnough && isTallEnough
+    private func arrangement(in size: CGSize) -> Arrangement {
+        let hasRoomSideBySide =
+            size.width >= dimensions.welcomeSideBySideMinimumWidth
+            && size.height >= dimensions.welcomeSideBySideMinimumHeight
+
+        return switch (hasRoomSideBySide, horizontalSizeClass, size.width > size.height) {
+        case (true, _, _): .sideBySide
+        case (false, .regular, _): .column
+        case (false, _, true): .landscape
+        case (false, _, false): .stacked
+        }
     }
 
     private var sideBySide: some View {
@@ -106,8 +114,12 @@ struct WelcomeView: View {
     }
 
     private func signInSheet(placement: WelcomeSignInPlacement) -> some View {
-        WelcomeSignInSheet(step: signIn.step, placement: placement, onRetry: { signIn.retry() })
-            .frame(maxWidth: dimensions.welcomeSheetMaxWidth)
+        WelcomeSignInSheet(
+            step: signInViewModel.step,
+            placement: placement,
+            onRetry: { signInViewModel.retry() }
+        )
+        .frame(maxWidth: dimensions.welcomeSheetMaxWidth)
     }
 
     private func glyphAndSteps(glyphSize: CGFloat) -> some View {
@@ -122,7 +134,7 @@ struct WelcomeView: View {
     }
 
     private var pitch: some View {
-        WelcomePitch(features: signIn.welcomeFeatures, isInPlace: isInPlace)
+        WelcomePitch(features: signInViewModel.welcomeFeatures, isInPlace: isInPlace)
             .frame(maxWidth: dimensions.welcomePitchMaxWidth, alignment: .leading)
             .opacity(isVisible ? 1 : 0)
     }
@@ -132,7 +144,7 @@ struct WelcomeView: View {
     }
 
     private var signInCard: some View {
-        WelcomeSignInCard(step: signIn.step, onRetry: { signIn.retry() })
+        signInSheet(placement: .center)
             .opacity(isVisible ? 1 : 0)
     }
 
@@ -146,18 +158,7 @@ struct WelcomeView: View {
 #if DEBUG
 #Preview {
     WelcomeView(
-        signIn: PreviewObjectPool.signInViewModel(
-            phase: .waiting(PreviewObjectPool.deviceCodePrompt)
-        )
-    )
-    .background { SkyBackground() }
-    .environment(\.skipsEntranceAnimations, true)
-    .environment(\.colorScheme, .dark)
-}
-
-#Preview("Narrow window") {
-    WelcomeView(
-        signIn: PreviewObjectPool.signInViewModel(
+        signInViewModel: PreviewObjectPool.signInViewModel(
             phase: .waiting(PreviewObjectPool.deviceCodePrompt)
         )
     )

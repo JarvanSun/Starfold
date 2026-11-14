@@ -64,11 +64,11 @@ struct StreamStatusView: View {
         PreviewObjectPool.cloudStreamViewModel(phase: PreviewObjectPool.queuedPhase),
         PreviewObjectPool.streamViewModel(phase: PreviewObjectPool.hostNotRegisteredPhase),
     ]
-) { stream in
+) { streamViewModel in
     StreamStatusView(
-        name: stream.target.name,
-        status: stream.status,
-        backdrop: stream.backdrop,
+        name: streamViewModel.target.name,
+        status: streamViewModel.status,
+        backdrop: streamViewModel.backdrop,
         isXboxButtonTakenBySystem: false,
         onClose: {},
         onTryAgain: {},

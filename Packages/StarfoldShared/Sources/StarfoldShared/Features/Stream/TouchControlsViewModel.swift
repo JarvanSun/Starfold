@@ -13,10 +13,10 @@ import os
 
 @Observable
 public final class TouchControlsViewModel {
-    public private(set) var reference: TouchLayoutReference = .standard
-    public private(set) var isHiddenByGame = false
+    private(set) var reference: TouchLayoutReference = .standard
+    private var isHiddenByGame = false
 
-    private(set) var titleBundle: TouchBundle?
+    private var titleBundle: TouchBundle?
     private(set) var titleLayout: TouchLayout?
 
     private let controllers: ControllerHub

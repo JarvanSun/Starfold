@@ -40,4 +40,8 @@ extension CloudAccess {
         case .unknown: nil
         }
     }
+
+    public func rowStatus(gameCount: Int) -> LocalizedStringResource {
+        cardSubtitle(gameCount: gameCount) ?? statusText
+    }
 }

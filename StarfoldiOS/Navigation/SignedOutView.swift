@@ -9,12 +9,12 @@ import StarfoldShared
 import SwiftUI
 
 struct SignedOutView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @State private var isShowingSettings = false
 
     var body: some View {
         NavigationStack {
-            SignInHostView { WelcomeView(signIn: $0) }
+            SignInHostView { WelcomeView(signInViewModel: $0) }
                 .background { SkyBackground() }
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -22,12 +22,12 @@ struct SignedOutView: View {
                     }
                 }
         }
-        .sheet(isPresented: $isShowingSettings) { settings }
+        .sheet(isPresented: $isShowingSettings) { settingsViewModel }
     }
 
-    private var settings: some View {
+    private var settingsViewModel: some View {
         NavigationStack {
-            SettingsView(settings: app.settings, onAddAccount: {})
+            SettingsView(settingsViewModel: appViewModel.settings, onAddAccount: {})
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) { isShowingSettings = false }

@@ -11,9 +11,9 @@ import SwiftUI
 
 struct StreamMenu: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
-    let stream: StreamViewModel
+    let streamViewModel: StreamViewModel
 
     let onEditTouchControls: () -> Void
     let onDisconnect: () -> Void
@@ -42,9 +42,9 @@ struct StreamMenu: View {
 
     private var actions: some View {
         HStack(spacing: dimensions.spaceSmall) {
-            actionButton("stream.menu.guide", symbol: "xbox.logo") { stream.openGuide() }
+            actionButton("stream.menu.guide", symbol: "xbox.logo") { streamViewModel.openGuide() }
 
-            Toggle(isOn: $settings.shouldShowStatistics) {
+            Toggle(isOn: $settingsViewModel.shouldShowStatistics) {
                 actionLabel("stream.menu.statistics", symbol: "chart.bar.fill")
             }
             .toggleStyle(.button)
@@ -85,8 +85,11 @@ struct StreamMenu: View {
 
     private var pictureModePicker: some View {
         LabeledContent(String(localized: "stream.menu.pictureMode")) {
-            Picker(String(localized: "stream.menu.pictureMode"), selection: $settings.pictureFit) {
-                ForEach(settings.pictureFits, id: \.self) { fit in
+            Picker(
+                String(localized: "stream.menu.pictureMode"),
+                selection: $settingsViewModel.pictureFit
+            ) {
+                ForEach(settingsViewModel.pictureFits, id: \.self) { fit in
                     Text(fit.title).tag(fit)
                 }
             }
@@ -97,8 +100,11 @@ struct StreamMenu: View {
 
     private var bufferPicker: some View {
         LabeledContent(String(localized: "stream.menu.buffer")) {
-            Picker(String(localized: "stream.menu.buffer"), selection: $settings.pacingMode) {
-                ForEach(settings.pacingModes, id: \.self) { mode in
+            Picker(
+                String(localized: "stream.menu.buffer"),
+                selection: $settingsViewModel.pacingMode
+            ) {
+                ForEach(settingsViewModel.pacingModes, id: \.self) { mode in
                     Text(mode.title).tag(mode)
                 }
             }
@@ -113,8 +119,8 @@ struct StreamMenu: View {
     let preview = PreviewObjectPool.cloudStreamPreview(phase: .streaming)
 
     StreamMenu(
-        settings: preview.settings,
-        stream: preview.stream,
+        settingsViewModel: preview.settings,
+        streamViewModel: preview.stream,
         onEditTouchControls: {},
         onDisconnect: {}
     )

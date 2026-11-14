@@ -48,8 +48,7 @@ struct GSSVClientTouchBundlesTests {
         let configurations = try await client.inputConfigurations(xboxTitleIDs: ["1", "2"])
 
         // Then
-        #expect(configurations.map(\.hasTouchLayout) == [true, false])
-        #expect(configurations.first?.touchBundleIDs == ["7c1e2f-touch"])
+        #expect(configurations.map(\.touchBundleIDs) == [["7c1e2f-touch"], []])
     }
 
     @Test

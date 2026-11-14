@@ -79,6 +79,13 @@ extension Dimensions {
     var settingsMaxWidth: CGFloat { 720 }
     var touchPlaceholderDash: CGFloat { 6 }
 
+    func homeCardHeight(forVerticalSizeClass sizeClass: UserInterfaceSizeClass?) -> CGFloat {
+        switch sizeClass {
+        case .compact: homeCardCompactHeight
+        default: homeCardHeight
+        }
+    }
+
     func touchMetrics(forVerticalSizeClass sizeClass: UserInterfaceSizeClass?) -> TouchMetrics {
         switch sizeClass {
         case .regular:

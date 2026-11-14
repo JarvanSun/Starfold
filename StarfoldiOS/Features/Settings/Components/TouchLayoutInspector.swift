@@ -11,20 +11,23 @@ import SwiftUI
 struct TouchLayoutInspector: View {
     @Environment(\.dimensions) private var dimensions
 
-    @Bindable var editor: TouchLayoutEditorViewModel
+    @Bindable var touchLayoutEditorViewModel: TouchLayoutEditorViewModel
 
     var body: some View {
         VStack(spacing: dimensions.spaceMedium) {
-            if editor.isStickSelected {
+            if touchLayoutEditorViewModel.isStickSelected {
                 stickVisibility
             }
 
             LabeledContent {
-                Slider(value: $editor.selectedScale, in: editor.scaleRange)
+                Slider(
+                    value: $touchLayoutEditorViewModel.selectedScale,
+                    in: touchLayoutEditorViewModel.scaleRange
+                )
             } label: {
                 Text("touchEditor.size")
             }
-            .disabled(!editor.canResizeSelection)
+            .disabled(!touchLayoutEditorViewModel.canResizeSelection)
         }
         .padding(dimensions.spaceMedium)
         .frame(width: dimensions.touchInspectorWidth)
@@ -32,21 +35,22 @@ struct TouchLayoutInspector: View {
     }
 
     private var stickVisibility: some View {
-        Picker("touchEditor.stick", selection: $editor.selectedStickVisibility) {
+        Picker("touchEditor.stick", selection: $touchLayoutEditorViewModel.selectedStickVisibility)
+        {
             ForEach(TouchStickVisibility.allCases, id: \.self) { visibility in
                 Text(visibility.title)
             }
         }
         .pickerStyle(.segmented)
         .labelsHidden()
-        .sensoryFeedback(.selection, trigger: editor.selectedStickVisibility)
+        .sensoryFeedback(.selection, trigger: touchLayoutEditorViewModel.selectedStickVisibility)
     }
 }
 
 #if DEBUG
 #Preview {
-    if let editor = PreviewObjectPool.touchLayoutEditor {
-        TouchLayoutInspector(editor: editor)
+    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditor {
+        TouchLayoutInspector(touchLayoutEditorViewModel: touchLayoutEditorViewModel)
             .padding()
             .background(.black)
             .environment(\.colorScheme, .dark)

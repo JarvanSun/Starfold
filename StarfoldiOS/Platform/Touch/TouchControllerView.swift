@@ -16,12 +16,12 @@ final class TouchControllerView: MTKView {
         var point: CGPoint
     }
 
-    var isHapticsEnabled = false
     var stickPassThroughZone: CGSize = .zero
 
     private let commandQueue: MTLCommandQueue?
     private let pressFeedback = UIImpactFeedbackGenerator(style: .light)
 
+    private var isHapticsEnabled = false
     private var touchController: TCTouchController?
     private var touches: [ObjectIdentifier: TrackedTouch] = [:]
     private var plan: TouchControlPlan?
@@ -85,13 +85,20 @@ final class TouchControllerView: MTKView {
         }
     }
 
-    func setActive(_ isActive: Bool, isInteractive: Bool) {
-        isPaused = !isActive
-        isHidden = !isActive
-        isUserInteractionEnabled = isActive && isInteractive
-        presentsWithTransaction = !isInteractive
+    func apply(_ mode: TouchControlsMode) {
+        isPaused = mode == .hidden
+        isHidden = mode == .hidden
+        presentsWithTransaction = mode == .preview
 
-        if !isUserInteractionEnabled { releaseAllTouches() }
+        switch mode {
+        case .playing(let isHapticsEnabled):
+            isUserInteractionEnabled = true
+            self.isHapticsEnabled = isHapticsEnabled
+        case .hidden, .preview:
+            isUserInteractionEnabled = false
+            isHapticsEnabled = false
+            releaseAllTouches()
+        }
     }
 
     func disconnect() {
@@ -102,10 +109,7 @@ final class TouchControllerView: MTKView {
     }
 
     private func connectedController() -> TCTouchController {
-        switch touchController {
-        case let controller?: return controller
-        case nil: return makeController()
-        }
+        touchController ?? makeController()
     }
 
     private func makeController() -> TCTouchController {

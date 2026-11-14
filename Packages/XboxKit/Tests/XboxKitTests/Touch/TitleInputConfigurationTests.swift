@@ -42,7 +42,19 @@ struct TitleInputConfigurationTests {
         )
 
         // Then
-        #expect(!configuration.hasTouchLayout)
+        #expect(configuration.touchBundleIDs.isEmpty)
         #expect(configuration.inputTypes.isEmpty)
+    }
+
+    @Test
+    func initWhenATouchBundleHasNoIDThenSkipsOnlyThatBundle() throws {
+        // Given / When
+        let configuration = try JSONDecoder().decode(
+            TitleInputConfiguration.self,
+            from: Data(#"{"supportedTabs":[{"name":"Untitled"},{"id":"7c1e2f-touch"}]}"#.utf8)
+        )
+
+        // Then
+        #expect(configuration.touchBundleIDs == ["7c1e2f-touch"])
     }
 }

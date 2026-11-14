@@ -22,7 +22,7 @@ struct MessageCard<Action: View>: View {
         layout
             .padding(dimensions.spaceXLarge)
             .frame(maxWidth: .infinity)
-            .frame(height: height)
+            .frame(height: dimensions.homeCardHeight(forVerticalSizeClass: verticalSizeClass))
             .cardSurface()
     }
 
@@ -52,13 +52,6 @@ struct MessageCard<Action: View>: View {
 
                 Spacer()
             }
-        }
-    }
-
-    private var height: CGFloat {
-        switch verticalSizeClass {
-        case .compact: dimensions.homeCardCompactHeight
-        default: dimensions.homeCardHeight
         }
     }
 

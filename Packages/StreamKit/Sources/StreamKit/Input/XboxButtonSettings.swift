@@ -19,10 +19,6 @@ public final class XboxButtonSettings {
     @ObservationIgnored private var changes: Task<Void, Never>?
     @ObservationIgnored private var isControllerConnected = false
 
-    public var canOpenSettings: Bool {
-        source != nil
-    }
-
     public convenience init() {
         self.init(source: XboxButtonSettingsSource())
     }

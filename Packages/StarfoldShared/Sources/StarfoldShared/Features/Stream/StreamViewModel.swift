@@ -482,8 +482,13 @@ public final class StreamViewModel {
         isMenuOpen = false
     }
 
-    public func moveToForeground(_ isInForeground: Bool) {
-        self.isInForeground = isInForeground
+    public func enterForeground() {
+        isInForeground = true
+    }
+
+    public func enterBackground() {
+        isInForeground = false
+        releaseKeyboard()
     }
 
     public func openGuide() {

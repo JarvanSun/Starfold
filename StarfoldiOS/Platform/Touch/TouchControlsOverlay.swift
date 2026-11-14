@@ -12,11 +12,9 @@ struct TouchControlsOverlay: UIViewRepresentable {
     @Environment(\.dimensions) private var dimensions
 
     let plan: TouchControlPlan
-    let isActive: Bool
-    let isInteractive: Bool
-    let isHapticsEnabled: Bool
+    let mode: TouchControlsMode
 
-    let onConnect: () -> Void
+    var onConnect: () -> Void = {}
 
     func makeUIView(context: Context) -> TouchControllerView {
         let view = TouchControllerView()
@@ -27,8 +25,7 @@ struct TouchControlsOverlay: UIViewRepresentable {
 
     func updateUIView(_ view: TouchControllerView, context: Context) {
         view.show(plan)
-        view.setActive(isActive, isInteractive: isInteractive)
-        view.isHapticsEnabled = isHapticsEnabled
+        view.apply(mode)
         view.stickPassThroughZone = dimensions.streamMenuHandleZone
     }
 

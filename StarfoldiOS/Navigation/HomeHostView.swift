@@ -12,23 +12,25 @@ import XboxKit
 struct HomeHostView: View {
     @State private var path: [HomeRoute] = []
 
-    let home: HomeViewModel
-    @Bindable var library: LibraryViewModel
+    let homeViewModel: HomeViewModel
+    @Bindable var libraryViewModel: LibraryViewModel
 
     let onAddAccount: () -> Void
 
     var body: some View {
         NavigationStack(path: $path) {
-            HomeView(home: home, library: library) { path.append(.cloudGaming) }
-                .background { SkyBackground() }
-                .navigationTitle(Text("app.tab.home"))
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        AccountMenu(onAddAccount: onAddAccount)
-                    }
-                    .sharedBackgroundVisibility(.hidden)
+            HomeView(homeViewModel: homeViewModel, libraryViewModel: libraryViewModel) {
+                path.append(.cloudGaming)
+            }
+            .background { SkyBackground() }
+            .navigationTitle(Text("app.tab.home"))
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    AccountMenu(onAddAccount: onAddAccount)
                 }
-                .navigationDestination(for: HomeRoute.self) { destination(for: $0) }
+                .sharedBackgroundVisibility(.hidden)
+            }
+            .navigationDestination(for: HomeRoute.self) { destination(for: $0) }
         }
     }
 
@@ -47,11 +49,11 @@ struct HomeHostView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    SortPicker(sort: $library.sort, choices: library.sortChoices)
+                    SortPicker(sort: $libraryViewModel.sort, choices: libraryViewModel.sortChoices)
                 }
             }
             .searchable(
-                text: $library.searchText,
+                text: $libraryViewModel.searchText,
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Text("search.field.prompt")
             )
@@ -60,9 +62,10 @@ struct HomeHostView: View {
 
     @ViewBuilder
     private var cloudGamingContent: some View {
-        switch library.isSearching {
-        case true: SearchResultsView(library: library, onOpenGame: { openGame($0) })
-        case false: LibraryView(library: library, onOpenGame: { openGame($0) })
+        switch libraryViewModel.isSearching {
+        case true:
+            SearchResultsView(libraryViewModel: libraryViewModel, onOpenGame: { openGame($0) })
+        case false: LibraryView(libraryViewModel: libraryViewModel, onOpenGame: { openGame($0) })
         }
     }
 
@@ -71,7 +74,7 @@ struct HomeHostView: View {
     }
 
     private func gameDetail(_ game: CloudGame) -> some View {
-        GameDetailView(detail: library.detail(for: game))
+        GameDetailView(gameDetailViewModel: libraryViewModel.detail(for: game))
             .background { SkyBackground() }
     }
 }
@@ -79,8 +82,8 @@ struct HomeHostView: View {
 #if DEBUG
 #Preview("Home") {
     HomeHostView(
-        home: PreviewObjectPool.homeViewModel(),
-        library: PreviewObjectPool.libraryViewModel()
+        homeViewModel: PreviewObjectPool.homeViewModel(),
+        libraryViewModel: PreviewObjectPool.libraryViewModel()
     ) {}
     .environment(PreviewObjectPool.appViewModel(signedIn: true))
     .preferredColorScheme(.dark)

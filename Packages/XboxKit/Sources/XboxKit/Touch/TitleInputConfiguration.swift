@@ -12,15 +12,11 @@ public struct TitleInputConfiguration: Sendable, Hashable, Decodable {
     }
 
     private struct TouchBundleReference: Decodable {
-        let id: String
+        let id: String?
     }
 
     public let touchBundleIDs: [String]
     public let inputTypes: [TitleInputType]
-
-    public var hasTouchLayout: Bool {
-        !touchBundleIDs.isEmpty
-    }
 
     public init(touchBundleIDs: [String], inputTypes: [TitleInputType]) {
         self.touchBundleIDs = touchBundleIDs
@@ -34,7 +30,7 @@ public struct TitleInputConfiguration: Sendable, Hashable, Decodable {
             forKey: .touchBundles
         )
 
-        touchBundleIDs = bundles?.map(\.id) ?? []
+        touchBundleIDs = bundles?.compactMap(\.id) ?? []
         inputTypes = try container.decodeIfPresent([TitleInputType].self, forKey: .inputTypes) ?? []
     }
 }

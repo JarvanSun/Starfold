@@ -31,6 +31,20 @@ struct TouchLayoutEditorViewModelTests {
     }
 
     @Test
+    func selectedPlacementThenFindsTheSelectedControlInAPlan() throws {
+        // Given
+        let editor = TouchLayoutEditorViewModel(preferences: .init(defaults: .dummyEmpty))
+        let a = try control(.button(.a), in: editor)
+        editor.select(a)
+
+        // When
+        let selected = editor.selectedPlacement(in: editor.plan(for: .dummy))
+
+        // Then
+        #expect(selected?.id == a.id)
+    }
+
+    @Test
     func moveThenIsMovingUntilTheMoveEnds() throws {
         // Given
         let editor = TouchLayoutEditorViewModel(preferences: .init(defaults: .dummyEmpty))

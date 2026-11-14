@@ -10,22 +10,26 @@ import StreamKit
 import SwiftUI
 
 struct StreamCoverView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.dismiss) private var dismiss
 
     @ViewBuilder
     var body: some View {
-        switch app.stream {
-        case let stream?: streamView(stream)
+        switch appViewModel.stream {
+        case let streamViewModel?: streamView(streamViewModel)
         case nil: noStream
         }
     }
 
-    private func streamView(_ stream: StreamViewModel) -> some View {
-        StreamView(stream: stream, settings: app.settings, controllers: app.controllers) {
+    private func streamView(_ streamViewModel: StreamViewModel) -> some View {
+        StreamView(
+            streamViewModel: streamViewModel,
+            settingsViewModel: appViewModel.settings,
+            controllers: appViewModel.controllers
+        ) {
             dismiss()
         }
-        .id(ObjectIdentifier(stream))
+        .id(ObjectIdentifier(streamViewModel))
     }
 
     private var noStream: some View {

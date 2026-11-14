@@ -20,7 +20,7 @@ final class BackgroundStreamEnd {
         let taskName = "End Xbox session"
 
         task = UIApplication.shared.beginBackgroundTask(withName: taskName) { [weak self] in
-            self?.log.warning("Background stream end ran out of time")
+            self?.log.warning("Background streamViewModel end ran out of time")
 
             self?.finish()
         }

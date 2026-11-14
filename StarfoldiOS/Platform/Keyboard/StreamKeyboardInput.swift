@@ -11,7 +11,7 @@ import StreamKit
 import SwiftUI
 
 struct StreamKeyboardInput: ViewModifier {
-    let stream: StreamViewModel
+    let streamViewModel: StreamViewModel
 
     func body(content: Content) -> some View {
         content
@@ -27,7 +27,7 @@ struct StreamKeyboardInput: ViewModifier {
             guard let key = KeyboardKey(keyCode: keyCode) else { return }
 
             MainActor.assumeIsolated {
-                _ = stream.handleKey(key.rawValue, isDown: isPressed)
+                _ = streamViewModel.handleKey(key.rawValue, isDown: isPressed)
             }
         }
     }
@@ -35,12 +35,12 @@ struct StreamKeyboardInput: ViewModifier {
     private func stopListening() {
         GCKeyboard.coalesced?.keyboardInput?.keyChangedHandler = nil
 
-        stream.releaseKeyboard()
+        streamViewModel.releaseKeyboard()
     }
 }
 
 extension View {
-    func streamKeyboardInput(_ stream: StreamViewModel) -> some View {
-        modifier(StreamKeyboardInput(stream: stream))
+    func streamKeyboardInput(_ streamViewModel: StreamViewModel) -> some View {
+        modifier(StreamKeyboardInput(streamViewModel: streamViewModel))
     }
 }

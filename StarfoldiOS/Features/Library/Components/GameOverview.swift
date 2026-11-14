@@ -49,8 +49,8 @@ struct GameOverview: View {
 
 #if DEBUG
 #Preview {
-    let detail = PreviewObjectPool.gameDetailViewModel
-    GameOverview(about: detail.about, facts: detail.facts)
+    let gameDetailViewModel = PreviewObjectPool.gameDetailViewModel
+    GameOverview(about: gameDetailViewModel.about, facts: gameDetailViewModel.facts)
         .padding()
         .environment(\.colorScheme, .dark)
 }

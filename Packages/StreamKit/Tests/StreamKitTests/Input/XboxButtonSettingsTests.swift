@@ -90,7 +90,7 @@ struct XboxButtonSettingsTests {
     }
 
     @Test
-    func initWithoutSourceThenCannotOpenSettingsAndOwnerStaysUnknown() {
+    func initWithoutSourceThenOwnerStaysUnknown() {
         // Given
         let settings = XboxButtonSettings(source: nil)
 
@@ -98,7 +98,6 @@ struct XboxButtonSettingsTests {
         settings.setControllerConnected(true)
 
         // Then
-        #expect(!settings.canOpenSettings)
         #expect(settings.owner == .unknown)
     }
 }

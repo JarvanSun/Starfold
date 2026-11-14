@@ -9,19 +9,19 @@ import StarfoldShared
 import SwiftUI
 
 struct DisplaySettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section("settings.display.header") {
-            Picker("settings.picture.mode.title", selection: $settings.pictureFit) {
-                ForEach(settings.pictureFits, id: \.self) { fit in
+            Picker("settings.picture.mode.title", selection: $settingsViewModel.pictureFit) {
+                ForEach(settingsViewModel.pictureFits, id: \.self) { fit in
                     Text(fit.title).tag(fit)
                 }
             }
 
-            Toggle("settings.picture.statistics", isOn: $settings.shouldShowStatistics)
+            Toggle("settings.picture.statistics", isOn: $settingsViewModel.shouldShowStatistics)
 
-            PalettePicker(selection: $settings.palette)
+            PalettePicker(selection: $settingsViewModel.palette)
         }
     }
 }
@@ -29,7 +29,7 @@ struct DisplaySettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        DisplaySettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        DisplaySettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

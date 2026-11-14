@@ -13,12 +13,12 @@ struct HomeCardRow: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dimensions) private var dimensions
 
-    let home: HomeViewModel
+    let homeViewModel: HomeViewModel
 
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: dimensions.spaceLarge) {
-                switch home.consolesContent {
+                switch homeViewModel.consolesContent {
                 case .loading: card(SkeletonCard(), index: 0)
                 case .failed(let message): card(failedCard(message), index: 0)
                 case .empty: card(NoConsolesCard(onRefresh: { refreshConsoles() }), index: 0)
@@ -39,26 +39,25 @@ struct HomeCardRow: View {
     }
 
     private func refreshConsoles() {
-        Task { await home.refreshConsoles() }
+        Task { await homeViewModel.refreshConsoles() }
     }
 
     private var consoleCards: some View {
-        ForEach(Array(home.consoles.enumerated()), id: \.element.id) { index, console in
-            card(ConsoleCard(console: console, home: home), index: index)
+        ForEach(Array(homeViewModel.consoles.enumerated()), id: \.element.id) { index, console in
+            card(ConsoleCard(console: console, homeViewModel: homeViewModel), index: index)
         }
     }
 
-    @ViewBuilder
     private func card(_ content: some View, index: Int) -> some View {
+        sized(content)
+            .cardEntrance(index: index)
+    }
+
+    @ViewBuilder
+    private func sized(_ content: some View) -> some View {
         switch horizontalSizeClass {
-        case .compact:
-            content
-                .containerRelativeFrame(.horizontal)
-                .cardEntrance(index: index)
-        default:
-            content
-                .frame(width: dimensions.homeCardWidth)
-                .cardEntrance(index: index)
+        case .compact: content.containerRelativeFrame(.horizontal)
+        default: content.frame(width: dimensions.homeCardWidth)
         }
     }
 }
@@ -66,9 +65,9 @@ struct HomeCardRow: View {
 #if DEBUG
 #Preview {
     VStack {
-        HomeCardRow(home: PreviewObjectPool.homeViewModel())
+        HomeCardRow(homeViewModel: PreviewObjectPool.homeViewModel())
 
-        HomeCardRow(home: PreviewObjectPool.homeViewModel(consoles: []))
+        HomeCardRow(homeViewModel: PreviewObjectPool.homeViewModel(consoles: []))
     }
     .environment(\.skipsEntranceAnimations, true)
     .environment(\.colorScheme, .dark)

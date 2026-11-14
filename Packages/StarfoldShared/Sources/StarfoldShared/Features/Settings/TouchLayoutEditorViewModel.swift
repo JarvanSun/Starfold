@@ -11,15 +11,21 @@ import XboxKit
 
 @Observable
 public final class TouchLayoutEditorViewModel {
-    public private(set) var selectedID: String?
     public private(set) var orientation: TouchOrientation = .landscape
+
+    public let scaleRange: ClosedRange<Double> = 0.7...1.5
+    public let opacityRange: ClosedRange<Double> = 0.3...1
 
     private let preferences: Preferences
     private let standard = StandardTouchLayout()
 
     private var adjustments = TouchLayoutAdjustments()
-    private var selectedInput: TouchInput?
+    private var selected: TouchControlPlacement?
     private var movingFrom: (id: String, offset: CGPoint)?
+
+    public var selectedID: String? {
+        selected?.id
+    }
 
     public var opacity: Double {
         get { adjustments.opacity }
@@ -27,16 +33,16 @@ public final class TouchLayoutEditorViewModel {
     }
 
     public var selectedStickVisibility: TouchStickVisibility {
-        get { selectedInput.map(preferences.touchSticks.visibility(of:)) ?? .always }
+        get { selected.map { preferences.touchSticks.visibility(of: $0.input) } ?? .always }
         set {
-            guard let selectedInput else { return }
+            guard let selected else { return }
 
-            preferences.touchSticks.setVisibility(newValue, of: selectedInput)
+            preferences.touchSticks.setVisibility(newValue, of: selected.input)
         }
     }
 
     public var isStickSelected: Bool {
-        switch selectedInput {
+        switch selected?.input {
         case .leftStick, .rightStick: true
         case .button, .leftTrigger, .rightTrigger, .directionPad, nil: false
         }
@@ -51,15 +57,7 @@ public final class TouchLayoutEditorViewModel {
         set { changeSelected { $0.scale = newValue } }
     }
 
-    public var scaleRange: ClosedRange<Double> {
-        0.7...1.5
-    }
-
-    public var opacityRange: ClosedRange<Double> {
-        0.3...1
-    }
-
-    public var hasSelection: Bool {
+    var hasSelection: Bool {
         selectedID != nil
     }
 
@@ -81,8 +79,11 @@ public final class TouchLayoutEditorViewModel {
     }
 
     public func select(_ placement: TouchControlPlacement?) {
-        selectedID = placement?.id
-        selectedInput = placement?.input
+        selected = placement
+    }
+
+    public func selectedPlacement(in plan: TouchControlPlan) -> TouchControlPlacement? {
+        plan.controls.first { $0.id == selectedID }
     }
 
     public func move(_ placement: TouchControlPlacement, by translation: CGSize) {

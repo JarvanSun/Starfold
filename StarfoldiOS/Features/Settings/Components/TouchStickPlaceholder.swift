@@ -15,24 +15,29 @@ struct TouchStickPlaceholder: View {
     let diameter: CGFloat
 
     var body: some View {
-        if let symbol = visibility.placeholderSymbol {
-            Circle()
-                .strokeBorder(
-                    .white,
-                    style: StrokeStyle(
-                        lineWidth: dimensions.highlightLineWidth,
-                        dash: [dimensions.touchPlaceholderDash]
-                    )
-                )
-                .overlay {
-                    Image(systemName: symbol)
-                        .font(.title)
-                }
-                .foregroundStyle(.white)
-                .opacity(emphasis)
-                .frame(width: diameter, height: diameter)
-                .accessibilityHidden(true)
+        switch visibility.placeholderSymbol {
+        case let symbol?: outline(symbol)
+        case nil: EmptyView()
         }
+    }
+
+    private func outline(_ symbol: String) -> some View {
+        Circle()
+            .strokeBorder(
+                .white,
+                style: StrokeStyle(
+                    lineWidth: dimensions.highlightLineWidth,
+                    dash: [dimensions.touchPlaceholderDash]
+                )
+            )
+            .overlay {
+                Image(systemName: symbol)
+                    .font(.title)
+            }
+            .foregroundStyle(.white)
+            .opacity(emphasis)
+            .frame(width: diameter, height: diameter)
+            .accessibilityHidden(true)
     }
 
     private var emphasis: Double {

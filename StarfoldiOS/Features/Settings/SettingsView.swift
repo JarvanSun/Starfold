@@ -13,7 +13,7 @@ struct SettingsView: View {
     @State private var isConfirmingSignOut = false
     @State private var isEditingTouchLayout = false
 
-    let settings: SettingsViewModel
+    let settingsViewModel: SettingsViewModel
 
     let onAddAccount: () -> Void
 
@@ -28,28 +28,27 @@ struct SettingsView: View {
         }
         .navigationTitle(Text("settings.title"))
         .confirmationDialog(
-            "settings.signOut.confirmation \(settings.signOutSubject)",
+            "settings.signOut.confirmation \(settingsViewModel.signOutSubject)",
             isPresented: $isConfirmingSignOut,
             titleVisibility: .visible
         ) {
-            Button("settings.signOut.confirm", role: .destructive) { settings.signOut() }
+            Button("settings.signOut.confirm", role: .destructive) { settingsViewModel.signOut() }
         }
-        .fullScreenCover(isPresented: $isEditingTouchLayout) {
-            settings.finishEditingTouchLayout()
-        } content: {
-            touchLayoutEditor
-        }
+        .touchLayoutEditorCover(
+            isPresented: $isEditingTouchLayout,
+            settingsViewModel: settingsViewModel
+        )
     }
 
     private var form: some View {
         Form {
-            StreamingSettingsSection(settings: settings)
+            StreamingSettingsSection(settingsViewModel: settingsViewModel)
 
-            DisplaySettingsSection(settings: settings)
+            DisplaySettingsSection(settingsViewModel: settingsViewModel)
 
-            ControlsSettingsSection(settings: settings) { editTouchLayout() }
+            ControlsSettingsSection(settingsViewModel: settingsViewModel) { editTouchLayout() }
 
-            if settings.hasAccounts {
+            if settingsViewModel.hasAccounts {
                 accountSection
             }
         }
@@ -61,7 +60,7 @@ struct SettingsView: View {
 
     private var accountSection: some View {
         AccountSettingsSection(
-            accounts: settings.accountChoices,
+            accounts: settingsViewModel.accountChoices,
             onSwitch: { switchAccount(to: $0) },
             onAdd: onAddAccount,
             onSignOut: { isConfirmingSignOut = true }
@@ -69,29 +68,21 @@ struct SettingsView: View {
     }
 
     private func switchAccount(to account: AccountChoice) {
-        Task { await settings.switchAccount(to: account) }
+        Task { await settingsViewModel.switchAccount(to: account) }
     }
 
     private func editTouchLayout() {
-        settings.editTouchLayout()
-
+        settingsViewModel.editTouchLayout()
         isEditingTouchLayout = true
-    }
-
-    @ViewBuilder
-    private var touchLayoutEditor: some View {
-        if let editor = settings.touchLayoutEditor {
-            TouchLayoutEditorView(editor: editor)
-        }
     }
 }
 
 #if DEBUG
 #Preview {
-    let app = PreviewObjectPool.appViewModel(signedIn: true)
+    let appViewModel = PreviewObjectPool.appViewModel(signedIn: true)
     NavigationStack {
-        SettingsView(settings: app.settings, onAddAccount: {})
+        SettingsView(settingsViewModel: appViewModel.settings, onAddAccount: {})
     }
-    .environment(app)
+    .environment(appViewModel)
 }
 #endif

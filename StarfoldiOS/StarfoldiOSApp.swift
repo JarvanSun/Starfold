@@ -12,17 +12,18 @@ import SwiftUI
 struct StarfoldiOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.scenePhase) private var scenePhase
-    @State private var app = AppDependencies(streamPlatform: StreamPlatform()).makeAppViewModel()
+    @State private var appViewModel = AppDependencies(streamPlatform: StreamPlatform())
+        .makeAppViewModel()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .windowTint()
                 .appPalette()
-                .environment(app)
+                .environment(appViewModel)
                 .environment(appDelegate.orientation)
-                .task { await app.restore() }
+                .task { await appViewModel.restore() }
         }
-        .onChange(of: scenePhase, initial: true) { app.setActive(scenePhase == .active) }
+        .onChange(of: scenePhase, initial: true) { appViewModel.setActive(scenePhase == .active) }
     }
 }

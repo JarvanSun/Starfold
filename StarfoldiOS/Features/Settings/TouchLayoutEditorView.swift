@@ -12,39 +12,39 @@ struct TouchLayoutEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.dimensions) private var dimensions
-    @Bindable var editor: TouchLayoutEditorViewModel
+    @Bindable var touchLayoutEditorViewModel: TouchLayoutEditorViewModel
 
     var body: some View {
-        let plan = editor.plan(
+        let plan = touchLayoutEditorViewModel.plan(
             for: dimensions.touchMetrics(forVerticalSizeClass: verticalSizeClass)
         )
-        let selected = plan.controls.first { $0.id == editor.selectedID }
+        let selected = touchLayoutEditorViewModel.selectedPlacement(in: plan)
 
         ZStack {
             SkyBackground()
                 .ignoresSafeArea()
-                .onTapGesture { editor.select(nil) }
+                .onTapGesture { touchLayoutEditorViewModel.select(nil) }
 
             GeometryReader { proxy in
-                ZStack(alignment: .topLeading) {
-                    controls(plan, in: proxy.size)
-
-                    if let selected {
-                        inspector(beside: selected, in: proxy.size)
+                controls(plan, in: proxy.size)
+                    .overlay(if: selected, alignment: .topLeading) {
+                        inspector(beside: $0, in: proxy.size)
                     }
-                }
-                .onChange(of: TouchOrientation(size: proxy.size), initial: true) {
-                    _,
-                    orientation in
-                    editor.show(orientation)
-                }
+                    .onChange(of: TouchOrientation(size: proxy.size), initial: true) {
+                        _,
+                        orientation in
+                        touchLayoutEditorViewModel.show(orientation)
+                    }
             }
 
-            TouchLayoutEditorPill(editor: editor, selected: selected)
+            hiddenWhileMoving(
+                TouchLayoutEditorPill(
+                    touchLayoutEditorViewModel: touchLayoutEditorViewModel,
+                    selected: selected
+                )
                 .padding(.top, dimensions.spaceLarge)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .opacity(chromeOpacity)
-                .animation(.easeOut(duration: fadeDuration), value: editor.isMoving)
+            )
 
             Button(role: .close) {
                 dismiss()
@@ -64,23 +64,18 @@ struct TouchLayoutEditorView: View {
         .environment(\.colorScheme, .dark)
     }
 
-    private var chromeOpacity: Double {
-        editor.isMoving ? 0 : 1
-    }
+    private func hiddenWhileMoving(_ content: some View) -> some View {
+        let fadeDuration = 0.15
 
-    private var fadeDuration: Double {
-        0.15
+        return
+            content
+            .opacity(touchLayoutEditorViewModel.isMoving ? 0 : 1)
+            .animation(.easeOut(duration: fadeDuration), value: touchLayoutEditorViewModel.isMoving)
     }
 
     private func controls(_ plan: TouchControlPlan, in size: CGSize) -> some View {
         ZStack(alignment: .topLeading) {
-            TouchControlsOverlay(
-                plan: plan,
-                isActive: true,
-                isInteractive: false,
-                isHapticsEnabled: false,
-                onConnect: {}
-            )
+            TouchControlsOverlay(plan: plan, mode: .preview)
 
             ForEach(plan.controls) { placement in
                 control(placement, in: plan)
@@ -90,21 +85,21 @@ struct TouchLayoutEditorView: View {
     }
 
     private func inspector(beside placement: TouchControlPlacement, in size: CGSize) -> some View {
-        BesideLayout(
-            anchor: placement.position(in: size),
-            clearance: placement.diameter / 2 + dimensions.spaceMedium,
-            insets: EdgeInsets(
-                top: dimensions.touchInspectorTopInset,
-                leading: 0,
-                bottom: dimensions.spaceLarge,
-                trailing: 0
-            )
-        ) {
-            TouchLayoutInspector(editor: editor)
-                .id(placement.id)
-        }
-        .opacity(chromeOpacity)
-        .animation(.easeOut(duration: fadeDuration), value: editor.isMoving)
+        hiddenWhileMoving(
+            BesideLayout(
+                anchor: placement.position(in: size),
+                clearance: placement.diameter / 2 + dimensions.spaceMedium,
+                insets: EdgeInsets(
+                    top: dimensions.touchInspectorTopInset,
+                    leading: 0,
+                    bottom: dimensions.spaceLarge,
+                    trailing: 0
+                )
+            ) {
+                TouchLayoutInspector(touchLayoutEditorViewModel: touchLayoutEditorViewModel)
+                    .id(placement.id)
+            }
+        )
     }
 
     private func control(_ placement: TouchControlPlacement, in plan: TouchControlPlan) -> some View
@@ -117,10 +112,10 @@ struct TouchLayoutEditorView: View {
 
             EditableTouchControl(
                 placement: placement,
-                isSelected: editor.selectedID == placement.id,
-                onMove: { editor.move(placement, by: $0) },
-                onEndMove: { editor.endMove() },
-                onSelect: { editor.select(placement) }
+                isSelected: touchLayoutEditorViewModel.selectedID == placement.id,
+                onMove: { touchLayoutEditorViewModel.move(placement, by: $0) },
+                onEndMove: { touchLayoutEditorViewModel.endMove() },
+                onSelect: { touchLayoutEditorViewModel.select(placement) }
             )
         }
     }
@@ -128,8 +123,8 @@ struct TouchLayoutEditorView: View {
 
 #if DEBUG
 #Preview {
-    if let editor = PreviewObjectPool.touchLayoutEditor {
-        TouchLayoutEditorView(editor: editor)
+    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditor {
+        TouchLayoutEditorView(touchLayoutEditorViewModel: touchLayoutEditorViewModel)
     }
 }
 #endif

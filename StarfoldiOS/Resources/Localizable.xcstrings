@@ -664,23 +664,6 @@
         }
       }
     },
-    "menuBar.console.playing %@ %@" : {
-      "comment" : "Menu bar extra: console item; the arguments are the console name and the game running on it",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · Playing %2$@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · 正在玩 %2$@"
-          }
-        }
-      }
-    },
     "search.field.prompt" : {
       "comment" : "Search tab: placeholder of the search field",
       "localizations" : {

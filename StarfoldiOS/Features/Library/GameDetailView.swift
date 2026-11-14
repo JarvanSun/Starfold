@@ -11,20 +11,20 @@ import SwiftUI
 struct GameDetailView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let detail: GameDetailViewModel
+    let gameDetailViewModel: GameDetailViewModel
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                GameHero(artwork: detail.heroArtwork)
+                GameHero(artwork: gameDetailViewModel.heroArtwork)
 
                 VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
-                    GameHeader(detail: detail)
+                    GameHeader(gameDetailViewModel: gameDetailViewModel)
 
-                    GameOverview(about: detail.about, facts: detail.facts)
+                    GameOverview(about: gameDetailViewModel.about, facts: gameDetailViewModel.facts)
 
-                    if !detail.screenshots.isEmpty {
-                        GameScreenshots(screenshots: detail.screenshots)
+                    if !gameDetailViewModel.screenshots.isEmpty {
+                        GameScreenshots(screenshots: gameDetailViewModel.screenshots)
                     }
                 }
                 .pageMargins()
@@ -34,7 +34,7 @@ struct GameDetailView: View {
         }
         .ignoresSafeArea(edges: .top)
         .scrollIndicators(.hidden)
-        .navigationTitle(detail.name)
+        .navigationTitle(gameDetailViewModel.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(removing: .title)
     }
@@ -43,7 +43,7 @@ struct GameDetailView: View {
 #if DEBUG
 #Preview {
     NavigationStack {
-        GameDetailView(detail: PreviewObjectPool.gameDetailViewModel)
+        GameDetailView(gameDetailViewModel: PreviewObjectPool.gameDetailViewModel)
             .background { SkyBackground() }
     }
     .environment(\.colorScheme, .dark)

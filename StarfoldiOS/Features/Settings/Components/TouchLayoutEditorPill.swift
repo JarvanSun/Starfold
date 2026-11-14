@@ -13,11 +13,13 @@ struct TouchLayoutEditorPill: View {
     @State private var isShowingOpacity = false
     @State private var resets = 0
 
-    @Bindable var editor: TouchLayoutEditorViewModel
+    @Bindable var touchLayoutEditorViewModel: TouchLayoutEditorViewModel
 
     let selected: TouchControlPlacement?
 
     var body: some View {
+        let minimumTitleScale: CGFloat = 0.8
+
         HStack(spacing: dimensions.spaceXSmall) {
             title
                 .font(.subheadline.weight(.semibold))
@@ -56,12 +58,8 @@ struct TouchLayoutEditorPill: View {
     }
 
     private func reset() {
-        editor.reset()
+        touchLayoutEditorViewModel.reset()
         resets += 1
-    }
-
-    private var minimumTitleScale: CGFloat {
-        0.8
     }
 
     private var title: Text {
@@ -73,8 +71,11 @@ struct TouchLayoutEditorPill: View {
 
     private var opacity: some View {
         LabeledContent {
-            Slider(value: $editor.opacity, in: editor.opacityRange)
-                .frame(width: dimensions.touchEditorSliderWidth)
+            Slider(
+                value: $touchLayoutEditorViewModel.opacity,
+                in: touchLayoutEditorViewModel.opacityRange
+            )
+            .frame(width: dimensions.touchEditorSliderWidth)
         } label: {
             Text("touchEditor.opacity")
         }
@@ -85,8 +86,8 @@ struct TouchLayoutEditorPill: View {
 
 #if DEBUG
 #Preview {
-    if let editor = PreviewObjectPool.touchLayoutEditor {
-        TouchLayoutEditorPill(editor: editor, selected: nil)
+    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditor {
+        TouchLayoutEditorPill(touchLayoutEditorViewModel: touchLayoutEditorViewModel, selected: nil)
             .padding()
             .background(.black)
             .environment(\.colorScheme, .dark)

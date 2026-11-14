@@ -12,7 +12,7 @@ struct TouchControlsLayer: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.dimensions) private var dimensions
 
-    let touch: TouchControlsViewModel
+    let touchControlsViewModel: TouchControlsViewModel
     let isActive: Bool
 
     let onConnect: () -> Void
@@ -20,15 +20,20 @@ struct TouchControlsLayer: View {
     var body: some View {
         GeometryReader { proxy in
             TouchControlsOverlay(
-                plan: touch.plan(
+                plan: touchControlsViewModel.plan(
                     for: dimensions.touchMetrics(forVerticalSizeClass: verticalSizeClass),
                     in: TouchOrientation(size: proxy.size)
                 ),
-                isActive: isActive,
-                isInteractive: true,
-                isHapticsEnabled: touch.isHapticsEnabled,
+                mode: mode,
                 onConnect: onConnect
             )
+        }
+    }
+
+    private var mode: TouchControlsMode {
+        switch isActive {
+        case true: .playing(isHapticsEnabled: touchControlsViewModel.isHapticsEnabled)
+        case false: .hidden
         }
     }
 }
