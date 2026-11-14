@@ -13,9 +13,8 @@
 | StarfoldShared: ViewModels, `Model/`, `Presentation/`, services, storage, colours, String Catalogs | `Packages/StarfoldShared/Tests/StarfoldSharedTests` | macOS |
 | TopShelfKit | `Packages/StarfoldShared/Tests/TopShelfKitTests` | macOS |
 | XboxKit, StreamKit | `Packages/<Package>/Tests/<Package>Tests` | macOS |
-| `StarfoldTV/` | `StarfoldTVTests`, hosted by the Apple TV app | tvOS Simulator |
 
-- Package tests have no host app; no test is hosted by the Mac or Vision Pro app.
+- Every test is a package test on macOS; no test target is hosted by an app.
 - A ViewModel test builds its ViewModels on stubs, with its own `UserDefaults` suite and cache
   folder, and never touches the Keychain or the network.
 - Logic testable on macOS lives where macOS tests reach it (Apple TV input routing is in

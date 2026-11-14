@@ -21,8 +21,7 @@ Starfold.xcodeproj
 ├── StarfoldTV/             the Apple TV app, same shape
 ├── StarfoldiOS/            the iPhone and iPad app, same shape
 ├── StarfoldTopShelf/       the Apple TV Top Shelf extension
-├── StarfoldTVTests/        tests of the Apple TV app's own code, hosted by the Apple TV app
-├── Preview Content/        PreviewObjectPool and its preview services, compiled into the three
+├── Preview Content/        PreviewObjectPool and its preview services, compiled into the four
 │                           apps as Development Assets
 └── Packages/
     ├── StarfoldShared      every feature's ViewModel and values, services, storage, shared

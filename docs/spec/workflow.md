@@ -8,10 +8,9 @@ the file system.
 - Open `Starfold.xcodeproj` and run the `StarfoldMac`, `StarfoldVision` or `StarfoldTV` scheme.
   No signing team is set; choose your own to run on a device.
 - `scripts/format.sh` after editing Swift; `scripts/format.sh --lint` must succeed.
-- `scripts/build.sh` builds all three apps; `scripts/build.sh <Scheme>` builds one.
+- `scripts/build.sh` builds every app; `scripts/build.sh <Scheme>` builds one.
 - `scripts/test.sh` runs every package's tests on macOS; `scripts/test.sh <Name>` runs one
-  (`StarfoldShared`, `XboxKit`, `StreamKit`). `TV_DESTINATION` (a tvOS simulator) adds
-  `StarfoldTVTests`.
+  (`StarfoldShared`, `XboxKit`, `StreamKit`).
 - DerivedData never goes inside the repository; set `XCODE_BUILD_ROOT` to move it.
 
 ## Adding a feature

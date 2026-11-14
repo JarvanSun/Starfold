@@ -3,7 +3,7 @@
 # Builds the apps.
 #
 #   scripts/build.sh                  every platform
-#   scripts/build.sh <Scheme>         one app: StarfoldMac, StarfoldVision or StarfoldTV
+#   scripts/build.sh <Scheme>         one app: StarfoldMac, StarfoldVision, StarfoldTV or StarfoldiOS
 #
 # XCODE_BUILD_ROOT overrides where DerivedData goes (default: Xcode's DerivedData folder).
 # The last line is always RESULT: ... so tools can read it.
@@ -35,6 +35,7 @@ build() {
 build StarfoldMac 'platform=macOS'
 build StarfoldVision 'generic/platform=visionOS Simulator'
 build StarfoldTV 'generic/platform=tvOS Simulator'
+build StarfoldiOS 'generic/platform=iOS Simulator'
 
 if [[ ${#failed[@]} -gt 0 ]]; then
   echo "RESULT: BUILD FAILED in ${failed[*]}"
