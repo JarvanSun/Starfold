@@ -12,7 +12,7 @@ import Synchronization
 
 final class XboxServerStub: Sendable {
     private struct State {
-        var routes: [String: [HTTPClient.Response]] = [:]
+        var routes: [String: [Result<HTTPClient.Response, URLError>]] = [:]
         var requests: [HTTPClient.Request] = []
     }
 
@@ -34,12 +34,18 @@ final class XboxServerStub: Sendable {
 
     func on(_ url: String, status: Int = 200, body: Data) {
         state.withLock { state in
-            state.routes[url, default: []].append(.init(statusCode: status, body: body))
+            state.routes[url, default: []].append(.success(.init(statusCode: status, body: body)))
         }
     }
 
     func on(_ endpoint: XboxEndpoint, status: Int = 200, json: String) {
         on(endpoint.rawValue, status: status, json: json)
+    }
+
+    func fail(_ endpoint: XboxEndpoint, with code: URLError.Code) {
+        state.withLock { state in
+            state.routes[endpoint.rawValue, default: []].append(.failure(URLError(code)))
+        }
     }
 
     func requests(to url: String) -> [HTTPClient.Request] {
@@ -71,7 +77,7 @@ private extension XboxServerStub {
                 state.routes[key] = queue
             }
 
-            return first
+            return try first.get()
         }
     }
 
