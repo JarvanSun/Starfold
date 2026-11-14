@@ -162,8 +162,8 @@ HStack(spacing: dimensions.spaceXLarge) { … }
 
 ## Platform exceptions
 
-- **Mac:** the Settings window is system neutral in every palette; the menu bar extra is a
-  standard menu.
+- **Mac:** the Settings window uses system colours, with the palette accent only where the system
+  would use its accent; the menu bar extra is a standard menu.
 - **visionOS:** system glass, materials and button styles; the palette (Nebula, as Vision Pro has
   no colour picker) only replaces the system accent. Semantic status colours still apply.
 - **tvOS:** the palette colours the sky and replaces the system accent; text, buttons and focus

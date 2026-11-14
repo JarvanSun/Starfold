@@ -200,7 +200,7 @@ A host error becomes the step that fixes it; only an unrecognised one is shown a
   can hide it.
 - **Settings window.** Streaming: restart note, Quality, Cloud Gaming, Appearance (palette, menu
   bar icon). Picture: upscaling, sharpening, HDR, Picture Mode, statistics, Buffer. Controls:
-  controllers, Rumble, keyboard toggle and key table. The gear on each home card opens it.
+  controllers, the Xbox button note, Rumble, keyboard toggle and key table. The gear on each home card opens it.
 
 ## Vision Pro
 
@@ -244,112 +244,80 @@ A host error becomes the step that fixes it; only an unrecognised one is shown a
 
 ## iPhone and iPad
 
-One app for both. Layout follows the size class of the space the app has, never the device:
-compact width is the iPhone layout, regular width the iPad layout, so iPad Split View, Stage
-Manager windows and an unfolded iPhone Duo each get the layout that fits.
+One app for both. Layout follows the size class of the space the app has, never the device, so iPad
+Split View, Stage Manager and an unfolded iPhone Duo each get the layout that fits.
 
-- **Tabs:** Home and Settings, signed in. The tab bar floats at the bottom on iPhone and at the
-  top on iPad, with no sidebar: two tabs need none. The account menu is in Home's toolbar.
-- **Signed out** there are no tabs: the welcome page, with Settings behind a gear at the top right
-  (a sheet). In compact portrait it shows the app icon at the top left and three steps (sign in,
-  pick a console or a cloud game, play with touch or a controller) above a sign-in sheet fixed to
-  the bottom: the code, a full-width Sign In, the other-device line and the waiting status. In
-  compact landscape the same content is a blurred backdrop and the sign-in card (at most 480 pt
-  wide) sits in the middle. Where the window is at least 1000 pt wide and 600 pt tall (iPad
-  landscape, 13-inch iPad portrait) the pitch sits beside the sign-in card; a narrower regular-width
-  window (11-inch iPad portrait, Split View) centres one column, the icon and steps above the
-  sign-in card, so the pitch is never squeezed into a sliver. The welcome page carries no trademark
-  line.
-- **Home:** console cards, then an Xbox Cloud Gaming row (three covers, availability and game
-  count), then Continue Playing (up to 10). On iPhone one console card fills the width and the
-  cards page sideways; in iPhone landscape the card turns sideways (art on the left, name, status
-  and buttons on the right, 200 pt tall) so its buttons stay on screen. On iPad they are Mac-sized
-  and sit in a row. With no cloud access the row
-  says why and does not open.
-- **Cloud Gaming** opens from that row on Home's stack: the Mac's rows and All Games, a sort
-  button at the top right (a menu: Name, Recently Played) and a search field under the title that
-  searches the same cloud library (no search tab). The title stays inline, so it does not jump to a
-  large title after a search. Game names wrap to two lines, with two lines reserved so tiles stay
-  aligned.
+- **Tabs:** Home and Settings, signed in; a tab bar at the bottom on iPhone and at the top on iPad,
+  no sidebar. The account menu is in Home's toolbar.
+- **Signed out:** the welcome page, no tabs, Settings behind a gear (a sheet). On iPhone the app
+  icon and three steps (sign in, pick a console or a cloud game, play) sit above a sign-in sheet
+  fixed to the bottom; in landscape they blur behind a centred sign-in card. A wide iPad window
+  puts the pitch beside the card; a narrower one stacks icon, steps and card in one centred column.
+- **Home:** console cards, the Xbox Cloud Gaming row (three covers, availability, game count),
+  then Continue Playing (up to 10). On iPhone one card fills the width and the cards page
+  sideways; in landscape the card lies on its side, art left and details right. On iPad the cards
+  are Mac-sized, in a row. With no cloud access the row says why and does not open.
+- **Cloud Gaming** opens from that row: the Mac's rows and All Games, a sort menu (Name, Recently
+  Played) and a search field under the title. There is no search tab.
 - **Game page:** as on Mac; Touch shows among the input badges when the title has a touch layout.
-  The game's name is shown once, in the header over the art, not again as a navigation title.
-- **Settings** keeps its rows at most 720 pt wide, aligned with the title, so labels and values
-  stay close on a wide iPad. The active account is a plain row with a trailing checkmark.
-- **Stream:** full screen, status bar and Home indicator hidden, system edge gestures deferred so a
-  stray swipe needs a second one. iPhone streams in landscape only (either way round) while
-  browsing follows the device; iPad streams in any orientation and in a resized window. The
-  waiting and end pages are the Mac's.
-- **Stream menu:** a small handle at the top centre opens it. The handle dims after 3 s; while a
-  controller is in use it hides and a tap brings it back. The menu is a glass panel: Xbox Guide,
-  Statistics and Disconnect, then Picture Mode, Buffer and Edit Touch Controls. Tapping
-  outside closes it. A game dialog or keyboard prompt is a sheet, as on Mac.
-- **Leaving the app** works as on Apple TV: Control Center, a notification or an incoming call
-  sends the Xbox a neutral controller, and a control held through it counts only after release;
-  going to the background ends the stream and the session, and coming back shows the page the
-  stream started from. There is no Picture in Picture.
-- **Sound** plays with the Ring/Silent switch on silent, like video, pauses for calls and returns
-  after them, and is released when the stream ends.
-- **Cellular:** a stream that starts on cellular data uses the Cellular quality ceiling. Quality
-  is fixed for the session, so moving between Wi-Fi and cellular mid-stream changes nothing; the
-  Xbox lowers resolution itself if bandwidth runs short. Statistics name the path.
-- **Settings tab:** four sections and no standing explanations. Streaming (console, cloud and
-  Cellular quality, Maximum Bitrate, Buffer, Game language), Display (Picture Mode, statistics,
-  Color), Controls (Edit Layout and Touch haptics when touch controls exist, the controllers, the
-  Xbox button note, Rumble, Keyboard as controller), Account (switch, Add Account, Sign Out…).
-  Only a state the player must act on (no controller, the Xbox button taken) adds a line. Cellular
-  quality shows only on a device that has cellular data. Choices name the option alone
-  ("Automatic"), never a recommendation.
+- **Settings:** Streaming (console, cloud and Cellular quality, Maximum Bitrate, Buffer, Game
+  language), Display (Picture Mode, statistics, Color), Controls (Edit Layout and Touch haptics
+  when touch controls exist, the controllers, the Xbox button note, Rumble, Keyboard as
+  controller), Account (switch, Add Account, Sign Out…). No standing explanations: only a state the
+  player must act on adds a line. Cellular quality shows only on a device with cellular data.
+  Choices name the option alone, never a recommendation. On a wide iPad the rows keep a readable
+  width.
+- **Stream:** full screen, status bar and Home indicator hidden, system edge gestures deferred.
+  iPhone streams in landscape only; iPad in any orientation and window size. The waiting and end
+  pages are the Mac's.
+- **Stream menu:** a handle at the top centre opens it; it dims after 3 s and hides while a
+  controller is in use until a tap. The menu: Xbox Guide, Statistics, Disconnect, then Picture
+  Mode, Buffer and Edit Touch Controls; tapping outside closes it. Game dialogs and keyboard
+  prompts are sheets.
+- **Leaving the app** works as on Apple TV: Control Center, a notification or a call sends a
+  neutral controller and a control held through it counts only after release; going to the
+  background ends the stream, and coming back shows the page it started from. No Picture in
+  Picture.
+- **Sound** plays with the Ring/Silent switch on silent, pauses for calls and is released when the
+  stream ends.
+- **Cellular:** a stream that starts on cellular uses the Cellular quality ceiling for the whole
+  session; the Xbox lowers resolution itself if bandwidth runs short.
+- **Haptics** mark outcomes (a stream starting, ending or failing, sign-in, a power command) and
+  direct manipulation (selecting, dropping or resetting in Edit Layout, a sort or stick choice, a
+  favourite, the stream menu, a controller connecting), following the system's haptics setting.
 
 ### Touch controls
 
 Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
 
-- **When they show.** With no controller connected the touch controls are on screen. Input from a
-  controller hides them; touching the screen brings them back; disconnecting the last controller
-  brings them back. A keyboard counts as a controller. There is no on/off setting.
-- **Which layout.** When the running title has its own touch layout (Xbox Touch Adaptation Kit), in
-  cloud and remote play alike, Starfold loads it and the game decides when it shows, hides or
-  changes and what state it is in. Touch Controller draws buttons, sticks, triggers and D-pads; a
-  layout that also needs throttles, touchpads, arcade button groups, layer switches, turbo,
-  toggle or pull buttons, several controls in one slot, centre controls or mouse output falls back to the standard layout, rather than leaving out a control the game
-  needs. Every other title gets the standard Xbox layout (Microsoft's sample
-  `standard-controller.json`): left stick, D-pad, LB, LT and left stick click on the left; A, B,
-  X, Y, RB, RT, right stick and right stick click on the right; View and Menu at the top right.
-  A title that reads touch directly also gets the standard layout until the Pointer report is
-  specified in [streaming.md](streaming.md).
-- **Look and feel.** Controls are the system's touch controls (Apple Touch Controller), drawn
-  over the picture, neutral in every palette, at least 44 × 44 pt (View and Menu 28 × 28 pt), clear
-  of the Dynamic Island and Home indicator. A press highlights at once, visible
-  around the finger, and with Touch haptics on gives a light tap. On the standard layout the left
-  and right halves of the screen are the sticks' areas, so a stick starts where the thumb lands.
-  Buttons carry Xbox names (A, LB, View…) because Starfold cannot know what each does in a game.
-- **Edit Layout** (Settings, and the stream menu) adjusts the standard layout only: drag a control
-  to move it, select it and use the Size slider to resize it, and set the layout's opacity; Reset
-  restores the default. Edits are kept per device and orientation. A title's own layout is never
-  edited. Nothing stays over the controls: a close button sits at the top left, and a small pill
-  at the top centre shows the hint (or the selected control's name), Opacity (a popover) and
-  Reset. Selecting a control opens a small inspector beside it, on the side towards the middle of
-  the screen, with Size and, for a stick, when it shows. While a control is being dragged the pill
-  and the inspector fade out, so nothing hides where it is going. Selecting a control and dropping
-  it give a firm haptic.
-- **Sticks.** Selecting a stick in Edit Layout adds a choice of when it shows: Always, On Touch
-  (not drawn until a thumb lands on its half of the screen, then drawn under the thumb until it
-  lifts) or Off (not drawn, and its half does nothing). Every other control keeps its place, so
-  turning a stick back on restores the layout as it was; to put the D-pad where the stick was,
-  drag it there. A stick that is On Touch or Off shows as a dashed outline in the editor, which
-  can be selected to turn it back on; Size is unavailable while a stick is Off. The choice is the
-  same in both orientations, Reset restores Always, and a title's own layout always shows its
-  sticks.
-- **Rumble** plays on the controller when there is one; with only touch controls it plays as
-  haptics on iPhone while Touch haptics is on.
-- **Haptics** mark outcomes and direct manipulation only, and follow the system's haptics setting:
-  success when a stream starts playing, warning when the host ends it, error when it drops or
-  fails (none when the player ends it); success when sign-in completes, error when it fails;
-  success when a power command takes effect; a light tap when a controller connects or
-  disconnects mid-stream, when the stream menu opens and when a favourite is toggled; a
-  selection tick when the sort order or a stick's visibility changes; a firm tap when a control
-  is selected or dropped in Edit Layout and a medium one on Reset. Touch buttons tick on press
-  while Touch haptics is on.
+- **When they show:** with no controller connected. Controller input (a keyboard counts) hides
+  them; touching the screen or disconnecting the last controller brings them back. No setting.
+- **Which layout:** a title with its own touch layout (Xbox Touch Adaptation Kit) gets it, in cloud
+  and remote play, and the game decides when it shows, hides or changes. A layout needing anything
+  Touch Controller cannot draw as the game meant it (throttles, touchpads, arcade groups, layer
+  switches, turbo, toggle or pull buttons, several controls in a slot, centre controls, mouse
+  output) falls back to the standard layout rather than leave a control out. Every other title gets
+  the standard Xbox layout (Microsoft's `standard-controller.json`): left stick, D-pad, LB, LT and
+  left stick click on the left; A, B, X, Y, RB, RT, right stick and its click on the right; View
+  and Menu at the top right. A title that reads touch directly gets the standard layout until the
+  Pointer report is specified in [streaming.md](streaming.md).
+- **Look and feel:** Apple Touch Controller's system controls over the picture, neutral in every
+  palette, at least 44 × 44 pt (View and Menu 28 × 28 pt), clear of the Dynamic Island and Home
+  indicator. A press highlights at once and, with Touch haptics on, taps. On the standard layout
+  each half of the screen is its stick's area, so a stick starts where the thumb lands. Buttons
+  carry Xbox names, since Starfold cannot know what each does in a game.
+- **Edit Layout** (Settings, and the stream menu) changes the standard layout only, per device and
+  orientation: drag to move, select to resize, set the opacity, Reset restores the default. A close
+  button sits at the top left and a pill at the top centre holds the hint (or the selected
+  control's name), Opacity and Reset; a selected control gets a small inspector beside it, towards
+  the middle of the screen. Both fade while a control is dragged.
+- **Sticks** can show Always, On Touch (drawn under the thumb only while it is down) or Off (its
+  half of the screen does nothing). Other controls keep their places, so turning a stick back on
+  restores the layout. An On Touch or Off stick shows as a dashed outline in the editor; Size is
+  unavailable while it is Off. The choice covers both orientations, Reset restores Always, and a
+  title's own layout always shows its sticks.
+- **Rumble** plays on the controller, or with only touch controls as iPhone haptics while Touch
+  haptics is on.
 
 ### iPhone Duo
 
