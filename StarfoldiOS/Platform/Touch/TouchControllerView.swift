@@ -53,9 +53,10 @@ final class TouchControllerView: MTKView {
         self.controlPlan = controlPlan
         alpha = controlPlan.opacity
 
-        switch previous.map(controlPlan.isRearrangement(of:)) {
-        case true?: move(to: controlPlan)
-        case false?, nil: rebuild(controlPlan)
+        if let previous, controlPlan.isRearrangement(of: previous) {
+            move(to: controlPlan)
+        } else {
+            rebuild(controlPlan)
         }
     }
 
