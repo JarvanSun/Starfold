@@ -9,6 +9,7 @@ reason goes away, the line goes with it.
 In XboxKit.
 
 - **XboxDateParser**: Xbox Live sends seven fractional digits, which `Date.ISO8601FormatStyle` rejects, so the parser trims them to milliseconds, then falls back to no fraction.
+- **DeviceCodeFlow**: A dropped connection, timeout or lost network is retried once at once, then waits for the next poll: the user signs in in a browser, often on the same device, and iOS closes the app's connections while it is suspended, so the first request after coming back fails with `networkConnectionLost` (URLSession only retries idempotent requests itself, and these are POSTs).
 - **HTTPClient**: It is an actor only to keep the session and decoder in one isolation domain; `Request.timeout` overrides URLSession's 60 s default for requests the user waits on.
 - **KeychainStore**: The Mac uses its sandboxed login keychain because the data-protection keychain needs a provisioned keychain-access-groups entitlement (else errSecMissingEntitlement, -34018).
 - **DeviceCodePrompt**: `verificationURLComplete` falls back to Microsoft's link page with the code as `otc`, which skips code entry; the QR code and Open Link open it.

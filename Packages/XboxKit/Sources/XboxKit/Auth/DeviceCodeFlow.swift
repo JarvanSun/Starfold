@@ -18,15 +18,20 @@ struct DeviceCodeFlow: Sendable {
     private let configuration: Configuration
     private let http: HTTPClient
     private let now: @Sendable () -> Date
+    private let sleep: @Sendable (Duration) async throws -> Void
 
     init(
         configuration: Configuration,
         http: HTTPClient,
-        now: @escaping @Sendable () -> Date = Date.init
+        now: @escaping @Sendable () -> Date = Date.init,
+        sleep: @escaping @Sendable (Duration) async throws -> Void = {
+            try await Task.sleep(for: $0)
+        }
     ) {
         self.configuration = configuration
         self.http = http
         self.now = now
+        self.sleep = sleep
     }
 
     func start() async throws -> DeviceCodePrompt {
@@ -35,10 +40,12 @@ struct DeviceCodeFlow: Sendable {
             ("scope", configuration.scope),
             ("response_type", "device_code"),
         ])
-        let response = try await http.decodedBody(
-            DeviceCodeResponse.self,
-            for: request(to: configuration.deviceCodeURL, form: form)
-        )
+        let response = try await retryingOnceIfInterrupted {
+            try await http.decodedBody(
+                DeviceCodeResponse.self,
+                for: request(to: configuration.deviceCodeURL, form: form)
+            )
+        }
         guard let verificationURL = URL(string: response.verificationURI) else {
             throw URLError(.badServerResponse)
         }
@@ -66,9 +73,16 @@ struct DeviceCodeFlow: Sendable {
         let slowDownIncrement: Duration = .seconds(5)
 
         while now() < prompt.expiresAt {
-            try await Task.sleep(for: interval)
+            try await sleep(interval)
 
-            let response = try await pollToken(deviceCode: prompt.deviceCode)
+            let response: TokenResponse
+            do {
+                response = try await retryingOnceIfInterrupted {
+                    try await pollToken(deviceCode: prompt.deviceCode)
+                }
+            } catch let error as URLError where error.isConnectionInterruption {
+                continue
+            }
 
             switch (response.accessToken, response.error) {
             case (let accessToken?, _): return signedInToken(accessToken, from: response)
@@ -92,6 +106,16 @@ struct DeviceCodeFlow: Sendable {
         ])
         let response = try await http.send(request(to: configuration.tokenURL, form: form))
         return try JSONDecoder().decode(TokenResponse.self, from: response.body)
+    }
+
+    private func retryingOnceIfInterrupted<Value>(
+        _ operation: () async throws -> Value
+    ) async throws -> Value {
+        do {
+            return try await operation()
+        } catch let error as URLError where error.isConnectionInterruption {
+            return try await operation()
+        }
     }
 
     private func request(to url: URL, form: FormBody) -> HTTPClient.Request {
