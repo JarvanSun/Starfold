@@ -76,6 +76,15 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
             observe(UIScene.didActivateNotification) { [weak self] _ in
                 self?.recover(.resume("scene activated"))
             },
+        ]
+        let resumptions = resumptionObservers()
+        let backgrounding = backgroundObservers()
+        lock.withLock { self.observers = observers + resumptions + backgrounding }
+    }
+
+    private func backgroundObservers() -> [NSObjectProtocol] {
+        #if os(iOS)
+        [
             observe(UIApplication.didEnterBackgroundNotification) { [weak self] _ in
                 self?.setInBackground(true)
             },
@@ -83,8 +92,9 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
                 self?.setInBackground(false)
             },
         ]
-        let resumptions = resumptionObservers()
-        lock.withLock { self.observers = observers + resumptions }
+        #else
+        []
+        #endif
     }
 
     private func rebuildIfCurrent(_ engine: AVAudioEngine?) {
