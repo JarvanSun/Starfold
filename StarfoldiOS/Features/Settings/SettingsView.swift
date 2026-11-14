@@ -9,7 +9,6 @@ import StarfoldShared
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(\.dimensions) private var dimensions
     @State private var isConfirmingSignOut = false
     @State private var isEditingTouchLayout = false
 
@@ -18,30 +17,21 @@ struct SettingsView: View {
     let onAddAccount: () -> Void
 
     var body: some View {
-        GeometryReader { proxy in
-            form
-                .contentMargins(
-                    .trailing,
-                    trailingMargin(in: proxy.size.width),
-                    for: .scrollContent
-                )
-        }
-        .navigationTitle(Text("settings.title"))
-        .confirmationDialog(
-            "settings.signOut.confirmation \(settingsViewModel.signOutSubject)",
-            isPresented: $isConfirmingSignOut,
-            titleVisibility: .visible
-        ) {
-            Button("settings.signOut.confirm", role: .destructive) { settingsViewModel.signOut() }
-        }
-        .touchLayoutEditorCover(
-            isPresented: $isEditingTouchLayout,
-            settingsViewModel: settingsViewModel
-        )
-    }
-
-    private func trailingMargin(in width: CGFloat) -> CGFloat {
-        max(0, width - dimensions.settingsMaxWidth)
+        form
+            .navigationTitle(Text("settings.title"))
+            .confirmationDialog(
+                "settings.signOut.confirmation \(settingsViewModel.signOutSubject)",
+                isPresented: $isConfirmingSignOut,
+                titleVisibility: .visible
+            ) {
+                Button("settings.signOut.confirm", role: .destructive) {
+                    settingsViewModel.signOut()
+                }
+            }
+            .touchLayoutEditorCover(
+                isPresented: $isEditingTouchLayout,
+                settingsViewModel: settingsViewModel
+            )
     }
 
     private var form: some View {
