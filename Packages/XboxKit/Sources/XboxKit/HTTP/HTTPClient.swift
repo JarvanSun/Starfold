@@ -67,8 +67,8 @@ public actor HTTPClient {
 
     private let transport: Transport
 
-    public init(session: URLSession = .shared) {
-        let urlSessionTransport = URLSessionTransport(session: session)
+    public init(urlSession: URLSession = .shared) {
+        let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
         self.transport = { request in try await urlSessionTransport.exchange(request) }
     }
 
@@ -104,10 +104,10 @@ public actor HTTPClient {
 }
 
 private struct URLSessionTransport: Sendable {
-    let session: URLSession
+    let urlSession: URLSession
 
     func exchange(_ request: HTTPClient.Request) async throws -> HTTPClient.Response {
-        let (body, response) = try await session.data(for: request.urlRequest)
+        let (body, response) = try await urlSession.data(for: request.urlRequest)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)
         }

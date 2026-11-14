@@ -13,7 +13,7 @@ struct GamepadRouterTests {
     @Test
     func setDestinationWhenKeyHeldDuringLastStreamThenDoesNotReplayIt() {
         // Given
-        let router = GamepadRouter(routing: .direct)
+        let router = GamepadRouter(controllerRouting: .direct)
         let first = GamepadDestinationStub()
         router.setDestination { first.record($0, $1) }
         router.setKeyboard(GamepadState(buttons: [.a]))
@@ -33,7 +33,7 @@ struct GamepadRouterTests {
 
     func updateWhenGatedPlayerOneDisconnectsThenDeliversRemoval() {
         // Given
-        let router = GamepadRouter(routing: .gated)
+        let router = GamepadRouter(controllerRouting: .gated)
         let destination = GamepadDestinationStub()
         router.setDestination { destination.record($0, $1) }
         router.update(slot: 0, state: GamepadState(buttons: [.a]))
@@ -147,7 +147,7 @@ struct GamepadRouterTests {
 
 private extension GamepadRouterTests {
     func makeRouter(routing: ControllerRouting) -> (GamepadRouter, GamepadDestinationStub) {
-        let router = GamepadRouter(routing: routing)
+        let router = GamepadRouter(controllerRouting: routing)
         let destination = GamepadDestinationStub()
         router.setDestination { destination.record($0, $1) }
         return (router, destination)

@@ -11,13 +11,13 @@ import XboxKit
 
 struct SearchHostView: View {
     @Environment(AppViewModel.self) private var appViewModel
-    @State private var path: [CloudGame] = []
+    @State private var searchPath: [CloudGame] = []
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $searchPath) {
             content
         }
-        .onChange(of: appViewModel.activeAccountID) { path.removeAll() }
+        .onChange(of: appViewModel.activeAccountID) { searchPath.removeAll() }
     }
 
     @ViewBuilder
@@ -32,7 +32,7 @@ struct SearchHostView: View {
         SearchResultsView(libraryViewModel: library)
             .searchable(text: Bindable(library).searchText, prompt: Text("search.field.prompt"))
             .navigationDestination(for: CloudGame.self) { game in
-                GameDetailView(gameDetailViewModel: library.detail(for: game))
+                GameDetailView(gameDetailViewModel: library.makeGameDetailViewModel(for: game))
             }
     }
 }

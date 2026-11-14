@@ -14,7 +14,7 @@ struct KeychainStoreTests {
     @Test
     func readWhenWrittenThenReturnsSecret() throws {
         // Given
-        let store = KeychainStore(service: "Starfold.tests")
+        let store = KeychainStore(keychainService: "Starfold.tests")
         let key = "probe-\(UUID().uuidString)"
 
         // When

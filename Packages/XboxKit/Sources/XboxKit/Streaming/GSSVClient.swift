@@ -15,19 +15,19 @@ public struct GSSVClient: Sendable {
 
     let kind: Kind
     let baseURL: URL
-    let http: HTTPClient
+    let httpClient: HTTPClient
 
     private let token: @Sendable (TokenFreshness) async throws -> String
 
     init(
         kind: Kind,
         baseURL: URL,
-        http: HTTPClient,
+        httpClient: HTTPClient,
         token: @escaping @Sendable (TokenFreshness) async throws -> String
     ) {
         self.kind = kind
         self.baseURL = baseURL
-        self.http = http
+        self.httpClient = httpClient
         self.token = token
     }
 
@@ -37,6 +37,10 @@ public struct GSSVClient: Sendable {
             extraHeaders: ["X-MS-Device-Info": DeviceInfoHeader(quality: .high).json]
         )
         return try decoded(ServersResponse.self, from: response.body).results.map(\.console)
+    }
+
+    private func decoded<Body: Decodable>(_ type: Body.Type, from body: Data) throws -> Body {
+        try JSONDecoder(dateParser: .init()).decode(type, from: body)
     }
 
     public func titles() async throws -> [CloudTitle] {
@@ -85,11 +89,7 @@ public struct GSSVClient: Sendable {
             extraHeaders: ["X-MS-Device-Info": DeviceInfoHeader(quality: quality).json]
         )
         let sessionPath = try decoded(SessionResponse.self, from: response.body).sessionPath
-        return .init(client: self, url: try sessionURL(path: sessionPath), titleID: titleID)
-    }
-
-    private func decoded<Body: Decodable>(_ type: Body.Type, from body: Data) throws -> Body {
-        try JSONDecoder(dateParser: .init()).decode(type, from: body)
+        return .init(gssvClient: self, url: try sessionURL(path: sessionPath), titleID: titleID)
     }
 
     private func sessionURL(path: String) throws -> URL {
@@ -121,7 +121,7 @@ public struct GSSVClient: Sendable {
                 hasBody: body != nil,
                 adding: extraHeaders
             )
-            let response = try await http.send(
+            let response = try await httpClient.send(
                 .init(url: url, method: method, headers: headers, body: body)
             )
 
@@ -130,21 +130,6 @@ public struct GSSVClient: Sendable {
             default: return try successful(response, from: url)
             }
         }
-    }
-
-    private func successful(_ response: HTTPClient.Response, from url: URL) throws
-        -> HTTPClient.Response
-    {
-        guard (200..<300).contains(response.statusCode) else {
-            throw XboxHTTPError(
-                url: url,
-                statusCode: response.statusCode,
-                body: String(decoding: response.body, as: UTF8.self),
-                headers: response.headers
-            )
-        }
-
-        return response
     }
 
     private func headers(
@@ -164,6 +149,21 @@ public struct GSSVClient: Sendable {
 
         headers.merge(extraHeaders) { _, new in new }
         return headers
+    }
+
+    private func successful(_ response: HTTPClient.Response, from url: URL) throws
+        -> HTTPClient.Response
+    {
+        guard (200..<300).contains(response.statusCode) else {
+            throw XboxHTTPError(
+                url: url,
+                statusCode: response.statusCode,
+                body: String(decoding: response.body, as: UTF8.self),
+                headers: response.headers
+            )
+        }
+
+        return response
     }
 }
 

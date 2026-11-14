@@ -14,9 +14,10 @@ struct SearchResultsView: View {
     let libraryViewModel: LibraryViewModel
 
     var body: some View {
-        switch libraryViewModel.hasNoSearchResults {
-        case true: ContentUnavailableView.search(text: libraryViewModel.searchText)
-        case false: grid
+        if libraryViewModel.hasNoSearchResults {
+            ContentUnavailableView.search(text: libraryViewModel.searchText)
+        } else {
+            grid
         }
     }
 

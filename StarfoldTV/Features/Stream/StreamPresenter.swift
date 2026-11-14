@@ -55,7 +55,7 @@ final class StreamPresenter {
         self.init(
             play: { await appViewModel.play($0) },
             stop: { await appViewModel.endStream() },
-            isControllerConnected: { !appViewModel.controllers.connected.isEmpty },
+            isControllerConnected: { !appViewModel.controllerHub.connectedControllers.isEmpty },
             isSignInExpired: { appViewModel.isSignInExpired }
         )
     }
@@ -65,9 +65,10 @@ final class StreamPresenter {
 
         self.target = target
 
-        switch isControllerConnected() {
-        case true: present(target)
-        case false: isControllerPromptPresented = true
+        if isControllerConnected() {
+            present(target)
+        } else {
+            isControllerPromptPresented = true
         }
     }
 
@@ -104,9 +105,10 @@ final class StreamPresenter {
 
         guard !isEnding else { return }
 
-        switch isMenuPresented {
-        case true: isMenuPresented = false
-        case false: await end()
+        if isMenuPresented {
+            isMenuPresented = false
+        } else {
+            await end()
         }
     }
 
@@ -120,12 +122,6 @@ final class StreamPresenter {
 
         let isStillRequested = !Task.isCancelled && request == restartRequest
         if isStillRequested { start(target) }
-    }
-
-    func end() async {
-        restartRequest += 1
-
-        await finish()
     }
 
     private func finish() async {
@@ -158,6 +154,12 @@ final class StreamPresenter {
         isPresented = false
         isMenuPresented = false
         isEnding = false
+    }
+
+    func end() async {
+        restartRequest += 1
+
+        await finish()
     }
 
     func end(presentationID: Int) async {

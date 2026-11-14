@@ -23,14 +23,6 @@ struct InputReport {
         return writer.data
     }
 
-    private var presentTypes: [InputReportType] {
-        let sections: [(InputReportType, Bool)] = [
-            (.metadata, !frames.isEmpty),
-            (.gamepad, !gamepads.isEmpty),
-        ]
-        return sections.filter(\.1).map(\.0)
-    }
-
     private func appendFrames(to writer: inout ByteWriter, timestamp: Double) {
         guard !frames.isEmpty else { return }
 
@@ -78,5 +70,13 @@ struct InputReport {
         guard value.isFinite else { return 0 }
 
         return UInt16((max(0, min(1, value)) * 65535).rounded(.towardZero))
+    }
+
+    private var presentTypes: [InputReportType] {
+        let sections: [(InputReportType, Bool)] = [
+            (.metadata, !frames.isEmpty),
+            (.gamepad, !gamepads.isEmpty),
+        ]
+        return sections.filter(\.1).map(\.0)
     }
 }

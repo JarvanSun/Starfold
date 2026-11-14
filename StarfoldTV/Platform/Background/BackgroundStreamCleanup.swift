@@ -12,14 +12,15 @@ import os
 final class BackgroundStreamCleanup {
     private let log = Logger(category: .tvLifecycle)
 
-    private var task: UIBackgroundTaskIdentifier = .invalid
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
 
     func end(_ presenter: StreamPresenter) {
-        guard presenter.isPresented, task == .invalid else { return }
+        guard presenter.isPresented, backgroundTask == .invalid else { return }
 
         let taskName = "End Xbox session"
 
-        task = UIApplication.shared.beginBackgroundTask(withName: taskName) { [weak self] in
+        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: taskName) {
+            [weak self] in
             self?.log.warning("Background cleanup time expired")
 
             self?.finish()
@@ -37,10 +38,10 @@ final class BackgroundStreamCleanup {
     }
 
     private func finish() {
-        guard task != .invalid else { return }
+        guard backgroundTask != .invalid else { return }
 
-        UIApplication.shared.endBackgroundTask(task)
+        UIApplication.shared.endBackgroundTask(backgroundTask)
 
-        task = .invalid
+        backgroundTask = .invalid
     }
 }

@@ -22,9 +22,10 @@ public final class FavoritesStore {
     }
 
     public func toggle(_ titleID: String) {
-        switch contains(titleID) {
-        case true: titleIDs.remove(titleID)
-        case false: titleIDs.insert(titleID)
+        if contains(titleID) {
+            titleIDs.remove(titleID)
+        } else {
+            titleIDs.insert(titleID)
         }
 
         defaults.set(titleIDs.sorted(), forKey: key)

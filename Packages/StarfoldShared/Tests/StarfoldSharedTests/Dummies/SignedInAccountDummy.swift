@@ -11,15 +11,15 @@ extension SignedInAccount {
     static func dummy(
         id: String,
         gamertag: String,
-        consoles: ConsoleServiceStub = .init(),
-        cloudLibrary: CloudLibraryServiceStub = .init(),
-        streams: StreamServiceStub = .init()
+        consoleService: ConsoleServiceStub = .init(),
+        cloudLibraryService: CloudLibraryServiceStub = .init(),
+        streamService: StreamServiceStub = .init()
     ) -> SignedInAccount {
         .init(
             summary: .init(id: id, gamertag: gamertag),
-            consoles: consoles,
-            cloudLibrary: cloudLibrary,
-            streams: streams
+            consoleService: consoleService,
+            cloudLibraryService: cloudLibraryService,
+            streamService: streamService
         )
     }
 }

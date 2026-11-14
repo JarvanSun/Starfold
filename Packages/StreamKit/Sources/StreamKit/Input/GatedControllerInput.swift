@@ -9,20 +9,20 @@ import Foundation
 import GameController
 
 final class GatedControllerInput: @unchecked Sendable {
-    private let queue: DispatchQueue
-    private let router: GamepadRouter
+    private let inputQueue: DispatchQueue
+    private let gamepadRouter: GamepadRouter
 
     private var policy = GatedGamepadPolicy()
     private var gamepads: [UInt8: GCExtendedGamepad] = [:]
     private var touchProfile: GCPhysicalInputProfile?
 
-    init(queue: DispatchQueue, router: GamepadRouter) {
-        self.queue = queue
-        self.router = router
+    init(inputQueue: DispatchQueue, gamepadRouter: GamepadRouter) {
+        self.inputQueue = inputQueue
+        self.gamepadRouter = gamepadRouter
     }
 
     func setPlaying(_ isPlaying: Bool) {
-        queue.async {
+        inputQueue.async {
             self.applyPlaying(isPlaying)
         }
     }
@@ -53,15 +53,15 @@ final class GatedControllerInput: @unchecked Sendable {
 
     private func deliver(_ output: GatedGamepadPolicy.Output) {
         if output.shouldClearPendingInput {
-            router.clearPendingInput(from: Array(output.states.keys))
+            gamepadRouter.clearPendingInput(from: Array(output.states.keys))
         }
 
         for (source, state) in output.states.sorted(by: { $0.key < $1.key }) {
-            router.update(source, state: state)
+            gamepadRouter.update(source, state: state)
         }
 
         for source in output.removed {
-            router.update(source, state: nil)
+            gamepadRouter.update(source, state: nil)
         }
     }
 

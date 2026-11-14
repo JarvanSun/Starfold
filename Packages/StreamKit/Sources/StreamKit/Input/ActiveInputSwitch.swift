@@ -6,7 +6,7 @@
 //
 
 struct ActiveInputSwitch {
-    private(set) var current: ActiveInput = .touch
+    private(set) var currentInput: ActiveInput = .touch
 
     private var deliberateInputThreshold: Float { 0.3 }
 
@@ -15,14 +15,6 @@ struct ActiveInputSwitch {
         guard isDeliberate(state) else { return nil }
 
         return use(input)
-    }
-
-    @discardableResult
-    mutating func use(_ input: ActiveInput) -> ActiveInput? {
-        guard current != input else { return nil }
-
-        current = input
-        return input
     }
 
     private func isDeliberate(_ state: GamepadState) -> Bool {
@@ -34,5 +26,13 @@ struct ActiveInputSwitch {
             .contains { $0 >= threshold }
 
         return isPressingButton || isPushingStick || isPullingTrigger
+    }
+
+    @discardableResult
+    mutating func use(_ input: ActiveInput) -> ActiveInput? {
+        guard currentInput != input else { return nil }
+
+        currentInput = input
+        return input
     }
 }

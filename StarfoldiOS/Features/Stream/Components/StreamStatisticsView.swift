@@ -19,9 +19,8 @@ struct StreamStatisticsView: View {
             horizontalSpacing: dimensions.spaceMedium,
             verticalSpacing: dimensions.spaceXXSmall
         ) {
-            switch readout.latency {
-            case let latency?: latencyHeadline(latency)
-            case nil: EmptyView()
+            if let latency = readout.latency {
+                latencyHeadline(latency)
             }
 
             ForEach(readout.rows) { row($0) }

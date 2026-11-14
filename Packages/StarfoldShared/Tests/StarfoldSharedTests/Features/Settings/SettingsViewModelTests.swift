@@ -19,10 +19,10 @@ struct SettingsViewModelTests {
     func consoleQualityWhenChangedThenIsSavedForTheNextLaunch() {
         // Given
         let defaults = UserDefaults.dummyEmpty
-        let settings = makeSettings(defaults: defaults)
+        let settingsViewModel = makeSettings(defaults: defaults)
 
         // When
-        settings.consoleQuality = .fixed(.highest)
+        settingsViewModel.consoleQuality = .fixed(.highest)
 
         // Then
         #expect(makeSettings(defaults: defaults).consoleQuality == .fixed(.highest))
@@ -31,10 +31,10 @@ struct SettingsViewModelTests {
     @Test
     func qualityChoicesThenOfferAutomaticFirstAndEveryFixedQuality() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        let choices = settings.qualityChoices
+        let choices = settingsViewModel.qualityChoices
 
         // Then
         #expect(choices == [.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest)])
@@ -43,27 +43,27 @@ struct SettingsViewModelTests {
     @Test
     func bitrateChoicesThenStartWithAutomaticAndRise() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        let choices = settings.bitrateChoices
+        let choices = settingsViewModel.bitrateChoices
 
         // Then
-        #expect(choices.first.map(settings.isAutomatic(bitrate:)) == true)
-        #expect(choices.dropFirst().allSatisfy { !settings.isAutomatic(bitrate: $0) })
+        #expect(choices.first.map(settingsViewModel.isAutomatic(bitrate:)) == true)
+        #expect(choices.dropFirst().allSatisfy { !settingsViewModel.isAutomatic(bitrate: $0) })
         #expect(choices == choices.sorted())
     }
 
     @Test
     func gameLanguagesThenStartWithTheSystemLanguage() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        let languages = settings.gameLanguages
+        let languages = settingsViewModel.gameLanguages
 
         // Then
-        #expect(languages.first.map(settings.isSystem(gameLanguage:)) == true)
+        #expect(languages.first.map(settingsViewModel.isSystem(gameLanguage:)) == true)
         #expect(Set(languages).count == languages.count)
         #expect(languages.contains("zh-CN"))
     }
@@ -71,46 +71,46 @@ struct SettingsViewModelTests {
     @Test
     func effectiveGameLanguageWhenSystemIsChosenThenIsALanguageAndRegion() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        settings.gameLanguage = settings.gameLanguages[0]
+        settingsViewModel.gameLanguage = settingsViewModel.gameLanguages[0]
 
         // Then
-        #expect(settings.effectiveGameLanguage.split(separator: "-").count == 2)
+        #expect(settingsViewModel.effectiveGameLanguage.split(separator: "-").count == 2)
     }
 
     @Test
     func effectiveGameLanguageWhenOneIsChosenThenIsThatLanguage() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        settings.gameLanguage = "ja-JP"
+        settingsViewModel.gameLanguage = "ja-JP"
 
         // Then
-        #expect(settings.effectiveGameLanguage == "ja-JP")
+        #expect(settingsViewModel.effectiveGameLanguage == "ja-JP")
     }
 
     @Test
     func editTouchLayoutThenKeepsOneEditorUntilEditingFinishes() throws {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        settings.editTouchLayout()
+        settingsViewModel.editTouchLayout()
 
         // Then
-        let editor = try #require(settings.touchLayoutEditorViewModel)
-        #expect(settings.touchLayoutEditorViewModel === editor)
-        settings.finishEditingTouchLayout()
-        #expect(settings.touchLayoutEditorViewModel == nil)
+        let editor = try #require(settingsViewModel.touchLayoutEditorViewModel)
+        #expect(settingsViewModel.touchLayoutEditorViewModel === editor)
+        settingsViewModel.finishEditingTouchLayout()
+        #expect(settingsViewModel.touchLayoutEditorViewModel == nil)
     }
 
     @Test(arguments: [true, false])
     func canToneMapHDRThenFollowsTheDisplay(isHDRDisplayAvailable: Bool) {
         // Given
-        let settings = makeSettings(
+        let settingsViewModel = makeSettings(
             picture: .init(
                 canFit: true,
                 canEnhance: true,
@@ -120,13 +120,13 @@ struct SettingsViewModelTests {
         )
 
         // Then
-        #expect(settings.canToneMapHDR == isHDRDisplayAvailable)
+        #expect(settingsViewModel.canToneMapHDR == isHDRDisplayAvailable)
     }
 
     @Test
     func canToneMapHDRWhenPlatformHasNoChoiceThenIsFalse() {
         // Given
-        let settings = makeSettings(
+        let settingsViewModel = makeSettings(
             picture: .init(
                 canFit: false,
                 canEnhance: false,
@@ -136,15 +136,15 @@ struct SettingsViewModelTests {
         )
 
         // Then
-        #expect(!settings.canToneMapHDR)
-        #expect(!settings.canChoosePictureFit)
-        #expect(!settings.canEnhancePicture)
+        #expect(!settingsViewModel.canToneMapHDR)
+        #expect(!settingsViewModel.canChoosePictureFit)
+        #expect(!settingsViewModel.canEnhancePicture)
     }
 
     @Test
     func playerNumberThenCountsFromOne() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
         let controller = ConnectedController(
             id: ObjectIdentifier(NSObject()),
             slot: 0,
@@ -153,8 +153,8 @@ struct SettingsViewModelTests {
         )
 
         // Then
-        #expect(settings.playerNumber(of: controller) == 1)
-        #expect(settings.batteryLevel(of: controller) == nil)
+        #expect(settingsViewModel.playerNumber(of: controller) == 1)
+        #expect(settingsViewModel.batteryLevel(of: controller) == nil)
     }
 
     @Test(
@@ -165,21 +165,21 @@ struct SettingsViewModelTests {
     )
     func isControllerMissingWhenNoneIsConnectedThenIsTrue() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // Then
-        #expect(settings.isControllerMissing)
-        #expect(settings.connectedControllers.isEmpty)
+        #expect(settingsViewModel.isControllerMissing)
+        #expect(settingsViewModel.connectedControllers.isEmpty)
     }
 
     @Test
     func titleOfBitrateThenNamesAutomaticAndEveryFixedBitrateDifferently() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        let titles = settings.bitrateChoices.map {
-            String(localized: settings.title(ofBitrate: $0))
+        let titles = settingsViewModel.bitrateChoices.map {
+            String(localized: settingsViewModel.title(ofBitrate: $0))
         }
 
         // Then
@@ -190,10 +190,10 @@ struct SettingsViewModelTests {
     @Test
     func nameOfGameLanguageWhenSystemThenSaysItFollowsTheSystem() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        let name = settings.name(ofGameLanguage: settings.gameLanguages[0])
+        let name = settingsViewModel.name(ofGameLanguage: settingsViewModel.gameLanguages[0])
 
         // Then
         #expect(name == String(localized: "settings.gameLanguage.system", bundle: .module))
@@ -202,11 +202,14 @@ struct SettingsViewModelTests {
     @Test
     func nameOfGameLanguageWhenOneIsChosenThenIsThatLanguagesName() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // Then
-        #expect(settings.name(ofGameLanguage: "ja-JP") != "ja-JP")
-        #expect(settings.name(ofGameLanguage: "ja-JP") != settings.name(ofGameLanguage: ""))
+        #expect(settingsViewModel.name(ofGameLanguage: "ja-JP") != "ja-JP")
+        #expect(
+            settingsViewModel.name(ofGameLanguage: "ja-JP")
+                != settingsViewModel.name(ofGameLanguage: "")
+        )
     }
 
     @Test
@@ -216,11 +219,11 @@ struct SettingsViewModelTests {
             .init(id: "1111", gamertag: "First"), .init(id: "2222", gamertag: "Second"),
         ]
         session.activeAccountID = "2222"
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // Then
         #expect(
-            settings.accountChoices == [
+            settingsViewModel.accountChoices == [
                 .init(id: "1111", gamertag: "First", isActive: false),
                 .init(id: "2222", gamertag: "Second", isActive: true),
             ]
@@ -244,10 +247,12 @@ struct SettingsViewModelTests {
     @Test
     func switchAccountThenSwitchesToTheChosenAccount() async {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        await settings.switchAccount(to: .init(id: "1111", gamertag: "First", isActive: false))
+        await settingsViewModel.switchAccount(
+            to: .init(id: "1111", gamertag: "First", isActive: false)
+        )
 
         // Then
         #expect(session.switchedAccountIDs == ["1111"])
@@ -257,28 +262,28 @@ struct SettingsViewModelTests {
     func signOutSubjectWhenSignedInThenIsTheGamertag() {
         // Given
         session.signedInGamertag = "NovaPilot"
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // Then
-        #expect(settings.signOutSubject == "NovaPilot")
+        #expect(settingsViewModel.signOutSubject == "NovaPilot")
     }
 
     @Test
     func signOutSubjectWhenGamertagIsUnknownThenIsTheAppName() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // Then
-        #expect(settings.signOutSubject == AppInfo().displayName)
+        #expect(settingsViewModel.signOutSubject == AppInfo().displayName)
     }
 
     @Test
     func signOutThenSignsOutOfTheSession() {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        settings.signOut()
+        settingsViewModel.signOut()
 
         // Then
         #expect(session.signOutCount == 1)
@@ -288,19 +293,19 @@ struct SettingsViewModelTests {
     func needsStreamRestartThenFollowsTheRunningStream(needsRestart: Bool) {
         // Given
         session.needsStreamRestartForSettings = needsRestart
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // Then
-        #expect(settings.needsStreamRestart == needsRestart)
+        #expect(settingsViewModel.needsStreamRestart == needsRestart)
     }
 
     @Test
     func restartStreamThenRestartsTheRunningStream() async {
         // Given
-        let settings = makeSettings()
+        let settingsViewModel = makeSettings()
 
         // When
-        await settings.restartStream()
+        await settingsViewModel.restartStream()
 
         // Then
         #expect(session.streamRestartCount == 1)
@@ -317,18 +322,18 @@ private extension SettingsViewModelTests {
             isHDRDisplayAvailable: nil
         )
     ) -> SettingsViewModel {
-        let settings = SettingsViewModel(
+        let settingsViewModel = SettingsViewModel(
             preferences: .init(defaults: defaults),
-            controllers: ControllerHub(routing: .direct),
-            platform: .init(
+            controllerHub: ControllerHub(controllerRouting: .direct),
+            streamPlatform: .init(
                 controllerRouting: .direct,
-                picture: picture,
+                pictureCapabilities: picture,
                 overlays: .init(statisticsRows: [], controlsHideDelay: nil),
-                touch: nil
+                touchPlatform: nil
             ),
-            network: NetworkPathStub()
+            networkPath: NetworkPathStub()
         )
-        settings.session = session
-        return settings
+        settingsViewModel.sessionController = session
+        return settingsViewModel
     }
 }

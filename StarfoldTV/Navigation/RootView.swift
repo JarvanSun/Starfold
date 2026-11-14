@@ -20,12 +20,20 @@ struct RootView: View {
     @State private var libraryPath: [CloudGame] = []
     @State private var pendingLink: TopShelfLink?
     @State private var isSignInPresented = false
-    @State private var backgroundCleanup = BackgroundStreamCleanup()
+    @State private var backgroundStreamCleanup = BackgroundStreamCleanup()
 
     var body: some View {
         content
             .preferredColorScheme(.dark)
             .task { createStreamPresenter() }
+    }
+
+    private func createStreamPresenter() {
+        guard streamPresenter == nil else { return }
+
+        let presenter = StreamPresenter(appViewModel: appViewModel)
+        appViewModel.onPlayRequest = { [weak presenter] in presenter?.start($0) }
+        streamPresenter = presenter
     }
 
     @ViewBuilder
@@ -53,7 +61,7 @@ struct RootView: View {
         .sheet(isPresented: $presenter.isControllerPromptPresented) {
             ControllerPrompt(
                 hasController: presenter.hasController,
-                onCheckAgain: { appViewModel.controllers.checkControllers() },
+                onCheckAgain: { appViewModel.controllerHub.checkControllers() },
                 onPlay: { presenter.startPromptedStream() }
             )
         }
@@ -70,6 +78,15 @@ struct RootView: View {
         .onOpenURL { url in open(url, presenter: presenter) }
         .onChange(of: appViewModel.sessionState) { followPendingLink(presenter) }
         .onChange(of: scenePhase, initial: true) { _, phase in apply(phase, presenter: presenter) }
+    }
+
+    @ViewBuilder
+    private func background(isStreamPresented: Bool) -> some View {
+        if isStreamPresented {
+            Color.black.ignoresSafeArea()
+        } else {
+            SkyBackground()
+        }
     }
 
     @ViewBuilder
@@ -112,10 +129,10 @@ struct RootView: View {
 
     private func stream(_ presenter: StreamPresenter) -> some View {
         StreamView(
-            presenter: presenter,
+            streamPresenter: presenter,
             streamViewModel: appViewModel.streamViewModel,
             settingsViewModel: appViewModel.settingsViewModel,
-            controllers: appViewModel.controllers
+            controllerHub: appViewModel.controllerHub
         )
         .appPalette()
         .alert("signIn.expired.title", isPresented: Bindable(appViewModel).isSignInExpired) {
@@ -188,25 +205,9 @@ struct RootView: View {
     private func apply(_ phase: ScenePhase, presenter: StreamPresenter) {
         presenter.moveToForeground(phase == .active)
 
-        if phase != .active { appViewModel.controllers.routeInput(toGame: false) }
+        if phase != .active { appViewModel.controllerHub.routeInput(toGame: false) }
 
-        if phase == .background { backgroundCleanup.end(presenter) }
-    }
-
-    @ViewBuilder
-    private func background(isStreamPresented: Bool) -> some View {
-        switch isStreamPresented {
-        case true: Color.black.ignoresSafeArea()
-        case false: SkyBackground()
-        }
-    }
-
-    private func createStreamPresenter() {
-        guard streamPresenter == nil else { return }
-
-        let presenter = StreamPresenter(appViewModel: appViewModel)
-        appViewModel.onPlayRequest = { [weak presenter] in presenter?.start($0) }
-        streamPresenter = presenter
+        if phase == .background { backgroundStreamCleanup.end(presenter) }
     }
 }
 

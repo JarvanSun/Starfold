@@ -36,6 +36,14 @@ struct AllGamesGrid: View {
         }
     }
 
+    private func tile(for game: CloudGame) -> some View {
+        GameTile(game: game, badge: nil) {
+            libraryViewModel.play(game)
+        } onOpen: {
+            onOpenGame(game)
+        }
+    }
+
     private var columns: [GridItem] {
         [
             .init(
@@ -47,14 +55,6 @@ struct AllGamesGrid: View {
                 alignment: .top
             )
         ]
-    }
-
-    private func tile(for game: CloudGame) -> some View {
-        GameTile(game: game, badge: nil) {
-            libraryViewModel.play(game)
-        } onOpen: {
-            onOpenGame(game)
-        }
     }
 }
 

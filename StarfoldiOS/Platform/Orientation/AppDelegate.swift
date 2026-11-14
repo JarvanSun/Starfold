@@ -8,12 +8,12 @@
 import UIKit
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-    let orientation = OrientationLock()
+    let orientationLock = OrientationLock()
 
     func application(
         _ application: UIApplication,
         supportedInterfaceOrientationsFor window: UIWindow?
     ) -> UIInterfaceOrientationMask {
-        orientation.supportedOrientations
+        orientationLock.supportedOrientations
     }
 }

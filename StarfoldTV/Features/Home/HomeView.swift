@@ -58,16 +58,16 @@ struct HomeView: View {
         return max(dimensions.homeCardMinimumWidth, columnWidth(in: width, count: cardsPerRow))
     }
 
-    private func shelfTileWidth(in width: CGFloat) -> CGFloat {
-        let shelfTilesPerRow: CGFloat = 4
-
-        return max(dimensions.gameTileMinimumWidth, columnWidth(in: width, count: shelfTilesPerRow))
-    }
-
     private func columnWidth(in width: CGFloat, count: CGFloat) -> CGFloat {
         let margins = 2 * dimensions.spaceXXLarge
         let gaps = (count - 1) * dimensions.spaceXXLarge
         return (width - margins - gaps) / count
+    }
+
+    private func shelfTileWidth(in width: CGFloat) -> CGFloat {
+        let shelfTilesPerRow: CGFloat = 4
+
+        return max(dimensions.gameTileMinimumWidth, columnWidth(in: width, count: shelfTilesPerRow))
     }
 }
 

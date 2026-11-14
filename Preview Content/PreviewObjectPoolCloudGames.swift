@@ -13,8 +13,8 @@ import XboxKit
 // MARK: - CloudGames
 
 extension PreviewObjectPool {
-    static var favorites: FavoritesStore {
-        preferences.favorites(for: profile.xuid)
+    static var favoritesStore: FavoritesStore {
+        preferences.makeFavoritesStore(for: profile.xuid)
     }
 
     static func libraryViewModel(
@@ -22,16 +22,16 @@ extension PreviewObjectPool {
         games: [CloudGame] = PreviewObjectPool.cloudGames,
         access: CloudAccess = .gamePass
     ) -> LibraryViewModel {
-        let library = LibraryViewModel(
+        let libraryViewModel = LibraryViewModel(
             accountID: profile.xuid,
-            service: cloudLibraryService(state: state, games: games, access: access),
+            cloudLibraryService: cloudLibraryService(state: state, games: games, access: access),
             preferences: preferences,
-            cache: libraryCache
+            libraryCache: libraryCache
         )
 
-        Task { await library.refresh() }
+        Task { await libraryViewModel.refresh() }
 
-        return library
+        return libraryViewModel
     }
 
     static var cloudGames: [CloudGame] {
@@ -121,7 +121,7 @@ extension PreviewObjectPool {
         games: [CloudGame],
         access: CloudAccess
     ) -> PreviewCloudLibraryService {
-        let library = CloudLibrary(
+        let cloudLibrary = CloudLibrary(
             games: games,
             recentGames: Array(games.prefix(4)),
             curated: [
@@ -129,7 +129,7 @@ extension PreviewObjectPool {
             ],
             access: access
         )
-        return .init(reply: .init(state: state), content: library)
+        return .init(reply: .init(state: state), content: cloudLibrary)
     }
 }
 

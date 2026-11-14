@@ -14,9 +14,8 @@ extension View {
         @ViewBuilder content: @escaping (Value) -> Content
     ) -> some View {
         overlay(alignment: alignment) {
-            switch value {
-            case let value?: content(value)
-            case nil: EmptyView()
+            if let value {
+                content(value)
             }
         }
     }

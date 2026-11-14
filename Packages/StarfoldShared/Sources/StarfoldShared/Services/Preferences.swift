@@ -81,10 +81,7 @@ public final class Preferences {
     }
 
     var effectiveGameLanguage: String {
-        switch gameLanguage.isEmpty {
-        case true: systemGameLanguage
-        case false: gameLanguage
-        }
+        gameLanguage.isEmpty ? systemGameLanguage : gameLanguage
     }
 
     private var systemGameLanguage: String {
@@ -108,39 +105,58 @@ public final class Preferences {
     }
 
     public init(defaults: UserDefaults) {
-        let factory = FactorySettings()
+        let factorySettings = FactorySettings()
         self.defaults = defaults
         consoleQuality = .init(storageValue: defaults.string(for: .consoleQuality))
         cloudQuality = .init(storageValue: defaults.string(for: .cloudQuality))
         cellularQuality =
             defaults.string(for: .cellularQuality).map(QualityChoice.init(storageValue:))
-            ?? factory.cellularQuality
-        maxBitrateMbps = defaults.object(for: .maxBitrate) ?? factory.maxBitrateMbps
-        isUpscalingEnabled = defaults.object(for: .upscaling) ?? factory.isUpscalingEnabled
-        sharpening = defaults.object(for: .sharpening) ?? factory.sharpening
+            ?? factorySettings.cellularQuality
+        maxBitrateMbps = defaults.object(for: .maxBitrate) ?? factorySettings.maxBitrateMbps
+        isUpscalingEnabled = defaults.object(for: .upscaling) ?? factorySettings.isUpscalingEnabled
+        sharpening = defaults.object(for: .sharpening) ?? factorySettings.sharpening
         shouldShowStatistics = defaults.bool(for: .showStatistics)
         gameLanguage = defaults.string(for: .gameLanguage) ?? ""
         isKeyboardControllerEnabled =
-            defaults.object(for: .keyboardAsController) ?? factory.isKeyboardControllerEnabled
-        isRumbleEnabled = defaults.object(for: .rumble) ?? factory.isRumbleEnabled
-        isTouchHapticsEnabled = defaults.object(for: .touchHaptics) ?? factory.isTouchHapticsEnabled
-        shouldShowInMenuBar = defaults.object(for: .showInMenuBar) ?? factory.shouldShowInMenuBar
+            defaults.object(for: .keyboardAsController)
+            ?? factorySettings.isKeyboardControllerEnabled
+        isRumbleEnabled = defaults.object(for: .rumble) ?? factorySettings.isRumbleEnabled
+        isTouchHapticsEnabled =
+            defaults.object(for: .touchHaptics) ?? factorySettings.isTouchHapticsEnabled
+        shouldShowInMenuBar =
+            defaults.object(for: .showInMenuBar) ?? factorySettings.shouldShowInMenuBar
         pacingMode = .init(storedValue: defaults.string(for: .pacingMode))
         soundStage =
             defaults.string(for: .soundStage).flatMap(SoundStage.init(rawValue:))
-            ?? factory.soundStage
+            ?? factorySettings.soundStage
         palette = .init(storedValue: defaults.string(for: .palette))
         pictureFit = .init(storedValue: defaults.string(for: .pictureFit))
         isHDRToneMappingEnabled = defaults.bool(for: .hdrToneMapping)
         librarySort =
             defaults.string(for: .librarySort).flatMap(GameSort.init(rawValue:))
-            ?? factory.librarySort
+            ?? factorySettings.librarySort
         touchLayouts = .init(
             uniqueKeysWithValues: TouchOrientation.allCases.compactMap { orientation in
                 storedTouchLayout(for: orientation).map { (orientation, $0) }
             }
         )
         touchSticks = storedTouchSticks() ?? .init()
+    }
+
+    private func storedTouchLayout(for orientation: TouchOrientation) -> TouchLayoutAdjustments? {
+        let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
+        return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
+    }
+
+    private func touchLayoutKey(for orientation: TouchOrientation) -> String {
+        let touchLayoutKeyPrefix = "touchLayout."
+
+        return touchLayoutKeyPrefix + orientation.rawValue
+    }
+
+    private func storedTouchSticks() -> TouchSticks? {
+        let stored: Data? = defaults.object(for: .touchSticks)
+        return stored.flatMap { try? JSONDecoder().decode(TouchSticks.self, from: $0) }
     }
 
     func touchLayoutAdjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
@@ -157,23 +173,7 @@ public final class Preferences {
         defaults.set(encoded, forKey: touchLayoutKey(for: orientation))
     }
 
-    private func storedTouchLayout(for orientation: TouchOrientation) -> TouchLayoutAdjustments? {
-        let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
-        return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
-    }
-
-    private func storedTouchSticks() -> TouchSticks? {
-        let stored: Data? = defaults.object(for: .touchSticks)
-        return stored.flatMap { try? JSONDecoder().decode(TouchSticks.self, from: $0) }
-    }
-
-    private func touchLayoutKey(for orientation: TouchOrientation) -> String {
-        let touchLayoutKeyPrefix = "touchLayout."
-
-        return touchLayoutKeyPrefix + orientation.rawValue
-    }
-
-    public func favorites(for xuid: String) -> FavoritesStore {
+    public func makeFavoritesStore(for xuid: String) -> FavoritesStore {
         .init(defaults: defaults, key: favoritesKey(for: xuid))
     }
 

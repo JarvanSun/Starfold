@@ -34,9 +34,8 @@ struct ConsoleCardArtwork: View {
 
     private func gameCover(_ url: URL) -> some View {
         AsyncImage(url: url, transaction: .init(animation: fadeIn)) { phase in
-            switch phase.image {
-            case let image?: image.resizable().scaledToFill().transition(.opacity)
-            case nil: EmptyView()
+            if let image = phase.image {
+                image.resizable().scaledToFill().transition(.opacity)
             }
         }
     }

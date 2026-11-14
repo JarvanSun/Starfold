@@ -29,9 +29,8 @@ struct StreamControlBar: View {
 
                 PictureMenu(settingsViewModel: settingsViewModel, streamViewModel: streamViewModel)
 
-                switch pictureInPicture {
-                case let pictureInPicture?: pictureInPictureButton(pictureInPicture)
-                case nil: EmptyView()
+                if let pictureInPicture {
+                    pictureInPictureButton(pictureInPicture)
                 }
 
                 fullScreenButton
@@ -43,6 +42,19 @@ struct StreamControlBar: View {
             .controlSize(.large)
         }
         .environment(\.colorScheme, .dark)
+    }
+
+    private func pictureInPictureButton(_ pictureInPicture: StreamPictureInPicture) -> some View {
+        Button {
+            pictureInPicture.toggle()
+        } label: {
+            Label(
+                String(localized: "stream.controlBar.pictureInPicture.label"),
+                systemImage: "pip.enter"
+            )
+        }
+        .disabled(!pictureInPicture.isPossible)
+        .help(Text("stream.controlBar.pictureInPicture.tooltip"))
     }
 
     private var guideButton: some View {
@@ -65,19 +77,6 @@ struct StreamControlBar: View {
         .help(Text("stream.controlBar.statistics.tooltip"))
     }
 
-    private func pictureInPictureButton(_ pictureInPicture: StreamPictureInPicture) -> some View {
-        Button {
-            pictureInPicture.toggle()
-        } label: {
-            Label(
-                String(localized: "stream.controlBar.pictureInPicture.label"),
-                systemImage: "pip.enter"
-            )
-        }
-        .disabled(!pictureInPicture.isPossible)
-        .help(Text("stream.controlBar.pictureInPicture.tooltip"))
-    }
-
     private var fullScreenButton: some View {
         Button {
             toggleFullScreen()
@@ -92,13 +91,12 @@ struct StreamControlBar: View {
 
     @ViewBuilder
     private var fullScreenLabel: some View {
-        switch isFullScreen {
-        case true:
+        if isFullScreen {
             Label(
                 String(localized: "stream.controlBar.fullScreen.exit"),
                 systemImage: "arrow.down.right.and.arrow.up.left"
             )
-        case false:
+        } else {
             Label(
                 String(localized: "stream.controlBar.fullScreen.enter"),
                 systemImage: "arrow.up.left.and.arrow.down.right"

@@ -43,12 +43,12 @@ struct AppHarness {
         self.cacheDirectory = cacheDirectory
         appViewModel = AppViewModel(
             accountService: accountService,
-            cache: .init(directory: cacheDirectory),
+            libraryCache: .init(directory: cacheDirectory),
             settingsViewModel: .init(
                 preferences: preferences,
-                controllers: dependencies.controllers,
-                platform: dependencies.platform,
-                network: dependencies.network
+                controllerHub: dependencies.controllerHub,
+                streamPlatform: dependencies.streamPlatform,
+                networkPath: dependencies.networkPath
             ),
             streamDependencies: dependencies
         )
@@ -59,10 +59,15 @@ struct AppHarness {
         service: ConsoleService,
         clock: some Clock<Duration> = ContinuousClock()
     ) -> HomeViewModel {
-        .init(accountID: accountID, service: service, cache: cache, clock: clock)
+        .init(accountID: accountID, consoleService: service, libraryCache: cache, clock: clock)
     }
 
     func library(for accountID: String, service: CloudLibraryService) -> LibraryViewModel {
-        .init(accountID: accountID, service: service, preferences: preferences, cache: cache)
+        .init(
+            accountID: accountID,
+            cloudLibraryService: service,
+            preferences: preferences,
+            libraryCache: cache
+        )
     }
 }

@@ -12,28 +12,20 @@ import os
 final class RumblePlayer {
     private let log = Logger(category: .controllers)
 
-    private var engines: [GCHapticsLocality: CHHapticEngine] = [:]
-    private var players: [GCHapticsLocality: CHHapticPatternPlayer] = [:]
+    private var hapticEngines: [GCHapticsLocality: CHHapticEngine] = [:]
+    private var patternPlayers: [GCHapticsLocality: CHHapticPatternPlayer] = [:]
 
     init?(controller: GCController) {
         guard let haptics = controller.haptics else { return nil }
 
         startLocalizedEngines(haptics)
 
-        if engines.isEmpty, let engine = haptics.createEngine(withLocality: .default) {
+        if hapticEngines.isEmpty, let engine = haptics.createEngine(withLocality: .default) {
             try? engine.start()
-            engines[.default] = engine
+            hapticEngines[.default] = engine
         }
 
-        guard !engines.isEmpty else { return nil }
-    }
-
-    init?(device: CHHapticDeviceCapability) {
-        guard device.supportsHaptics, let engine = try? CHHapticEngine() else { return nil }
-
-        engine.playsHapticsOnly = true
-        try? engine.start()
-        engines[.default] = engine
+        guard !hapticEngines.isEmpty else { return nil }
     }
 
     private func startLocalizedEngines(_ haptics: GCDeviceHaptics) {
@@ -45,7 +37,7 @@ final class RumblePlayer {
             if let engine = haptics.createEngine(withLocality: locality) {
                 engine.playsHapticsOnly = true
                 try? engine.start()
-                engines[locality] = engine
+                hapticEngines[locality] = engine
             }
         }
     }
@@ -58,6 +50,14 @@ final class RumblePlayer {
         } catch {
             return restartEngineAndStartPlayer(pattern, on: engine)
         }
+    }
+
+    private func startPlayer(_ pattern: CHHapticPattern, on engine: CHHapticEngine) throws
+        -> CHHapticPatternPlayer
+    {
+        let player = try engine.makePlayer(with: pattern)
+        try player.start(atTime: CHHapticTimeImmediate)
+        return player
     }
 
     private func restartEngineAndStartPlayer(
@@ -74,19 +74,21 @@ final class RumblePlayer {
         }
     }
 
-    private func startPlayer(_ pattern: CHHapticPattern, on engine: CHHapticEngine) throws
-        -> CHHapticPatternPlayer
-    {
-        let player = try engine.makePlayer(with: pattern)
-        try player.start(atTime: CHHapticTimeImmediate)
-        return player
+    init?(device: CHHapticDeviceCapability) {
+        guard device.supportsHaptics, let engine = try? CHHapticEngine() else { return nil }
+
+        engine.playsHapticsOnly = true
+        try? engine.start()
+        hapticEngines[.default] = engine
     }
 
     func play(_ effect: VibrationEffect) {
-        for (locality, engine) in engines {
-            try? players[locality]?.stop(atTime: CHHapticTimeImmediate)
+        for (locality, engine) in hapticEngines {
+            try? patternPlayers[locality]?.stop(atTime: CHHapticTimeImmediate)
 
-            players[locality] = pattern(of: effect, at: locality).flatMap { start($0, on: engine) }
+            patternPlayers[locality] = pattern(of: effect, at: locality).flatMap {
+                start($0, on: engine)
+            }
         }
     }
 
@@ -127,11 +129,11 @@ final class RumblePlayer {
     }
 
     func stop() {
-        for player in players.values {
+        for player in patternPlayers.values {
             try? player.stop(atTime: CHHapticTimeImmediate)
         }
 
-        players.removeAll()
+        patternPlayers.removeAll()
     }
 }
 

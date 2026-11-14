@@ -34,25 +34,6 @@ struct TouchLayoutPlanner {
         )
     }
 
-    private var clusterRadius: CGFloat {
-        metrics.buttonDiameter * clusterSpacing
-    }
-
-    private func adjusted(_ placement: TouchControlPlacement) -> TouchControlPlacement {
-        let adjustment = adjustments.adjustment(for: placement.id)
-        return .init(
-            id: placement.id,
-            input: placement.input,
-            anchor: placement.anchor,
-            offset: CGPoint(
-                x: placement.offset.x + adjustment.offset.x,
-                y: placement.offset.y + adjustment.offset.y
-            ),
-            diameter: placement.diameter * adjustment.scale,
-            symbol: placement.symbol
-        )
-    }
-
     private func leftWheel(_ wheel: TouchWheel) -> [TouchControlPlacement] {
         let reach = metrics.edgeMargin + metrics.stickDiameter / 2
         let center = CGPoint(x: reach, y: -reach)
@@ -65,27 +46,6 @@ struct TouchLayoutPlanner {
             from: 0,
             to: wheelArcDegrees,
             direction: 1
-        )
-        return inner + outer
-    }
-
-    private func rightWheel(_ wheel: TouchWheel) -> [TouchControlPlacement] {
-        let reach = metrics.edgeMargin + clusterRadius + metrics.buttonDiameter / 2
-        let center = CGPoint(x: -reach, y: -reach)
-        let inner = innerControls(
-            wheel.inner,
-            id: "right.inner",
-            anchor: .bottomTrailing,
-            at: center
-        )
-        let outer = ring(
-            controls(in: wheel.outer, id: "right.outer"),
-            anchor: .bottomTrailing,
-            around: center,
-            innerRadius: radius(of: inner),
-            from: wheelArcDegrees,
-            to: 0,
-            direction: -1
         )
         return inner + outer
     }
@@ -103,6 +63,24 @@ struct TouchLayoutPlanner {
         case 1: return [place(controls[0], anchor: anchor, at: center)]
         default: return cluster(controls, anchor: anchor, around: center)
         }
+    }
+
+    private func controls(in slots: [TouchSlot], id: String) -> [PlannedControl] {
+        slots.enumerated().compactMap { index, slot in
+            switch slot {
+            case .empty: nil
+            case .control(let control): planned(control, id: "\(id).\(index)")
+            case .cluster(let controls):
+                controls.lazy.compactMap { $0 }.compactMap { planned($0, id: "\(id).\(index)") }
+                    .first
+            }
+        }
+    }
+
+    private func planned(_ control: TouchControl, id: String) -> PlannedControl? {
+        guard control.isVisible, let input = TouchInput(kind: control.kind) else { return nil }
+
+        return .init(id: id, input: input)
     }
 
     private func cluster(
@@ -123,11 +101,42 @@ struct TouchLayoutPlanner {
         }
     }
 
-    private func radius(of inner: [TouchControlPlacement]) -> CGFloat {
-        switch inner.count {
-        case 0: 0
-        case 1: inner[0].diameter / 2
-        default: clusterRadius + metrics.buttonDiameter / 2
+    private func point(
+        around center: CGPoint,
+        radius: CGFloat,
+        degrees: Double,
+        direction: CGFloat = 1
+    ) -> CGPoint {
+        let radians = degrees * .pi / 180
+        return CGPoint(
+            x: center.x + direction * radius * CGFloat(cos(radians)),
+            y: center.y - radius * CGFloat(sin(radians))
+        )
+    }
+
+    private func place(
+        _ control: PlannedControl,
+        anchor: TouchAnchor,
+        at position: CGPoint,
+        diameter: CGFloat? = nil
+    ) -> TouchControlPlacement {
+        .init(
+            id: control.id,
+            input: control.input,
+            anchor: anchor,
+            offset: position,
+            diameter: diameter ?? self.diameter(of: control.input),
+            symbol: control.input.symbol
+        )
+    }
+
+    private func diameter(of input: TouchInput) -> CGFloat {
+        let directionPadScale: CGFloat = 0.8
+
+        return switch input {
+        case .leftStick, .rightStick: metrics.stickDiameter
+        case .directionPad: metrics.stickDiameter * directionPadScale
+        case .button, .leftTrigger, .rightTrigger: metrics.buttonDiameter
         }
     }
 
@@ -157,17 +166,33 @@ struct TouchLayoutPlanner {
         }
     }
 
-    private func point(
-        around center: CGPoint,
-        radius: CGFloat,
-        degrees: Double,
-        direction: CGFloat = 1
-    ) -> CGPoint {
-        let radians = degrees * .pi / 180
-        return CGPoint(
-            x: center.x + direction * radius * CGFloat(cos(radians)),
-            y: center.y - radius * CGFloat(sin(radians))
+    private func radius(of inner: [TouchControlPlacement]) -> CGFloat {
+        switch inner.count {
+        case 0: 0
+        case 1: inner[0].diameter / 2
+        default: clusterRadius + metrics.buttonDiameter / 2
+        }
+    }
+
+    private func rightWheel(_ wheel: TouchWheel) -> [TouchControlPlacement] {
+        let reach = metrics.edgeMargin + clusterRadius + metrics.buttonDiameter / 2
+        let center = CGPoint(x: -reach, y: -reach)
+        let inner = innerControls(
+            wheel.inner,
+            id: "right.inner",
+            anchor: .bottomTrailing,
+            at: center
         )
+        let outer = ring(
+            controls(in: wheel.outer, id: "right.outer"),
+            anchor: .bottomTrailing,
+            around: center,
+            innerRadius: radius(of: inner),
+            from: wheelArcDegrees,
+            to: 0,
+            direction: -1
+        )
+        return inner + outer
     }
 
     private func edge(_ edge: TouchEdge, isTop: Bool) -> [TouchControlPlacement] {
@@ -214,10 +239,6 @@ struct TouchLayoutPlanner {
             )
     }
 
-    private var rowGap: CGFloat {
-        metrics.edgeMargin / 2
-    }
-
     private func rowWidth(of count: Int) -> CGFloat {
         guard count > 0 else { return 0 }
 
@@ -243,47 +264,26 @@ struct TouchLayoutPlanner {
         }
     }
 
-    private func controls(in slots: [TouchSlot], id: String) -> [PlannedControl] {
-        slots.enumerated().compactMap { index, slot in
-            switch slot {
-            case .empty: nil
-            case .control(let control): planned(control, id: "\(id).\(index)")
-            case .cluster(let controls):
-                controls.lazy.compactMap { $0 }.compactMap { planned($0, id: "\(id).\(index)") }
-                    .first
-            }
-        }
+    private var clusterRadius: CGFloat {
+        metrics.buttonDiameter * clusterSpacing
     }
 
-    private func planned(_ control: TouchControl, id: String) -> PlannedControl? {
-        guard control.isVisible, let input = TouchInput(kind: control.kind) else { return nil }
-
-        return .init(id: id, input: input)
-    }
-
-    private func place(
-        _ control: PlannedControl,
-        anchor: TouchAnchor,
-        at position: CGPoint,
-        diameter: CGFloat? = nil
-    ) -> TouchControlPlacement {
-        .init(
-            id: control.id,
-            input: control.input,
-            anchor: anchor,
-            offset: position,
-            diameter: diameter ?? self.diameter(of: control.input),
-            symbol: control.input.symbol
+    private func adjusted(_ placement: TouchControlPlacement) -> TouchControlPlacement {
+        let adjustment = adjustments.adjustment(for: placement.id)
+        return .init(
+            id: placement.id,
+            input: placement.input,
+            anchor: placement.anchor,
+            offset: CGPoint(
+                x: placement.offset.x + adjustment.offset.x,
+                y: placement.offset.y + adjustment.offset.y
+            ),
+            diameter: placement.diameter * adjustment.scale,
+            symbol: placement.symbol
         )
     }
 
-    private func diameter(of input: TouchInput) -> CGFloat {
-        let directionPadScale: CGFloat = 0.8
-
-        return switch input {
-        case .leftStick, .rightStick: metrics.stickDiameter
-        case .directionPad: metrics.stickDiameter * directionPadScale
-        case .button, .leftTrigger, .rightTrigger: metrics.buttonDiameter
-        }
+    private var rowGap: CGFloat {
+        metrics.edgeMargin / 2
     }
 }

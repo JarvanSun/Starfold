@@ -30,10 +30,10 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         var lastFrame: LastFrame?
     }
 
-    public let systemVideo: SystemVideoPresenter
+    public let systemVideoPresenter: SystemVideoPresenter
 
     private let keepsLastFrame: Bool
-    private let enhancer: FrameEnhancer
+    private let frameEnhancer: FrameEnhancer
     private let queue = DispatchQueue(label: "StreamKit.render", qos: .userInteractive)
     private let lock = OSAllocatedUnfairLock<PendingState>(initialState: PendingState())
 
@@ -52,12 +52,12 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
     @MainActor
     public init?(keepsLastFrame: Bool) {
         guard let device = MTLCreateSystemDefaultDevice(),
-            let enhancer = FrameEnhancer(device: device)
+            let frameEnhancer = FrameEnhancer(metalDevice: device)
         else { return nil }
 
-        systemVideo = SystemVideoPresenter()
+        systemVideoPresenter = SystemVideoPresenter()
         self.keepsLastFrame = keepsLastFrame
-        self.enhancer = enhancer
+        self.frameEnhancer = frameEnhancer
     }
 
     public func notifyFirstFrame(_ handler: @escaping @Sendable () -> Void) {
@@ -81,13 +81,33 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         }
 
         #if os(visionOS) || os(tvOS)
-        let shownAt = systemVideo.enqueue(pixelBuffer, timing: timing)
+        let shownAt = systemVideoPresenter.enqueue(pixelBuffer, timing: timing)
         recordDisplayLatency((shownAt - timing.arrival) * 1000)
 
         fireFirstFrame()
         #else
         schedule(DecodedFrame(pixelBuffer: pixelBuffer, timing: timing))
         #endif
+    }
+
+    private func recordDisplayLatency(_ milliseconds: Double) {
+        guard milliseconds >= 0, milliseconds < 1000 else { return }
+
+        let latencySmoothing = 0.1
+
+        lock.withLock { state in
+            state.displayMs =
+                state.displayMs.map { $0 + (milliseconds - $0) * latencySmoothing } ?? milliseconds
+        }
+    }
+
+    private func fireFirstFrame() {
+        let onFirstFrame = lock.withLock { state in
+            defer { state.onFirstFrame = nil }
+
+            return state.onFirstFrame
+        }
+        onFirstFrame?()
     }
 
     private func schedule(_ frame: DecodedFrame) {
@@ -109,8 +129,6 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
             queue.async { [self] in drainPending() }
         }
     }
-
-    private var maximumPendingFrames: Int { 6 }
 
     private func drainPending() {
         while let (frame, enhancements, drawableSize) = nextPendingFrame() {
@@ -151,7 +169,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
             rtpTimestamp: frame.timing.rtpTimestamp,
             arrival: CACurrentMediaTime()
         )
-        let shownAt = systemVideo.enqueue(output, timing: ready)
+        let shownAt = systemVideoPresenter.enqueue(output, timing: ready)
         recordDisplayLatency((shownAt - frame.timing.arrival) * 1000)
 
         fireFirstFrame()
@@ -162,7 +180,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         enhancements: RenderEnhancements,
         drawableSize: CGSize
     ) -> CVPixelBuffer? {
-        let isUpscaling = enhancements.isUpscaling && enhancer.supportsUpscaling
+        let isUpscaling = enhancements.isUpscaling && frameEnhancer.supportsUpscaling
         let sharpeningThreshold: Float = 0.001
         let isSharpening = enhancements.sharpening > sharpeningThreshold
         let isEnhancing = isUpscaling || isSharpening || enhancements.isToneMappingHDR
@@ -175,7 +193,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
             isToneMappingHDR: enhancements.isToneMappingHDR,
             drawableSize: drawableSize
         )
-        return enhancer.enhance(pixelBuffer, request: request)
+        return frameEnhancer.enhance(pixelBuffer, request: request)
     }
 
     private func recordUpscaledSize(of output: CVPixelBuffer, from input: CVPixelBuffer) {
@@ -187,25 +205,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         lock.withLock { $0.upscaledTo = upscaledTo }
     }
 
-    private func recordDisplayLatency(_ milliseconds: Double) {
-        guard milliseconds >= 0, milliseconds < 1000 else { return }
-
-        let latencySmoothing = 0.1
-
-        lock.withLock { state in
-            state.displayMs =
-                state.displayMs.map { $0 + (milliseconds - $0) * latencySmoothing } ?? milliseconds
-        }
-    }
-
-    private func fireFirstFrame() {
-        let onFirstFrame = lock.withLock { state in
-            defer { state.onFirstFrame = nil }
-
-            return state.onFirstFrame
-        }
-        onFirstFrame?()
-    }
+    private var maximumPendingFrames: Int { 6 }
 
     public func lastFrameImage() -> CGImage? {
         guard let buffer = lock.withLock({ $0.lastFrame })?.pixelBuffer else { return nil }
@@ -220,13 +220,13 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
     public func clear() {
         lock.withLock { $0.lastFrame = nil }
         #if os(visionOS) || os(tvOS)
-        systemVideo.clear()
+        systemVideoPresenter.clear()
         #else
         lock.withLock { $0.frames.removeAll() }
 
         queue.async { [self] in
-            systemVideo.clear()
-            enhancer.clear()
+            systemVideoPresenter.clear()
+            frameEnhancer.clear()
         }
         #endif
     }

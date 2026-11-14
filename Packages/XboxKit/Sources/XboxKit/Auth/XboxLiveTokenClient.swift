@@ -13,17 +13,17 @@ struct XboxLiveTokenClient: Sendable {
         case gssv = "http://gssv.xboxlive.com/"
     }
 
-    private let identity: MicrosoftIdentity
-    private let http: HTTPClient
+    private let microsoftIdentity: MicrosoftIdentity
+    private let httpClient: HTTPClient
     private let now: @Sendable () -> Date
 
     init(
-        identity: MicrosoftIdentity,
-        http: HTTPClient,
+        microsoftIdentity: MicrosoftIdentity,
+        httpClient: HTTPClient,
         now: @escaping @Sendable () -> Date = Date.init
     ) {
-        self.identity = identity
-        self.http = http
+        self.microsoftIdentity = microsoftIdentity
+        self.httpClient = httpClient
         self.now = now
     }
 
@@ -43,6 +43,24 @@ struct XboxLiveTokenClient: Sendable {
         return try await xboxToken(posting: body, to: userAuthenticationURL)
     }
 
+    private func xboxToken(posting body: [String: Any], to url: URL) async throws -> XboxToken {
+        let request = HTTPClient.Request(
+            url: url,
+            method: "POST",
+            headers: xboxComBrowserHeaders,
+            body: try encoded(body)
+        )
+        let response = try await httpClient.decodedBody(TokenResponse.self, for: request)
+        return try response.xboxToken()
+    }
+
+    private func encoded(_ body: [String: Any]) throws -> Data {
+        try JSONSerialization.data(
+            withJSONObject: body,
+            options: [.withoutEscapingSlashes, .sortedKeys]
+        )
+    }
+
     func securityToken(userToken: XboxToken, relyingParty: RelyingParty) async throws -> XboxToken {
         let body: [String: Any] = [
             "Properties": ["SandboxId": "RETAIL", "UserTokens": [userToken.token]],
@@ -53,17 +71,6 @@ struct XboxLiveTokenClient: Sendable {
         let securityTokenURL = URL(string: "https://xsts.auth.xboxlive.com/xsts/authorize")!
 
         return try await xboxToken(posting: body, to: securityTokenURL)
-    }
-
-    private func xboxToken(posting body: [String: Any], to url: URL) async throws -> XboxToken {
-        let request = HTTPClient.Request(
-            url: url,
-            method: "POST",
-            headers: xboxComBrowserHeaders,
-            body: try encoded(body)
-        )
-        let response = try await http.decodedBody(TokenResponse.self, for: request)
-        return try response.xboxToken()
     }
 
     private var xboxComBrowserHeaders: [String: String] {
@@ -77,18 +84,11 @@ struct XboxLiveTokenClient: Sendable {
         ]
     }
 
-    private func encoded(_ body: [String: Any]) throws -> Data {
-        try JSONSerialization.data(
-            withJSONObject: body,
-            options: [.withoutEscapingSlashes, .sortedKeys]
-        )
-    }
-
     func streamingToken(
         gssvToken: XboxToken,
         offering: StreamingOffering
     ) async throws -> StreamingToken {
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             StreamingLoginResponse.self,
             for: .init(
                 url: offering.loginURL,
@@ -106,22 +106,7 @@ struct XboxLiveTokenClient: Sendable {
             token: response.gameStreamingToken,
             expiresAt: now().addingTimeInterval(TimeInterval(response.durationInSeconds)),
             market: response.market,
-            regions: response.offeringSettings.regions.compactMap(streamingRegion)
-        )
-    }
-
-    private func streamingRegion(_ region: StreamingLoginResponse.Region) -> StreamingRegion? {
-        guard let baseURL = URL(string: region.baseURI) else {
-            return nil
-        }
-
-        let unrankedFallbackPriority = -1
-
-        return .init(
-            name: region.name,
-            baseURL: baseURL,
-            isDefault: region.isDefault ?? false,
-            fallbackPriority: region.fallbackPriority ?? unrankedFallbackPriority
+            regions: response.offeringSettings.regions.compactMap(\.streamingRegion)
         )
     }
 
@@ -129,12 +114,12 @@ struct XboxLiveTokenClient: Sendable {
         let transferTokenScope =
             "service::http://Passport.NET/purpose::PURPOSE_XBOX_CLOUD_CONSOLE_TRANSFER_TOKEN"
         let form = FormBody([
-            ("client_id", identity.clientID),
+            ("client_id", microsoftIdentity.clientID),
             ("grant_type", "refresh_token"),
             ("refresh_token", refreshToken),
             ("scope", transferTokenScope),
         ])
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             TransferTokenResponse.self,
             for: .init(
                 url: URL(string: "https://login.live.com/oauth20_token.srf")!,
@@ -222,6 +207,21 @@ private extension XboxLiveTokenClient {
             let baseURI: String
             let isDefault: Bool?
             let fallbackPriority: Int?
+
+            var streamingRegion: StreamingRegion? {
+                guard let baseURL = URL(string: baseURI) else {
+                    return nil
+                }
+
+                let unrankedFallbackPriority = -1
+
+                return .init(
+                    name: name,
+                    baseURL: baseURL,
+                    isDefault: isDefault ?? false,
+                    fallbackPriority: fallbackPriority ?? unrankedFallbackPriority
+                )
+            }
         }
 
         let offeringSettings: OfferingSettings

@@ -32,6 +32,16 @@ public final class TouchLayoutEditorViewModel {
         set { change { $0.opacity = newValue } }
     }
 
+    private func change(_ update: (inout TouchLayoutAdjustments) -> Void) {
+        update(&adjustments)
+
+        save()
+    }
+
+    private func save() {
+        preferences.setTouchLayoutAdjustments(adjustments, for: orientation)
+    }
+
     public var selectedStickVisibility: TouchStickVisibility {
         get { selected.map { preferences.touchSticks.visibility(of: $0.input) } ?? .always }
         set {
@@ -55,6 +65,12 @@ public final class TouchLayoutEditorViewModel {
     public var selectedScale: Double {
         get { selectedID.map { adjustments.adjustment(for: $0).scale } ?? 1 }
         set { changeSelected { $0.scale = newValue } }
+    }
+
+    private func changeSelected(_ update: (inout TouchControlAdjustment) -> Void) {
+        guard let selectedID else { return }
+
+        change { update(&$0.controls[selectedID, default: .init()]) }
     }
 
     var hasSelection: Bool {
@@ -127,25 +143,7 @@ public final class TouchLayoutEditorViewModel {
     }
 
     private func adjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
-        switch orientation == self.orientation {
-        case true: adjustments
-        case false: preferences.touchLayoutAdjustments(for: orientation)
-        }
-    }
-
-    private func changeSelected(_ update: (inout TouchControlAdjustment) -> Void) {
-        guard let selectedID else { return }
-
-        change { update(&$0.controls[selectedID, default: .init()]) }
-    }
-
-    private func change(_ update: (inout TouchLayoutAdjustments) -> Void) {
-        update(&adjustments)
-
-        save()
-    }
-
-    private func save() {
-        preferences.setTouchLayoutAdjustments(adjustments, for: orientation)
+        orientation == self.orientation
+            ? adjustments : preferences.touchLayoutAdjustments(for: orientation)
     }
 }

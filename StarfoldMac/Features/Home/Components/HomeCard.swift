@@ -53,6 +53,20 @@ struct HomeCard<Artwork: View, Actions: View>: View {
         )
     }
 
+    private func performPrimaryActionIfEnabled() {
+        guard primaryAction.isEnabled else { return }
+
+        primaryAction.onPerform()
+    }
+
+    private func pressReturn() -> KeyPress.Result {
+        guard primaryAction.isEnabled else { return .ignored }
+
+        primaryAction.onPerform()
+
+        return .handled
+    }
+
     private var artworkArea: some View {
         let artworkHoverScale: CGFloat = 1.04
 
@@ -116,20 +130,6 @@ struct HomeCard<Artwork: View, Actions: View>: View {
         .buttonStyle(PrimaryButtonStyle(size: .compact))
         .disabled(!primaryAction.isEnabled)
         .help(Text(primaryAction.title))
-    }
-
-    private func performPrimaryActionIfEnabled() {
-        guard primaryAction.isEnabled else { return }
-
-        primaryAction.onPerform()
-    }
-
-    private func pressReturn() -> KeyPress.Result {
-        guard primaryAction.isEnabled else { return .ignored }
-
-        primaryAction.onPerform()
-
-        return .handled
     }
 }
 

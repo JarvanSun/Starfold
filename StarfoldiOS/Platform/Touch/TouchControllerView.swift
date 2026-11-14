@@ -24,7 +24,7 @@ final class TouchControllerView: MTKView {
     private var isHapticsEnabled = false
     private var touchController: TCTouchController?
     private var touches: [ObjectIdentifier: TrackedTouch] = [:]
-    private var plan: TouchControlPlan?
+    private var controlPlan: TouchControlPlan?
     private var placedControls: [String: TCControlLayout] = [:]
 
     init() {
@@ -46,43 +46,55 @@ final class TouchControllerView: MTKView {
         fatalError("init(coder:) is not supported")
     }
 
-    func show(_ plan: TouchControlPlan) {
-        guard plan != self.plan else { return }
+    func show(_ controlPlan: TouchControlPlan) {
+        guard controlPlan != self.controlPlan else { return }
 
-        let previous = self.plan
-        self.plan = plan
-        alpha = plan.opacity
+        let previous = self.controlPlan
+        self.controlPlan = controlPlan
+        alpha = controlPlan.opacity
 
-        switch previous.map(plan.isRearrangement(of:)) {
-        case true?: move(to: plan)
-        case false?, nil: rebuild(plan)
+        if let previous, controlPlan.isRearrangement(of: previous) {
+            move(to: controlPlan)
+        } else {
+            rebuild(controlPlan)
         }
     }
 
-    private func move(to plan: TouchControlPlan) {
-        for placement in plan.controls {
+    private func move(to controlPlan: TouchControlPlan) {
+        for placement in controlPlan.controls {
             placedControls[placement.id]?.offset = placement.offset
         }
         touchController?.size = bounds.size
         draw()
     }
 
-    private func rebuild(_ plan: TouchControlPlan) {
+    private func rebuild(_ controlPlan: TouchControlPlan) {
         let controller = connectedController()
         for touch in touches.values {
             _ = controller.handleTouchEnded(at: touch.point, index: touch.index)
         }
         controller.removeAllControls()
 
-        let builder = TouchControlBuilder(controller: controller, sticks: plan.sticks)
+        let builder = TouchControlBuilder(controller: controller, sticks: controlPlan.sticks)
         placedControls = [:]
-        for placement in plan.controls {
+        for placement in controlPlan.controls {
             placedControls[placement.id] = builder.add(placement)
         }
 
         for touch in touches.values {
             _ = controller.handleTouchBegan(at: touch.point, index: touch.index)
         }
+    }
+
+    private func connectedController() -> TCTouchController {
+        touchController ?? makeController()
+    }
+
+    private func makeController() -> TCTouchController {
+        let controller = TCTouchController(descriptor: TCTouchControllerDescriptor(mtkView: self))
+        controller.connect()
+        touchController = controller
+        return controller
     }
 
     func apply(_ mode: TouchControlsMode) {
@@ -101,22 +113,19 @@ final class TouchControllerView: MTKView {
         }
     }
 
+    private func releaseAllTouches() {
+        for touch in touches.values {
+            _ = touchController?.handleTouchEnded(at: touch.point, index: touch.index)
+        }
+
+        touches.removeAll()
+    }
+
     func disconnect() {
         touchController?.disconnect()
         touchController = nil
-        plan = nil
+        controlPlan = nil
         placedControls = [:]
-    }
-
-    private func connectedController() -> TCTouchController {
-        touchController ?? makeController()
-    }
-
-    private func makeController() -> TCTouchController {
-        let controller = TCTouchController(descriptor: TCTouchControllerDescriptor(mtkView: self))
-        controller.connect()
-        touchController = controller
-        return controller
     }
 
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
@@ -139,11 +148,12 @@ final class TouchControllerView: MTKView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            let tracked = TrackedTouch(index: nextFreeIndex(), point: touch.location(in: self))
-            self.touches[ObjectIdentifier(touch)] = tracked
+            let trackedTouch = TrackedTouch(index: nextFreeIndex(), point: touch.location(in: self))
+            self.touches[ObjectIdentifier(touch)] = trackedTouch
 
             let isOnControl =
-                touchController?.handleTouchBegan(at: tracked.point, index: tracked.index) ?? false
+                touchController?.handleTouchBegan(at: trackedTouch.point, index: trackedTouch.index)
+                ?? false
             if isOnControl { tapFeedback() }
         }
     }
@@ -173,29 +183,22 @@ final class TouchControllerView: MTKView {
         end(touches)
     }
 
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        end(touches)
-    }
-
     private func end(_ touches: Set<UITouch>) {
         for touch in touches {
-            guard let tracked = self.touches.removeValue(forKey: ObjectIdentifier(touch)) else {
+            guard let trackedTouch = self.touches.removeValue(forKey: ObjectIdentifier(touch))
+            else {
                 continue
             }
 
             _ = touchController?.handleTouchEnded(
                 at: touch.location(in: self),
-                index: tracked.index
+                index: trackedTouch.index
             )
         }
     }
 
-    private func releaseAllTouches() {
-        for touch in touches.values {
-            _ = touchController?.handleTouchEnded(at: touch.point, index: touch.index)
-        }
-
-        touches.removeAll()
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        end(touches)
     }
 }
 
@@ -218,12 +221,11 @@ extension TouchControllerView: MTKViewDelegate {
         touchController.render(using: encoder)
         encoder.endEncoding()
 
-        switch presentsWithTransaction {
-        case true:
+        if presentsWithTransaction {
             commands.commit()
             commands.waitUntilScheduled()
             drawable.present()
-        case false:
+        } else {
             commands.present(drawable)
             commands.commit()
         }

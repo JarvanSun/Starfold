@@ -37,14 +37,14 @@ private struct CardEntrance: ViewModifier {
             .onAppear { enter() }
     }
 
-    private var isInPlace: Bool {
-        isVisible || reduceMotion
-    }
-
     private func enter() {
         withAnimation(.spring(duration: 0.6, bounce: 0.25).delay(delay)) {
             hasEntered = true
         }
+    }
+
+    private var isInPlace: Bool {
+        isVisible || reduceMotion
     }
 
     private var delay: Double {

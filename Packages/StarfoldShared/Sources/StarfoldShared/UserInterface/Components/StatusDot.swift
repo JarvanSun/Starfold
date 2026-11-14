@@ -37,6 +37,16 @@ public struct StatusDot: View {
             .accessibilityHidden(true)
     }
 
+    private func startPulsing() {
+        guard showsPulse else { return }
+
+        let pulseAnimation: Animation = .easeOut(duration: 1.6).repeatForever(autoreverses: false)
+
+        withAnimation(pulseAnimation) {
+            isExpanded = true
+        }
+    }
+
     private var pulse: some View {
         let pulseOpacity = 0.5
         let pulseStartOpacity = 0.8
@@ -46,16 +56,6 @@ public struct StatusDot: View {
             .fill(color.opacity(pulseOpacity))
             .scaleEffect(isExpanded ? pulseGrowth : 1)
             .opacity(isExpanded ? 0 : pulseStartOpacity)
-    }
-
-    private func startPulsing() {
-        guard showsPulse else { return }
-
-        let pulseAnimation: Animation = .easeOut(duration: 1.6).repeatForever(autoreverses: false)
-
-        withAnimation(pulseAnimation) {
-            isExpanded = true
-        }
     }
 }
 

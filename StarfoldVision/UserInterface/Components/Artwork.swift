@@ -22,16 +22,16 @@ struct Artwork: View {
             .accessibilityHidden(true)
     }
 
-    private var fadeIn: Animation {
-        .easeOut(duration: 0.3)
-    }
-
     @ViewBuilder
     private func image(for phase: AsyncImagePhase) -> some View {
         switch phase.image {
         case let image?: image.resizable().scaledToFill().transition(.opacity)
         case nil: Rectangle().fill(.thinMaterial)
         }
+    }
+
+    private var fadeIn: Animation {
+        .easeOut(duration: 0.3)
     }
 }
 

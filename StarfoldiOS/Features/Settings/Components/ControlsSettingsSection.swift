@@ -39,6 +39,14 @@ struct ControlsSettingsSection: View {
         }
     }
 
+    private func row(for controller: ConnectedController) -> some View {
+        ControllerRow(
+            name: controller.name,
+            playerNumber: settingsViewModel.playerNumber(of: controller),
+            batteryLevel: settingsViewModel.batteryLevel(of: controller)
+        )
+    }
+
     @ViewBuilder
     private var touchRows: some View {
         Button("settings.touch.editLayout") { onEditTouchLayout() }
@@ -57,14 +65,6 @@ struct ControlsSettingsSection: View {
             Text("settings.controllers.xboxButton.title")
             Text("settings.controllers.xboxButton.detail")
         }
-    }
-
-    private func row(for controller: ConnectedController) -> some View {
-        ControllerRow(
-            name: controller.name,
-            playerNumber: settingsViewModel.playerNumber(of: controller),
-            batteryLevel: settingsViewModel.batteryLevel(of: controller)
-        )
     }
 }
 

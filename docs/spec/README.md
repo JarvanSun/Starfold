@@ -6,13 +6,16 @@ How code in this repository is written.
   same change.
 - *Must* and *never* block a review; *prefer* allows a deviation when the code is clearer for it.
 - Code samples are binding.
+- The spec holds rules and their reasons, not inventories of what exists (no file trees, type
+  lists or member tables); the code says what exists. A change removes the spec text it makes
+  stale or unnecessary, so the spec gets shorter as often as it grows.
 
 | File | Answers |
 |---|---|
 | [product.md](product.md) | What the app does, and what differs on Mac, Vision Pro, Apple TV, iPhone and iPad |
 | [architecture.md](architecture.md) | Which modules and targets exist, what may import what, where a file goes |
 | [swift-style.md](swift-style.md) | Formatting, naming, declaration order, access control, control flow |
-| [view-models.md](view-models.md) | The ViewModels, the services they use, and their shape |
+| [view-models.md](view-models.md) | Who owns ViewModels, how they reach services, their shape and state |
 | [views.md](views.md) | How screens are composed and what a `body` may contain |
 | [user-interface.md](user-interface.md) | Palettes, colours, cards, motion, accessibility |
 | [streaming.md](streaming.md) | The Xbox sign-in, session and streaming protocol XboxKit and StreamKit implement |

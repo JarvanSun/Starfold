@@ -136,7 +136,7 @@ struct MessageChannelTests {
     func initialConfigurationWhenTouchSupportedThenEnablesTouchAndNamesBundleVersions() throws {
         // Given
         var channel = MessageChannel(correlationBase: "abc")
-        let touch = TouchCapabilities(
+        let touchCapabilities = TouchCapabilities(
             maxTouchPoints: 5,
             maxLayoutVersion: "4.1.0.0",
             maxManifestVersion: "2.0.0.0"
@@ -147,7 +147,7 @@ struct MessageChannelTests {
             videoWidth: 1280,
             videoHeight: 720,
             clientAppInstallID: UUID(),
-            touch: touch
+            touch: touchCapabilities
         )
 
         // Then

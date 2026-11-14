@@ -13,13 +13,13 @@ struct GamepadStateMergingTests {
     @Test
     func mergedThenCombinesPadAndKeyboardWithoutOverwriting() {
         // Given
-        var keyboard = KeyboardGamepad()
-        keyboard.setKey(KeyboardKey.c.rawValue, isDown: true)
+        var keyboardGamepad = KeyboardGamepad()
+        keyboardGamepad.setKey(KeyboardKey.c.rawValue, isDown: true)
 
         let pad = GamepadState(buttons: [.b], leftStick: SIMD2(0.2, 0))
 
         // When
-        let merged = pad.merged(with: keyboard.state)
+        let merged = pad.merged(with: keyboardGamepad.state)
 
         // Then
         #expect(merged.buttons == [.b])

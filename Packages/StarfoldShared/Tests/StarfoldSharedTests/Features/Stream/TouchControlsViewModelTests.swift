@@ -190,8 +190,8 @@ private extension TouchControlsViewModelTests {
         preferences: Preferences = .init(defaults: .dummyEmpty)
     ) -> TouchControlsViewModel {
         .init(
-            controllers: ControllerHub(
-                routing: .gated,
+            controllerHub: ControllerHub(
+                controllerRouting: .gated,
                 touchControllerCategory: "Touch Controller"
             ),
             preferences: preferences

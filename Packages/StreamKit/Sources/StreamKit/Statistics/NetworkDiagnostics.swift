@@ -84,10 +84,20 @@ struct NetworkDiagnostics {
             + "min \(audioJitterBufferMinimum)) ms, concealed \(concealedShare)"
     }
 
-    private var roundTripRange: String {
-        guard let shortest = roundTrips.min(), let longest = roundTrips.max() else { return "-" }
+    private func videoDelta(_ key: String) -> Double {
+        delta(key, in: video, from: videoStart)
+    }
 
-        return "\(Int(shortest.rounded()))…\(Int(longest.rounded()))"
+    private func delta(_ key: String, in now: [String: NSObject], from start: [String: NSObject])
+        -> Double
+    {
+        let current = (now[key] as? NSNumber)?.doubleValue ?? 0
+        let previous = (start[key] as? NSNumber)?.doubleValue ?? 0
+        return current - previous
+    }
+
+    private func audioDelta(_ key: String) -> Double {
+        delta(key, in: audio, from: audioStart)
     }
 
     private func bitsPerPixel(width: Double, height: Double) -> String {
@@ -97,12 +107,26 @@ struct NetworkDiagnostics {
         return String(format: "%.3f", videoDelta("bytesReceived") * 8 / decoded / (width * height))
     }
 
-    private func videoDelta(_ key: String) -> Double {
-        delta(key, in: video, from: videoStart)
+    private func count(_ value: Double) -> String {
+        "\(Int(value.rounded()))"
+    }
+
+    private func milliseconds(_ seconds: Double) -> String {
+        seconds.isFinite ? "\(Int((seconds * 1000).rounded()))" : "-"
+    }
+
+    private var roundTripRange: String {
+        guard let shortest = roundTrips.min(), let longest = roundTrips.max() else { return "-" }
+
+        return "\(Int(shortest.rounded()))…\(Int(longest.rounded()))"
     }
 
     private var videoJitterBuffer: String {
         average(videoDelta("jitterBufferDelay"), over: videoDelta("jitterBufferEmittedCount"))
+    }
+
+    private func average(_ total: Double, over count: Double) -> String {
+        count > 0 ? milliseconds(total / count) : "-"
     }
 
     private var videoJitterBufferTarget: String {
@@ -137,34 +161,10 @@ struct NetworkDiagnostics {
         )
     }
 
-    private func average(_ total: Double, over count: Double) -> String {
-        count > 0 ? milliseconds(total / count) : "-"
-    }
-
-    private func count(_ value: Double) -> String {
-        "\(Int(value.rounded()))"
-    }
-
-    private func milliseconds(_ seconds: Double) -> String {
-        seconds.isFinite ? "\(Int((seconds * 1000).rounded()))" : "-"
-    }
-
     private var concealedShare: String {
         let samples = audioDelta("totalSamplesReceived")
         guard samples > 0 else { return "-" }
 
         return String(format: "%.1f%%", audioDelta("concealedSamples") / samples * 100)
-    }
-
-    private func audioDelta(_ key: String) -> Double {
-        delta(key, in: audio, from: audioStart)
-    }
-
-    private func delta(_ key: String, in now: [String: NSObject], from start: [String: NSObject])
-        -> Double
-    {
-        let current = (now[key] as? NSNumber)?.doubleValue ?? 0
-        let previous = (start[key] as? NSNumber)?.doubleValue ?? 0
-        return current - previous
     }
 }

@@ -44,6 +44,12 @@ struct GameTile: View {
         .accessibilityAction(.default, onOpen)
     }
 
+    private func hover(_ isInside: Bool) {
+        withAnimation(.spring(duration: 0.3, bounce: 0.35)) {
+            isHovering = isInside
+        }
+    }
+
     private var artwork: some View {
         GameArtwork(url: game.tileArtwork, aspectRatio: 1)
             .overlay(if: badge, alignment: .topLeading) { badgeLabel($0) }
@@ -89,23 +95,11 @@ struct GameTile: View {
     }
 
     private var playButtonTransition: AnyTransition {
-        switch reduceMotion {
-        case true: .opacity
-        case false: .scale(scale: 0.6).combined(with: .opacity)
-        }
+        reduceMotion ? .opacity : .scale(scale: 0.6).combined(with: .opacity)
     }
 
     private var nameStyle: HierarchicalShapeStyle {
-        switch isHovering {
-        case true: .primary
-        case false: .secondary
-        }
-    }
-
-    private func hover(_ isInside: Bool) {
-        withAnimation(.spring(duration: 0.3, bounce: 0.35)) {
-            isHovering = isInside
-        }
+        isHovering ? .primary : .secondary
     }
 }
 

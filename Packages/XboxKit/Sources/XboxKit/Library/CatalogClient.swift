@@ -16,13 +16,13 @@ public struct CatalogClient: Sendable {
         case freeWithAds = "51f14e5d-bdcb-4e04-b9cb-76e5057702df"
     }
 
-    private let http: HTTPClient
+    private let httpClient: HTTPClient
     private let market: String
     private let language: String
     private let batchSize = 100
 
-    public init(http: HTTPClient, market: String, language: String) {
-        self.http = http
+    public init(httpClient: HTTPClient, market: String, language: String) {
+        self.httpClient = httpClient
         self.market = market
         self.language = language
     }
@@ -66,17 +66,6 @@ public struct CatalogClient: Sendable {
         }
     }
 
-    private func productsRetrying(
-        _ ids: [String],
-        after error: Error
-    ) async -> Result<[CatalogProduct], Error> {
-        switch (try? await productBatch(ids), ids.count > 1) {
-        case (let retried?, _): return .success(retried)
-        case (nil, false): return .failure(error)
-        case (nil, true): return await productsSplittingInHalves(ids, after: error)
-        }
-    }
-
     private func productBatch(_ ids: [String]) async throws -> [CatalogProduct] {
         let url = URL(string: "https://catalog.gamepass.com/v3/products")!
             .appending(queryItems: [
@@ -84,7 +73,7 @@ public struct CatalogClient: Sendable {
                 URLQueryItem(name: "language", value: language),
                 URLQueryItem(name: "hydration", value: "RemoteHighSapphire0"),
             ])
-        let body = try await http.successfulBody(
+        let body = try await httpClient.successfulBody(
             for: .init(
                 url: url,
                 method: "POST",
@@ -99,6 +88,30 @@ public struct CatalogClient: Sendable {
             )
         )
         return products(in: body)
+    }
+
+    private func products(in body: Data) -> [CatalogProduct] {
+        guard
+            let root = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
+            let products = root["Products"] as? [String: [String: Any]]
+        else {
+            return []
+        }
+
+        return products.compactMap { storeKey, fields in
+            CatalogProduct(storeKey: storeKey, fields: fields)
+        }
+    }
+
+    private func productsRetrying(
+        _ ids: [String],
+        after error: Error
+    ) async -> Result<[CatalogProduct], Error> {
+        switch (try? await productBatch(ids), ids.count > 1) {
+        case (let retried?, _): return .success(retried)
+        case (nil, false): return .failure(error)
+        case (nil, true): return await productsSplittingInHalves(ids, after: error)
+        }
     }
 
     private func productsSplittingInHalves(
@@ -135,19 +148,6 @@ public struct CatalogClient: Sendable {
         }
     }
 
-    private func products(in body: Data) -> [CatalogProduct] {
-        guard
-            let root = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
-            let products = root["Products"] as? [String: [String: Any]]
-        else {
-            return []
-        }
-
-        return products.compactMap { storeKey, fields in
-            CatalogProduct(storeKey: storeKey, fields: fields)
-        }
-    }
-
     public func list(_ list: List) async throws -> CuratedList {
         let url = URL(string: "https://catalog.gamepass.com/sigls/v2")!
             .appending(queryItems: [
@@ -155,7 +155,7 @@ public struct CatalogClient: Sendable {
                 URLQueryItem(name: "market", value: market),
                 URLQueryItem(name: "language", value: language),
             ])
-        let body = try await http.successfulBody(
+        let body = try await httpClient.successfulBody(
             for: .init(url: url, headers: ["Accept": "application/json"])
         )
         let entries = (try JSONSerialization.jsonObject(with: body) as? [[String: Any]]) ?? []

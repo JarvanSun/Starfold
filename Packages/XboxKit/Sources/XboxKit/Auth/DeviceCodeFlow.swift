@@ -16,20 +16,20 @@ struct DeviceCodeFlow: Sendable {
     }
 
     private let configuration: Configuration
-    private let http: HTTPClient
+    private let httpClient: HTTPClient
     private let now: @Sendable () -> Date
     private let sleep: @Sendable (Duration) async throws -> Void
 
     init(
         configuration: Configuration,
-        http: HTTPClient,
+        httpClient: HTTPClient,
         now: @escaping @Sendable () -> Date = Date.init,
         sleep: @escaping @Sendable (Duration) async throws -> Void = {
             try await Task.sleep(for: $0)
         }
     ) {
         self.configuration = configuration
-        self.http = http
+        self.httpClient = httpClient
         self.now = now
         self.sleep = sleep
     }
@@ -41,7 +41,7 @@ struct DeviceCodeFlow: Sendable {
             ("response_type", "device_code"),
         ])
         let response = try await retryingOnceIfInterrupted {
-            try await http.decodedBody(
+            try await httpClient.decodedBody(
                 DeviceCodeResponse.self,
                 for: request(to: configuration.deviceCodeURL, form: form)
             )
@@ -61,6 +61,20 @@ struct DeviceCodeFlow: Sendable {
             deviceCode: response.deviceCode,
             pollInterval: .seconds(response.interval ?? defaultPollSeconds)
         )
+    }
+
+    private func retryingOnceIfInterrupted<Value>(
+        _ operation: () async throws -> Value
+    ) async throws -> Value {
+        do {
+            return try await operation()
+        } catch let error as URLError where error.isConnectionInterruption {
+            return try await operation()
+        }
+    }
+
+    private func request(to url: URL, form: FormBody) -> HTTPClient.Request {
+        .init(url: url, method: "POST", headers: form.headers, body: form.encoded)
     }
 
     private func prefilledVerificationURL(_ url: URL, code: String) -> URL {
@@ -91,7 +105,7 @@ struct DeviceCodeFlow: Sendable {
             case (nil, "expired_token"): throw DeviceCodeError.expired
             case (nil, "authorization_declined"), (nil, "access_denied"):
                 throw DeviceCodeError.declined
-            case (nil, _): throw serverError(from: response)
+            case (nil, _): throw response.serverError
             }
         }
 
@@ -104,22 +118,8 @@ struct DeviceCodeFlow: Sendable {
             ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
             ("device_code", deviceCode),
         ])
-        let response = try await http.send(request(to: configuration.tokenURL, form: form))
+        let response = try await httpClient.send(request(to: configuration.tokenURL, form: form))
         return try JSONDecoder().decode(TokenResponse.self, from: response.body)
-    }
-
-    private func retryingOnceIfInterrupted<Value>(
-        _ operation: () async throws -> Value
-    ) async throws -> Value {
-        do {
-            return try await operation()
-        } catch let error as URLError where error.isConnectionInterruption {
-            return try await operation()
-        }
-    }
-
-    private func request(to url: URL, form: FormBody) -> HTTPClient.Request {
-        .init(url: url, method: "POST", headers: form.headers, body: form.encoded)
     }
 
     private func signedInToken(_ accessToken: String, from reply: TokenResponse)
@@ -150,12 +150,12 @@ struct DeviceCodeFlow: Sendable {
             ("refresh_token", refreshToken),
             ("scope", configuration.scope),
         ])
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             TokenResponse.self,
             for: request(to: configuration.tokenURL, form: form)
         )
         guard let accessToken = response.accessToken else {
-            throw serverError(from: response)
+            throw response.serverError
         }
 
         return .init(
@@ -164,10 +164,6 @@ struct DeviceCodeFlow: Sendable {
             expiresAt: expiry(of: response),
             userID: response.userID ?? token.userID
         )
-    }
-
-    private func serverError(from response: TokenResponse) -> DeviceCodeError {
-        .server(code: response.error ?? "unknown", description: response.errorDescription ?? "")
     }
 }
 
@@ -208,5 +204,9 @@ private extension DeviceCodeFlow {
         let userID: String?
         let error: String?
         let errorDescription: String?
+
+        var serverError: DeviceCodeError {
+            .server(code: error ?? "unknown", description: errorDescription ?? "")
+        }
     }
 }

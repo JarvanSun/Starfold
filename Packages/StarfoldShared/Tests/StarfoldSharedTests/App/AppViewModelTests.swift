@@ -81,8 +81,8 @@ struct AppViewModelTests {
             .dummy(
                 id: "2535",
                 gamertag: "NovaPilot",
-                consoles: consoles,
-                cloudLibrary: cloudLibrary
+                consoleService: consoles,
+                cloudLibraryService: cloudLibrary
             )
         ]
 
@@ -118,8 +118,8 @@ struct AppViewModelTests {
                 .dummy(
                     id: "2535",
                     gamertag: "NovaPilot",
-                    consoles: consoles,
-                    cloudLibrary: cloudLibrary
+                    consoleService: consoles,
+                    cloudLibraryService: cloudLibrary
                 )
             )
         ]
@@ -384,7 +384,7 @@ private extension AppViewModelTests {
         let harness = AppHarness()
         streams.updates = [.phase(phase)]
         harness.accountService.savedAccounts = [
-            .dummy(id: "2535", gamertag: "NovaPilot", streams: streams)
+            .dummy(id: "2535", gamertag: "NovaPilot", streamService: streams)
         ]
         return harness
     }

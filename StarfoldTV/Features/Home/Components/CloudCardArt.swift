@@ -19,9 +19,10 @@ struct CloudCardArt: View {
         ZStack {
             Color.cardFill
 
-            switch covers.isEmpty {
-            case true: placeholder
-            case false: coverFan
+            if covers.isEmpty {
+                placeholder
+            } else {
+                coverFan
             }
         }
     }

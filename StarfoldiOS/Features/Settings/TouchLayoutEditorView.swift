@@ -58,29 +58,6 @@ struct TouchLayoutEditorView: View {
         }
     }
 
-    private var closeButton: some View {
-        Button(role: .close) {
-            dismiss()
-        } label: {
-            Label("touchEditor.close", systemImage: "xmark")
-                .labelStyle(.iconOnly)
-        }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
-        .controlSize(.large)
-        .padding(dimensions.spaceLarge)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
-
-    private func hiddenWhileMoving(_ content: some View) -> some View {
-        let fadeDuration = 0.15
-
-        return
-            content
-            .opacity(touchLayoutEditorViewModel.isMoving ? 0 : 1)
-            .animation(.easeOut(duration: fadeDuration), value: touchLayoutEditorViewModel.isMoving)
-    }
-
     private func controls(_ plan: TouchControlPlan, in size: CGSize) -> some View {
         ZStack(alignment: .topLeading) {
             TouchControlsOverlay(plan: plan, mode: .preview)
@@ -89,6 +66,24 @@ struct TouchLayoutEditorView: View {
                 control(placement, in: plan)
                     .position(placement.position(in: size))
             }
+        }
+    }
+
+    private func control(_ placement: TouchControlPlacement, in plan: TouchControlPlan) -> some View
+    {
+        ZStack {
+            TouchStickPlaceholder(
+                visibility: plan.sticks.visibility(of: placement.input),
+                diameter: placement.diameter
+            )
+
+            EditableTouchControl(
+                placement: placement,
+                isSelected: touchLayoutEditorViewModel.selectedID == placement.id,
+                onMove: { touchLayoutEditorViewModel.move(placement, by: $0) },
+                onEndMove: { touchLayoutEditorViewModel.endMove() },
+                onSelect: { touchLayoutEditorViewModel.select(placement) }
+            )
         }
     }
 
@@ -110,22 +105,27 @@ struct TouchLayoutEditorView: View {
         )
     }
 
-    private func control(_ placement: TouchControlPlacement, in plan: TouchControlPlan) -> some View
-    {
-        ZStack {
-            TouchStickPlaceholder(
-                visibility: plan.sticks.visibility(of: placement.input),
-                diameter: placement.diameter
-            )
+    private func hiddenWhileMoving(_ content: some View) -> some View {
+        let fadeDuration = 0.15
 
-            EditableTouchControl(
-                placement: placement,
-                isSelected: touchLayoutEditorViewModel.selectedID == placement.id,
-                onMove: { touchLayoutEditorViewModel.move(placement, by: $0) },
-                onEndMove: { touchLayoutEditorViewModel.endMove() },
-                onSelect: { touchLayoutEditorViewModel.select(placement) }
-            )
+        return
+            content
+            .opacity(touchLayoutEditorViewModel.isMoving ? 0 : 1)
+            .animation(.easeOut(duration: fadeDuration), value: touchLayoutEditorViewModel.isMoving)
+    }
+
+    private var closeButton: some View {
+        Button(role: .close) {
+            dismiss()
+        } label: {
+            Label("touchEditor.close", systemImage: "xmark")
+                .labelStyle(.iconOnly)
         }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
+        .padding(dimensions.spaceLarge)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 

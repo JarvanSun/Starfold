@@ -28,19 +28,6 @@ struct GameGrid: View {
         .pageMargins()
     }
 
-    private var columns: [GridItem] {
-        [
-            .init(
-                .adaptive(
-                    minimum: dimensions.gameTileWidth,
-                    maximum: dimensions.gameTileMaximumWidth
-                ),
-                spacing: dimensions.spaceLarge,
-                alignment: .top
-            )
-        ]
-    }
-
     @ViewBuilder
     private func focusTarget(_ tile: some View, isFirst: Bool) -> some View {
         switch (firstTileFocus, isFirst) {
@@ -55,6 +42,19 @@ struct GameGrid: View {
         } onOpen: {
             onOpen(game)
         }
+    }
+
+    private var columns: [GridItem] {
+        [
+            .init(
+                .adaptive(
+                    minimum: dimensions.gameTileWidth,
+                    maximum: dimensions.gameTileMaximumWidth
+                ),
+                spacing: dimensions.spaceLarge,
+                alignment: .top
+            )
+        ]
     }
 }
 

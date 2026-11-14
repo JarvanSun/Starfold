@@ -133,7 +133,7 @@ private extension GameDetailViewModelTests {
     func makeDetail(game: CloudGame, onPlay: @escaping () -> Void = {}) -> GameDetailViewModel {
         .init(
             game: game,
-            favorites: AppHarness().preferences.favorites(for: "2535"),
+            favoritesStore: AppHarness().preferences.makeFavoritesStore(for: "2535"),
             onPlay: onPlay
         )
     }

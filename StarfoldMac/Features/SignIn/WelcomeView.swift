@@ -22,9 +22,10 @@ struct WelcomeView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            switch hasRoomSideBySide(in: geometry.size) {
-            case true: sideBySide
-            case false: stacked
+            if hasRoomSideBySide(in: geometry.size) {
+                sideBySide
+            } else {
+                stacked
             }
         }
         .onAppear { enter() }
@@ -35,6 +36,12 @@ struct WelcomeView: View {
         let isWideEnough = size.width >= dimensions.welcomeSideBySideMinimumWidth
         let isTallEnough = size.height >= dimensions.welcomeSideBySideMinimumHeight
         return isWideEnough && isTallEnough
+    }
+
+    private func enter() {
+        withAnimation(.spring(duration: 0.8, bounce: 0.3)) {
+            hasEntered = true
+        }
     }
 
     private var sideBySide: some View {
@@ -83,12 +90,6 @@ struct WelcomeView: View {
     private var signInCard: some View {
         WelcomeSignInCard(step: signInViewModel.step, onRetry: { signInViewModel.retry() })
             .opacity(isVisible ? 1 : 0)
-    }
-
-    private func enter() {
-        withAnimation(.spring(duration: 0.8, bounce: 0.3)) {
-            hasEntered = true
-        }
     }
 }
 

@@ -98,7 +98,9 @@ struct StreamViewModelTests {
 
         // Then
         #expect(
-            await Eventually().holds { stream.systemDialogsViewModel.queue.map(\.id) == ["save"] }
+            await Eventually().holds {
+                stream.systemDialogsViewModel.dialogQueue.map(\.id) == ["save"]
+            }
         )
     }
 
@@ -120,7 +122,9 @@ struct StreamViewModelTests {
 
         // Then
         #expect(
-            await Eventually().holds { stream.systemDialogsViewModel.queue.map(\.id) == ["notice"] }
+            await Eventually().holds {
+                stream.systemDialogsViewModel.dialogQueue.map(\.id) == ["notice"]
+            }
         )
     }
 
@@ -644,8 +648,8 @@ private extension StreamViewModelTests {
             target: livingRoom,
             backdrop: .console(type: "XboxSeriesX"),
             qualityOverride: nil,
-            service: service,
-            dependencies: .dummy(preferences: preferences, touch: touch, network: network)
+            streamService: service,
+            streamDependencies: .dummy(preferences: preferences, touch: touch, network: network)
         )
     }
 }

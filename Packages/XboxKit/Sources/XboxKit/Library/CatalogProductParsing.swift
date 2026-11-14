@@ -44,14 +44,6 @@ private struct StoreEntry {
         entries("Screenshots").compactMap { absoluteURL($0["URL"]) }
     }
 
-    func string(_ key: String) -> String? {
-        fields[key] as? String
-    }
-
-    func imageURL(_ key: String) -> URL? {
-        (fields[key] as? [String: Any]).flatMap { absoluteURL($0["URL"]) }
-    }
-
     private func entries(_ key: String) -> [[String: Any]] {
         fields[key] as? [[String: Any]] ?? []
     }
@@ -66,5 +58,13 @@ private struct StoreEntry {
         }
 
         return URL(string: text)
+    }
+
+    func string(_ key: String) -> String? {
+        fields[key] as? String
+    }
+
+    func imageURL(_ key: String) -> URL? {
+        (fields[key] as? [String: Any]).flatMap { absoluteURL($0["URL"]) }
     }
 }

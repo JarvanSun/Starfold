@@ -12,13 +12,13 @@ import StreamKit
 @Observable
 public final class SystemDialogsViewModel {
     public private(set) var text = ""
-    public private(set) var queue: [SystemDialogRequest] = []
+    public private(set) var dialogQueue: [SystemDialogRequest] = []
 
-    private var connection: StreamConnection?
+    private var streamConnection: StreamConnection?
     private var draftedDialogID: String?
 
     public var presentedDialog: SystemDialogRequest? {
-        queue.first
+        dialogQueue.first
     }
 
     public func changeText(to newText: String) {
@@ -28,13 +28,21 @@ public final class SystemDialogsViewModel {
     public func answer(_ dialog: SystemDialogRequest, buttonIndex: Int) {
         remove(id: dialog.id)
 
-        guard let connection else { return }
+        guard let streamConnection else { return }
 
-        Task { await connection.answerDialog(id: dialog.id, buttonIndex: buttonIndex) }
+        Task { await streamConnection.answerDialog(id: dialog.id, buttonIndex: buttonIndex) }
     }
 
     public func submitText(for dialog: SystemDialogRequest) {
         answerKeyboard(dialog, text: text)
+    }
+
+    private func answerKeyboard(_ dialog: SystemDialogRequest, text: String?) {
+        remove(id: dialog.id)
+
+        guard let streamConnection else { return }
+
+        Task { await streamConnection.answerKeyboard(id: dialog.id, text: text) }
     }
 
     public func cancel(_ dialog: SystemDialogRequest) {
@@ -43,14 +51,6 @@ public final class SystemDialogsViewModel {
         case .message(_, _, _, _, nil): break
         case .keyboard: answerKeyboard(dialog, text: nil)
         }
-    }
-
-    private func answerKeyboard(_ dialog: SystemDialogRequest, text: String?) {
-        remove(id: dialog.id)
-
-        guard let connection else { return }
-
-        Task { await connection.answerKeyboard(id: dialog.id, text: text) }
     }
 
     public func buttons(of dialog: SystemDialogRequest) -> [DialogButton] {
@@ -88,18 +88,12 @@ public final class SystemDialogsViewModel {
         }
     }
 
-    func attach(_ connection: StreamConnection) {
-        self.connection = connection
+    func attach(_ streamConnection: StreamConnection) {
+        self.streamConnection = streamConnection
     }
 
     func add(_ dialog: SystemDialogRequest) {
-        queue.append(dialog)
-
-        draftTextForPresentedDialog()
-    }
-
-    func remove(id: String) {
-        queue.removeAll { $0.id == id }
+        dialogQueue.append(dialog)
 
         draftTextForPresentedDialog()
     }
@@ -109,6 +103,12 @@ public final class SystemDialogsViewModel {
 
         draftedDialogID = presentedDialog?.id
         text = presentedDialog?.defaultText ?? ""
+    }
+
+    func remove(id: String) {
+        dialogQueue.removeAll { $0.id == id }
+
+        draftTextForPresentedDialog()
     }
 }
 

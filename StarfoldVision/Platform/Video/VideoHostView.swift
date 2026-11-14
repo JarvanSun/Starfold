@@ -20,7 +20,7 @@ final class VideoHostView: UIView {
 
         backgroundColor = .black
 
-        layer.addSublayer(renderer.systemVideo.layer)
+        layer.addSublayer(renderer.systemVideoPresenter.layer)
 
         claimControllerForGame()
     }
@@ -47,7 +47,7 @@ final class VideoHostView: UIView {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
 
-        renderer.systemVideo.layer.frame = bounds
+        renderer.systemVideoPresenter.layer.frame = bounds
 
         CATransaction.commit()
     }

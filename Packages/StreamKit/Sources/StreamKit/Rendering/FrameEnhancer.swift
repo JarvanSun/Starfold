@@ -22,48 +22,48 @@ final class FrameEnhancer {
         var outputHeight: Int
     }
 
-    private let device: MTLDevice
+    private let metalDevice: MTLDevice
     private let commandQueue: MTLCommandQueue
-    private let pipelines: RenderPipelines
+    private let renderPipelines: RenderPipelines
     private let textureCache: CVMetalTextureCache
     private let outputPool: OutputBufferPool
-    private let textures: IntermediateTextures
+    private let intermediateTextures: IntermediateTextures
     private let log = Logger(category: .render)
 
     #if canImport(MetalFX)
-    private var scaler: MTLFXSpatialScaler?
+    private var spatialScaler: MTLFXSpatialScaler?
     #endif
     private var scalerKey: ScalerKey?
 
     var supportsUpscaling: Bool {
         #if canImport(MetalFX)
-        MTLFXSpatialScalerDescriptor.supportsDevice(device)
+        MTLFXSpatialScalerDescriptor.supportsDevice(metalDevice)
         #else
         false
         #endif
     }
 
-    init?(device: MTLDevice) {
-        guard let commandQueue = device.makeCommandQueue(),
-            let library = try? device.makeDefaultLibrary(bundle: .module)
+    init?(metalDevice: MTLDevice) {
+        guard let commandQueue = metalDevice.makeCommandQueue(),
+            let library = try? metalDevice.makeDefaultLibrary(bundle: .module)
         else { return nil }
 
         var cache: CVMetalTextureCache?
-        guard CVMetalTextureCacheCreate(nil, nil, device, nil, &cache) == kCVReturnSuccess,
+        guard CVMetalTextureCacheCreate(nil, nil, metalDevice, nil, &cache) == kCVReturnSuccess,
             let textureCache = cache,
-            let pipelines = try? RenderPipelines(device: device, library: library)
+            let renderPipelines = try? RenderPipelines(device: metalDevice, library: library)
         else { return nil }
 
-        self.device = device
+        self.metalDevice = metalDevice
         self.commandQueue = commandQueue
-        self.pipelines = pipelines
+        self.renderPipelines = renderPipelines
         self.textureCache = textureCache
         outputPool = OutputBufferPool(textureCache: textureCache)
-        textures = IntermediateTextures(device: device)
+        intermediateTextures = IntermediateTextures(metalDevice: metalDevice)
     }
 
     func enhance(_ frame: CVPixelBuffer, request: EnhancementRequest) -> CVPixelBuffer? {
-        guard let planes = planeTextures(frame),
+        guard let planes = makePlaneTextures(from: frame),
             let commands = commandQueue.makeCommandBuffer()
         else { return nil }
 
@@ -106,7 +106,7 @@ final class FrameEnhancer {
         encodeFullScreen(
             commands,
             target: target.texture,
-            pipeline: request.isToneMappingHDR ? pipelines.pq : pipelines.rgb,
+            pipeline: request.isToneMappingHDR ? renderPipelines.pq : renderPipelines.rgb,
             viewport: CGRect(x: 0, y: 0, width: outputWidth, height: outputHeight)
         ) { encoder in
             encoder.setFragmentTexture(source, index: 0)
@@ -126,7 +126,7 @@ final class FrameEnhancer {
         return target.pixelBuffer
     }
 
-    private func planeTextures(_ frame: CVPixelBuffer) -> PlaneTextures? {
+    private func makePlaneTextures(from frame: CVPixelBuffer) -> PlaneTextures? {
         guard CVPixelBufferGetPlaneCount(frame) == 2 else {
             log.error("Unsupported pixel format \(CVPixelBufferGetPixelFormatType(frame))")
 
@@ -168,7 +168,7 @@ final class FrameEnhancer {
         commands: MTLCommandBuffer
     ) -> MTLTexture? {
         guard
-            let converted = textures.texture(
+            let converted = intermediateTextures.texture(
                 .converted,
                 width: planes.luma.width,
                 height: planes.luma.height,
@@ -181,7 +181,7 @@ final class FrameEnhancer {
         encodeFullScreen(
             commands,
             target: converted,
-            pipeline: pipelines.yuvToTexture,
+            pipeline: renderPipelines.yuvToTexture,
             viewport: CGRect(x: 0, y: 0, width: planes.luma.width, height: planes.luma.height)
         ) { encoder in
             encoder.setFragmentTexture(planes.luma, index: 0)
@@ -240,23 +240,23 @@ final class FrameEnhancer {
         )
 
         if scalerKey != key {
-            scaler = makeScaler(for: input, width: width, height: height)
+            spatialScaler = makeScaler(for: input, width: width, height: height)
             scalerKey = key
         }
 
-        guard let scaler,
-            let output = textures.texture(
+        guard let spatialScaler,
+            let output = intermediateTextures.texture(
                 .upscaled,
                 width: width,
                 height: height,
                 format: .rgba16Float,
-                usage: scaler.outputTextureUsage.union(.shaderRead)
+                usage: spatialScaler.outputTextureUsage.union(.shaderRead)
             )
         else { return nil }
 
-        scaler.colorTexture = input
-        scaler.outputTexture = output
-        scaler.encode(commandBuffer: commands)
+        spatialScaler.colorTexture = input
+        spatialScaler.outputTexture = output
+        spatialScaler.encode(commandBuffer: commands)
         return output
         #else
         return nil
@@ -267,7 +267,7 @@ final class FrameEnhancer {
         -> MTLTexture?
     {
         guard
-            let sharpened = textures.texture(
+            let sharpened = intermediateTextures.texture(
                 .sharpened,
                 width: input.width,
                 height: input.height,
@@ -278,7 +278,7 @@ final class FrameEnhancer {
         else { return nil }
 
         var strength = strength
-        encoder.setComputePipelineState(pipelines.sharpen)
+        encoder.setComputePipelineState(renderPipelines.sharpen)
         encoder.setTexture(input, index: 0)
         encoder.setTexture(sharpened, index: 1)
         encoder.setBytes(&strength, length: MemoryLayout<Float>.stride, index: 0)
@@ -292,7 +292,7 @@ final class FrameEnhancer {
     }
 
     func clear() {
-        textures.removeAll()
+        intermediateTextures.removeAll()
     }
 }
 
@@ -310,7 +310,7 @@ private extension FrameEnhancer {
         descriptor.outputTextureFormat = .rgba16Float
         descriptor.colorProcessingMode = .perceptual
 
-        guard let scaler = descriptor.makeSpatialScaler(device: device) else {
+        guard let spatialScaler = descriptor.makeSpatialScaler(device: metalDevice) else {
             log.error(
                 "MetalFX spatial scaler unavailable for \(input.width)x\(input.height) → \(width)x\(height)"
             )
@@ -318,7 +318,7 @@ private extension FrameEnhancer {
             return nil
         }
 
-        return scaler
+        return spatialScaler
     }
     #endif
 }

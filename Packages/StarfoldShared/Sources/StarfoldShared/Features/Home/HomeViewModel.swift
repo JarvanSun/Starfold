@@ -29,8 +29,8 @@ public final class HomeViewModel {
     private(set) var lastFrames: [String: CGImage] = [:]
 
     private let accountID: String
-    private let service: ConsoleService
-    private let cache: LibraryCache
+    private let consoleService: ConsoleService
+    private let libraryCache: LibraryCache
     private let clock: any Clock<Duration>
     private let log = Logger(category: .library)
 
@@ -68,16 +68,16 @@ public final class HomeViewModel {
 
     public init(
         accountID: String,
-        service: ConsoleService,
-        cache: LibraryCache,
+        consoleService: ConsoleService,
+        libraryCache: LibraryCache,
         clock: some Clock<Duration>
     ) {
         self.accountID = accountID
-        self.service = service
-        self.cache = cache
+        self.consoleService = consoleService
+        self.libraryCache = libraryCache
         self.clock = clock
 
-        if let snapshot = cache.homeSnapshot(for: accountID) {
+        if let snapshot = libraryCache.homeSnapshot(for: accountID) {
             restore(snapshot)
         }
 
@@ -91,7 +91,7 @@ public final class HomeViewModel {
     }
 
     private func restoreLastFrames() {
-        for (consoleID, data) in cache.lastFrames(for: accountID) {
+        for (consoleID, data) in libraryCache.lastFrames(for: accountID) {
             guard
                 let source = CGImageSourceCreateWithData(data as CFData, nil),
                 let image = CGImageSourceCreateImageAtIndex(source, 0, nil)
@@ -118,7 +118,7 @@ public final class HomeViewModel {
         consolesState = .loading
 
         do {
-            let found = try await service.consoles()
+            let found = try await consoleService.consoles()
             guard !Task.isCancelled else { return }
 
             consoles = found.sorted {
@@ -135,6 +135,13 @@ public final class HomeViewModel {
         }
     }
 
+    private func saveSnapshot() {
+        libraryCache.save(
+            HomeSnapshot(consoles: consoles, lastPlayedHere: lastPlayedHere),
+            for: accountID
+        )
+    }
+
     private func recordFailure(_ error: Error) {
         if case XboxAccountError.signInRequired = error {
             onSignInRequired()
@@ -147,7 +154,7 @@ public final class HomeViewModel {
 
     func refreshConsoleActivity() async {
         do {
-            let playing = try await service.activity()
+            let playing = try await consoleService.activity()
             guard !Task.isCancelled else { return }
 
             nowPlaying = playing
@@ -168,10 +175,6 @@ public final class HomeViewModel {
         lastPlayedHere[console.id] = activity
     }
 
-    private func saveSnapshot() {
-        cache.save(HomeSnapshot(consoles: consoles, lastPlayedHere: lastPlayedHere), for: accountID)
-    }
-
     func keepConsolesFresh(
         every interval: Duration = .seconds(30),
         refreshingIfOlderThan stale: Duration = .seconds(10)
@@ -182,9 +185,10 @@ public final class HomeViewModel {
             let age = consoleListAge
             let isListFresh = age < threshold
 
-            switch isListFresh {
-            case true: try? await clock.sleep(for: threshold - age)
-            case false: await refreshConsoles()
+            if isListFresh {
+                try? await clock.sleep(for: threshold - age)
+            } else {
+                await refreshConsoles()
             }
 
             threshold = interval
@@ -218,7 +222,7 @@ public final class HomeViewModel {
         defer { pendingPowerCommands.remove(console.id) }
 
         do {
-            try await service.send(command, to: console.id)
+            try await consoleService.send(command, to: console.id)
             log.info(
                 "\(command.rawValue, privacy: .public) accepted by \(console.id, privacy: .public)"
             )
@@ -242,7 +246,7 @@ public final class HomeViewModel {
         let lastFrameJPEGQuality = 0.8
         guard let jpeg = image.jpegData(quality: lastFrameJPEGQuality) else { return }
 
-        cache.saveLastFrame(jpeg, console: consoleID, for: accountID)
+        libraryCache.saveLastFrame(jpeg, console: consoleID, for: accountID)
     }
 
     func console(id: String) -> Console? {

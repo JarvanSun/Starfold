@@ -9,10 +9,10 @@ import Foundation
 import Security
 
 public struct KeychainStore: SecretStoring {
-    private let service: String
+    private let keychainService: String
 
-    public init(service: String) {
-        self.service = service
+    public init(keychainService: String) {
+        self.keychainService = keychainService
     }
 
     public func read(_ key: String) throws -> Data? {
@@ -28,6 +28,23 @@ public struct KeychainStore: SecretStoring {
         case errSecItemNotFound: return nil
         default: throw KeychainError(status: status)
         }
+    }
+
+    private func itemQuery(account: String?) -> [String: Any] {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+        ]
+
+        if usesDataProtectionKeychain {
+            query[kSecUseDataProtectionKeychain as String] = true
+        }
+
+        if let account {
+            query[kSecAttrAccount as String] = account
+        }
+
+        return query
     }
 
     public func write(_ secret: Data, for key: String) throws {
@@ -53,23 +70,6 @@ public struct KeychainStore: SecretStoring {
         guard status == errSecSuccess else {
             throw KeychainError(status: status)
         }
-    }
-
-    private func itemQuery(account: String?) -> [String: Any] {
-        var query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-        ]
-
-        if usesDataProtectionKeychain {
-            query[kSecUseDataProtectionKeychain as String] = true
-        }
-
-        if let account {
-            query[kSecAttrAccount as String] = account
-        }
-
-        return query
     }
 
     public func delete(_ key: String) throws {

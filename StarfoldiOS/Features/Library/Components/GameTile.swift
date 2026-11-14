@@ -55,6 +55,12 @@ struct GameTile: View {
         .onHover { hover($0) }
     }
 
+    private func hover(_ isInside: Bool) {
+        withAnimation(.spring(duration: 0.3, bounce: 0.35)) {
+            isHovering = isInside
+        }
+    }
+
     private var isLifted: Bool {
         isHovering || isFocused
     }
@@ -114,23 +120,11 @@ struct GameTile: View {
     }
 
     private var playButtonTransition: AnyTransition {
-        switch reduceMotion {
-        case true: .opacity
-        case false: .scale(scale: 0.6).combined(with: .opacity)
-        }
+        reduceMotion ? .opacity : .scale(scale: 0.6).combined(with: .opacity)
     }
 
     private var nameStyle: HierarchicalShapeStyle {
-        switch isLifted {
-        case true: .primary
-        case false: .secondary
-        }
-    }
-
-    private func hover(_ isInside: Bool) {
-        withAnimation(.spring(duration: 0.3, bounce: 0.35)) {
-            isHovering = isInside
-        }
+        isLifted ? .primary : .secondary
     }
 }
 

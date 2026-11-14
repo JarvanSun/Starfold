@@ -90,7 +90,7 @@ private extension DeviceCodeFlowTests {
     func makeFlow(server: XboxServerStub, sleeps: CallCountStub = .init()) -> DeviceCodeFlow {
         .init(
             configuration: MicrosoftIdentity(clientID: .dummyClientID).deviceCodeConfiguration,
-            http: server.client,
+            httpClient: server.httpClient,
             sleep: { _ in sleeps.record() }
         )
     }

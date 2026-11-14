@@ -92,7 +92,7 @@ struct XboxButtonSettingsTests {
     @Test
     func initWithoutSourceThenOwnerStaysUnknown() {
         // Given
-        let settings = XboxButtonSettings(source: nil)
+        let settings = XboxButtonSettings(settingsSource: nil)
 
         // When
         settings.setControllerConnected(true)
@@ -106,6 +106,6 @@ struct XboxButtonSettingsTests {
 private extension XboxButtonSettingsTests {
     func makeSettings() -> (XboxButtonSettingsSourceStub, XboxButtonSettings) {
         let stub = XboxButtonSettingsSourceStub()
-        return (stub, XboxButtonSettings(source: stub.source))
+        return (stub, XboxButtonSettings(settingsSource: stub.source))
     }
 }

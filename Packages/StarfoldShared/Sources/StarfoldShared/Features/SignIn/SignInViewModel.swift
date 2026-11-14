@@ -16,7 +16,7 @@ public final class SignInViewModel {
     public private(set) var shouldClose = false
     public private(set) var step = SignInStep.preparing
 
-    private let service: SigningIn
+    private let signInService: SigningIn
     private let clock: any Clock<Duration>
     private let log = Logger(category: .signIn)
 
@@ -24,8 +24,8 @@ public final class SignInViewModel {
         WelcomeFeature.allCases
     }
 
-    init(service: SigningIn, clock: some Clock<Duration>) {
-        self.service = service
+    init(signInService: SigningIn, clock: some Clock<Duration>) {
+        self.signInService = signInService
         self.clock = clock
     }
 
@@ -34,10 +34,12 @@ public final class SignInViewModel {
 
         while !Task.isCancelled {
             do {
-                let prompt = try await service.beginSignIn()
+                let prompt = try await signInService.beginSignIn()
                 show(.waiting(prompt))
 
-                try await service.completeSignIn(prompt) { [weak self] in self?.show(.finishing) }
+                try await signInService.completeSignIn(prompt) { [weak self] in
+                    self?.show(.finishing)
+                }
 
                 show(.done)
 
@@ -72,7 +74,7 @@ public final class SignInViewModel {
     }
 
     private func show(_ phase: SignInPhase) {
-        step = phase.makeStep()
+        step = .init(phase: phase)
     }
 
     private func closeAfterShowingSuccess() async {

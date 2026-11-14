@@ -123,14 +123,14 @@ private extension GatedControllerInputTests {
     func makeInput(queue: DispatchQueue, watchedSlot: UInt8) -> (
         GatedControllerInput, GamepadDestinationStub
     ) {
-        let router = GamepadRouter(routing: .direct)
+        let router = GamepadRouter(controllerRouting: .direct)
         let destination = GamepadDestinationStub()
         router.setDestination { slot, state in
             if slot == watchedSlot {
                 destination.record(slot, state)
             }
         }
-        return (GatedControllerInput(queue: queue, router: router), destination)
+        return (GatedControllerInput(inputQueue: queue, gamepadRouter: router), destination)
     }
 
     func run(on queue: DispatchQueue, _ body: @escaping @Sendable () -> Void) async {

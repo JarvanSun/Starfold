@@ -18,20 +18,20 @@ public struct XboxLiveClient: Sendable {
         let message: String?
     }
 
-    private let http: HTTPClient
+    private let httpClient: HTTPClient
     private let authorization: @Sendable () async throws -> String
 
-    init(http: HTTPClient, authorization: @escaping @Sendable () async throws -> String) {
-        self.http = http
+    init(httpClient: HTTPClient, authorization: @escaping @Sendable () async throws -> String) {
+        self.httpClient = httpClient
         self.authorization = authorization
     }
 
-    public init(account: XboxAccount, http: HTTPClient) {
-        self.init(http: http, authorization: { try await account.webAuthorization() })
+    public init(account: XboxAccount, httpClient: HTTPClient) {
+        self.init(httpClient: httpClient, authorization: { try await account.webAuthorization() })
     }
 
     public func profile() async throws -> XboxProfile {
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             ProfileResponse.self,
             for: .init(
                 url: URL(string: "https://profile.xboxlive.com/users/me/profile/settings")!
@@ -48,60 +48,7 @@ public struct XboxLiveClient: Sendable {
             throw URLError(.cannotParseResponse)
         }
 
-        return profile(of: user)
-    }
-
-    public func consoleActivity(xuid: String) async throws -> ConsoleActivity? {
-        async let presence = currentConsoleTitle(xuid: xuid)
-        async let history = recentTitles(xuid: xuid)
-        let current = try? await presence
-        let titles = try await history
-        return current.map { current in
-            let known = titles.first { $0.titleID == current.id }
-            return .init(
-                titleID: current.id,
-                name: known?.name ?? current.name,
-                imageURL: known?.wideImageURL,
-                kind: .playingNow
-            )
-        }
-    }
-
-    private func currentConsoleTitle(xuid: String) async throws -> PresenceResponse.Title? {
-        let response = try await http.decodedBody(
-            PresenceResponse.self,
-            for: .init(
-                url: URL(
-                    string: "https://userpresence.xboxlive.com/users/xuid(\(xuid))?level=all"
-                )!,
-                headers: try await headers(contractVersion: 3)
-            )
-        )
-
-        let consoleDeviceTypes: Set<String> = ["Scarlett", "XboxOne"]
-        let consoles = (response.devices ?? []).filter { consoleDeviceTypes.contains($0.type) }
-        let titles = consoles.flatMap { $0.titles ?? [] }.filter(isActiveGame)
-        return titles.first { $0.placement == "Full" } ?? titles.first
-    }
-
-    private func isActiveGame(_ title: PresenceResponse.Title) -> Bool {
-        let dashboardTitleID = "750323071"
-
-        return title.id != dashboardTitleID && title.state != "Inactive"
-    }
-
-    private func recentTitles(xuid: String) async throws -> [HistoryTitle] {
-        let response = try await http.decodedBody(
-            TitleHistoryResponse.self,
-            for: .init(
-                url: URL(
-                    string:
-                        "https://titlehub.xboxlive.com/users/xuid(\(xuid))/titles/titlehistory/decoration/image?maxItems=10"
-                )!,
-                headers: try await headers(contractVersion: 2)
-            )
-        )
-        return response.titles
+        return user.profile
     }
 
     private func headers(
@@ -121,8 +68,55 @@ public struct XboxLiveClient: Sendable {
         return headers
     }
 
+    public func consoleActivity(xuid: String) async throws -> ConsoleActivity? {
+        async let presence = currentConsoleTitle(xuid: xuid)
+        async let history = recentTitles(xuid: xuid)
+        let current = try? await presence
+        let titles = try await history
+        return current.map { current in
+            let known = titles.first { $0.titleID == current.id }
+            return .init(
+                titleID: current.id,
+                name: known?.name ?? current.name,
+                imageURL: known?.wideImageURL,
+                kind: .playingNow
+            )
+        }
+    }
+
+    private func currentConsoleTitle(xuid: String) async throws -> PresenceResponse.Title? {
+        let response = try await httpClient.decodedBody(
+            PresenceResponse.self,
+            for: .init(
+                url: URL(
+                    string: "https://userpresence.xboxlive.com/users/xuid(\(xuid))?level=all"
+                )!,
+                headers: try await headers(contractVersion: 3)
+            )
+        )
+
+        let consoleDeviceTypes: Set<String> = ["Scarlett", "XboxOne"]
+        let consoles = (response.devices ?? []).filter { consoleDeviceTypes.contains($0.type) }
+        let titles = consoles.flatMap { $0.titles ?? [] }.filter(\.isActiveGame)
+        return titles.first { $0.placement == "Full" } ?? titles.first
+    }
+
+    private func recentTitles(xuid: String) async throws -> [HistoryTitle] {
+        let response = try await httpClient.decodedBody(
+            TitleHistoryResponse.self,
+            for: .init(
+                url: URL(
+                    string:
+                        "https://titlehub.xboxlive.com/users/xuid(\(xuid))/titles/titlehistory/decoration/image?maxItems=10"
+                )!,
+                headers: try await headers(contractVersion: 2)
+            )
+        )
+        return response.titles
+    }
+
     public func consoles() async throws -> [Console] {
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             DeviceListResponse.self,
             for: .init(
                 url: URL(
@@ -154,7 +148,7 @@ public struct XboxLiveClient: Sendable {
         ]
 
         let spinnerTimeout: Duration = .seconds(10)
-        let reply = try await http.successfulBody(
+        let reply = try await httpClient.successfulBody(
             for: .init(
                 url: URL(string: "https://xccs.xboxlive.com/commands")!,
                 method: "POST",
@@ -189,17 +183,6 @@ public struct XboxLiveClient: Sendable {
 
         return .init(code: code, message: status.errorMessage)
     }
-
-    private func profile(of user: ProfileResponse.User) -> XboxProfile {
-        let settings = Dictionary(user.settings.map { ($0.id, $0.value) }) { first, _ in first }
-        let modernGamertag = settings["ModernGamertag"].flatMap { $0.isEmpty ? nil : $0 }
-        return .init(
-            xuid: user.id,
-            gamertag: modernGamertag ?? settings["Gamertag"] ?? user.id,
-            gamerscore: settings["Gamerscore"].flatMap(Int.init),
-            pictureURL: settings["GameDisplayPicRaw"].flatMap(URL.init(upgradingXboxImageToHTTPS:))
-        )
-    }
 }
 
 // MARK: - Private
@@ -209,6 +192,18 @@ private extension XboxLiveClient {
         struct User: Decodable, Sendable {
             let id: String
             let settings: [Setting]
+
+            var profile: XboxProfile {
+                let settings = Dictionary(settings.map { ($0.id, $0.value) }) { first, _ in first }
+                let modernGamertag = settings["ModernGamertag"].flatMap { $0.isEmpty ? nil : $0 }
+                return .init(
+                    xuid: id,
+                    gamertag: modernGamertag ?? settings["Gamertag"] ?? id,
+                    gamerscore: settings["Gamerscore"].flatMap(Int.init),
+                    pictureURL: settings["GameDisplayPicRaw"]
+                        .flatMap(URL.init(upgradingXboxImageToHTTPS:))
+                )
+            }
         }
 
         struct Setting: Decodable, Sendable {
@@ -230,6 +225,12 @@ private extension XboxLiveClient {
             let name: String
             let placement: String?
             let state: String?
+
+            var isActiveGame: Bool {
+                let dashboardTitleID = "750323071"
+
+                return id != dashboardTitleID && state != "Inactive"
+            }
         }
 
         let devices: [Device]?

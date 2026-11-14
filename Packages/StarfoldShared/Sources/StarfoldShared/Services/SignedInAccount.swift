@@ -7,9 +7,9 @@
 
 public struct SignedInAccount {
     let summary: AccountSummary
-    let consoles: ConsoleService
-    let cloudLibrary: CloudLibraryService
-    let streams: StreamService
+    let consoleService: ConsoleService
+    let cloudLibraryService: CloudLibraryService
+    let streamService: StreamService
 
     var id: String {
         summary.id
@@ -17,13 +17,13 @@ public struct SignedInAccount {
 
     public init(
         summary: AccountSummary,
-        consoles: ConsoleService,
-        cloudLibrary: CloudLibraryService,
-        streams: StreamService
+        consoleService: ConsoleService,
+        cloudLibraryService: CloudLibraryService,
+        streamService: StreamService
     ) {
         self.summary = summary
-        self.consoles = consoles
-        self.cloudLibrary = cloudLibrary
-        self.streams = streams
+        self.consoleService = consoleService
+        self.cloudLibraryService = cloudLibraryService
+        self.streamService = streamService
     }
 }

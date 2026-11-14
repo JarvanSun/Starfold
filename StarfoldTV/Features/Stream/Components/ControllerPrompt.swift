@@ -37,9 +37,10 @@ struct ControllerPrompt: View {
 
     @ViewBuilder
     private var primaryButton: some View {
-        switch hasController {
-        case true: Button("controller.prompt.play") { play() }
-        case false: Button("controller.missing.checkAgain") { onCheckAgain() }
+        if hasController {
+            Button("controller.prompt.play") { play() }
+        } else {
+            Button("controller.missing.checkAgain") { onCheckAgain() }
         }
     }
 

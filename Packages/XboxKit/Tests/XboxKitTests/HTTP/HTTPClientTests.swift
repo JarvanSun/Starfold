@@ -16,7 +16,7 @@ struct HTTPClientTests {
         // Given
         let server = XboxServerStub()
         server.on(.consoleCommands, status: 503, json: "busy")
-        let client = server.client
+        let client = server.httpClient
         let request = HTTPClient.Request(url: URL(string: XboxEndpoint.consoleCommands.rawValue)!)
 
         // When

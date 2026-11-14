@@ -11,11 +11,11 @@ import SwiftUI
 struct MainWindowView: View {
     @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.dimensions) private var dimensions
-    @State private var path: [HomeRoute] = []
+    @State private var homePath: [HomeRoute] = []
     @State private var isShowingSignIn = false
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $homePath) {
             sessionContent
                 .navigationDestination(for: HomeRoute.self) { destination(for: $0) }
                 .background { SkyBackground() }
@@ -24,7 +24,7 @@ struct MainWindowView: View {
         .preferredColorScheme(.dark)
         .hiddenTitleWindowChrome()
         .sheet(isPresented: $isShowingSignIn) { SignInHostView { SignInView(signInViewModel: $0) } }
-        .onChange(of: appViewModel.activeAccountID) { path.removeAll() }
+        .onChange(of: appViewModel.activeAccountID) { homePath.removeAll() }
         .alert(
             String(localized: "mainWindow.signInExpired.title"),
             isPresented: Bindable(appViewModel).isSignInExpired
@@ -42,6 +42,26 @@ struct MainWindowView: View {
         } message: { problem in
             Text(problem.message)
         }
+    }
+
+    @ViewBuilder
+    private func destination(for route: HomeRoute) -> some View {
+        if let library = appViewModel.libraryViewModel {
+            page(for: route, in: library).background { SkyBackground() }
+        }
+    }
+
+    @ViewBuilder
+    private func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
+        switch route {
+        case .cloudLibrary: LibraryView(libraryViewModel: library) { homePath.append(.game($0)) }
+        case .game(let game):
+            GameDetailView(gameDetailViewModel: library.makeGameDetailViewModel(for: game))
+        }
+    }
+
+    private func showSignIn() {
+        isShowingSignIn = true
     }
 
     @ViewBuilder
@@ -66,24 +86,10 @@ struct MainWindowView: View {
     private var signedInHome: some View {
         switch (appViewModel.homeViewModel, appViewModel.libraryViewModel) {
         case (let home?, let library?):
-            HomeView(homeViewModel: home, libraryViewModel: library) { path.append(.cloudLibrary) }
+            HomeView(homeViewModel: home, libraryViewModel: library) {
+                homePath.append(.cloudLibrary)
+            }
         default: EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    private func destination(for route: HomeRoute) -> some View {
-        switch appViewModel.libraryViewModel {
-        case let library?: page(for: route, in: library).background { SkyBackground() }
-        case nil: EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    private func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
-        switch route {
-        case .cloudLibrary: LibraryView(libraryViewModel: library) { path.append(.game($0)) }
-        case .game(let game): GameDetailView(gameDetailViewModel: library.detail(for: game))
         }
     }
 
@@ -92,10 +98,6 @@ struct MainWindowView: View {
         Button(String(localized: "mainWindow.signInExpired.signIn")) { showSignIn() }
 
         Button(String(localized: "mainWindow.signInExpired.notNow"), role: .cancel) {}
-    }
-
-    private func showSignIn() {
-        isShowingSignIn = true
     }
 
     private var isShowingPowerProblem: Binding<Bool> {

@@ -33,28 +33,6 @@ struct SignalingAnswerParser: Sendable {
         return (sdp, versions)
     }
 
-    private func failedStatus(in answer: [String: Any]) -> String? {
-        guard let status = answer["status"] as? String, status != "success" else {
-            return nil
-        }
-
-        return status
-    }
-
-    private func negotiatedVersion(_ channel: String, in answer: [String: Any]) -> Int {
-        let defaultChannelVersion = 1
-
-        return (answer[channel] as? NSNumber)?.intValue ?? defaultChannelVersion
-    }
-
-    func iceCandidates(from body: Data) throws -> [RemoteICECandidate]? {
-        guard let entries = try exchangeResponse(in: body) as? [[String: Any]] else {
-            return nil
-        }
-
-        return entries.flatMap(remoteCandidates)
-    }
-
     private func exchangeResponse(in body: Data) throws -> Any? {
         guard let outer = try JSONSerialization.jsonObject(with: body) as? [String: Any] else {
             return nil
@@ -80,6 +58,28 @@ struct SignalingAnswerParser: Sendable {
         }
 
         return .failed(code: code, message: details["message"] as? String)
+    }
+
+    private func failedStatus(in answer: [String: Any]) -> String? {
+        guard let status = answer["status"] as? String, status != "success" else {
+            return nil
+        }
+
+        return status
+    }
+
+    private func negotiatedVersion(_ channel: String, in answer: [String: Any]) -> Int {
+        let defaultChannelVersion = 1
+
+        return (answer[channel] as? NSNumber)?.intValue ?? defaultChannelVersion
+    }
+
+    func iceCandidates(from body: Data) throws -> [RemoteICECandidate]? {
+        guard let entries = try exchangeResponse(in: body) as? [[String: Any]] else {
+            return nil
+        }
+
+        return entries.flatMap(remoteCandidates)
     }
 
     private func remoteCandidates(in entry: [String: Any]) -> [RemoteICECandidate] {

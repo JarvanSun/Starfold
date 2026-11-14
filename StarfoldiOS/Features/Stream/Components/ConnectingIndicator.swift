@@ -29,6 +29,14 @@ struct ConnectingIndicator: View {
         .accessibilityHidden(true)
     }
 
+    private func startSpinning() {
+        guard !reduceMotion else { return }
+
+        withAnimation(.linear(duration: 1.1).repeatForever(autoreverses: false)) {
+            isSpinning = true
+        }
+    }
+
     private var arc: some View {
         let arcLength: CGFloat = 0.3
 
@@ -52,14 +60,6 @@ struct ConnectingIndicator: View {
             startAngle: .degrees(0),
             endAngle: .degrees(108)
         )
-    }
-
-    private func startSpinning() {
-        guard !reduceMotion else { return }
-
-        withAnimation(.linear(duration: 1.1).repeatForever(autoreverses: false)) {
-            isSpinning = true
-        }
     }
 }
 

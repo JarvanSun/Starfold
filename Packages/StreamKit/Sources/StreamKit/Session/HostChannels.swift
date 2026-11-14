@@ -67,9 +67,11 @@ struct HostChannels {
             videoWidth: size.width,
             videoHeight: size.height,
             clientAppInstallID: options.clientAppInstallID,
-            touch: options.touch
+            touch: options.touchCapabilities
         )
-        let metadata = ClientMetadata(maxTouchPoints: options.touch?.maxTouchPoints ?? 0)
+        let metadata = ClientMetadata(
+            maxTouchPoints: options.touchCapabilities?.maxTouchPoints ?? 0
+        )
 
         let authorization: [HostChannelAction] = [
             .send(ControlMessage.authorizationRequest.json, on: .control),

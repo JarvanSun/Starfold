@@ -36,6 +36,19 @@ struct HomeCardRow: View {
         .scrollClipDisabled()
     }
 
+    private func card(_ content: some View, index: Int) -> some View {
+        sized(content)
+            .cardEntrance(index: index)
+    }
+
+    @ViewBuilder
+    private func sized(_ content: some View) -> some View {
+        switch horizontalSizeClass {
+        case .compact: content.containerRelativeFrame(.horizontal)
+        default: content.frame(width: dimensions.homeCardWidth)
+        }
+    }
+
     private func failedCard(_ message: String) -> some View {
         ConsolesFailedCard(message: message, onRetry: { refreshConsoles() })
     }
@@ -61,19 +74,6 @@ struct HomeCardRow: View {
         switch (firstCardFocus, index) {
         case (let focus?, 0): card.focused(focus)
         default: card
-        }
-    }
-
-    private func card(_ content: some View, index: Int) -> some View {
-        sized(content)
-            .cardEntrance(index: index)
-    }
-
-    @ViewBuilder
-    private func sized(_ content: some View) -> some View {
-        switch horizontalSizeClass {
-        case .compact: content.containerRelativeFrame(.horizontal)
-        default: content.frame(width: dimensions.homeCardWidth)
         }
     }
 }

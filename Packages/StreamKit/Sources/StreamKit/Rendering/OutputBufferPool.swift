@@ -13,7 +13,7 @@ final class OutputBufferPool {
     private let textureCache: CVMetalTextureCache
     private let log = Logger(category: .render)
 
-    private var pool: CVPixelBufferPool?
+    private var pixelBufferPool: CVPixelBufferPool?
     private var size = (width: 0, height: 0)
     private var isHDR = false
     private var hasLoggedExhaustion = false
@@ -23,7 +23,7 @@ final class OutputBufferPool {
     }
 
     func target(width: Int, height: Int, isHDR: Bool) -> OutputTarget? {
-        let isPoolCurrent = pool != nil && size == (width, height) && self.isHDR == isHDR
+        let isPoolCurrent = pixelBufferPool != nil && size == (width, height) && self.isHDR == isHDR
 
         if !isPoolCurrent {
             replacePool(width: width, height: height, isHDR: isHDR)
@@ -48,26 +48,31 @@ final class OutputBufferPool {
         let poolAttributes: [CFString: Any] = [
             kCVPixelBufferPoolMinimumBufferCountKey: minimumBuffers
         ]
-        var pool: CVPixelBufferPool?
+        var pixelBufferPool: CVPixelBufferPool?
         CVPixelBufferPoolCreate(
             nil,
             poolAttributes as CFDictionary,
             bufferAttributes as CFDictionary,
-            &pool
+            &pixelBufferPool
         )
-        self.pool = pool
+        self.pixelBufferPool = pixelBufferPool
         size = (width, height)
         self.isHDR = isHDR
         hasLoggedExhaustion = false
     }
 
     private func makeBuffer() -> CVPixelBuffer? {
-        guard let pool else { return nil }
+        guard let pixelBufferPool else { return nil }
 
         let maximumBuffers = 12
         var buffer: CVPixelBuffer?
         let limit = [kCVPixelBufferPoolAllocationThresholdKey: maximumBuffers] as CFDictionary
-        let status = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(nil, pool, limit, &buffer)
+        let status = CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
+            nil,
+            pixelBufferPool,
+            limit,
+            &buffer
+        )
         guard status == kCVReturnSuccess, let buffer else {
             logExhaustion(status: status)
 

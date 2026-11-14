@@ -21,7 +21,7 @@ final class StreamVideoHostView: NSView {
         wantsLayer = true
         layer?.backgroundColor = NSColor.black.cgColor
 
-        layer?.addSublayer(renderer.systemVideo.layer)
+        layer?.addSublayer(renderer.systemVideoPresenter.layer)
 
         layerContentsRedrawPolicy = .never
     }
@@ -58,10 +58,16 @@ final class StreamVideoHostView: NSView {
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        renderer.systemVideo.layer.frame = bounds
+        renderer.systemVideoPresenter.layer.frame = bounds
         CATransaction.commit()
 
         updateDrawableSize()
+    }
+
+    private func updateDrawableSize() {
+        let fallbackBackingScale: CGFloat = 2
+        let scale = window?.backingScaleFactor ?? fallbackBackingScale
+        renderer.setDrawableSize(CGSize(width: bounds.width * scale, height: bounds.height * scale))
     }
 
     override func viewDidChangeBackingProperties() {
@@ -71,18 +77,12 @@ final class StreamVideoHostView: NSView {
     }
 
     func reattachVideo() {
-        layer?.addSublayer(renderer.systemVideo.layer)
+        layer?.addSublayer(renderer.systemVideoPresenter.layer)
 
         needsLayout = true
         layoutSubtreeIfNeeded()
 
         updateDrawableSize()
-    }
-
-    private func updateDrawableSize() {
-        let fallbackBackingScale: CGFloat = 2
-        let scale = window?.backingScaleFactor ?? fallbackBackingScale
-        renderer.setDrawableSize(CGSize(width: bounds.width * scale, height: bounds.height * scale))
     }
 }
 

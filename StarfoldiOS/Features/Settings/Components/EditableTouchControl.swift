@@ -41,14 +41,14 @@ struct EditableTouchControl: View {
             }
     }
 
+    private func endMove() {
+        drops += 1
+        onEndMove()
+    }
+
     private var drag: some Gesture {
         DragGesture(minimumDistance: dimensions.spaceXSmall, coordinateSpace: .global)
             .updating($isDragging) { _, isDragging, _ in isDragging = true }
             .onChanged { onMove($0.translation) }
-    }
-
-    private func endMove() {
-        drops += 1
-        onEndMove()
     }
 }

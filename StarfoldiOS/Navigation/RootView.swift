@@ -40,6 +40,23 @@ struct RootView: View {
             .onChange(of: scenePhase) { _, phase in apply(phase) }
     }
 
+    private func endStream() {
+        backgroundStreamEnd.end { await appViewModel.endStream() }
+    }
+
+    private func presentSignIn() {
+        isSignInPresented = true
+    }
+
+    private func apply(_ phase: ScenePhase) {
+        switch phase {
+        case .background where isStreamPresented && isStreamUnderway:
+            backgroundStreamEnd.endBeforeTimeRunsOut { await appViewModel.endStreamWhileAway() }
+        case .active: backgroundStreamEnd.keepStream()
+        default: break
+        }
+    }
+
     @ViewBuilder
     private var content: some View {
         switch (
@@ -76,10 +93,6 @@ struct RootView: View {
             }
     }
 
-    private func presentSignIn() {
-        isSignInPresented = true
-    }
-
     private var restoring: some View {
         ProgressView()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -93,24 +106,11 @@ struct RootView: View {
         )
     }
 
-    private func apply(_ phase: ScenePhase) {
-        switch phase {
-        case .background where isStreamPresented && isStreamUnderway:
-            backgroundStreamEnd.endBeforeTimeRunsOut { await appViewModel.endStreamWhileAway() }
-        case .active: backgroundStreamEnd.keepStream()
-        default: break
-        }
-    }
-
     private var isStreamUnderway: Bool {
         switch appViewModel.streamViewModel?.status {
         case .ended?, nil: false
         case .connecting?, .queued?: true
         }
-    }
-
-    private func endStream() {
-        backgroundStreamEnd.end { await appViewModel.endStream() }
     }
 }
 

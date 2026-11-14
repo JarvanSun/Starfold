@@ -21,12 +21,6 @@ final class OrientationLock {
         update()
     }
 
-    func releaseLandscape() {
-        landscapeHolders = max(0, landscapeHolders - 1)
-
-        update()
-    }
-
     private func update() {
         let orientations: UIInterfaceOrientationMask =
             landscapeHolders > 0 ? .landscape : .allButUpsideDown
@@ -40,6 +34,12 @@ final class OrientationLock {
             scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientations)) { _ in }
         }
     }
+
+    func releaseLandscape() {
+        landscapeHolders = max(0, landscapeHolders - 1)
+
+        update()
+    }
 }
 
 extension View {
@@ -49,7 +49,7 @@ extension View {
 }
 
 private struct LandscapeOnPhone: ViewModifier {
-    @Environment(OrientationLock.self) private var orientation: OrientationLock?
+    @Environment(OrientationLock.self) private var orientationLock: OrientationLock?
 
     func body(content: Content) -> some View {
         content
@@ -57,19 +57,19 @@ private struct LandscapeOnPhone: ViewModifier {
             .onDisappear { release() }
     }
 
-    private var isPhone: Bool {
-        UIDevice.current.userInterfaceIdiom == .phone
-    }
-
     private func hold() {
         guard isPhone else { return }
 
-        orientation?.holdLandscape()
+        orientationLock?.holdLandscape()
     }
 
     private func release() {
         guard isPhone else { return }
 
-        orientation?.releaseLandscape()
+        orientationLock?.releaseLandscape()
+    }
+
+    private var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
     }
 }

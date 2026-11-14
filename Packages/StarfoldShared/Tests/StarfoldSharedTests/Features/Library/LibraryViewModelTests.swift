@@ -27,7 +27,7 @@ struct LibraryViewModelTests {
         #expect(library.cloudAccess == .gamePass)
         #expect(library.games.map(\.name) == ["Alpha Racer", "Zeta Quest"])
         #expect(library.recentGames.map(\.id) == ["BRAVO"])
-        #expect(library.curated[.recentlyAdded]?.map(\.id) == ["ALPHA"])
+        #expect(library.curatedLists[.recentlyAdded]?.map(\.id) == ["ALPHA"])
     }
 
     @Test
@@ -94,7 +94,7 @@ struct LibraryViewModelTests {
         // Then
         #expect(cached.games.map(\.id) == library.games.map(\.id))
         #expect(cached.recentGames.map(\.id) == library.recentGames.map(\.id))
-        #expect(cached.curated[.recentlyAdded]?.map(\.id) == ["ALPHA"])
+        #expect(cached.curatedLists[.recentlyAdded]?.map(\.id) == ["ALPHA"])
         #expect(cached.cloudAccess == .gamePass)
         #expect(cached.cloudState == .loaded)
     }
@@ -288,7 +288,7 @@ struct LibraryViewModelTests {
         let library = await makeLoadedLibrary()
 
         // When
-        library.favorites.toggle("ALPHA")
+        library.favoritesStore.toggle("ALPHA")
 
         // Then
         #expect(library.shelves == [.continuePlaying, .favorites, .recentlyAdded])
@@ -401,7 +401,7 @@ struct LibraryViewModelTests {
         let library = await makeLoadedLibrary()
         var requested: [StreamTarget] = []
         library.onPlay = { requested.append($0) }
-        let detail = library.detail(for: .dummyZetaQuest)
+        let detail = library.makeGameDetailViewModel(for: .dummyZetaQuest)
 
         // When
         detail.play()
@@ -443,7 +443,7 @@ struct LibraryViewModelTests {
         await library.refresh()
 
         // When
-        library.favorites.toggle("ALPHA")
+        library.favoritesStore.toggle("ALPHA")
 
         // Then
         #expect(library.favoriteGames.map(\.id) == ["ALPHA"])

@@ -11,15 +11,15 @@ import XboxKit
 
 struct HomeHostView: View {
     @Environment(AppViewModel.self) private var appViewModel
-    @State private var path: [CloudGame] = []
+    @State private var homePath: [CloudGame] = []
 
     let onBrowse: () -> Void
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $homePath) {
             content
         }
-        .onChange(of: appViewModel.activeAccountID) { path.removeAll() }
+        .onChange(of: appViewModel.activeAccountID) { homePath.removeAll() }
     }
 
     @ViewBuilder
@@ -33,7 +33,7 @@ struct HomeHostView: View {
     private func page(home: HomeViewModel, library: LibraryViewModel) -> some View {
         HomeView(homeViewModel: home, libraryViewModel: library, onBrowse: onBrowse)
             .navigationDestination(for: CloudGame.self) { game in
-                GameDetailView(gameDetailViewModel: library.detail(for: game))
+                GameDetailView(gameDetailViewModel: library.makeGameDetailViewModel(for: game))
             }
     }
 }

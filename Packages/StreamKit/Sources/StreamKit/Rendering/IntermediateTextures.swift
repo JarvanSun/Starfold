@@ -14,12 +14,12 @@ final class IntermediateTextures {
         case sharpened
     }
 
-    private let device: MTLDevice
+    private let metalDevice: MTLDevice
 
     private var textures: [Role: MTLTexture] = [:]
 
-    init(device: MTLDevice) {
-        self.device = device
+    init(metalDevice: MTLDevice) {
+        self.metalDevice = metalDevice
     }
 
     func texture(
@@ -45,7 +45,7 @@ final class IntermediateTextures {
         )
         descriptor.usage = usage
         descriptor.storageMode = .private
-        let texture = device.makeTexture(descriptor: descriptor)
+        let texture = metalDevice.makeTexture(descriptor: descriptor)
         textures[role] = texture
         return texture
     }

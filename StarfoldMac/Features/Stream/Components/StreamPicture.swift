@@ -15,11 +15,9 @@ struct StreamPicture: View {
     let pictureInPicture: StreamPictureInPicture?
 
     var body: some View {
-        switch renderer {
-        case let renderer?:
+        if let renderer {
             StreamVideoView(renderer: renderer, pictureInPicture: pictureInPicture)
                 .opacity(isVisible ? 1 : 0)
-        case nil: EmptyView()
         }
     }
 }

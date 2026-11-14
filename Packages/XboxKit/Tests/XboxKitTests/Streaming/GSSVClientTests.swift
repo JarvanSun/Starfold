@@ -155,6 +155,11 @@ private extension GSSVClientTests {
         region: XboxEndpoint = .cloudRegion,
         token: @escaping @Sendable (TokenFreshness) async throws -> String = { _ in "gs" }
     ) -> GSSVClient {
-        .init(kind: kind, baseURL: URL(string: region.rawValue)!, http: server.client, token: token)
+        .init(
+            kind: kind,
+            baseURL: URL(string: region.rawValue)!,
+            httpClient: server.httpClient,
+            token: token
+        )
     }
 }

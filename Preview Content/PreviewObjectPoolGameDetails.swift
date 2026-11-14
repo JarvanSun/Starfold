@@ -10,7 +10,7 @@ import StarfoldShared
 
 extension PreviewObjectPool {
     static var gameDetailViewModel: GameDetailViewModel {
-        libraryViewModel().detail(for: cloudGames[0])
+        libraryViewModel().makeGameDetailViewModel(for: cloudGames[0])
     }
 }
 #endif

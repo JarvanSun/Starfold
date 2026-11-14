@@ -104,6 +104,10 @@ struct StatisticsCollector {
         }
     }
 
+    private func number(_ value: NSObject?) -> Double? {
+        (value as? NSNumber)?.doubleValue
+    }
+
     private mutating func recordVideoRates(
         _ values: [String: NSObject],
         timestamp: Double,
@@ -198,9 +202,5 @@ struct StatisticsCollector {
             remoteType: remote?["candidateType"] as? String
         )
         statistics.interface = local?["networkType"] as? String
-    }
-
-    private func number(_ value: NSObject?) -> Double? {
-        (value as? NSNumber)?.doubleValue
     }
 }

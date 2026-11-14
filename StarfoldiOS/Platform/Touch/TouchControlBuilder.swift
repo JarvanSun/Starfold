@@ -24,30 +24,7 @@ struct TouchControlBuilder {
         case .leftTrigger: addButton(placement, label: .buttonLeftTrigger, shape: .rect)
         case .rightTrigger: addButton(placement, label: .buttonRightTrigger, shape: .rect)
         case .button(let button):
-            addButton(placement, label: label(for: button), shape: shape(of: button))
-        }
-    }
-
-    private func label(for button: GamepadButton) -> TCControlLabel? {
-        switch button {
-        case .a: .buttonA
-        case .b: .buttonB
-        case .x: .buttonX
-        case .y: .buttonY
-        case .leftShoulder: .buttonLeftShoulder
-        case .rightShoulder: .buttonRightShoulder
-        case .leftThumb: .leftThumbstickButton
-        case .rightThumb: .rightThumbstickButton
-        case .menu: .buttonMenu
-        case .view: .buttonOptions
-        case .nexus, .dpadUp, .dpadDown, .dpadLeft, .dpadRight: nil
-        }
-    }
-
-    private func shape(of button: GamepadButton) -> TCControlContents.ButtonShape {
-        switch button {
-        case .leftShoulder, .rightShoulder: .rect
-        default: .circle
+            addButton(placement, label: button.controlLabel, shape: button.controlShape)
         }
     }
 
@@ -73,6 +50,20 @@ struct TouchControlBuilder {
         descriptor.stickContents = .thumbstickStickContents(size: stickSize, controller: controller)
 
         return place(controller.addThumbstick(descriptor: descriptor), at: placement)
+    }
+
+    private func square(_ length: CGFloat) -> CGSize {
+        CGSize(width: length, height: length)
+    }
+
+    private func place(_ control: TCControlLayout, at placement: TouchControlPlacement)
+        -> TCControlLayout
+    {
+        control.anchor = placement.anchor.layoutAnchor
+        control.anchorCoordinateSystem = .absolute
+        control.offset = placement.offset
+        control.zIndex = placement.input.controlLayer
+        return control
     }
 
     private func addDirectionPad(_ placement: TouchControlPlacement) -> TCControlLayout {
@@ -126,43 +117,5 @@ struct TouchControlBuilder {
         )
 
         return place(controller.addButton(descriptor: descriptor), at: placement)
-    }
-
-    private func square(_ length: CGFloat) -> CGSize {
-        CGSize(width: length, height: length)
-    }
-
-    private func place(_ control: TCControlLayout, at placement: TouchControlPlacement)
-        -> TCControlLayout
-    {
-        control.anchor = anchor(for: placement.anchor)
-        control.anchorCoordinateSystem = .absolute
-        control.offset = placement.offset
-        control.zIndex = layer(of: placement.input)
-        return control
-    }
-
-    private func layer(of input: TouchInput) -> Int {
-        let stickLayer = 0
-        let buttonLayer = 1
-
-        return switch input {
-        case .leftStick, .rightStick: stickLayer
-        case .directionPad, .leftTrigger, .rightTrigger, .button: buttonLayer
-        }
-    }
-
-    private func anchor(for anchor: TouchAnchor) -> TCControlLayoutAnchor {
-        switch anchor {
-        case .topLeading: .topLeft
-        case .top: .topCenter
-        case .topTrailing: .topRight
-        case .leading: .centerLeft
-        case .center: .center
-        case .trailing: .centerRight
-        case .bottomLeading: .bottomLeft
-        case .bottom: .bottomCenter
-        case .bottomTrailing: .bottomRight
-        }
     }
 }

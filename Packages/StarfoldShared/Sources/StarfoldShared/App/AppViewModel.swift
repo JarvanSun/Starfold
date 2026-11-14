@@ -28,7 +28,7 @@ public final class AppViewModel: SigningIn, SessionControlling {
     public private(set) var streamPresentationRequest = 0
 
     private let accountService: AccountService
-    private let cache: LibraryCache
+    private let libraryCache: LibraryCache
     private let streamDependencies: StreamDependencies
     private let log = Logger(category: .app)
 
@@ -43,8 +43,8 @@ public final class AppViewModel: SigningIn, SessionControlling {
         profile?.gamertag ?? accounts.first { $0.id == activeAccountID }?.gamertag
     }
 
-    public var controllers: ControllerHub {
-        streamDependencies.controllers
+    public var controllerHub: ControllerHub {
+        streamDependencies.controllerHub
     }
 
     var needsStreamRestartForSettings: Bool {
@@ -57,16 +57,16 @@ public final class AppViewModel: SigningIn, SessionControlling {
 
     public init(
         accountService: AccountService,
-        cache: LibraryCache,
+        libraryCache: LibraryCache,
         settingsViewModel: SettingsViewModel,
         streamDependencies: StreamDependencies
     ) {
         self.accountService = accountService
-        self.cache = cache
+        self.libraryCache = libraryCache
         self.settingsViewModel = settingsViewModel
         self.streamDependencies = streamDependencies
 
-        settingsViewModel.session = self
+        settingsViewModel.sessionController = self
     }
 
     public func restore() async {
@@ -76,54 +76,6 @@ public final class AppViewModel: SigningIn, SessionControlling {
 
         let preferred = preferences.lastAccountID.flatMap { signedInAccounts[$0] } ?? restored.first
         activateOrShowWelcome(preferred)
-    }
-
-    public func makeSignInViewModel() -> SignInViewModel {
-        .init(service: self, clock: ContinuousClock())
-    }
-
-    func beginSignIn() async throws -> DeviceCodePrompt {
-        try await accountService.beginSignIn()
-    }
-
-    func completeSignIn(
-        _ prompt: DeviceCodePrompt,
-        onAuthorized: @escaping @MainActor () -> Void = {}
-    ) async throws {
-        let account = try await accountService.completeSignIn(prompt, onAuthorized: onAuthorized)
-        signedInAccounts[account.id] = account
-
-        accounts.removeAll { $0.id == account.id }
-        accounts.append(account.summary)
-
-        isSignInExpired = false
-
-        activate(account)
-    }
-
-    public func switchAccount(to id: String) async {
-        guard let account = signedInAccounts[id], id != activeAccountID else { return }
-
-        activate(account)
-    }
-
-    public func signOut() {
-        guard let id = activeAccountID, let account = signedInAccounts[id] else { return }
-
-        try? accountService.signOut(account)
-
-        cache.removeLastFrames(for: id)
-
-        signedInAccounts[id] = nil
-        accounts.removeAll { $0.id == id }
-
-        activeAccountID = nil
-        profile = nil
-        homeViewModel = nil
-        libraryViewModel = nil
-        preferences.lastAccountID = nil
-
-        activateOrShowWelcome(accounts.first.flatMap { signedInAccounts[$0.id] })
     }
 
     private func activateOrShowWelcome(_ account: SignedInAccount?) {
@@ -139,8 +91,8 @@ public final class AppViewModel: SigningIn, SessionControlling {
         sessionState = .signedIn
         profile = nil
 
-        let homeViewModel = makeHome(for: account)
-        let libraryViewModel = makeLibrary(for: account)
+        let homeViewModel = makeHomeViewModel(for: account)
+        let libraryViewModel = makeLibraryViewModel(for: account)
         self.homeViewModel = homeViewModel
         self.libraryViewModel = libraryViewModel
 
@@ -149,29 +101,17 @@ public final class AppViewModel: SigningIn, SessionControlling {
         restartConsoleRefresh()
     }
 
-    private func makeHome(for account: SignedInAccount) -> HomeViewModel {
+    private func makeHomeViewModel(for account: SignedInAccount) -> HomeViewModel {
         let homeViewModel = HomeViewModel(
             accountID: account.id,
-            service: account.consoles,
-            cache: cache,
+            consoleService: account.consoleService,
+            libraryCache: libraryCache,
             clock: ContinuousClock()
         )
         homeViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
         homeViewModel.onPlay = { [weak self] in self?.requestPlay($0) }
         homeViewModel.onRefreshAccount = { [weak self] in await self?.refresh() }
         return homeViewModel
-    }
-
-    private func makeLibrary(for account: SignedInAccount) -> LibraryViewModel {
-        let libraryViewModel = LibraryViewModel(
-            accountID: account.id,
-            service: account.cloudLibrary,
-            preferences: preferences,
-            cache: cache
-        )
-        libraryViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
-        libraryViewModel.onPlay = { [weak self] in self?.requestPlay($0) }
-        return libraryViewModel
     }
 
     private func requestPlay(_ target: StreamTarget) {
@@ -184,6 +124,18 @@ public final class AppViewModel: SigningIn, SessionControlling {
     private func playInBackground(_ target: StreamTarget) {
         playTask?.cancel()
         playTask = Task { await play(target) }
+    }
+
+    private func makeLibraryViewModel(for account: SignedInAccount) -> LibraryViewModel {
+        let libraryViewModel = LibraryViewModel(
+            accountID: account.id,
+            cloudLibraryService: account.cloudLibraryService,
+            preferences: preferences,
+            libraryCache: libraryCache
+        )
+        libraryViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
+        libraryViewModel.onPlay = { [weak self] in self?.requestPlay($0) }
+        return libraryViewModel
     }
 
     private func loadInBackground(
@@ -230,6 +182,54 @@ public final class AppViewModel: SigningIn, SessionControlling {
         consoleRefreshTask = Task { await homeViewModel.keepConsolesFresh() }
     }
 
+    public func makeSignInViewModel() -> SignInViewModel {
+        .init(signInService: self, clock: ContinuousClock())
+    }
+
+    func beginSignIn() async throws -> DeviceCodePrompt {
+        try await accountService.beginSignIn()
+    }
+
+    func completeSignIn(
+        _ prompt: DeviceCodePrompt,
+        onAuthorized: @escaping @MainActor () -> Void = {}
+    ) async throws {
+        let account = try await accountService.completeSignIn(prompt, onAuthorized: onAuthorized)
+        signedInAccounts[account.id] = account
+
+        accounts.removeAll { $0.id == account.id }
+        accounts.append(account.summary)
+
+        isSignInExpired = false
+
+        activate(account)
+    }
+
+    public func switchAccount(to id: String) async {
+        guard let account = signedInAccounts[id], id != activeAccountID else { return }
+
+        activate(account)
+    }
+
+    public func signOut() {
+        guard let id = activeAccountID, let account = signedInAccounts[id] else { return }
+
+        try? accountService.signOut(account)
+
+        libraryCache.removeLastFrames(for: id)
+
+        signedInAccounts[id] = nil
+        accounts.removeAll { $0.id == id }
+
+        activeAccountID = nil
+        profile = nil
+        homeViewModel = nil
+        libraryViewModel = nil
+        preferences.lastAccountID = nil
+
+        activateOrShowWelcome(accounts.first.flatMap { signedInAccounts[$0.id] })
+    }
+
     public func refresh() async {
         guard let homeViewModel, let libraryViewModel else { return }
 
@@ -254,18 +254,6 @@ public final class AppViewModel: SigningIn, SessionControlling {
         requestStreamPresentation()
     }
 
-    private func requestStreamPresentation() {
-        guard streamViewModel != nil else { return }
-
-        streamPresentationRequest += 1
-    }
-
-    public func restartStream() async {
-        guard let target = streamViewModel?.target else { return }
-
-        await startStream(target)
-    }
-
     private func startStream(_ target: StreamTarget) async {
         guard let account = activeAccount else { return }
 
@@ -279,8 +267,8 @@ public final class AppViewModel: SigningIn, SessionControlling {
             target: target,
             backdrop: backdrop(for: target),
             qualityOverride: qualityOverride(for: target),
-            service: account.streams,
-            dependencies: streamDependencies
+            streamService: account.streamService,
+            streamDependencies: streamDependencies
         )
         streamViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
         streamViewModel.onRestart = { [weak self] in await self?.restartStream() }
@@ -288,10 +276,6 @@ public final class AppViewModel: SigningIn, SessionControlling {
         streamHomeViewModel = homeViewModel
 
         streamViewModel.start()
-    }
-
-    private var activeAccount: SignedInAccount? {
-        activeAccountID.flatMap { signedInAccounts[$0] }
     }
 
     private func keepLastFrame(of streamViewModel: StreamViewModel) {
@@ -325,6 +309,22 @@ public final class AppViewModel: SigningIn, SessionControlling {
         let allowed = AdaptiveQuality(target: target)
             .requestedQuality(for: choice, hasGamePass: libraryViewModel?.cloudAccess == .gamePass)
         return allowed != choice.requestedQuality ? allowed : nil
+    }
+
+    private func requestStreamPresentation() {
+        guard streamViewModel != nil else { return }
+
+        streamPresentationRequest += 1
+    }
+
+    public func restartStream() async {
+        guard let target = streamViewModel?.target else { return }
+
+        await startStream(target)
+    }
+
+    private var activeAccount: SignedInAccount? {
+        activeAccountID.flatMap { signedInAccounts[$0] }
     }
 
     public func endStream() async {

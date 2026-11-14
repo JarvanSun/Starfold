@@ -26,13 +26,10 @@ struct ControllerRow: View {
 
     @ViewBuilder
     private var battery: some View {
-        switch batteryLevel {
-        case let level?:
+        if let level = batteryLevel {
             Text(level, format: .percent.precision(.fractionLength(0)))
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
-        case nil:
-            EmptyView()
         }
     }
 }

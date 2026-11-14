@@ -17,19 +17,11 @@ struct GameOverview: View {
 
     var body: some View {
         layout {
-            switch about {
-            case let about?: aboutSection(about)
-            case nil: EmptyView()
+            if let about {
+                aboutSection(about)
             }
 
             GameFacts(facts: facts)
-        }
-    }
-
-    private var layout: AnyLayout {
-        switch horizontalSizeClass {
-        case .compact: .init(VStackLayout(alignment: .leading, spacing: dimensions.spaceXLarge))
-        default: .init(HStackLayout(alignment: .top, spacing: dimensions.spaceXXLarge))
         }
     }
 
@@ -44,6 +36,13 @@ struct GameOverview: View {
                 .textSelection(.enabled)
         }
         .frame(maxWidth: dimensions.gameDescriptionMaxWidth, alignment: .leading)
+    }
+
+    private var layout: AnyLayout {
+        switch horizontalSizeClass {
+        case .compact: .init(VStackLayout(alignment: .leading, spacing: dimensions.spaceXLarge))
+        default: .init(HStackLayout(alignment: .top, spacing: dimensions.spaceXXLarge))
+        }
     }
 }
 

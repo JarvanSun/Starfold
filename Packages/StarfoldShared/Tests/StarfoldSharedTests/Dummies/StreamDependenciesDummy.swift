@@ -17,10 +17,10 @@ extension StreamDependencies {
     ) -> StreamDependencies {
         .init(
             preferences: preferences,
-            controllers: ControllerHub(routing: .direct),
-            platform: .init(
+            controllerHub: ControllerHub(controllerRouting: .direct),
+            streamPlatform: .init(
                 controllerRouting: .direct,
-                picture: .init(
+                pictureCapabilities: .init(
                     canFit: true,
                     canEnhance: false,
                     shouldKeepLastFrame: false,
@@ -30,9 +30,9 @@ extension StreamDependencies {
                     statisticsRows: [.resolution, .lowered, .frameRate],
                     controlsHideDelay: .milliseconds(20)
                 ),
-                touch: touch
+                touchPlatform: touch
             ),
-            network: network
+            networkPath: network
         )
     }
 }

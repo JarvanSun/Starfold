@@ -41,6 +41,10 @@ struct ConsoleCard: View {
         )
     }
 
+    private func play() {
+        homeViewModel.play(console)
+    }
+
     private var card: some View {
         layout
             .frame(maxWidth: .infinity)
@@ -131,6 +135,10 @@ struct ConsoleCard: View {
         .frame(maxHeight: .infinity, alignment: .top)
     }
 
+    private func togglePower() {
+        Task { await homeViewModel.togglePower(of: console) }
+    }
+
     private var statusDot: some View {
         let status = homeViewModel.status(of: console)
 
@@ -172,14 +180,6 @@ struct ConsoleCard: View {
         } label: {
             Label(command.title, systemImage: "power")
         }
-    }
-
-    private func play() {
-        homeViewModel.play(console)
-    }
-
-    private func togglePower() {
-        Task { await homeViewModel.togglePower(of: console) }
     }
 }
 

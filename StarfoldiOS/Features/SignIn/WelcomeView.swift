@@ -56,6 +56,12 @@ struct WelcomeView: View {
         }
     }
 
+    private func enter() {
+        withAnimation(.spring(duration: 0.8, bounce: 0.3)) {
+            hasEntered = true
+        }
+    }
+
     private var sideBySide: some View {
         HStack(alignment: .center, spacing: dimensions.spaceXXXLarge) {
             pitch
@@ -82,6 +88,26 @@ struct WelcomeView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollIndicators(.hidden)
+    }
+
+    private func glyphAndSteps(glyphSize: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: dimensions.spaceHuge) {
+            AppGlyph(size: glyphSize)
+
+            WelcomeSteps()
+        }
+        .padding(.top, dimensions.spaceLarge)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .opacity(isVisible ? 1 : 0)
+    }
+
+    private func signInSheet(placement: WelcomeSignInPlacement) -> some View {
+        WelcomeSignInSheet(
+            step: signInViewModel.step,
+            placement: placement,
+            onRetry: { signInViewModel.retry() }
+        )
+        .frame(maxWidth: dimensions.welcomeSheetMaxWidth)
     }
 
     private var stacked: some View {
@@ -113,26 +139,6 @@ struct WelcomeView: View {
             }
     }
 
-    private func signInSheet(placement: WelcomeSignInPlacement) -> some View {
-        WelcomeSignInSheet(
-            step: signInViewModel.step,
-            placement: placement,
-            onRetry: { signInViewModel.retry() }
-        )
-        .frame(maxWidth: dimensions.welcomeSheetMaxWidth)
-    }
-
-    private func glyphAndSteps(glyphSize: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: dimensions.spaceHuge) {
-            AppGlyph(size: glyphSize)
-
-            WelcomeSteps()
-        }
-        .padding(.top, dimensions.spaceLarge)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .opacity(isVisible ? 1 : 0)
-    }
-
     private var pitch: some View {
         WelcomePitch(features: signInViewModel.welcomeFeatures, isInPlace: isInPlace)
             .frame(maxWidth: dimensions.welcomePitchMaxWidth, alignment: .leading)
@@ -146,12 +152,6 @@ struct WelcomeView: View {
     private var signInCard: some View {
         signInSheet(placement: .center)
             .opacity(isVisible ? 1 : 0)
-    }
-
-    private func enter() {
-        withAnimation(.spring(duration: 0.8, bounce: 0.3)) {
-            hasEntered = true
-        }
     }
 }
 

@@ -10,7 +10,7 @@ import SwiftUI
 import XboxKit
 
 struct HomeHostView: View {
-    @State private var path: [HomeRoute] = []
+    @State private var homePath: [HomeRoute] = []
 
     let homeViewModel: HomeViewModel
     @Bindable var libraryViewModel: LibraryViewModel
@@ -18,9 +18,9 @@ struct HomeHostView: View {
     let onAddAccount: () -> Void
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $homePath) {
             HomeView(homeViewModel: homeViewModel, libraryViewModel: libraryViewModel) {
-                path.append(.cloudGaming)
+                homePath.append(.cloudGaming)
             }
             .background { SkyBackground() }
             .navigationTitle(Text("app.tab.home"))
@@ -40,6 +40,11 @@ struct HomeHostView: View {
         case .cloudGaming: cloudGaming
         case .game(let game): gameDetail(game)
         }
+    }
+
+    private func gameDetail(_ game: CloudGame) -> some View {
+        GameDetailView(gameDetailViewModel: libraryViewModel.makeGameDetailViewModel(for: game))
+            .background { SkyBackground() }
     }
 
     private var cloudGaming: some View {
@@ -62,20 +67,15 @@ struct HomeHostView: View {
 
     @ViewBuilder
     private var cloudGamingContent: some View {
-        switch libraryViewModel.isSearching {
-        case true:
+        if libraryViewModel.isSearching {
             SearchResultsView(libraryViewModel: libraryViewModel, onOpenGame: { openGame($0) })
-        case false: LibraryView(libraryViewModel: libraryViewModel, onOpenGame: { openGame($0) })
+        } else {
+            LibraryView(libraryViewModel: libraryViewModel, onOpenGame: { openGame($0) })
         }
     }
 
     private func openGame(_ game: CloudGame) {
-        path.append(.game(game))
-    }
-
-    private func gameDetail(_ game: CloudGame) -> some View {
-        GameDetailView(gameDetailViewModel: libraryViewModel.detail(for: game))
-            .background { SkyBackground() }
+        homePath.append(.game(game))
     }
 }
 

@@ -39,15 +39,6 @@ struct MenuBarMenu: View {
     }
 
     @ViewBuilder
-    private var account: some View {
-        switch (appViewModel.sessionState, appViewModel.signedInGamertag) {
-        case (.signedIn, let gamertag?): Text(gamertag)
-        case (.signedOut, _): Text("menuBar.signedOut.message")
-        case (.signedIn, nil), (.restoring, _): EmptyView()
-        }
-    }
-
-    @ViewBuilder
     private func consoles(of home: HomeViewModel) -> some View {
         if !home.consoles.isEmpty {
             Section(String(localized: "menuBar.consoles.title")) {
@@ -67,6 +58,10 @@ struct MenuBarMenu: View {
         }
     }
 
+    private func play(_ target: StreamTarget) {
+        Task { await appViewModel.play(target) }
+    }
+
     @ViewBuilder
     private func recentGames(of library: LibraryViewModel) -> some View {
         let recentGameLimit = 3
@@ -84,8 +79,13 @@ struct MenuBarMenu: View {
         }
     }
 
-    private func play(_ target: StreamTarget) {
-        Task { await appViewModel.play(target) }
+    @ViewBuilder
+    private var account: some View {
+        switch (appViewModel.sessionState, appViewModel.signedInGamertag) {
+        case (.signedIn, let gamertag?): Text(gamertag)
+        case (.signedOut, _): Text("menuBar.signedOut.message")
+        case (.signedIn, nil), (.restoring, _): EmptyView()
+        }
     }
 
     @ViewBuilder

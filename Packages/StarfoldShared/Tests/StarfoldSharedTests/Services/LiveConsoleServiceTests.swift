@@ -117,6 +117,6 @@ private extension LiveConsoleServiceTests {
     func makeService() async throws -> (XboxServerStub, LiveConsoleService) {
         let server = XboxServerStub()
         let account = try await server.signedInAccount()
-        return (server, LiveConsoleService(account: account, http: server.client))
+        return (server, LiveConsoleService(xboxAccount: account, httpClient: server.httpClient))
     }
 }

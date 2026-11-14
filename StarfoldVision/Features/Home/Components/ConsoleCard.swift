@@ -76,6 +76,10 @@ struct ConsoleCard: View {
         }
     }
 
+    private func togglePower() {
+        Task { await homeViewModel.togglePower(of: console) }
+    }
+
     private var playButton: some View {
         Button {
             play()
@@ -91,10 +95,6 @@ struct ConsoleCard: View {
 
     private func play() {
         homeViewModel.play(console)
-    }
-
-    private func togglePower() {
-        Task { await homeViewModel.togglePower(of: console) }
     }
 
     private var wirelessWarning: some View {

@@ -59,18 +59,42 @@ succeed.
 | Boolean | `is` / `has` / `can` / `should` | `isStreaming` | `streaming` |
 | Intent method | Verb phrase the user would say | `play(_:)` | `handleTap()` |
 | Query method | Noun phrase or `is…(_:)` | `cover(for:)` | `getCover(_:)` |
+| Factory method | `make…`: only creates and returns a new object; one returning a cached instance it creates the first time is not a factory | `makeGameDetailViewModel(for:)`, `makeHomeClient(httpClient:)` | `detail(for:)`, `homeClient(httpClient:)` |
 | Closure property | What happens | `onRetry` | `callback` |
 | Test double | `Stub` suffix | `XboxServerStub` | `MockStuff` |
 | ViewModel property | The type's name | `homeViewModel: HomeViewModel` | `home: HomeViewModel` |
+| Dependency property | The type's name; for a capability protocol, its role without `-ing` | `consoleService: ConsoleService`, `networkPath: NetworkPathReading` | `service`, `network` |
 
 - No abbreviations except `ID`, `URL`, `API`, `JSON`, `HTTP`, `HDR`, `SDR` and the protocol's terms
   (`xuid`, `GSSV`, `SDP`, `ICE`).
 - Never `data`, `info`, `item`, `object`, `value`, `manager`, `helper`, `handle` or `util` as a
   whole name; as a suffix only in a domain phrase (`DeviceInfoHeader`).
-- Do not repeat the type in member names (`console.name`).
-- A ViewModel property is the exception: it keeps the type's name, and a value it holds is named
-  for what it is (`consoleCover`, not `cover`).
+- Do not prefix a member with its owner's name just to say whose it is (`console.name`, not
+  `console.consoleName`). A word the owner also uses is fine when the member is named after its own
+  type or contents (`controllerHub.connectedControllers`, `streamViewModel.streamService`), or when
+  it turns a broad word into a specific one (`KeychainStore.keychainService`; `service` alone says
+  nothing).
+- A ViewModel property keeps the type's name, and a value it holds is named for what it is
+  (`consoleCover`, not `cover`).
 - Name a value after what it means at that point (`restored`, then `preferred`).
+- A stored property says what it is and what it is for, read without its type:
+  - one holding a dependency (a service, store, cache, client, hub, runtime or platform) takes its
+    type's name (`controllerHub: ControllerHub`, `libraryCache: LibraryCache`); one typed by a
+    capability protocol takes the role without `-ing` (`secretStore: SecretStoring`). Initializer
+    labels match the property;
+  - a collection or a piece of state names what it holds (`connectedControllers`, not
+    `connected`; `inputState`, not `state`);
+  - a word that could mean two things in the module gets its qualifier (`keyboardGamepad`, not
+    `keyboard`; `backgroundTask`, not `task`; `audioEngine`, not `engine`);
+  - it keeps the word of its type that says what kind of thing it is (`homePath`, not `path`;
+    `xboxButtonSettings`, not `xboxButton`; `orientationLock`, not `orientation`;
+    `selectedTab`, not `selection`), unless it is that value itself (`palette: PaletteID`,
+    `pacing: PacingMode`).
+- Methods that do different jobs do not share one generic verb as overloads: `receive(_ update:)`,
+  `move(to phase:)`, `record(_ statistics:)`, not four `apply(_:)`.
+- Short names stay where one meaning is certain: `log` (the type's one `Logger`), `lock`, `body`,
+  `id`, `defaults` (`UserDefaults`), and a property already named after its type (`renderer:
+  StreamRenderer`, `preferences: Preferences`).
 
 ## Declaration order
 
@@ -91,7 +115,26 @@ Inside a type, one blank line between groups:
 
 A private helper sits right below the member it serves, in call order: a step one method uses
 follows that method, a part of `body` follows `body`. A helper several members share follows the
-first of them; a private computed property several members share joins the computed properties.
+first of them and stays there when a later member calls it too; a private computed property several
+members share joins the computed properties.
+
+```swift
+func connect() {
+    prepare()
+    open()
+}
+
+private func prepare() { … }
+
+private func open() { … }
+
+func reconnect() {
+    close()
+    open()
+}
+
+private func close() { … }
+```
 Extensions group protocol conformances, members of a type declared in another file, and private
 decoding types, never members by access level.
 
@@ -150,7 +193,7 @@ Marks never appear on the type's own declaration, inside a type or function, or 
   state or rules worth testing alone (`HostChannels`). No type for a job a private method does.
 - Split a function that does not fit on one screen or nests more than two levels.
 - At most four parameters; more means a value type is missing (`StreamDependencies`).
-- A protocol type is written bare (`secrets: SecretStoring`); `ExistentialAny` is off, so `any`
+- A protocol type is written bare (`secretStore: SecretStoring`); `ExistentialAny` is off, so `any`
   and `some` appear only where the compiler needs them (`clock: some Clock<Duration>`, stored as
   `any Clock<Duration>`; `some View`).
 - No boolean parameters that change behaviour (`load(force: true)`): two intents or an enum.
@@ -182,15 +225,17 @@ view built in a `body` or `@ViewBuilder`, and where `.init` is ambiguous (`Strin
   sits after the entry `guard`s and the declarations its cleanup needs.
 - A `switch` case whose body is a single value goes on its label's line (`case nil: sessionState
   = .signedOut`), unless it does not fit in 100 columns.
-- **Branch with `switch`** over an enum, a tuple of deciding values, an optional or a `Bool`. `if`
-  only for one condition without `else`. Never `if / else`, `else if` chains or a series of early
-  `return`s.
+- `switch` over an enum, an optional with more than one outcome, or a tuple of deciding values.
+  `if / else` for a choice between two outcomes of one condition, and `if / else if` for a
+  fallback chain tried in order. Never a series of early `return`s standing in for either.
 - A `switch` that produces a value is an expression; a single-expression property or function
   omits `return`.
 - Unwrap with the shorthand: `guard let self`, `if let stream`.
 - Mutually exclusive states are an `enum`, never a set of optionals and booleans.
 - Name compound conditions before using them (`let isHostingTests = …`).
-- Ternaries only to pick between two simple values; never nested, never for side effects.
+- A ternary picks between two values on one condition, above all a `Bool`
+  (`isSelected ? .primary : .secondary`), in code and in a view's `body`; never nested, never for
+  side effects.
 - No force unwraps or `try!` outside tests and previews, except a `URL` from a string literal.
 
 ## Errors
@@ -233,7 +278,12 @@ No `static` (or `class`) member, except:
    `LocalizedStringResource.BundleDescription.module`);
 3. an `@Entry` in `EnvironmentValues` or `FocusedValues`;
 4. a member of [`PreviewObjectPool`](#preview-data);
-5. a `static var dummy…` / `static func dummy…(…)` in a test target's dummy extension.
+5. a `static var dummy…` / `static func dummy…(…)` in a test target's dummy extension;
+6. a `private static let` holding one immutable value that every instance shares and that is
+   costly to build (a `DateFormatter`, a `Regex`, a lookup table).
+
+Nothing else is `static`: no `static var`, `static func` or non-`private` static outside the list,
+and a new kind of exception is added to this list first.
 
 A preset is an enum case (`PrimaryButtonSize.compact`) or an initializer with real values; a
 helper is an instance member or initializer (`XboxDateParser().date(from:)`); something shared for
@@ -244,7 +294,7 @@ the app's life is owned by an instance the composition root creates (`StreamRunt
 - `PreviewObjectPool` in the top-level `Preview Content/` is the only preview data. The apps
   compile it as Development Assets (`DEVELOPMENT_ASSET_PATHS`). Every file in `Preview Content/`
   and every `#Preview` is wrapped in `#if DEBUG`; there are no other debug-only branches, loaders,
-  launch arguments or screens.
+  launch arguments or screens. When one seems unavoidable, ask the owner before writing it.
 - `PreviewObjectPool` is an `enum` of computed static members, so each access returns a fresh value
   or ViewModel. It supplies data only; each `#Preview` stays at the end of its View's file.
 - An area of the pool is its own file, `PreviewObjectPool<Responsibility>.swift`; the preview

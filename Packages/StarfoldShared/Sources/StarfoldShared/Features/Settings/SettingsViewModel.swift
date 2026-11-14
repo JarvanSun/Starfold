@@ -14,12 +14,12 @@ import XboxKit
 public final class SettingsViewModel {
     public private(set) var touchLayoutEditorViewModel: TouchLayoutEditorViewModel?
 
-    weak var session: SessionControlling?
+    weak var sessionController: SessionControlling?
 
     private let preferences: Preferences
-    private let controllers: ControllerHub
-    private let platform: StreamPlatform
-    private let network: NetworkPathReading
+    private let controllerHub: ControllerHub
+    private let streamPlatform: StreamPlatform
+    private let networkPath: NetworkPathReading
     private let automaticBitrate = 0
     private let systemGameLanguage = ""
 
@@ -151,23 +151,23 @@ public final class SettingsViewModel {
     }
 
     public var canToneMapHDR: Bool {
-        platform.picture.isHDRDisplayAvailable?() ?? false
+        streamPlatform.pictureCapabilities.isHDRDisplayAvailable?() ?? false
     }
 
     public var connectedControllers: [ConnectedController] {
-        controllers.connected
+        controllerHub.connectedControllers
     }
 
     public var hasTouchControls: Bool {
-        platform.touch != nil
+        streamPlatform.touchPlatform != nil
     }
 
     public var canPlayTouchHaptics: Bool {
-        platform.touch?.hasDeviceHaptics ?? false
+        streamPlatform.touchPlatform?.hasDeviceHaptics ?? false
     }
 
     public var canUseCellular: Bool {
-        network.hasCellular
+        networkPath.hasCellular
     }
 
     public var hasAccounts: Bool {
@@ -175,11 +175,11 @@ public final class SettingsViewModel {
     }
 
     public var isControllerMissing: Bool {
-        controllers.connected.isEmpty
+        controllerHub.connectedControllers.isEmpty
     }
 
     public var isXboxButtonTakenBySystem: Bool {
-        controllers.xboxButton.owner == .system
+        controllerHub.xboxButtonSettings.owner == .system
     }
 
     public var keyBindings: [KeyBinding] {
@@ -187,19 +187,23 @@ public final class SettingsViewModel {
     }
 
     public var needsStreamRestart: Bool {
-        session?.needsStreamRestartForSettings ?? false
+        sessionController?.needsStreamRestartForSettings ?? false
     }
 
     public var accountChoices: [AccountChoice] {
-        guard let session else { return [] }
+        guard let sessionController else { return [] }
 
-        return session.accounts.map {
-            .init(id: $0.id, gamertag: $0.gamertag, isActive: $0.id == session.activeAccountID)
+        return sessionController.accounts.map {
+            .init(
+                id: $0.id,
+                gamertag: $0.gamertag,
+                isActive: $0.id == sessionController.activeAccountID
+            )
         }
     }
 
     public var signOutSubject: String {
-        session?.signedInGamertag ?? AppInfo().displayName
+        sessionController?.signedInGamertag ?? AppInfo().displayName
     }
 
     var effectiveGameLanguage: String {
@@ -207,31 +211,31 @@ public final class SettingsViewModel {
     }
 
     var canEnhancePicture: Bool {
-        platform.picture.canEnhance
+        streamPlatform.pictureCapabilities.canEnhance
     }
 
     var canChoosePictureFit: Bool {
-        platform.picture.canFit
+        streamPlatform.pictureCapabilities.canFit
     }
 
     public init(
         preferences: Preferences,
-        controllers: ControllerHub,
-        platform: StreamPlatform,
-        network: NetworkPathReading
+        controllerHub: ControllerHub,
+        streamPlatform: StreamPlatform,
+        networkPath: NetworkPathReading
     ) {
         self.preferences = preferences
-        self.controllers = controllers
-        self.platform = platform
-        self.network = network
+        self.controllerHub = controllerHub
+        self.streamPlatform = streamPlatform
+        self.networkPath = networkPath
     }
 
     public func restartStream() async {
-        await session?.restartStream()
+        await sessionController?.restartStream()
     }
 
     public func testRumble(on controller: ConnectedController) {
-        controllers.testRumble(slot: controller.slot)
+        controllerHub.testRumble(slot: controller.slot)
     }
 
     public func editTouchLayout() {
@@ -243,29 +247,27 @@ public final class SettingsViewModel {
     }
 
     public func openXboxButtonSettings() {
-        controllers.xboxButton.openSettings()
+        controllerHub.xboxButtonSettings.openSettings()
     }
 
     public func switchAccount(to choice: AccountChoice) async {
-        await session?.switchAccount(to: choice.id)
+        await sessionController?.switchAccount(to: choice.id)
     }
 
     public func signOut() {
-        session?.signOut()
+        sessionController?.signOut()
     }
 
     public func title(ofBitrate bitrate: Int) -> LocalizedStringResource {
-        switch isAutomatic(bitrate: bitrate) {
-        case true: .init("settings.bitrate.automatic", bundle: .module)
-        case false: .init("settings.bitrate.option \(bitrate)", bundle: .module)
-        }
+        isAutomatic(bitrate: bitrate)
+            ? .init("settings.bitrate.automatic", bundle: .module)
+            : .init("settings.bitrate.option \(bitrate)", bundle: .module)
     }
 
     public func name(ofGameLanguage code: String) -> String {
-        switch isSystem(gameLanguage: code) {
-        case true: String(localized: "settings.gameLanguage.system", bundle: .module)
-        case false: Locale.current.localizedString(forIdentifier: code) ?? code
-        }
+        isSystem(gameLanguage: code)
+            ? String(localized: "settings.gameLanguage.system", bundle: .module)
+            : Locale.current.localizedString(forIdentifier: code) ?? code
     }
 
     public func playerNumber(of controller: ConnectedController) -> Int {

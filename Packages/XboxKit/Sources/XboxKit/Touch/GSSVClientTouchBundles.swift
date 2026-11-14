@@ -22,7 +22,7 @@ extension GSSVClient {
 
     public func touchBundleArchive(id: String) async throws -> Data {
         let downloadURL = try await touchBundleDownloadURL(id: id)
-        return try await http.successfulBody(for: .init(url: downloadURL))
+        return try await httpClient.successfulBody(for: .init(url: downloadURL))
     }
 
     private func touchBundleDownloadURL(id: String) async throws -> URL {

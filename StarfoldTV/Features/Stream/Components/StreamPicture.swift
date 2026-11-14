@@ -14,13 +14,11 @@ struct StreamPicture: View {
     let isVisible: Bool
 
     var body: some View {
-        switch renderer {
-        case let renderer?:
+        if let renderer {
             VideoView(renderer: renderer)
                 .id(ObjectIdentifier(renderer))
                 .ignoresSafeArea()
                 .opacity(isVisible ? 1 : 0)
-        case nil: EmptyView()
         }
     }
 }

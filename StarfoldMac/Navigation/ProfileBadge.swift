@@ -22,9 +22,8 @@ struct ProfileBadge: View {
             VStack(alignment: .leading, spacing: 0) {
                 name
 
-                switch profile?.gamerscore {
-                case let gamerscore?: gamerscoreLabel(gamerscore)
-                case nil: EmptyView()
+                if let gamerscore = profile?.gamerscore {
+                    gamerscoreLabel(gamerscore)
                 }
             }
         }
@@ -32,6 +31,17 @@ struct ProfileBadge: View {
         .padding(.trailing, dimensions.spaceMedium)
         .padding(.vertical, dimensions.spaceXSmall)
         .contentShape(.rect)
+    }
+
+    private func gamerscoreLabel(_ gamerscore: Int) -> some View {
+        Label {
+            Text(gamerscore, format: .number)
+        } icon: {
+            gamerscoreSymbol
+        }
+        .labelStyle(GamerscoreLabelStyle(spacing: dimensions.spaceXSmall))
+        .font(.caption.monospacedDigit())
+        .foregroundStyle(.secondary)
     }
 
     private var picture: some View {
@@ -51,17 +61,6 @@ struct ProfileBadge: View {
         Text(gamertag)
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
-    }
-
-    private func gamerscoreLabel(_ gamerscore: Int) -> some View {
-        Label {
-            Text(gamerscore, format: .number)
-        } icon: {
-            gamerscoreSymbol
-        }
-        .labelStyle(GamerscoreLabelStyle(spacing: dimensions.spaceXSmall))
-        .font(.caption.monospacedDigit())
-        .foregroundStyle(.secondary)
     }
 
     private var gamerscoreSymbol: some View {

@@ -206,17 +206,17 @@ private extension PreviewObjectPool {
         service: PreviewStreamService,
         dependencies: StreamDependencies
     ) -> StreamViewModel {
-        let stream = StreamViewModel(
+        let streamViewModel = StreamViewModel(
             target: target,
             backdrop: backdrop,
             qualityOverride: nil,
-            service: service,
-            dependencies: dependencies
+            streamService: service,
+            streamDependencies: dependencies
         )
 
-        stream.start()
+        streamViewModel.start()
 
-        return stream
+        return streamViewModel
     }
 }
 #endif

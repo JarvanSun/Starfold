@@ -93,8 +93,6 @@ struct FramePacer: Sendable {
         return Double(unwrappedRTP) / rtpClockRate
     }
 
-    private var rtpClockRate: Double { 90_000 }
-
     private mutating func transitFloor(adding transit: Double, at second: Int) -> Double {
         let floorWindow = 10
 
@@ -142,6 +140,8 @@ struct FramePacer: Sendable {
         lastPresentation = presentation
         return presentation
     }
+
+    private var rtpClockRate: Double { 90_000 }
 
     mutating func setMode(_ mode: PacingMode) {
         configuration = .init(mode: mode)

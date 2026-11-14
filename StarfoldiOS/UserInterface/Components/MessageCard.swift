@@ -55,12 +55,6 @@ struct MessageCard<Action: View>: View {
         }
     }
 
-    private var symbolImage: some View {
-        Image(systemName: symbol)
-            .font(.system(size: dimensions.messageSymbolSize))
-            .foregroundStyle(palette.primaryFill)
-    }
-
     private func texts(alignment: TextAlignment, spacing: CGFloat) -> some View {
         VStack(alignment: stackAlignment(for: alignment), spacing: spacing) {
             Text(title)
@@ -80,6 +74,12 @@ struct MessageCard<Action: View>: View {
         case .center: .center
         case .trailing: .trailing
         }
+    }
+
+    private var symbolImage: some View {
+        Image(systemName: symbol)
+            .font(.system(size: dimensions.messageSymbolSize))
+            .foregroundStyle(palette.primaryFill)
     }
 
     private var actionButton: some View {
