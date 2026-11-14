@@ -77,7 +77,6 @@ struct StarfoldMacApp: App {
 
     private var settingsWindow: some View {
         SettingsView(settingsViewModel: appViewModel.settingsViewModel)
-            .paletteTint()
             .appPalette()
             .environment(appViewModel)
     }

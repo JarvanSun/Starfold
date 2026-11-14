@@ -16,7 +16,8 @@ Shared pieces live in `StarfoldShared/UserInterface/`; views use them by name, n
 - `.appPalette()` sets the palette in the environment. On every platform the palette's accent
   replaces the system accent only where the system would use its accent (tab and list selection,
   switches, links, plain buttons, sliders): iPhone, iPad, Apple TV and Vision Pro set it as the
-  window's tint (`windowTint()`), the Mac as its windows' tint (`paletteTint()`). Controls the
+  window's tint (`windowTint()`), the Mac as its main and stream windows' tint (`paletteTint()`;
+  the Mac's own accent asset stays grey, see Platforms). Controls the
   system draws in neutral colours (menu values, Form text, glass buttons) stay neutral; a SwiftUI
   `.tint` over a whole iOS scene would recolour them too.
 
@@ -162,8 +163,9 @@ HStack(spacing: dimensions.spaceXLarge) { … }
 
 ## Platform exceptions
 
-- **Mac:** the Settings window uses system colours, with the palette accent only where the system
-  would use its accent; the menu bar extra is a standard menu.
+- **Mac:** the app's accent colour asset is a neutral grey, so what AppKit draws (alerts, focus
+  rings, the Settings window, which takes no palette tint) stays neutral in every palette, as in
+  1.0; the main and stream windows take the palette accent. The menu bar extra is a standard menu.
 - **visionOS:** system glass, materials and button styles; the palette (Nebula, as Vision Pro has
   no colour picker) only replaces the system accent. Semantic status colours still apply.
 - **tvOS:** the palette colours the sky and replaces the system accent; text, buttons and focus
