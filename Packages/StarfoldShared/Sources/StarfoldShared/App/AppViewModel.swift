@@ -91,8 +91,8 @@ public final class AppViewModel: SigningIn, SessionControlling {
         sessionState = .signedIn
         profile = nil
 
-        let homeViewModel = makeHome(for: account)
-        let libraryViewModel = makeLibrary(for: account)
+        let homeViewModel = makeHomeViewModel(for: account)
+        let libraryViewModel = makeLibraryViewModel(for: account)
         self.homeViewModel = homeViewModel
         self.libraryViewModel = libraryViewModel
 
@@ -101,7 +101,7 @@ public final class AppViewModel: SigningIn, SessionControlling {
         restartConsoleRefresh()
     }
 
-    private func makeHome(for account: SignedInAccount) -> HomeViewModel {
+    private func makeHomeViewModel(for account: SignedInAccount) -> HomeViewModel {
         let homeViewModel = HomeViewModel(
             accountID: account.id,
             consoleService: account.consoleService,
@@ -126,7 +126,7 @@ public final class AppViewModel: SigningIn, SessionControlling {
         playTask = Task { await play(target) }
     }
 
-    private func makeLibrary(for account: SignedInAccount) -> LibraryViewModel {
+    private func makeLibraryViewModel(for account: SignedInAccount) -> LibraryViewModel {
         let libraryViewModel = LibraryViewModel(
             accountID: account.id,
             cloudLibraryService: account.cloudLibraryService,

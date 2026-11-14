@@ -28,13 +28,13 @@ public final class StreamRuntime: @unchecked Sendable {
 
     func peerConnectionFactory() -> LKRTCPeerConnectionFactory {
         lock.withLock {
-            let connectionFactory = connectionFactory ?? makeFactory()
+            let connectionFactory = connectionFactory ?? makeConnectionFactory()
             self.connectionFactory = connectionFactory
             return connectionFactory
         }
     }
 
-    private func makeFactory() -> LKRTCPeerConnectionFactory {
+    private func makeConnectionFactory() -> LKRTCPeerConnectionFactory {
         enableNetworkPathMonitor()
 
         LKRTCInitializeSSL()

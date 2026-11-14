@@ -63,7 +63,7 @@ public actor StreamController {
         startedAt = .now
 
         do {
-            let peerConnection = try makePeer(sink: sink, runtime: runtime)
+            let peerConnection = try makePeerConnection(sink: sink, runtime: runtime)
             async let offer = peerConnection.createOffer(videoBitrateKbps: options.maxBitrateKbps)
 
             try await provision()
@@ -84,7 +84,7 @@ public actor StreamController {
         }
     }
 
-    private func makePeer(sink: VideoFrameReceiving, runtime: StreamRuntime) throws
+    private func makePeerConnection(sink: VideoFrameReceiving, runtime: StreamRuntime) throws
         -> PeerConnection
     {
         let (events, continuation) = AsyncStream<PeerEvent>.makeStream()
