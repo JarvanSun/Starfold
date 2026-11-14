@@ -9,12 +9,12 @@ import StarfoldShared
 import SwiftUI
 
 struct SoundSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
-            Picker("settings.sound.stage", selection: $settings.soundStage) {
-                ForEach(settings.soundStages, id: \.self) { stage in
+            Picker("settings.sound.stage", selection: $settingsViewModel.soundStage) {
+                ForEach(settingsViewModel.soundStages, id: \.self) { stage in
                     Text(stage.title).tag(stage)
                 }
             }
@@ -29,7 +29,7 @@ struct SoundSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        SoundSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        SoundSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

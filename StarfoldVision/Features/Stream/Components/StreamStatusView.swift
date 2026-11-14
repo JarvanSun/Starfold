@@ -56,11 +56,11 @@ struct StreamStatusView: View {
 
 #if DEBUG
 #Preview("Connecting", windowStyle: .plain) {
-    let stream = PreviewObjectPool.streamViewModel(phase: .connecting)
+    let streamViewModel = PreviewObjectPool.streamViewModel(phase: .connecting)
     StreamStatusView(
-        name: stream.target.name,
+        name: streamViewModel.target.name,
         status: .connecting,
-        backdrop: stream.backdrop,
+        backdrop: streamViewModel.backdrop,
         isXboxButtonTakenBySystem: false,
         onClose: {},
         onTryAgain: {},
@@ -70,11 +70,13 @@ struct StreamStatusView: View {
 }
 
 #Preview("In line", windowStyle: .plain) {
-    let stream = PreviewObjectPool.cloudStreamViewModel(phase: PreviewObjectPool.queuedPhase)
+    let streamViewModel = PreviewObjectPool.cloudStreamViewModel(
+        phase: PreviewObjectPool.queuedPhase
+    )
     StreamStatusView(
-        name: stream.target.name,
+        name: streamViewModel.target.name,
         status: .queued(estimatedWait: nil),
-        backdrop: stream.backdrop,
+        backdrop: streamViewModel.backdrop,
         isXboxButtonTakenBySystem: false,
         onClose: {},
         onTryAgain: {},
@@ -84,11 +86,11 @@ struct StreamStatusView: View {
 }
 
 #Preview("Failed", windowStyle: .plain) {
-    let stream = PreviewObjectPool.streamViewModel(phase: .connecting)
+    let streamViewModel = PreviewObjectPool.streamViewModel(phase: .connecting)
     StreamStatusView(
-        name: stream.target.name,
+        name: streamViewModel.target.name,
         status: .ended(.failed(""), advice: .consoleOffline),
-        backdrop: stream.backdrop,
+        backdrop: streamViewModel.backdrop,
         isXboxButtonTakenBySystem: false,
         onClose: {},
         onTryAgain: {},
@@ -98,11 +100,11 @@ struct StreamStatusView: View {
 }
 
 #Preview("Ended", windowStyle: .plain) {
-    let stream = PreviewObjectPool.streamViewModel(phase: .connecting)
+    let streamViewModel = PreviewObjectPool.streamViewModel(phase: .connecting)
     StreamStatusView(
-        name: stream.target.name,
+        name: streamViewModel.target.name,
         status: .ended(.userStopped, advice: nil),
-        backdrop: stream.backdrop,
+        backdrop: streamViewModel.backdrop,
         isXboxButtonTakenBySystem: false,
         onClose: {},
         onTryAgain: {},

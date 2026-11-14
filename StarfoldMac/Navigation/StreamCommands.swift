@@ -11,19 +11,19 @@ import StreamKit
 import SwiftUI
 
 struct StreamCommands: Commands {
-    @FocusedValue(\.activeStream) private var stream
+    @FocusedValue(\.activeStreamViewModel) private var streamViewModel
     @FocusedValue(\.activePictureInPicture) private var pictureInPicture
-    @Bindable private var settings: SettingsViewModel
+    @Bindable private var settingsViewModel: SettingsViewModel
 
-    private let app: AppViewModel
+    private let appViewModel: AppViewModel
 
     private var isStreaming: Bool {
-        stream?.isStreaming == true
+        streamViewModel?.isStreaming == true
     }
 
-    init(app: AppViewModel) {
-        self.app = app
-        settings = app.settings
+    init(appViewModel: AppViewModel) {
+        self.appViewModel = appViewModel
+        settingsViewModel = appViewModel.settingsViewModel
     }
 
     var body: some Commands {
@@ -36,7 +36,7 @@ struct StreamCommands: Commands {
 
             upscalingToggle
 
-            if settings.canToneMapHDR {
+            if settingsViewModel.canToneMapHDR {
                 toneMappingToggle
             }
 
@@ -60,7 +60,7 @@ struct StreamCommands: Commands {
 
     private var openGuideButton: some View {
         Button(String(localized: "menu.stream.openGuide")) {
-            stream?.openGuide()
+            streamViewModel?.openGuide()
         }
         .keyboardShortcut("g")
         .disabled(!isStreaming)
@@ -69,7 +69,7 @@ struct StreamCommands: Commands {
     private var statisticsToggle: some View {
         Toggle(
             String(localized: "menu.stream.showStatistics"),
-            isOn: $settings.shouldShowStatistics
+            isOn: $settingsViewModel.shouldShowStatistics
         )
         .keyboardShortcut("i")
     }
@@ -81,9 +81,9 @@ struct StreamCommands: Commands {
     }
 
     private func copyStatistics() {
-        guard let stream else { return }
+        guard let streamViewModel else { return }
 
-        let report = stream.statisticsReport(device: device)
+        let report = streamViewModel.statisticsReport(device: device)
 
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(report, forType: .string)
@@ -94,19 +94,24 @@ struct StreamCommands: Commands {
     }
 
     private var upscalingToggle: some View {
-        Toggle(String(localized: "menu.stream.upscaling"), isOn: $settings.isUpscalingEnabled)
+        Toggle(
+            String(localized: "menu.stream.upscaling"),
+            isOn: $settingsViewModel.isUpscalingEnabled
+        )
     }
 
     private var toneMappingToggle: some View {
         Toggle(
             String(localized: "menu.stream.toneMapping"),
-            isOn: $settings.isHDRToneMappingEnabled
+            isOn: $settingsViewModel.isHDRToneMappingEnabled
         )
     }
 
     private var pictureFitMenu: some View {
         Menu(String(localized: "menu.stream.pictureMode")) {
-            ForEach(Array(settings.pictureFits.enumerated()), id: \.element) { index, fit in
+            ForEach(Array(settingsViewModel.pictureFits.enumerated()), id: \.element) {
+                index,
+                fit in
                 Toggle(fit.title, isOn: isSelected(fit))
                     .keyboardShortcut(shortcutKey(at: index), modifiers: [.command, .control])
             }
@@ -115,10 +120,10 @@ struct StreamCommands: Commands {
 
     private func isSelected(_ fit: PictureFit) -> Binding<Bool> {
         .init(
-            get: { settings.pictureFit == fit },
+            get: { settingsViewModel.pictureFit == fit },
             set: { isOn in
                 if isOn {
-                    settings.pictureFit = fit
+                    settingsViewModel.pictureFit = fit
                 }
             }
         )
@@ -126,7 +131,9 @@ struct StreamCommands: Commands {
 
     private var pacingMenu: some View {
         Menu(String(localized: "menu.stream.buffer")) {
-            ForEach(Array(settings.pacingModes.enumerated()), id: \.element) { index, mode in
+            ForEach(Array(settingsViewModel.pacingModes.enumerated()), id: \.element) {
+                index,
+                mode in
                 Toggle(mode.title, isOn: isSelected(mode))
                     .keyboardShortcut(shortcutKey(at: index), modifiers: [.command, .option])
             }
@@ -135,10 +142,10 @@ struct StreamCommands: Commands {
 
     private func isSelected(_ mode: PacingMode) -> Binding<Bool> {
         .init(
-            get: { settings.pacingMode == mode },
+            get: { settingsViewModel.pacingMode == mode },
             set: { isOn in
                 if isOn {
-                    settings.pacingMode = mode
+                    settingsViewModel.pacingMode = mode
                 }
             }
         )
@@ -151,7 +158,7 @@ struct StreamCommands: Commands {
     private var keyboardControllerToggle: some View {
         Toggle(
             String(localized: "menu.stream.keyboardAsController"),
-            isOn: $settings.isKeyboardControllerEnabled
+            isOn: $settingsViewModel.isKeyboardControllerEnabled
         )
         .keyboardShortcut("k", modifiers: [.command, .shift])
     }
@@ -170,7 +177,7 @@ struct StreamCommands: Commands {
 
     private var freshPictureButton: some View {
         Button(String(localized: "menu.stream.requestFreshPicture")) {
-            stream?.requestKeyframe()
+            streamViewModel?.requestKeyframe()
         }
         .keyboardShortcut("r", modifiers: [.command, .option])
         .disabled(!isStreaming)
@@ -179,10 +186,10 @@ struct StreamCommands: Commands {
     private var refreshLibraryButton: some View {
         Button(String(localized: "menu.view.refreshLibrary")) { refreshLibrary() }
             .keyboardShortcut("r")
-            .disabled(app.library == nil)
+            .disabled(appViewModel.libraryViewModel == nil)
     }
 
     private func refreshLibrary() {
-        Task { await app.library?.refresh() }
+        Task { await appViewModel.libraryViewModel?.refresh() }
     }
 }

@@ -37,11 +37,11 @@ enum PreviewObjectPool {
         settingsViewModel(preferences: preferences, controllers: controllers)
     }
 
-    static var touchLayoutEditor: TouchLayoutEditorViewModel? {
+    static var touchLayoutEditorViewModel: TouchLayoutEditorViewModel? {
         let settings = settingsViewModel
         settings.editTouchLayout()
 
-        return settings.touchLayoutEditor
+        return settings.touchLayoutEditorViewModel
     }
 
     static var failedLoadState: LoadState {
@@ -98,7 +98,10 @@ extension PreviewObjectPool {
         return .init(
             accountService: accountService,
             cache: libraryCache,
-            settings: settingsViewModel(preferences: preferences, controllers: controllers),
+            settingsViewModel: settingsViewModel(
+                preferences: preferences,
+                controllers: controllers
+            ),
             streamDependencies: streamDependencies(
                 preferences: preferences,
                 controllers: controllers

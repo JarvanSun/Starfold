@@ -97,7 +97,9 @@ struct StreamViewModelTests {
         stream.start()
 
         // Then
-        #expect(await Eventually().holds { stream.dialogs.queue.map(\.id) == ["save"] })
+        #expect(
+            await Eventually().holds { stream.systemDialogsViewModel.queue.map(\.id) == ["save"] }
+        )
     }
 
     @Test
@@ -117,7 +119,9 @@ struct StreamViewModelTests {
         stream.start()
 
         // Then
-        #expect(await Eventually().holds { stream.dialogs.queue.map(\.id) == ["notice"] })
+        #expect(
+            await Eventually().holds { stream.systemDialogsViewModel.queue.map(\.id) == ["notice"] }
+        )
     }
 
     @Test(arguments: [SoundStage.direct, .window])
@@ -330,7 +334,7 @@ struct StreamViewModelTests {
         service.updates = [.phase(.streaming), .dialog(dialog)]
         let stream = makeStream(service: service)
         stream.start()
-        await Eventually().holds { stream.dialogs.presentedDialog != nil }
+        await Eventually().holds { stream.systemDialogsViewModel.presentedDialog != nil }
 
         // Then
         #expect(!stream.canOpenMenu)

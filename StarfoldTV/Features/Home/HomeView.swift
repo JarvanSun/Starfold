@@ -10,9 +10,9 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var home: HomeViewModel
+    @Bindable var homeViewModel: HomeViewModel
 
-    let library: LibraryViewModel
+    let libraryViewModel: LibraryViewModel
 
     let onBrowse: () -> Void
 
@@ -21,16 +21,16 @@ struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
                     HomeCardRow(
-                        home: home,
-                        library: library,
+                        homeViewModel: homeViewModel,
+                        libraryViewModel: libraryViewModel,
                         cardWidth: cardWidth(in: geometry.size.width),
                         onBrowse: onBrowse
                     )
 
-                    if !library.recentGames.isEmpty {
+                    if !libraryViewModel.recentGames.isEmpty {
                         GameShelf(
                             title: "home.recentlyPlayed.title",
-                            games: library.recentGames,
+                            games: libraryViewModel.recentGames,
                             tileWidth: shelfTileWidth(in: geometry.size.width)
                         )
                     }
@@ -42,9 +42,9 @@ struct HomeView: View {
             .scrollClipDisabled()
         }
         .alert(
-            home.powerProblemTitle,
-            isPresented: $home.isPowerProblemPresented,
-            presenting: home.powerProblem
+            homeViewModel.powerProblemTitle,
+            isPresented: $homeViewModel.isPowerProblemPresented,
+            presenting: homeViewModel.powerProblem
         ) { _ in
             Button("common.ok") {}
         } message: { problem in
@@ -74,16 +74,16 @@ struct HomeView: View {
 #if DEBUG
 #Preview(arguments: [LoadState.loaded, .loading, PreviewObjectPool.failedLoadState]) { state in
     HomeView(
-        home: PreviewObjectPool.homeViewModel(state: state),
-        library: PreviewObjectPool.libraryViewModel(state: state),
+        homeViewModel: PreviewObjectPool.homeViewModel(state: state),
+        libraryViewModel: PreviewObjectPool.libraryViewModel(state: state),
         onBrowse: {}
     )
 }
 
 #Preview("No consoles") {
     HomeView(
-        home: PreviewObjectPool.homeViewModel(consoles: []),
-        library: PreviewObjectPool.libraryViewModel(),
+        homeViewModel: PreviewObjectPool.homeViewModel(consoles: []),
+        libraryViewModel: PreviewObjectPool.libraryViewModel(),
         onBrowse: {}
     )
 }

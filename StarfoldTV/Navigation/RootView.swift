@@ -13,7 +13,7 @@ import TopShelfKit
 import XboxKit
 
 struct RootView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.scenePhase) private var scenePhase
     @State private var streamPresenter: StreamPresenter?
     @State private var selectedTab = RootTab.home
@@ -44,14 +44,16 @@ struct RootView: View {
 
             page(presenter)
         }
-        .sheet(isPresented: $isSignInPresented) { SignInHostView { SignInView(signIn: $0) } }
+        .sheet(isPresented: $isSignInPresented) {
+            SignInHostView { SignInView(signInViewModel: $0) }
+        }
         .fullScreenCover(isPresented: streamCover(presenter, presentationID: presentationID)) {
             stream(presenter)
         }
         .sheet(isPresented: $presenter.isControllerPromptPresented) {
             ControllerPrompt(
                 hasController: presenter.hasController,
-                onCheckAgain: { app.controllers.checkControllers() },
+                onCheckAgain: { appViewModel.controllers.checkControllers() },
                 onPlay: { presenter.startPromptedStream() }
             )
         }
@@ -62,19 +64,19 @@ struct RootView: View {
         } message: {
             Text("signIn.expired.message")
         }
-        .onChange(of: TopShelfSnapshot(app: app), initial: true) { _, snapshot in
+        .onChange(of: TopShelfSnapshot(appViewModel: appViewModel), initial: true) { _, snapshot in
             publish(snapshot)
         }
         .onOpenURL { url in open(url, presenter: presenter) }
-        .onChange(of: app.sessionState) { followPendingLink(presenter) }
+        .onChange(of: appViewModel.sessionState) { followPendingLink(presenter) }
         .onChange(of: scenePhase, initial: true) { _, phase in apply(phase, presenter: presenter) }
     }
 
     @ViewBuilder
     private func page(_ presenter: StreamPresenter) -> some View {
-        switch app.sessionState {
+        switch appViewModel.sessionState {
         case .restoring: LoadingView()
-        case .signedOut: SignInHostView { WelcomeView(signIn: $0) }
+        case .signedOut: SignInHostView { WelcomeView(signInViewModel: $0) }
         case .signedIn: tabs(presenter)
         }
     }
@@ -111,12 +113,12 @@ struct RootView: View {
     private func stream(_ presenter: StreamPresenter) -> some View {
         StreamView(
             presenter: presenter,
-            stream: app.stream,
-            settings: app.settings,
-            controllers: app.controllers
+            streamViewModel: appViewModel.streamViewModel,
+            settingsViewModel: appViewModel.settingsViewModel,
+            controllers: appViewModel.controllers
         )
         .appPalette()
-        .alert("signIn.expired.title", isPresented: Bindable(app).isSignInExpired) {
+        .alert("signIn.expired.title", isPresented: Bindable(appViewModel).isSignInExpired) {
             Button("signIn.expired.signIn") { signInAfterExpiry(presenter) }
 
             Button("common.cancel", role: .cancel) {}
@@ -126,7 +128,7 @@ struct RootView: View {
     }
 
     private func signInAfterExpiry(_ presenter: StreamPresenter) {
-        app.isSignInExpired = false
+        appViewModel.isSignInExpired = false
 
         endStreamAndSignIn(presenter)
     }
@@ -141,8 +143,8 @@ struct RootView: View {
 
     private func signInExpiredAlert(_ presenter: StreamPresenter) -> Binding<Bool> {
         .init(
-            get: { app.isSignInExpired && !presenter.isPresented },
-            set: { app.isSignInExpired = $0 }
+            get: { appViewModel.isSignInExpired && !presenter.isPresented },
+            set: { appViewModel.isSignInExpired = $0 }
         )
     }
 
@@ -159,7 +161,7 @@ struct RootView: View {
     }
 
     private func followPendingLink(_ presenter: StreamPresenter) {
-        guard let link = pendingLink, app.sessionState != .restoring else { return }
+        guard let link = pendingLink, appViewModel.sessionState != .restoring else { return }
 
         pendingLink = nil
 
@@ -167,7 +169,7 @@ struct RootView: View {
     }
 
     private func follow(_ link: TopShelfLink, presenter: StreamPresenter) {
-        guard app.sessionState == .signedIn, !presenter.isPresented else { return }
+        guard appViewModel.sessionState == .signedIn, !presenter.isPresented else { return }
 
         switch link {
         case .game(let id, let name, shouldPlay: true):
@@ -175,7 +177,7 @@ struct RootView: View {
         case .game(let id, _, shouldPlay: false):
             selectedTab = .library
 
-            libraryPath = app.library?.game(id: id).map { [$0] } ?? []
+            libraryPath = appViewModel.libraryViewModel?.game(id: id).map { [$0] } ?? []
         case .console(let id, let name):
             selectedTab = .home
 
@@ -186,7 +188,7 @@ struct RootView: View {
     private func apply(_ phase: ScenePhase, presenter: StreamPresenter) {
         presenter.moveToForeground(phase == .active)
 
-        if phase != .active { app.controllers.routeInput(toGame: false) }
+        if phase != .active { appViewModel.controllers.routeInput(toGame: false) }
 
         if phase == .background { backgroundCleanup.end(presenter) }
     }
@@ -202,8 +204,8 @@ struct RootView: View {
     private func createStreamPresenter() {
         guard streamPresenter == nil else { return }
 
-        let presenter = StreamPresenter(app: app)
-        app.onPlayRequest = { [weak presenter] in presenter?.start($0) }
+        let presenter = StreamPresenter(appViewModel: appViewModel)
+        appViewModel.onPlayRequest = { [weak presenter] in presenter?.start($0) }
         streamPresenter = presenter
     }
 }

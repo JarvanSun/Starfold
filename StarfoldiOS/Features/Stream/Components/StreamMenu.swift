@@ -119,8 +119,8 @@ struct StreamMenu: View {
     let preview = PreviewObjectPool.cloudStreamPreview(phase: .streaming)
 
     StreamMenu(
-        settingsViewModel: preview.settings,
-        streamViewModel: preview.stream,
+        settingsViewModel: preview.settingsViewModel,
+        streamViewModel: preview.streamViewModel,
         onEditTouchControls: {},
         onDisconnect: {}
     )

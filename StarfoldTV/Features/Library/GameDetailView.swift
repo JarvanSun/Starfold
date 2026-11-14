@@ -11,18 +11,18 @@ import SwiftUI
 struct GameDetailView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let detail: GameDetailViewModel
+    let gameDetailViewModel: GameDetailViewModel
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
-                GameHero(artwork: detail.titledHeroArtwork)
+                GameHero(artwork: gameDetailViewModel.titledHeroArtwork)
 
-                GameHeader(detail: detail)
+                GameHeader(gameDetailViewModel: gameDetailViewModel)
 
-                GameAbout(about: detail.about)
+                GameAbout(about: gameDetailViewModel.about)
 
-                GameFacts(facts: detail.facts)
+                GameFacts(facts: gameDetailViewModel.facts)
             }
             .padding(dimensions.spaceHuge)
         }
@@ -32,6 +32,6 @@ struct GameDetailView: View {
 
 #if DEBUG
 #Preview {
-    GameDetailView(detail: PreviewObjectPool.gameDetailViewModel)
+    GameDetailView(gameDetailViewModel: PreviewObjectPool.gameDetailViewModel)
 }
 #endif

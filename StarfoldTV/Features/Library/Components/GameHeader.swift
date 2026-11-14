@@ -11,24 +11,24 @@ import SwiftUI
 struct GameHeader: View {
     @Environment(\.dimensions) private var dimensions
 
-    let detail: GameDetailViewModel
+    let gameDetailViewModel: GameDetailViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
-            Text(detail.name).font(.largeTitle.bold())
+            Text(gameDetailViewModel.name).font(.largeTitle.bold())
 
-            switch detail.publisher {
+            switch gameDetailViewModel.publisher {
             case let publisher?: Text(publisher).foregroundStyle(.secondary)
             case nil: EmptyView()
             }
 
             HStack(spacing: dimensions.spaceXXLarge) {
-                Button("game.play") { detail.play() }.buttonStyle(.borderedProminent)
+                Button("game.play") { gameDetailViewModel.play() }.buttonStyle(.borderedProminent)
 
                 Button {
-                    detail.toggleFavorite()
+                    gameDetailViewModel.toggleFavorite()
                 } label: {
-                    Text(detail.favoriteAction.title)
+                    Text(gameDetailViewModel.favoriteAction.title)
                 }
             }
         }
@@ -37,6 +37,6 @@ struct GameHeader: View {
 
 #if DEBUG
 #Preview {
-    GameHeader(detail: PreviewObjectPool.gameDetailViewModel)
+    GameHeader(gameDetailViewModel: PreviewObjectPool.gameDetailViewModel)
 }
 #endif

@@ -15,7 +15,7 @@ struct StreamCoverView: View {
 
     @ViewBuilder
     var body: some View {
-        switch appViewModel.stream {
+        switch appViewModel.streamViewModel {
         case let streamViewModel?: streamView(streamViewModel)
         case nil: noStream
         }
@@ -24,7 +24,7 @@ struct StreamCoverView: View {
     private func streamView(_ streamViewModel: StreamViewModel) -> some View {
         StreamView(
             streamViewModel: streamViewModel,
-            settingsViewModel: appViewModel.settings,
+            settingsViewModel: appViewModel.settingsViewModel,
             controllers: appViewModel.controllers
         ) {
             dismiss()

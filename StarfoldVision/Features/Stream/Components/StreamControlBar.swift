@@ -12,9 +12,9 @@ import SwiftUI
 struct StreamControlBar: View {
     @Environment(\.dimensions) private var dimensions
     @State private var isShowingOptions = false
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
-    let stream: StreamViewModel
+    let streamViewModel: StreamViewModel
 
     let onDisconnect: () -> Void
 
@@ -39,14 +39,14 @@ struct StreamControlBar: View {
 
     private var guideButton: some View {
         Button {
-            stream.openGuide()
+            streamViewModel.openGuide()
         } label: {
             Label("stream.controls.guide", systemImage: "logo.xbox")
         }
     }
 
     private var statisticsToggle: some View {
-        Toggle(isOn: $settings.shouldShowStatistics) {
+        Toggle(isOn: $settingsViewModel.shouldShowStatistics) {
             Label("stream.controls.statistics", systemImage: "chart.bar.xaxis")
         }
     }
@@ -58,7 +58,7 @@ struct StreamControlBar: View {
             Label("stream.controls.options", systemImage: "slider.horizontal.3")
         }
         .popover(isPresented: $isShowingOptions, arrowEdge: .bottom) {
-            StreamOptionsView(settings: settings)
+            StreamOptionsView(settingsViewModel: settingsViewModel)
         }
     }
 
@@ -76,8 +76,8 @@ struct StreamControlBar: View {
     let preview = PreviewObjectPool.streamPreview(phase: .streaming)
 
     StreamControlBar(
-        settings: preview.settings,
-        stream: preview.stream
+        settingsViewModel: preview.settingsViewModel,
+        streamViewModel: preview.streamViewModel
     ) {}
 }
 #endif

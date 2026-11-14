@@ -19,12 +19,12 @@ struct AppViewModelTests {
         let harness = AppHarness()
 
         // When
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // Then
-        #expect(harness.app.sessionState == .signedOut)
-        #expect(harness.app.home == nil)
-        #expect(harness.app.library == nil)
+        #expect(harness.appViewModel.sessionState == .signedOut)
+        #expect(harness.appViewModel.homeViewModel == nil)
+        #expect(harness.appViewModel.libraryViewModel == nil)
     }
 
     @Test
@@ -33,12 +33,12 @@ struct AppViewModelTests {
         let harness = makeHarness(accounts: ["1111": "First", "2222": "Second"], lastUsed: "2222")
 
         // When
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // Then
-        #expect(harness.app.sessionState == .signedIn)
-        #expect(harness.app.activeAccountID == "2222")
-        #expect(Set(harness.app.accounts.map(\.gamertag)) == ["First", "Second"])
+        #expect(harness.appViewModel.sessionState == .signedIn)
+        #expect(harness.appViewModel.activeAccountID == "2222")
+        #expect(Set(harness.appViewModel.accounts.map(\.gamertag)) == ["First", "Second"])
     }
 
     @Test
@@ -47,13 +47,13 @@ struct AppViewModelTests {
         let harness = makeHarness(accounts: ["2535": "old-name"])
 
         // When
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // Then
-        #expect(await Eventually().holds { harness.app.profile != nil })
-        #expect(harness.app.profile?.gamerscore == 5865)
-        #expect(harness.app.accounts.first?.gamertag == "NovaPilot")
-        #expect(harness.app.signedInGamertag == "NovaPilot")
+        #expect(await Eventually().holds { harness.appViewModel.profile != nil })
+        #expect(harness.appViewModel.profile?.gamerscore == 5865)
+        #expect(harness.appViewModel.accounts.first?.gamertag == "NovaPilot")
+        #expect(harness.appViewModel.signedInGamertag == "NovaPilot")
     }
 
     @Test
@@ -63,10 +63,10 @@ struct AppViewModelTests {
         harness.accountService.profile = .failure(XboxAccountError.signInRequired)
 
         // When
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // Then
-        #expect(await Eventually().holds { harness.app.isSignInExpired })
+        #expect(await Eventually().holds { harness.appViewModel.isSignInExpired })
     }
 
     @Test
@@ -87,13 +87,21 @@ struct AppViewModelTests {
         ]
 
         // When
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // Then
-        #expect(await Eventually().holds { harness.app.home?.consolesState == .loaded })
-        #expect(await Eventually().holds { harness.app.library?.cloudState == .loaded })
-        #expect(harness.app.home?.consoles.map(\.name) == ["Living room"])
-        #expect(harness.app.library?.games.count == 2)
+        #expect(
+            await Eventually().holds {
+                harness.appViewModel.homeViewModel?.consolesState == .loaded
+            }
+        )
+        #expect(
+            await Eventually().holds {
+                harness.appViewModel.libraryViewModel?.cloudState == .loaded
+            }
+        )
+        #expect(harness.appViewModel.homeViewModel?.consoles.map(\.name) == ["Living room"])
+        #expect(harness.appViewModel.libraryViewModel?.games.count == 2)
     }
 
     @Test
@@ -115,33 +123,37 @@ struct AppViewModelTests {
                 )
             )
         ]
-        let prompt = try await harness.app.beginSignIn()
+        let prompt = try await harness.appViewModel.beginSignIn()
 
         // When
-        try await harness.app.completeSignIn(prompt)
+        try await harness.appViewModel.completeSignIn(prompt)
 
         // Then
-        #expect(harness.app.sessionState == .signedIn)
-        #expect(harness.app.activeAccountID == "2535")
-        #expect(await Eventually().holds { harness.app.home?.consolesState == .loading })
-        #expect(harness.app.library?.cloudState == .loading)
+        #expect(harness.appViewModel.sessionState == .signedIn)
+        #expect(harness.appViewModel.activeAccountID == "2535")
+        #expect(
+            await Eventually().holds {
+                harness.appViewModel.homeViewModel?.consolesState == .loading
+            }
+        )
+        #expect(harness.appViewModel.libraryViewModel?.cloudState == .loading)
     }
 
     @Test
     func switchAccountThenReplacesHomeAndLibraryAndRemembersAccount() async {
         // Given
         let harness = makeHarness(accounts: ["1111": "First", "2222": "Second"], lastUsed: "1111")
-        await harness.app.restore()
-        let firstHome = harness.app.home
-        let firstLibrary = harness.app.library
+        await harness.appViewModel.restore()
+        let firstHome = harness.appViewModel.homeViewModel
+        let firstLibrary = harness.appViewModel.libraryViewModel
 
         // When
-        await harness.app.switchAccount(to: "2222")
+        await harness.appViewModel.switchAccount(to: "2222")
 
         // Then
-        #expect(harness.app.activeAccountID == "2222")
-        #expect(harness.app.home !== firstHome)
-        #expect(harness.app.library !== firstLibrary)
+        #expect(harness.appViewModel.activeAccountID == "2222")
+        #expect(harness.appViewModel.homeViewModel !== firstHome)
+        #expect(harness.appViewModel.libraryViewModel !== firstLibrary)
         #expect(harness.preferences.lastAccountID == "2222")
     }
 
@@ -149,14 +161,14 @@ struct AppViewModelTests {
     func signOutWhenAnotherAccountIsSavedThenSwitchesToIt() async {
         // Given
         let harness = makeHarness(accounts: ["1111": "First", "2222": "Second"], lastUsed: "1111")
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // When
-        harness.app.signOut()
+        harness.appViewModel.signOut()
 
         // Then
-        #expect(harness.app.activeAccountID == "2222")
-        #expect(harness.app.sessionState == .signedIn)
+        #expect(harness.appViewModel.activeAccountID == "2222")
+        #expect(harness.appViewModel.sessionState == .signedIn)
         #expect(harness.accountService.signedOutIDs == ["1111"])
     }
 
@@ -164,15 +176,15 @@ struct AppViewModelTests {
     func signOutWhenLastAccountThenShowsWelcome() async {
         // Given
         let harness = makeHarness(accounts: ["1111": "First"])
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // When
-        harness.app.signOut()
+        harness.appViewModel.signOut()
 
         // Then
-        #expect(harness.app.sessionState == .signedOut)
-        #expect(harness.app.home == nil)
-        #expect(harness.app.library == nil)
+        #expect(harness.appViewModel.sessionState == .signedOut)
+        #expect(harness.appViewModel.homeViewModel == nil)
+        #expect(harness.appViewModel.libraryViewModel == nil)
         #expect(harness.accountService.savedAccounts.isEmpty)
     }
 
@@ -181,13 +193,15 @@ struct AppViewModelTests {
         // Given
         let streams = StreamServiceStub()
         let harness = makeHarness(streams: streams, phase: .streaming)
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // When
-        await harness.app.play(livingRoom)
+        await harness.appViewModel.play(livingRoom)
 
         // Then
-        #expect(await Eventually().holds { harness.app.stream?.isStreaming == true })
+        #expect(
+            await Eventually().holds { harness.appViewModel.streamViewModel?.isStreaming == true }
+        )
         #expect(streams.connectedTargets == [livingRoom])
     }
 
@@ -195,13 +209,13 @@ struct AppViewModelTests {
     func playThenRequestsStreamPresentation() async {
         // Given
         let harness = makeHarness(streams: StreamServiceStub(), phase: .streaming)
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // When
-        await harness.app.play(livingRoom)
+        await harness.appViewModel.play(livingRoom)
 
         // Then
-        #expect(harness.app.streamPresentationRequest == 1)
+        #expect(harness.appViewModel.streamPresentationRequest == 1)
     }
 
     @Test
@@ -209,14 +223,14 @@ struct AppViewModelTests {
         // Given
         let streams = StreamServiceStub()
         let harness = makeHarness(streams: streams, phase: .streaming)
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // When
-        harness.app.home?.play(.dummyLivingRoom(powerState: .on))
+        harness.appViewModel.homeViewModel?.play(.dummyLivingRoom(powerState: .on))
 
         // Then
         #expect(await Eventually().holds { streams.connectedTargets == [livingRoom] })
-        #expect(harness.app.streamPresentationRequest == 1)
+        #expect(harness.appViewModel.streamPresentationRequest == 1)
     }
 
     @Test
@@ -224,29 +238,29 @@ struct AppViewModelTests {
         // Given
         let streams = StreamServiceStub()
         let harness = makeHarness(streams: streams, phase: .streaming)
-        await harness.app.restore()
+        await harness.appViewModel.restore()
         var requested: [StreamTarget] = []
-        harness.app.onPlayRequest = { requested.append($0) }
+        harness.appViewModel.onPlayRequest = { requested.append($0) }
 
         // When
-        harness.app.library?.play(.dummyZetaQuest)
+        harness.appViewModel.libraryViewModel?.play(.dummyZetaQuest)
 
         // Then
         #expect(requested == [.cloud(titleID: "ALPHA", name: "Zeta Quest")])
-        #expect(harness.app.stream == nil)
+        #expect(harness.appViewModel.streamViewModel == nil)
     }
 
     @Test
     func playWhenSameTargetIsStreamingThenKeepsStreamAndRequestsPresentationAgain() async {
         // Given
         let app = await makeApp(streaming: livingRoom, phase: .streaming)
-        let running = app.stream
+        let running = app.streamViewModel
 
         // When
         await app.play(livingRoom)
 
         // Then
-        #expect(app.stream === running)
+        #expect(app.streamViewModel === running)
         #expect(app.streamPresentationRequest == 2)
     }
 
@@ -254,26 +268,26 @@ struct AppViewModelTests {
     func playWhenAnotherTargetReplacesRunningStreamThenRequestsPresentationAgain() async {
         // Given
         let app = await makeApp(streaming: livingRoom, phase: .streaming)
-        let running = app.stream
+        let running = app.streamViewModel
 
         // When
         await app.play(.cloud(titleID: "STARFALL", name: "Starfall"))
 
         // Then
-        #expect(app.stream !== running)
+        #expect(app.streamViewModel !== running)
         #expect(app.streamPresentationRequest == 2)
     }
 
     @Test
     func playWhenSignedOutThenRequestsNoPresentation() async {
         // Given
-        let app = AppHarness().app
+        let app = AppHarness().appViewModel
 
         // When
         await app.play(livingRoom)
 
         // Then
-        #expect(app.stream == nil)
+        #expect(app.streamViewModel == nil)
         #expect(app.streamPresentationRequest == 0)
     }
 
@@ -281,17 +295,17 @@ struct AppViewModelTests {
     func restartStreamWhenTargetIsUnchangedThenStartsNewStream() async {
         // Given
         let harness = makeHarness(streams: StreamServiceStub(), phase: .streaming)
-        await harness.app.restore()
-        await harness.app.play(livingRoom)
-        let running = harness.app.stream
+        await harness.appViewModel.restore()
+        await harness.appViewModel.play(livingRoom)
+        let running = harness.appViewModel.streamViewModel
 
         // When
-        await harness.app.restartStream()
+        await harness.appViewModel.restartStream()
 
         // Then
-        #expect(harness.app.stream !== running)
-        #expect(harness.app.stream?.target == livingRoom)
-        #expect(harness.app.streamPresentationRequest == 1)
+        #expect(harness.appViewModel.streamViewModel !== running)
+        #expect(harness.appViewModel.streamViewModel?.target == livingRoom)
+        #expect(harness.appViewModel.streamPresentationRequest == 1)
     }
 
     @Test(arguments: [
@@ -329,7 +343,7 @@ struct AppViewModelTests {
     @Test
     func needsNewStreamWhenNothingIsStreamingThenIsTrue() {
         // Given
-        let app = AppHarness().app
+        let app = AppHarness().appViewModel
 
         // When / Then
         #expect(app.needsNewStream(for: livingRoom))
@@ -363,9 +377,9 @@ private extension AppViewModelTests {
 
     func makeApp(streaming target: StreamTarget, phase: StreamPhase) async -> AppViewModel {
         let harness = makeHarness(streams: StreamServiceStub(), phase: phase)
-        await harness.app.restore()
-        await harness.app.play(target)
-        await Eventually().holds { harness.app.stream?.phase == phase }
-        return harness.app
+        await harness.appViewModel.restore()
+        await harness.appViewModel.play(target)
+        await Eventually().holds { harness.appViewModel.streamViewModel?.phase == phase }
+        return harness.appViewModel
     }
 }

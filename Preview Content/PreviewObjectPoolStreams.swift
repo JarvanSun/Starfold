@@ -124,7 +124,7 @@ extension PreviewObjectPool {
     }
 
     static var messageDialogButtons: [DialogButton] {
-        streamViewModel(phase: .streaming).dialogs.buttons(of: messageDialog)
+        streamViewModel(phase: .streaming).systemDialogsViewModel.buttons(of: messageDialog)
     }
 
     static var textPromptTitle: String {
@@ -190,13 +190,13 @@ private extension PreviewObjectPool {
         let controllers = Self.controllers
 
         return .init(
-            stream: streamViewModel(
+            streamViewModel: streamViewModel(
                 target: target,
                 backdrop: backdrop,
                 service: service,
                 dependencies: streamDependencies(preferences: preferences, controllers: controllers)
             ),
-            settings: settingsViewModel(preferences: preferences, controllers: controllers)
+            settingsViewModel: settingsViewModel(preferences: preferences, controllers: controllers)
         )
     }
 

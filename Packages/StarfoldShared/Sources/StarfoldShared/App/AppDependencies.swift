@@ -37,7 +37,7 @@ public struct AppDependencies {
         return .init(
             accountService: accountService,
             cache: .init(directory: savedLibrariesDirectory),
-            settings: .init(
+            settingsViewModel: .init(
                 preferences: preferences,
                 controllers: controllers,
                 platform: streamPlatform,

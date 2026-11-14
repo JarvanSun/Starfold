@@ -18,8 +18,8 @@ public final class StreamViewModel {
     public let target: StreamTarget
     public let backdrop: StreamBackdrop
     public let renderer: StreamRenderer?
-    public let dialogs = SystemDialogsViewModel()
-    public let touchControls: TouchControlsViewModel?
+    public let systemDialogsViewModel = SystemDialogsViewModel()
+    public let touchControlsViewModel: TouchControlsViewModel?
 
     public var onStop: () -> Void = {}
     public var onEnd: () -> Void = {}
@@ -93,11 +93,11 @@ public final class StreamViewModel {
     }
 
     public var canOpenMenu: Bool {
-        isStreaming && dialogs.queue.isEmpty
+        isStreaming && systemDialogsViewModel.queue.isEmpty
     }
 
     public var isPlayable: Bool {
-        !isWaitingForPicture && dialogs.queue.isEmpty && hasInput
+        !isWaitingForPicture && systemDialogsViewModel.queue.isEmpty && hasInput
     }
 
     public var needsController: Bool {
@@ -109,11 +109,12 @@ public final class StreamViewModel {
     }
 
     public var isShowingMenuHandle: Bool {
-        isStreaming && !isMenuOpen && (areControlsRevealed || touchControls?.isShowing == true)
+        isStreaming && !isMenuOpen
+            && (areControlsRevealed || touchControlsViewModel?.isShowing == true)
     }
 
     public var isShowingTouchControls: Bool {
-        isStreaming && hasFirstFrame && !isMenuOpen && touchControls?.isShowing == true
+        isStreaming && hasFirstFrame && !isMenuOpen && touchControlsViewModel?.isShowing == true
     }
 
     public var isRoutingInputToGame: Bool {
@@ -179,7 +180,7 @@ public final class StreamViewModel {
         self.service = service
         self.dependencies = dependencies
         renderer = StreamRenderer(keepsLastFrame: dependencies.picture.shouldKeepLastFrame)
-        touchControls = dependencies.touch.map { _ in
+        touchControlsViewModel = dependencies.touch.map { _ in
             .init(controllers: dependencies.controllers, preferences: dependencies.preferences)
         }
 
@@ -283,7 +284,7 @@ public final class StreamViewModel {
             }
         }
 
-        dialogs.attach(connection)
+        systemDialogsViewModel.attach(connection)
 
         wireInput(to: connection)
 
@@ -303,25 +304,32 @@ public final class StreamViewModel {
         switch update {
         case .phase(let phase): apply(phase)
         case .statistics(let statistics): apply(statistics)
-        case .dialog(let request): dialogs.add(request)
-        case .dialogDismissed(let id): dialogs.remove(id: id)
+        case .dialog(let request): systemDialogsViewModel.add(request)
+        case .dialogDismissed(let id): systemDialogsViewModel.remove(id: id)
         case .vibration(let effect): play(effect)
         case .videoSize: break
-        case .touchControls(let command): touchControls?.apply(command)
+        case .touchControls(let command): touchControlsViewModel?.apply(command)
         case .runningTitle(let title): loadTouchLayouts(for: title)
         }
     }
 
     private func loadTouchLayouts(for title: RunningTitle) {
-        guard let touchControls, title.isFocused, title.titleID != touchTitleID else { return }
+        guard let touchControlsViewModel, title.isFocused, title.titleID != touchTitleID else {
+            return
+        }
 
         touchTitleID = title.titleID
-        touchControls.clearTitle()
+        touchControlsViewModel.clearTitle()
         touchBundleTask?.cancel()
-        touchBundleTask = Task { await loadTouchBundle(for: title.titleID, into: touchControls) }
+        touchBundleTask = Task {
+            await loadTouchBundle(for: title.titleID, into: touchControlsViewModel)
+        }
     }
 
-    private func loadTouchBundle(for titleID: String, into touchControls: TouchControlsViewModel)
+    private func loadTouchBundle(
+        for titleID: String,
+        into touchControlsViewModel: TouchControlsViewModel
+    )
         async
     {
         do {
@@ -329,7 +337,7 @@ public final class StreamViewModel {
                 !Task.isCancelled
             else { return }
 
-            touchControls.load(bundle)
+            touchControlsViewModel.load(bundle)
 
             await connection?.announceTouchBundle(
                 version: bundle.manifest.version,
@@ -532,7 +540,7 @@ public final class StreamViewModel {
     }
 
     private var isAcceptingKeyboard: Bool {
-        !isMenuOpen && dialogs.queue.isEmpty
+        !isMenuOpen && systemDialogsViewModel.queue.isEmpty
     }
 
     public func releaseKeyboard() {

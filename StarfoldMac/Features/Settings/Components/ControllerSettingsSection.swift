@@ -10,29 +10,32 @@ import StreamKit
 import SwiftUI
 
 struct ControllerSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section(String(localized: "settings.controls.controllers.title")) {
-            if settings.isControllerMissing {
+            if settingsViewModel.isControllerMissing {
                 Text("settings.controls.controllers.empty")
                     .foregroundStyle(.secondary)
             }
 
-            ForEach(settings.connectedControllers) { row(for: $0) }
+            ForEach(settingsViewModel.connectedControllers) { row(for: $0) }
 
-            if settings.isXboxButtonTakenBySystem {
+            if settingsViewModel.isXboxButtonTakenBySystem {
                 xboxButtonRow
             }
 
-            Toggle(String(localized: "settings.controls.rumble"), isOn: $settings.isRumbleEnabled)
+            Toggle(
+                String(localized: "settings.controls.rumble"),
+                isOn: $settingsViewModel.isRumbleEnabled
+            )
         }
     }
 
     private var xboxButtonRow: some View {
         LabeledContent {
             Button(String(localized: "settings.controls.xboxButton.openSettings")) {
-                settings.openXboxButtonSettings()
+                settingsViewModel.openXboxButtonSettings()
             }
         } label: {
             Text("settings.controls.xboxButton.title")
@@ -41,8 +44,11 @@ struct ControllerSettingsSection: View {
     }
 
     private func row(for controller: ConnectedController) -> some View {
-        ControllerRow(name: controller.name, playerNumber: settings.playerNumber(of: controller)) {
-            settings.testRumble(on: controller)
+        ControllerRow(
+            name: controller.name,
+            playerNumber: settingsViewModel.playerNumber(of: controller)
+        ) {
+            settingsViewModel.testRumble(on: controller)
         }
     }
 }
@@ -50,7 +56,7 @@ struct ControllerSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        ControllerSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        ControllerSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
     .formStyle(.grouped)
 }

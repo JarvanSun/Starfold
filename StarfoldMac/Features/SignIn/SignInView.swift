@@ -13,7 +13,7 @@ struct SignInView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dimensions) private var dimensions
 
-    let signIn: SignInViewModel
+    let signInViewModel: SignInViewModel
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,20 +21,20 @@ struct SignInView: View {
 
             Divider().opacity(0.4)
 
-            SignInPanel(step: signIn.step, onRetry: { signIn.retry() })
+            SignInPanel(step: signInViewModel.step, onRetry: { signInViewModel.retry() })
                 .padding(dimensions.spaceXXLarge)
         }
         .frame(width: dimensions.signInSheetWidth)
         .background(palette.night.color)
         .preferredColorScheme(.dark)
-        .task(id: signIn.attempt) { await signIn.run() }
-        .onChange(of: signIn.shouldClose) { dismiss() }
+        .task(id: signInViewModel.attempt) { await signInViewModel.run() }
+        .onChange(of: signInViewModel.shouldClose) { dismiss() }
     }
 }
 
 #if DEBUG
 @available(macOS 27, *)
 #Preview("Sign-in sheet", arguments: PreviewObjectPool.signInPhases) { phase in
-    SignInView(signIn: PreviewObjectPool.signInViewModel(phase: phase))
+    SignInView(signInViewModel: PreviewObjectPool.signInViewModel(phase: phase))
 }
 #endif

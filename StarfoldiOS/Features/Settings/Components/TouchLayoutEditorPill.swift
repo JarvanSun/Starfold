@@ -86,7 +86,7 @@ struct TouchLayoutEditorPill: View {
 
 #if DEBUG
 #Preview {
-    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditor {
+    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditorViewModel {
         TouchLayoutEditorPill(touchLayoutEditorViewModel: touchLayoutEditorViewModel, selected: nil)
             .padding()
             .background(.black)

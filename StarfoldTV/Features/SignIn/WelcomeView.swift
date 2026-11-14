@@ -11,28 +11,28 @@ import SwiftUI
 struct WelcomeView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let signIn: SignInViewModel
+    let signInViewModel: SignInViewModel
 
     var body: some View {
         HStack(spacing: dimensions.spaceHuge) {
-            WelcomePitch(features: signIn.welcomeFeatures)
+            WelcomePitch(features: signInViewModel.welcomeFeatures)
                 .frame(maxWidth: dimensions.welcomeIntroductionMaximumWidth, alignment: .leading)
 
             Spacer(minLength: 0)
 
-            WelcomeSignInCard(step: signIn.step, onRetry: { signIn.retry() })
+            WelcomeSignInCard(step: signInViewModel.step, onRetry: { signInViewModel.retry() })
         }
         .padding(.horizontal, dimensions.spaceXXXLarge)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottomLeading) { WelcomeTrademark() }
-        .task(id: signIn.attempt) { await signIn.run() }
+        .task(id: signInViewModel.attempt) { await signInViewModel.run() }
     }
 }
 
 #if DEBUG
 #Preview {
     WelcomeView(
-        signIn: PreviewObjectPool.signInViewModel(
+        signInViewModel: PreviewObjectPool.signInViewModel(
             phase: .waiting(PreviewObjectPool.deviceCodePrompt)
         )
     )

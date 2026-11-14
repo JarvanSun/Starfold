@@ -13,13 +13,13 @@ struct StreamView: View {
     @Environment(\.dimensions) private var dimensions
     @Bindable var presenter: StreamPresenter
 
-    let stream: StreamViewModel?
-    let settings: SettingsViewModel
+    let streamViewModel: StreamViewModel?
+    let settingsViewModel: SettingsViewModel
     let controllers: ControllerHub
 
     var body: some View {
         StreamHost(
-            isRawInputEnabled: presenter.isRawInputEnabled(for: stream),
+            isRawInputEnabled: presenter.isRawInputEnabled(for: streamViewModel),
             onRemoteBack: { goBack() },
             onRemotePlayPause: { openMenu() }
         ) {
@@ -27,8 +27,8 @@ struct StreamView: View {
                 Color.black
                     .ignoresSafeArea()
 
-                switch stream {
-                case let stream?: layers(of: stream)
+                switch streamViewModel {
+                case let streamViewModel?: layers(of: streamViewModel)
                 case nil: StreamPreparingStatus()
                 }
 
@@ -42,7 +42,9 @@ struct StreamView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
-        .onChange(of: presenter.isRawInputEnabled(for: stream), initial: true) { _, isEnabled in
+        .onChange(of: presenter.isRawInputEnabled(for: streamViewModel), initial: true) {
+            _,
+            isEnabled in
             controllers.routeInput(toGame: isEnabled)
         }
         .onDisappear { controllers.routeInput(toGame: false) }
@@ -55,30 +57,30 @@ struct StreamView: View {
     }
 
     private func openMenu() {
-        presenter.openMenu(for: stream)
+        presenter.openMenu(for: streamViewModel)
     }
 
     @ViewBuilder
-    private func layers(of stream: StreamViewModel) -> some View {
-        StreamPicture(renderer: stream.renderer, isVisible: stream.hasFirstFrame)
+    private func layers(of streamViewModel: StreamViewModel) -> some View {
+        StreamPicture(renderer: streamViewModel.renderer, isVisible: streamViewModel.hasFirstFrame)
 
-        if stream.isWaitingForPicture {
+        if streamViewModel.isWaitingForPicture {
             StreamStatusView(
-                name: stream.target.name,
-                status: stream.status,
+                name: streamViewModel.target.name,
+                status: streamViewModel.status,
                 onRetry: { restart() },
                 onEnd: { end() }
             )
         }
 
-        if stream.isShowingStatistics {
-            StreamStatisticsView(readout: stream.statisticsReadout)
+        if streamViewModel.isShowingStatistics {
+            StreamStatisticsView(readout: streamViewModel.statisticsReadout)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .padding(dimensions.spaceHuge)
                 .allowsHitTesting(false)
         }
 
-        if stream.needsController {
+        if streamViewModel.needsController {
             ControllerMissingStatus(onCheckAgain: { controllers.checkControllers() })
         }
     }
@@ -93,23 +95,30 @@ struct StreamView: View {
 
     @ViewBuilder
     private var menu: some View {
-        switch stream {
-        case let stream?:
-            StreamMenuView(settings: settings, stream: stream, onDisconnect: { end() })
+        switch streamViewModel {
+        case let streamViewModel?:
+            StreamMenuView(
+                settingsViewModel: settingsViewModel,
+                streamViewModel: streamViewModel,
+                onDisconnect: { end() }
+            )
         case nil: EmptyView()
         }
     }
 
     private var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream?.dialogs.presentedDialog }, set: { _ in })
+        .init(get: { streamViewModel?.systemDialogsViewModel.presentedDialog }, set: { _ in })
     }
 
     @ViewBuilder
     private func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
-        switch stream {
-        case let stream?:
-            SystemDialogView(dialogs: stream.dialogs, dialog: dialog)
-                .interactiveDismissDisabled()
+        switch streamViewModel {
+        case let streamViewModel?:
+            SystemDialogView(
+                systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
+                dialog: dialog
+            )
+            .interactiveDismissDisabled()
         case nil: EmptyView()
         }
     }
@@ -128,9 +137,9 @@ struct StreamView: View {
 ) { phase in
     let app = PreviewObjectPool.appViewModel(signedIn: true)
     StreamView(
-        presenter: StreamPresenter(app: app),
-        stream: PreviewObjectPool.streamViewModel(phase: phase),
-        settings: app.settings,
+        presenter: StreamPresenter(appViewModel: app),
+        streamViewModel: PreviewObjectPool.streamViewModel(phase: phase),
+        settingsViewModel: app.settingsViewModel,
         controllers: app.controllers
     )
 }
@@ -138,9 +147,9 @@ struct StreamView: View {
 #Preview("Preparing") {
     let app = PreviewObjectPool.appViewModel(signedIn: true)
     StreamView(
-        presenter: StreamPresenter(app: app),
-        stream: nil,
-        settings: app.settings,
+        presenter: StreamPresenter(appViewModel: app),
+        streamViewModel: nil,
+        settingsViewModel: app.settingsViewModel,
         controllers: app.controllers
     )
 }

@@ -12,9 +12,9 @@ import SwiftUI
 
 struct StreamControlBar: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
-    let stream: StreamViewModel
+    let streamViewModel: StreamViewModel
     let pictureInPicture: StreamPictureInPicture?
     let isFullScreen: Bool
 
@@ -27,7 +27,7 @@ struct StreamControlBar: View {
 
                 statisticsToggle
 
-                PictureMenu(settings: settings, stream: stream)
+                PictureMenu(settingsViewModel: settingsViewModel, streamViewModel: streamViewModel)
 
                 switch pictureInPicture {
                 case let pictureInPicture?: pictureInPictureButton(pictureInPicture)
@@ -47,7 +47,7 @@ struct StreamControlBar: View {
 
     private var guideButton: some View {
         Button {
-            stream.openGuide()
+            streamViewModel.openGuide()
         } label: {
             Label(String(localized: "stream.controlBar.guide.label"), systemImage: "logo.xbox")
         }
@@ -55,7 +55,7 @@ struct StreamControlBar: View {
     }
 
     private var statisticsToggle: some View {
-        Toggle(isOn: $settings.shouldShowStatistics) {
+        Toggle(isOn: $settingsViewModel.shouldShowStatistics) {
             Label(
                 String(localized: "stream.controlBar.statistics.label"),
                 systemImage: "chart.bar.xaxis"
@@ -122,15 +122,15 @@ struct StreamControlBar: View {
 
     VStack {
         StreamControlBar(
-            settings: preview.settings,
-            stream: preview.stream,
+            settingsViewModel: preview.settingsViewModel,
+            streamViewModel: preview.streamViewModel,
             pictureInPicture: nil,
             isFullScreen: false
         ) {}
 
         StreamControlBar(
-            settings: preview.settings,
-            stream: preview.stream,
+            settingsViewModel: preview.settingsViewModel,
+            streamViewModel: preview.streamViewModel,
             pictureInPicture: nil,
             isFullScreen: true
         ) {}

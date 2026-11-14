@@ -11,14 +11,14 @@ import SwiftUI
 
 struct PictureMenu: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var settings: SettingsViewModel
-    @Bindable var stream: StreamViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
+    @Bindable var streamViewModel: StreamViewModel
 
     var body: some View {
         Menu {
             upscalingToggle
 
-            if settings.canToneMapHDR {
+            if settingsViewModel.canToneMapHDR {
                 toneMappingToggle
             }
 
@@ -41,23 +41,23 @@ struct PictureMenu: View {
     private var upscalingToggle: some View {
         Toggle(
             String(localized: "stream.controlBar.picture.upscaling"),
-            isOn: $settings.isUpscalingEnabled
+            isOn: $settingsViewModel.isUpscalingEnabled
         )
     }
 
     private var toneMappingToggle: some View {
         Toggle(
             String(localized: "stream.controlBar.picture.toneMapping"),
-            isOn: $settings.isHDRToneMappingEnabled
+            isOn: $settingsViewModel.isHDRToneMappingEnabled
         )
     }
 
     private var pictureFitPicker: some View {
         Picker(
             String(localized: "stream.controlBar.picture.pictureMode"),
-            selection: $settings.pictureFit
+            selection: $settingsViewModel.pictureFit
         ) {
-            ForEach(settings.pictureFits, id: \.self) { fit in
+            ForEach(settingsViewModel.pictureFits, id: \.self) { fit in
                 Text(fit.title).tag(fit)
             }
         }
@@ -66,9 +66,9 @@ struct PictureMenu: View {
     private var sharpeningPicker: some View {
         Picker(
             String(localized: "stream.controlBar.picture.sharpening.title"),
-            selection: $stream.sharpeningLevel
+            selection: $streamViewModel.sharpeningLevel
         ) {
-            ForEach(stream.sharpeningLevels, id: \.self) { level in
+            ForEach(streamViewModel.sharpeningLevels, id: \.self) { level in
                 Text(level.title).tag(level)
             }
         }
@@ -77,9 +77,9 @@ struct PictureMenu: View {
     private var pacingPicker: some View {
         Picker(
             String(localized: "stream.controlBar.picture.buffer"),
-            selection: $settings.pacingMode
+            selection: $settingsViewModel.pacingMode
         ) {
-            ForEach(settings.pacingModes, id: \.self) { mode in
+            ForEach(settingsViewModel.pacingModes, id: \.self) { mode in
                 Text(mode.title).tag(mode)
             }
         }
@@ -91,8 +91,8 @@ struct PictureMenu: View {
     let preview = PreviewObjectPool.streamPreview(phase: .streaming)
 
     PictureMenu(
-        settings: preview.settings,
-        stream: preview.stream
+        settingsViewModel: preview.settingsViewModel,
+        streamViewModel: preview.streamViewModel
     )
     .padding()
     .background(.black)

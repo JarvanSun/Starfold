@@ -12,9 +12,9 @@ import SwiftUI
 struct StreamMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dimensions) private var dimensions
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
-    let stream: StreamViewModel
+    let streamViewModel: StreamViewModel
 
     let onDisconnect: () -> Void
 
@@ -26,17 +26,17 @@ struct StreamMenuView: View {
                 row("stream.menu.guide", symbol: "xbox.logo")
             }
 
-            Toggle(isOn: $settings.shouldShowStatistics) {
+            Toggle(isOn: $settingsViewModel.shouldShowStatistics) {
                 row("stream.menu.statistics", symbol: "chart.bar.fill")
             }
 
             Button {
-                stream.showNextPictureFit()
+                streamViewModel.showNextPictureFit()
             } label: {
                 HStack {
                     row("stream.menu.pictureMode", symbol: "rectangle.arrowtriangle.2.outward")
 
-                    Text(settings.pictureFit.title)
+                    Text(settingsViewModel.pictureFit.title)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -53,7 +53,7 @@ struct StreamMenuView: View {
     }
 
     private func openGuide() {
-        stream.openGuide()
+        streamViewModel.openGuide()
 
         dismiss()
     }
@@ -74,6 +74,10 @@ struct StreamMenuView: View {
 #Preview {
     let preview = PreviewObjectPool.cloudStreamPreview(phase: .streaming)
 
-    StreamMenuView(settings: preview.settings, stream: preview.stream, onDisconnect: {})
+    StreamMenuView(
+        settingsViewModel: preview.settingsViewModel,
+        streamViewModel: preview.streamViewModel,
+        onDisconnect: {}
+    )
 }
 #endif

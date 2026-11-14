@@ -9,18 +9,18 @@ import StarfoldShared
 import SwiftUI
 
 struct AccountMenu: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @State private var isConfirmingSignOut = false
 
     let onShowSignIn: () -> Void
 
     private var gamertag: String {
-        app.signedInGamertag ?? ""
+        appViewModel.signedInGamertag ?? ""
     }
 
     var body: some View {
         Menu {
-            if app.accounts.count > 1 {
+            if appViewModel.accounts.count > 1 {
                 switchAccountSection
             }
 
@@ -30,7 +30,7 @@ struct AccountMenu: View {
 
             signOutButton
         } label: {
-            ProfileBadge(gamertag: gamertag, profile: app.profile)
+            ProfileBadge(gamertag: gamertag, profile: appViewModel.profile)
         }
         .menuIndicator(.hidden)
         .help(Text("account.menu.tooltip"))
@@ -39,14 +39,14 @@ struct AccountMenu: View {
             isPresented: $isConfirmingSignOut
         ) {
             Button(String(localized: "account.signOut.confirmation.signOut"), role: .destructive) {
-                app.signOut()
+                appViewModel.signOut()
             }
         }
     }
 
     private var switchAccountSection: some View {
         Section(String(localized: "account.menu.switchAccount")) {
-            ForEach(app.accounts) { account in
+            ForEach(appViewModel.accounts) { account in
                 Button {
                     switchAccount(to: account)
                 } label: {
@@ -57,12 +57,12 @@ struct AccountMenu: View {
     }
 
     private func switchAccount(to account: AccountSummary) {
-        Task { await app.switchAccount(to: account.id) }
+        Task { await appViewModel.switchAccount(to: account.id) }
     }
 
     @ViewBuilder
     private func accountLabel(_ account: AccountSummary) -> some View {
-        switch account.id == app.activeAccountID {
+        switch account.id == appViewModel.activeAccountID {
         case true: Label(account.gamertag, systemImage: "checkmark")
         case false: Text(account.gamertag)
         }

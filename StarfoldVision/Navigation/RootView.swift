@@ -9,26 +9,30 @@ import StarfoldShared
 import SwiftUI
 
 struct RootView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.pushWindow) private var pushWindow
     @State private var isSignInPresented = false
 
     var body: some View {
         content
-            .sheet(isPresented: $isSignInPresented) { SignInHostView { SignInView(signIn: $0) } }
-            .alert("app.signInExpired.title", isPresented: Bindable(app).isSignInExpired) {
+            .sheet(isPresented: $isSignInPresented) {
+                SignInHostView { SignInView(signInViewModel: $0) }
+            }
+            .alert("app.signInExpired.title", isPresented: Bindable(appViewModel).isSignInExpired) {
                 Button("app.signInExpired.signIn") { presentSignIn() }
 
                 Button("app.signInExpired.notNow", role: .cancel) {}
             } message: {
                 Text("app.signInExpired.message")
             }
-            .onChange(of: app.streamPresentationRequest) { showStreamWindow() }
+            .onChange(of: appViewModel.streamPresentationRequest) { showStreamWindow() }
     }
 
     @ViewBuilder
     private var content: some View {
-        switch (app.sessionState, app.home, app.library) {
+        switch (
+            appViewModel.sessionState, appViewModel.homeViewModel, appViewModel.libraryViewModel
+        ) {
         case (.signedIn, let home?, let library?): signedInTabs(home: home, library: library)
         case (.signedOut, _, _): signedOutTabs
         case (.restoring, _, _), (.signedIn, _, _): ProgressView()
@@ -36,7 +40,11 @@ struct RootView: View {
     }
 
     private func signedInTabs(home: HomeViewModel, library: LibraryViewModel) -> some View {
-        SignedInTabView(home: home, library: library, onAddAccount: { presentSignIn() })
+        SignedInTabView(
+            homeViewModel: home,
+            libraryViewModel: library,
+            onAddAccount: { presentSignIn() }
+        )
     }
 
     private func presentSignIn() {
@@ -46,7 +54,7 @@ struct RootView: View {
     private var signedOutTabs: some View {
         TabView {
             Tab("app.tab.signIn", systemImage: "person.crop.circle") {
-                SignInHostView { WelcomeView(signIn: $0) }
+                SignInHostView { WelcomeView(signInViewModel: $0) }
             }
 
             Tab("app.tab.settings", systemImage: "gear") {

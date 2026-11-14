@@ -34,7 +34,7 @@ private struct TouchLayoutEditorCover: ViewModifier {
 
     @ViewBuilder
     private var editor: some View {
-        switch settingsViewModel.touchLayoutEditor {
+        switch settingsViewModel.touchLayoutEditorViewModel {
         case let touchLayoutEditorViewModel?:
             TouchLayoutEditorView(touchLayoutEditorViewModel: touchLayoutEditorViewModel)
         case nil:

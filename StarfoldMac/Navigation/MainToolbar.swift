@@ -9,14 +9,14 @@ import StarfoldShared
 import SwiftUI
 
 struct MainToolbar: ToolbarContent {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.dimensions) private var dimensions
 
     let onShowSignIn: () -> Void
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
-            if app.sessionState == .signedIn {
+            if appViewModel.sessionState == .signedIn {
                 AccountMenu(onShowSignIn: onShowSignIn)
             }
         }

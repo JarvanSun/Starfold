@@ -10,7 +10,7 @@ import StreamKit
 import SwiftUI
 
 struct StreamWindowView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.dimensions) private var dimensions
 
@@ -27,15 +27,17 @@ struct StreamWindowView: View {
 
     @ViewBuilder
     private var content: some View {
-        switch app.stream {
+        switch appViewModel.streamViewModel {
         case let stream?: streamView(stream)
         case nil: noStream
         }
     }
 
     private func streamView(_ stream: StreamViewModel) -> some View {
-        StreamView(stream: stream, settings: app.settings) { dismissWindow() }
-            .id(ObjectIdentifier(stream))
+        StreamView(streamViewModel: stream, settingsViewModel: appViewModel.settingsViewModel) {
+            dismissWindow()
+        }
+        .id(ObjectIdentifier(stream))
     }
 
     private var noStream: some View {
@@ -44,7 +46,7 @@ struct StreamWindowView: View {
     }
 
     private func endStream() {
-        Task { await app.endStream() }
+        Task { await appViewModel.endStream() }
     }
 }
 

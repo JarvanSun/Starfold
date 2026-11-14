@@ -15,7 +15,10 @@ struct SettingsHostView: View {
 
     var body: some View {
         NavigationStack {
-            SettingsView(settingsViewModel: appViewModel.settings, onAddAccount: onAddAccount)
+            SettingsView(
+                settingsViewModel: appViewModel.settingsViewModel,
+                onAddAccount: onAddAccount
+            )
         }
     }
 }

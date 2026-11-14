@@ -11,13 +11,13 @@ import SwiftUI
 struct GameHero: View {
     @Environment(\.dimensions) private var dimensions
 
-    let detail: GameDetailViewModel
+    let gameDetailViewModel: GameDetailViewModel
 
     var body: some View {
         let scrimOpacity = 0.75
 
         ZStack(alignment: .bottomLeading) {
-            Artwork(url: detail.titledHeroArtwork, aspectRatio: aspectRatio)
+            Artwork(url: gameDetailViewModel.titledHeroArtwork, aspectRatio: aspectRatio)
 
             LinearGradient(
                 colors: [.clear, .black.opacity(scrimOpacity)],
@@ -26,7 +26,7 @@ struct GameHero: View {
             )
 
             VStack(alignment: .leading, spacing: dimensions.spaceLarge) {
-                Text(detail.name)
+                Text(gameDetailViewModel.name)
                     .font(.extraLargeTitle2)
                     .lineLimit(2)
 
@@ -46,12 +46,12 @@ struct GameHero: View {
 
     private var badges: some View {
         HStack(spacing: dimensions.spaceLarge) {
-            switch detail.publisher {
+            switch gameDetailViewModel.publisher {
             case let publisher?: Text(publisher)
             case nil: EmptyView()
             }
 
-            ForEach(detail.inputs) { input in
+            ForEach(gameDetailViewModel.inputs) { input in
                 Label(input.title, systemImage: input.symbol)
             }
         }
@@ -63,13 +63,16 @@ struct GameHero: View {
         HStack(spacing: dimensions.spaceMedium) {
             playButton
 
-            FavoriteButton(action: detail.favoriteAction, onToggle: { detail.toggleFavorite() })
+            FavoriteButton(
+                action: gameDetailViewModel.favoriteAction,
+                onToggle: { gameDetailViewModel.toggleFavorite() }
+            )
         }
     }
 
     private var playButton: some View {
         Button {
-            detail.play()
+            gameDetailViewModel.play()
         } label: {
             HStack(alignment: .center, spacing: dimensions.spaceSmall) {
                 Image(systemName: "play.fill")
@@ -84,7 +87,7 @@ struct GameHero: View {
 
 #if DEBUG
 #Preview("Game hero") {
-    GameHero(detail: PreviewObjectPool.gameDetailViewModel)
+    GameHero(gameDetailViewModel: PreviewObjectPool.gameDetailViewModel)
         .padding()
 }
 #endif

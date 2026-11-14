@@ -9,15 +9,15 @@ import StarfoldShared
 import SwiftUI
 
 struct AppearanceSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
-            PalettePicker(selection: $settings.palette)
+            PalettePicker(selection: $settingsViewModel.palette)
 
             Toggle(
                 String(localized: "settings.streaming.menuBarIcon \(AppInfo().displayName)"),
-                isOn: $settings.shouldShowInMenuBar
+                isOn: $settingsViewModel.shouldShowInMenuBar
             )
         } header: {
             Text("settings.streaming.appearance.header")
@@ -28,7 +28,7 @@ struct AppearanceSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        AppearanceSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        AppearanceSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
     .formStyle(.grouped)
 }

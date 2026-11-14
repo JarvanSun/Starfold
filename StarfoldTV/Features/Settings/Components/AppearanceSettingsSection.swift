@@ -9,11 +9,11 @@ import StarfoldShared
 import SwiftUI
 
 struct AppearanceSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
-            PalettePicker(selection: $settings.palette)
+            PalettePicker(selection: $settingsViewModel.palette)
         } header: {
             Text("settings.appearance.header")
         }
@@ -23,7 +23,7 @@ struct AppearanceSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        AppearanceSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        AppearanceSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

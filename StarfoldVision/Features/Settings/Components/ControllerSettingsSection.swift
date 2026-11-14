@@ -10,29 +10,29 @@ import StreamKit
 import SwiftUI
 
 struct ControllerSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section("settings.controllers.title") {
-            if settings.isControllerMissing {
+            if settingsViewModel.isControllerMissing {
                 Text("settings.controllers.empty")
                     .foregroundStyle(.secondary)
             }
 
-            ForEach(settings.connectedControllers) { row(for: $0) }
+            ForEach(settingsViewModel.connectedControllers) { row(for: $0) }
 
-            if settings.isXboxButtonTakenBySystem {
+            if settingsViewModel.isXboxButtonTakenBySystem {
                 xboxButtonRow
             }
 
-            Toggle("settings.controllers.rumble", isOn: $settings.isRumbleEnabled)
+            Toggle("settings.controllers.rumble", isOn: $settingsViewModel.isRumbleEnabled)
         }
     }
 
     private var xboxButtonRow: some View {
         LabeledContent {
             Button("settings.controllers.xboxButton.openSettings") {
-                settings.openXboxButtonSettings()
+                settingsViewModel.openXboxButtonSettings()
             }
         } label: {
             Text("settings.controllers.xboxButton.title")
@@ -43,10 +43,10 @@ struct ControllerSettingsSection: View {
     private func row(for controller: ConnectedController) -> some View {
         ControllerRow(
             name: controller.name,
-            playerNumber: settings.playerNumber(of: controller),
-            batteryLevel: settings.batteryLevel(of: controller)
+            playerNumber: settingsViewModel.playerNumber(of: controller),
+            batteryLevel: settingsViewModel.batteryLevel(of: controller)
         ) {
-            settings.testRumble(on: controller)
+            settingsViewModel.testRumble(on: controller)
         }
     }
 }
@@ -54,7 +54,7 @@ struct ControllerSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        ControllerSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        ControllerSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

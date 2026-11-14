@@ -9,7 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct MainWindowView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.dimensions) private var dimensions
     @State private var path: [HomeRoute] = []
     @State private var isShowingSignIn = false
@@ -23,20 +23,20 @@ struct MainWindowView: View {
         }
         .preferredColorScheme(.dark)
         .hiddenTitleWindowChrome()
-        .sheet(isPresented: $isShowingSignIn) { SignInHostView { SignInView(signIn: $0) } }
-        .onChange(of: app.activeAccountID) { path.removeAll() }
+        .sheet(isPresented: $isShowingSignIn) { SignInHostView { SignInView(signInViewModel: $0) } }
+        .onChange(of: appViewModel.activeAccountID) { path.removeAll() }
         .alert(
             String(localized: "mainWindow.signInExpired.title"),
-            isPresented: Bindable(app).isSignInExpired
+            isPresented: Bindable(appViewModel).isSignInExpired
         ) {
             signInExpiredActions
         } message: {
             Text("mainWindow.signInExpired.message")
         }
         .alert(
-            app.home?.powerProblem?.title ?? "",
+            appViewModel.homeViewModel?.powerProblem?.title ?? "",
             isPresented: isShowingPowerProblem,
-            presenting: app.home?.powerProblem
+            presenting: appViewModel.homeViewModel?.powerProblem
         ) { _ in
             Button(String(localized: "mainWindow.powerProblem.ok")) {}
         } message: { problem in
@@ -46,9 +46,9 @@ struct MainWindowView: View {
 
     @ViewBuilder
     private var sessionContent: some View {
-        switch app.sessionState {
+        switch appViewModel.sessionState {
         case .restoring: restoringPlaceholder
-        case .signedOut: SignInHostView { WelcomeView(signIn: $0) }
+        case .signedOut: SignInHostView { WelcomeView(signInViewModel: $0) }
         case .signedIn: signedInHome
         }
     }
@@ -64,16 +64,16 @@ struct MainWindowView: View {
 
     @ViewBuilder
     private var signedInHome: some View {
-        switch (app.home, app.library) {
+        switch (appViewModel.homeViewModel, appViewModel.libraryViewModel) {
         case (let home?, let library?):
-            HomeView(home: home, library: library) { path.append(.cloudLibrary) }
+            HomeView(homeViewModel: home, libraryViewModel: library) { path.append(.cloudLibrary) }
         default: EmptyView()
         }
     }
 
     @ViewBuilder
     private func destination(for route: HomeRoute) -> some View {
-        switch app.library {
+        switch appViewModel.libraryViewModel {
         case let library?: page(for: route, in: library).background { SkyBackground() }
         case nil: EmptyView()
         }
@@ -82,8 +82,8 @@ struct MainWindowView: View {
     @ViewBuilder
     private func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
         switch route {
-        case .cloudLibrary: LibraryView(library: library) { path.append(.game($0)) }
-        case .game(let game): GameDetailView(detail: library.detail(for: game))
+        case .cloudLibrary: LibraryView(libraryViewModel: library) { path.append(.game($0)) }
+        case .game(let game): GameDetailView(gameDetailViewModel: library.detail(for: game))
         }
     }
 
@@ -100,10 +100,10 @@ struct MainWindowView: View {
 
     private var isShowingPowerProblem: Binding<Bool> {
         .init(
-            get: { app.home?.powerProblem != nil },
+            get: { appViewModel.homeViewModel?.powerProblem != nil },
             set: { isShowing in
                 if !isShowing {
-                    app.home?.powerProblem = nil
+                    appViewModel.homeViewModel?.powerProblem = nil
                 }
             }
         )

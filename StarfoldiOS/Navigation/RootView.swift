@@ -39,7 +39,9 @@ struct RootView: View {
 
     @ViewBuilder
     private var content: some View {
-        switch (appViewModel.sessionState, appViewModel.home, appViewModel.library) {
+        switch (
+            appViewModel.sessionState, appViewModel.homeViewModel, appViewModel.libraryViewModel
+        ) {
         case (.signedIn, let homeViewModel?, let libraryViewModel?):
             signedInTabs(homeViewModel: homeViewModel, libraryViewModel: libraryViewModel)
         case (.signedOut, _, _): SignedOutView()

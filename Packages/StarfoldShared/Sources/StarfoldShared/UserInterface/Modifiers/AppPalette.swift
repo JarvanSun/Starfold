@@ -14,9 +14,9 @@ extension View {
 }
 
 private struct AppPalette: ViewModifier {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
 
     func body(content: Content) -> some View {
-        content.palette(Palette(app.settings.palette))
+        content.palette(Palette(appViewModel.settingsViewModel.palette))
     }
 }

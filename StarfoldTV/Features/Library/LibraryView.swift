@@ -11,17 +11,17 @@ import SwiftUI
 struct LibraryView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let library: LibraryViewModel
+    let libraryViewModel: LibraryViewModel
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: dimensions.spaceXXXLarge) {
-                switch library.placeholder {
+                switch libraryViewModel.placeholder {
                 case .loading: LoadingView()
                 case .failed(let reason):
                     LibraryFailedMessage(reason: reason, onRetry: { refresh() })
                 case .unavailable: LibraryUnavailableMessage(onRefresh: { refresh() })
-                case .noResults, nil: LibraryShelves(library: library)
+                case .noResults, nil: LibraryShelves(libraryViewModel: libraryViewModel)
                 }
             }
             .padding(.horizontal, dimensions.spaceHuge)
@@ -31,16 +31,16 @@ struct LibraryView: View {
     }
 
     private func refresh() {
-        Task { await library.refresh() }
+        Task { await libraryViewModel.refresh() }
     }
 }
 
 #if DEBUG
 #Preview(arguments: [LoadState.loaded, .loading, PreviewObjectPool.failedLoadState]) { state in
-    LibraryView(library: PreviewObjectPool.libraryViewModel(state: state))
+    LibraryView(libraryViewModel: PreviewObjectPool.libraryViewModel(state: state))
 }
 
 #Preview("Access", arguments: [CloudAccess.freeToPlay, .unavailable]) { access in
-    LibraryView(library: PreviewObjectPool.libraryViewModel(access: access))
+    LibraryView(libraryViewModel: PreviewObjectPool.libraryViewModel(access: access))
 }
 #endif

@@ -12,14 +12,14 @@ import SwiftUI
 import XboxKit
 
 struct MenuBarMenu: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.openWindow) private var openWindow
     @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         account
 
-        switch (app.home, app.library) {
+        switch (appViewModel.homeViewModel, appViewModel.libraryViewModel) {
         case (let home?, let library?):
             consoles(of: home)
 
@@ -40,7 +40,7 @@ struct MenuBarMenu: View {
 
     @ViewBuilder
     private var account: some View {
-        switch (app.sessionState, app.signedInGamertag) {
+        switch (appViewModel.sessionState, appViewModel.signedInGamertag) {
         case (.signedIn, let gamertag?): Text(gamertag)
         case (.signedOut, _): Text("menuBar.signedOut.message")
         case (.signedIn, nil), (.restoring, _): EmptyView()
@@ -85,21 +85,23 @@ struct MenuBarMenu: View {
     }
 
     private func play(_ target: StreamTarget) {
-        Task { await app.play(target) }
+        Task { await appViewModel.play(target) }
     }
 
     @ViewBuilder
     private var controllers: some View {
-        if !app.settings.connectedControllers.isEmpty {
+        if !appViewModel.settingsViewModel.connectedControllers.isEmpty {
             Section(String(localized: "menuBar.controllers.title")) {
-                ForEach(app.settings.connectedControllers) { controllerLine(for: $0) }
+                ForEach(appViewModel.settingsViewModel.connectedControllers) {
+                    controllerLine(for: $0)
+                }
             }
         }
     }
 
     @ViewBuilder
     private func controllerLine(for controller: ConnectedController) -> some View {
-        switch app.settings.batteryLevel(of: controller) {
+        switch appViewModel.settingsViewModel.batteryLevel(of: controller) {
         case let battery?:
             Text("menuBar.controller.battery \(controller.name) \(percentText(battery))")
         case nil: Text(controller.name)

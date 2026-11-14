@@ -81,7 +81,7 @@ struct SettingsView: View {
 #Preview {
     let appViewModel = PreviewObjectPool.appViewModel(signedIn: true)
     NavigationStack {
-        SettingsView(settingsViewModel: appViewModel.settings, onAddAccount: {})
+        SettingsView(settingsViewModel: appViewModel.settingsViewModel, onAddAccount: {})
     }
     .environment(appViewModel)
 }

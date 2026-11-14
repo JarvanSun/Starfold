@@ -13,11 +13,11 @@ struct ConsoleCard: View {
     @Environment(\.dimensions) private var dimensions
 
     let console: Console
-    let home: HomeViewModel
+    let homeViewModel: HomeViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ConsoleCardArtwork(console: console, cover: home.cover(for: console))
+            ConsoleCardArtwork(console: console, cover: homeViewModel.cover(for: console))
 
             VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
                 summary
@@ -54,7 +54,7 @@ struct ConsoleCard: View {
     }
 
     private var statusDot: some View {
-        let status = home.status(of: console)
+        let status = homeViewModel.status(of: console)
         return StatusDot(color: status.color, pulsing: status.isPulsing)
             .accessibilityLabel(Text(console.powerStateDescription))
     }
@@ -64,7 +64,7 @@ struct ConsoleCard: View {
             playButton
 
             ConsolePowerButton(
-                control: home.powerControl(for: console),
+                control: homeViewModel.powerControl(for: console),
                 onToggle: { togglePower() }
             )
 
@@ -90,11 +90,11 @@ struct ConsoleCard: View {
     }
 
     private func play() {
-        home.play(console)
+        homeViewModel.play(console)
     }
 
     private func togglePower() {
-        Task { await home.togglePower(of: console) }
+        Task { await homeViewModel.togglePower(of: console) }
     }
 
     private var wirelessWarning: some View {
@@ -106,11 +106,11 @@ struct ConsoleCard: View {
 
 #if DEBUG
 #Preview("Console cards") {
-    let home = PreviewObjectPool.homeViewModel()
+    let homeViewModel = PreviewObjectPool.homeViewModel()
 
     HStack {
         ForEach(PreviewObjectPool.consoles) { console in
-            ConsoleCard(console: console, home: home)
+            ConsoleCard(console: console, homeViewModel: homeViewModel)
         }
     }
     .padding()

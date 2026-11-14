@@ -69,8 +69,7 @@ succeed.
   whole name; as a suffix only in a domain phrase (`DeviceInfoHeader`).
 - Do not repeat the type in member names (`console.name`).
 - A ViewModel property is the exception: it keeps the type's name, and a value it holds is named
-  for what it is (`consoleCover`, not `cover`). Apps other than StarfoldiOS still use the short
-  form until they are renamed.
+  for what it is (`consoleCover`, not `cover`).
 - Name a value after what it means at that point (`restored`, then `preferred`).
 
 ## Declaration order

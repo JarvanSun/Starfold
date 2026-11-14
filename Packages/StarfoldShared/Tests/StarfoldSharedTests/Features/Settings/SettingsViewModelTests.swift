@@ -101,10 +101,10 @@ struct SettingsViewModelTests {
         settings.editTouchLayout()
 
         // Then
-        let editor = try #require(settings.touchLayoutEditor)
-        #expect(settings.touchLayoutEditor === editor)
+        let editor = try #require(settings.touchLayoutEditorViewModel)
+        #expect(settings.touchLayoutEditorViewModel === editor)
         settings.finishEditingTouchLayout()
-        #expect(settings.touchLayoutEditor == nil)
+        #expect(settings.touchLayoutEditorViewModel == nil)
     }
 
     @Test(arguments: [true, false])
@@ -234,11 +234,11 @@ struct SettingsViewModelTests {
         harness.accountService.savedAccounts = [.dummy(id: "2535", gamertag: "NovaPilot")]
 
         // When
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // Then
-        #expect(harness.app.settings.accountChoices.map(\.id) == ["2535"])
-        #expect(harness.app.settings.accountChoices.first?.isActive == true)
+        #expect(harness.appViewModel.settingsViewModel.accountChoices.map(\.id) == ["2535"])
+        #expect(harness.appViewModel.settingsViewModel.accountChoices.first?.isActive == true)
     }
 
     @Test

@@ -14,7 +14,7 @@ struct AppHarness {
     let accountService = AccountServiceStub()
     let defaults: UserDefaults
     let cacheDirectory: URL
-    let app: AppViewModel
+    let appViewModel: AppViewModel
 
     var preferences: Preferences {
         .init(defaults: defaults)
@@ -41,10 +41,10 @@ struct AppHarness {
         let dependencies = StreamDependencies.dummy(preferences: preferences)
         self.defaults = defaults
         self.cacheDirectory = cacheDirectory
-        app = AppViewModel(
+        appViewModel = AppViewModel(
             accountService: accountService,
             cache: .init(directory: cacheDirectory),
-            settings: .init(
+            settingsViewModel: .init(
                 preferences: preferences,
                 controllers: dependencies.controllers,
                 platform: dependencies.platform,

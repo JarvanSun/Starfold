@@ -34,7 +34,7 @@ struct StreamView: View {
                 statusView
             }
 
-            switch streamViewModel.touchControls {
+            switch streamViewModel.touchControlsViewModel {
             case let touchControlsViewModel?: touchLayer(touchControlsViewModel)
             case nil: EmptyView()
             }
@@ -81,8 +81,11 @@ struct StreamView: View {
             settingsViewModel: settingsViewModel
         )
         .sheet(item: presentedDialog) { dialog in
-            SystemDialogView(systemDialogsViewModel: streamViewModel.dialogs, dialog: dialog)
-                .interactiveDismissDisabled()
+            SystemDialogView(
+                systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
+                dialog: dialog
+            )
+            .interactiveDismissDisabled()
         }
     }
 
@@ -97,7 +100,7 @@ struct StreamView: View {
     private func reveal() {
         streamViewModel.revealControls()
 
-        streamViewModel.touchControls?.reveal()
+        streamViewModel.touchControlsViewModel?.reveal()
     }
 
     private var statusView: some View {
@@ -156,7 +159,7 @@ struct StreamView: View {
     }
 
     private var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { streamViewModel.dialogs.presentedDialog }, set: { _ in })
+        .init(get: { streamViewModel.systemDialogsViewModel.presentedDialog }, set: { _ in })
     }
 }
 
@@ -168,8 +171,8 @@ struct StreamView: View {
     )
 
     StreamView(
-        streamViewModel: preview.stream,
-        settingsViewModel: preview.settings,
+        streamViewModel: preview.streamViewModel,
+        settingsViewModel: preview.settingsViewModel,
         controllers: .init(routing: .direct)
     ) {}
 }
@@ -178,8 +181,8 @@ struct StreamView: View {
     let preview = PreviewObjectPool.cloudStreamPreview(phase: .connecting)
 
     StreamView(
-        streamViewModel: preview.stream,
-        settingsViewModel: preview.settings,
+        streamViewModel: preview.streamViewModel,
+        settingsViewModel: preview.settingsViewModel,
         controllers: .init(routing: .direct)
     ) {}
 }

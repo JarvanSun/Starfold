@@ -123,7 +123,7 @@ struct TouchLayoutEditorView: View {
 
 #if DEBUG
 #Preview {
-    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditor {
+    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditorViewModel {
         TouchLayoutEditorView(touchLayoutEditorViewModel: touchLayoutEditorViewModel)
     }
 }

@@ -12,11 +12,11 @@ struct SignInView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dimensions) private var dimensions
 
-    let signIn: SignInViewModel
+    let signInViewModel: SignInViewModel
 
     var body: some View {
         NavigationStack {
-            SignInPanel(step: signIn.step, onRetry: { signIn.retry() })
+            SignInPanel(step: signInViewModel.step, onRetry: { signInViewModel.retry() })
                 .padding(dimensions.spaceXXLarge)
                 .frame(width: dimensions.signInSheetWidth, height: dimensions.signInSheetHeight)
                 .navigationTitle("signIn.sheet.title")
@@ -26,13 +26,13 @@ struct SignInView: View {
                     }
                 }
         }
-        .task(id: signIn.attempt) { await signIn.run() }
-        .onChange(of: signIn.shouldClose) { dismiss() }
+        .task(id: signInViewModel.attempt) { await signInViewModel.run() }
+        .onChange(of: signInViewModel.shouldClose) { dismiss() }
     }
 }
 
 #if DEBUG
 #Preview("Add account", arguments: PreviewObjectPool.signInPhases) { phase in
-    SignInView(signIn: PreviewObjectPool.signInViewModel(phase: phase))
+    SignInView(signInViewModel: PreviewObjectPool.signInViewModel(phase: phase))
 }
 #endif

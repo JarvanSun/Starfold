@@ -9,14 +9,14 @@ import StarfoldShared
 import SwiftUI
 
 struct SignInHostView<Screen: View>: View {
-    @Environment(AppViewModel.self) private var app
-    @State private var signIn: SignInViewModel?
+    @Environment(AppViewModel.self) private var appViewModel
+    @State private var signInViewModel: SignInViewModel?
 
     @ViewBuilder let screen: (SignInViewModel) -> Screen
 
     var body: some View {
         ZStack {
-            switch signIn {
+            switch signInViewModel {
             case let signIn?: screen(signIn)
             case nil: Color.clear
             }
@@ -25,15 +25,15 @@ struct SignInHostView<Screen: View>: View {
     }
 
     private func createSignIn() {
-        guard signIn == nil else { return }
+        guard signInViewModel == nil else { return }
 
-        signIn = app.makeSignInViewModel()
+        signInViewModel = appViewModel.makeSignInViewModel()
     }
 }
 
 #if DEBUG
 #Preview {
-    SignInHostView { SignInView(signIn: $0) }
+    SignInHostView { SignInView(signInViewModel: $0) }
         .environment(PreviewObjectPool.appViewModel(signedIn: true))
 }
 #endif

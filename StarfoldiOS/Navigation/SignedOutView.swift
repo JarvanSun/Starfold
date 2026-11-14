@@ -27,7 +27,7 @@ struct SignedOutView: View {
 
     private var settingsViewModel: some View {
         NavigationStack {
-            SettingsView(settingsViewModel: appViewModel.settings, onAddAccount: {})
+            SettingsView(settingsViewModel: appViewModel.settingsViewModel, onAddAccount: {})
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) { isShowingSettings = false }

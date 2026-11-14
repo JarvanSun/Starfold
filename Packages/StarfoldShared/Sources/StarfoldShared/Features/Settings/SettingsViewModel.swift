@@ -12,7 +12,7 @@ import XboxKit
 
 @Observable
 public final class SettingsViewModel {
-    public private(set) var touchLayoutEditor: TouchLayoutEditorViewModel?
+    public private(set) var touchLayoutEditorViewModel: TouchLayoutEditorViewModel?
 
     weak var session: SessionControlling?
 
@@ -235,11 +235,11 @@ public final class SettingsViewModel {
     }
 
     public func editTouchLayout() {
-        touchLayoutEditor = .init(preferences: preferences)
+        touchLayoutEditorViewModel = .init(preferences: preferences)
     }
 
     public func finishEditingTouchLayout() {
-        touchLayoutEditor = nil
+        touchLayoutEditorViewModel = nil
     }
 
     public func openXboxButtonSettings() {

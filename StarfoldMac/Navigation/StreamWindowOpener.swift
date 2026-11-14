@@ -16,12 +16,12 @@ extension View {
 }
 
 private struct StreamWindowOpener: ViewModifier {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.openWindow) private var openWindow
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: app.streamPresentationRequest) { openStreamWindow() }
+            .onChange(of: appViewModel.streamPresentationRequest) { openStreamWindow() }
     }
 
     private func openStreamWindow() {

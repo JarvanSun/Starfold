@@ -9,16 +9,16 @@ import StarfoldShared
 import SwiftUI
 
 struct CloudGamingSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
             Picker(
                 String(localized: "settings.streaming.gameLanguage.title"),
-                selection: $settings.gameLanguage
+                selection: $settingsViewModel.gameLanguage
             ) {
-                ForEach(settings.gameLanguages, id: \.self) { code in
-                    Text(verbatim: settings.name(ofGameLanguage: code)).tag(code)
+                ForEach(settingsViewModel.gameLanguages, id: \.self) { code in
+                    Text(verbatim: settingsViewModel.name(ofGameLanguage: code)).tag(code)
                 }
             }
         } header: {
@@ -32,7 +32,7 @@ struct CloudGamingSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        CloudGamingSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        CloudGamingSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
     .formStyle(.grouped)
 }

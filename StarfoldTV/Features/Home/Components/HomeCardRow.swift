@@ -12,8 +12,8 @@ import XboxKit
 struct HomeCardRow: View {
     @Environment(\.dimensions) private var dimensions
 
-    let home: HomeViewModel
-    let library: LibraryViewModel
+    let homeViewModel: HomeViewModel
+    let libraryViewModel: LibraryViewModel
     let cardWidth: CGFloat
 
     let onBrowse: () -> Void
@@ -21,18 +21,18 @@ struct HomeCardRow: View {
     var body: some View {
         ScrollView(.horizontal) {
             HStack(alignment: .top, spacing: dimensions.spaceXXLarge) {
-                switch home.firstConsole {
+                switch homeViewModel.firstConsole {
                 case let console?: consoleCard(console)
                 case nil: EmptyView()
                 }
 
-                CloudCard(library: library, width: cardWidth, onBrowse: onBrowse)
+                CloudCard(libraryViewModel: libraryViewModel, width: cardWidth, onBrowse: onBrowse)
 
-                switch home.consolesContent {
+                switch homeViewModel.consolesContent {
                 case .loading: SkeletonCard(width: cardWidth)
                 case .failed(let reason): failedMessage(reason)
                 case .empty: emptyMessage
-                case .consoles: ForEach(home.otherConsoles) { consoleCard($0) }
+                case .consoles: ForEach(homeViewModel.otherConsoles) { consoleCard($0) }
                 }
             }
             .padding(.vertical, dimensions.spaceMedium)
@@ -43,7 +43,7 @@ struct HomeCardRow: View {
     }
 
     private func consoleCard(_ console: Console) -> some View {
-        ConsoleCard(console: console, home: home, width: cardWidth)
+        ConsoleCard(console: console, homeViewModel: homeViewModel, width: cardWidth)
     }
 
     private func failedMessage(_ reason: String) -> some View {
@@ -56,7 +56,7 @@ struct HomeCardRow: View {
     }
 
     private func refreshConsoles() {
-        Task { await home.refreshConsoles() }
+        Task { await homeViewModel.refreshConsoles() }
     }
 
     private var emptyMessage: some View {
@@ -73,29 +73,31 @@ struct HomeCardRow: View {
 #Preview {
     VStack(alignment: .leading) {
         HomeCardRow(
-            home: PreviewObjectPool.homeViewModel(),
-            library: PreviewObjectPool.libraryViewModel(),
+            homeViewModel: PreviewObjectPool.homeViewModel(),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(),
             cardWidth: 480,
             onBrowse: {}
         )
 
         HomeCardRow(
-            home: PreviewObjectPool.homeViewModel(state: .loading),
-            library: PreviewObjectPool.libraryViewModel(state: .loading),
+            homeViewModel: PreviewObjectPool.homeViewModel(state: .loading),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(state: .loading),
             cardWidth: 480,
             onBrowse: {}
         )
 
         HomeCardRow(
-            home: PreviewObjectPool.homeViewModel(state: PreviewObjectPool.failedLoadState),
-            library: PreviewObjectPool.libraryViewModel(),
+            homeViewModel: PreviewObjectPool.homeViewModel(
+                state: PreviewObjectPool.failedLoadState
+            ),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(),
             cardWidth: 480,
             onBrowse: {}
         )
 
         HomeCardRow(
-            home: PreviewObjectPool.homeViewModel(consoles: []),
-            library: PreviewObjectPool.libraryViewModel(),
+            homeViewModel: PreviewObjectPool.homeViewModel(consoles: []),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(),
             cardWidth: 480,
             onBrowse: {}
         )

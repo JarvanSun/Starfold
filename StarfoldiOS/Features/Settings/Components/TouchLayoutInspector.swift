@@ -49,7 +49,7 @@ struct TouchLayoutInspector: View {
 
 #if DEBUG
 #Preview {
-    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditor {
+    if let touchLayoutEditorViewModel = PreviewObjectPool.touchLayoutEditorViewModel {
         TouchLayoutInspector(touchLayoutEditorViewModel: touchLayoutEditorViewModel)
             .padding()
             .background(.black)

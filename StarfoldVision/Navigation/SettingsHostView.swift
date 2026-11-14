@@ -9,11 +9,11 @@ import StarfoldShared
 import SwiftUI
 
 struct SettingsHostView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
 
     var body: some View {
         NavigationStack {
-            SettingsView(settings: app.settings)
+            SettingsView(settingsViewModel: appViewModel.settingsViewModel)
         }
     }
 }

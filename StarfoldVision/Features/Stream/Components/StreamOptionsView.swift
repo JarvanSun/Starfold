@@ -10,7 +10,7 @@ import SwiftUI
 
 struct StreamOptionsView: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
@@ -28,8 +28,8 @@ struct StreamOptionsView: View {
             Text("stream.options.buffer")
                 .font(.headline)
 
-            Picker("stream.options.buffer", selection: $settings.pacingMode) {
-                ForEach(settings.pacingModes, id: \.self) { mode in
+            Picker("stream.options.buffer", selection: $settingsViewModel.pacingMode) {
+                ForEach(settingsViewModel.pacingModes, id: \.self) { mode in
                     Text(mode.title)
                         .tag(mode)
                 }
@@ -42,8 +42,8 @@ struct StreamOptionsView: View {
             Text("stream.options.sound")
                 .font(.headline)
 
-            Picker("stream.options.sound", selection: $settings.soundStage) {
-                ForEach(settings.soundStages, id: \.self) { stage in
+            Picker("stream.options.sound", selection: $settingsViewModel.soundStage) {
+                ForEach(settingsViewModel.soundStages, id: \.self) { stage in
                     Text(stage.title)
                         .tag(stage)
                 }
@@ -54,6 +54,6 @@ struct StreamOptionsView: View {
 
 #if DEBUG
 #Preview("Stream options") {
-    StreamOptionsView(settings: PreviewObjectPool.settingsViewModel)
+    StreamOptionsView(settingsViewModel: PreviewObjectPool.settingsViewModel)
 }
 #endif

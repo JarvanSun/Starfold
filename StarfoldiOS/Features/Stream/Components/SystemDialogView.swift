@@ -59,6 +59,6 @@ struct SystemDialogView: View {
         dialogs: [dialog]
     )
 
-    SystemDialogView(systemDialogsViewModel: streamViewModel.dialogs, dialog: dialog)
+    SystemDialogView(systemDialogsViewModel: streamViewModel.systemDialogsViewModel, dialog: dialog)
 }
 #endif
