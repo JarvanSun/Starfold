@@ -449,7 +449,7 @@ public final class StreamViewModel {
         phase = .ended(.failed(message))
     }
 
-    func stop() async {
+    func stop(_ reason: StreamEndReason) async {
         onStop()
 
         controllers.router.setDestination(nil)
@@ -462,7 +462,7 @@ public final class StreamViewModel {
         for task in touchBundleTasks.values { task.cancel() }
 
         if let connection {
-            await connection.stop(reason: .userStopped)
+            await connection.stop(reason: reason)
         }
 
         updatesTask?.cancel()
@@ -470,7 +470,7 @@ public final class StreamViewModel {
         renderer?.clear()
 
         if !hasEnded {
-            phase = .ended(.userStopped)
+            phase = .ended(reason)
         }
     }
 
@@ -511,6 +511,8 @@ public final class StreamViewModel {
 
     public func enterForeground() {
         isInForeground = true
+
+        requestKeyframe()
     }
 
     public func enterBackground() {

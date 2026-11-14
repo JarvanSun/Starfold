@@ -386,6 +386,7 @@ is loaded, and re-resolves the layout after each `patchstate`.
 | Trigger | `StreamEndReason` |
 |---|---|
 | The user stops, or the start task is cancelled | `.userStopped` |
+| iPhone and iPad: the app stayed in the background until its time ran out | `.leftApp` |
 | `serverInitiatedDisconnect`, or keepalive `SessionNotFound` / `SessionNotActive` | `.hostEnded` |
 | The peer reports `failed` while streaming | `.connectionLost` |
 | Any error before streaming | `.failed(<description>)` |

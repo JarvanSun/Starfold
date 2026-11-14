@@ -308,6 +308,20 @@ struct AppViewModelTests {
         #expect(harness.appViewModel.streamPresentationRequest == 1)
     }
 
+    @Test
+    func endStreamWhileAwayThenEndsTheStreamButKeepsItOnScreen() async {
+        // Given
+        let app = await makeApp(streaming: livingRoom, phase: .streaming)
+        let running = app.streamViewModel
+
+        // When
+        await app.endStreamWhileAway()
+
+        // Then
+        #expect(app.streamViewModel === running)
+        #expect(running?.phase == .ended(.leftApp))
+    }
+
     @Test(arguments: [
         StreamPhase.provisioning,
         .queued(estimatedWait: nil),

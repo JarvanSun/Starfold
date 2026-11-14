@@ -94,11 +94,19 @@ struct RootView: View {
     }
 
     private func apply(_ phase: ScenePhase) {
-        guard phase == .background, isStreamPresented else { return }
+        switch phase {
+        case .background where isStreamPresented && isStreamUnderway:
+            backgroundStreamEnd.endBeforeTimeRunsOut { await appViewModel.endStreamWhileAway() }
+        case .active: backgroundStreamEnd.keepStream()
+        default: break
+        }
+    }
 
-        isStreamPresented = false
-
-        endStream()
+    private var isStreamUnderway: Bool {
+        switch appViewModel.streamViewModel?.status {
+        case .ended?, nil: false
+        case .connecting?, .queued?: true
+        }
     }
 
     private func endStream() {

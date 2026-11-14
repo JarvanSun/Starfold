@@ -10,6 +10,7 @@ import XboxKit
 
 public enum StreamEndReason: Sendable, Equatable {
     case userStopped
+    case leftApp
     case hostEnded
     case connectionLost
     case failed(String)

@@ -14,7 +14,7 @@ extension StreamPhase {
         case .streaming: .success
         case .ended(.hostEnded): .warning
         case .ended(.connectionLost), .ended(.failed): .error
-        case .ended(.userStopped), .provisioning, .queued, .connecting: nil
+        case .ended(.userStopped), .ended(.leftApp), .provisioning, .queued, .connecting: nil
         }
     }
 }

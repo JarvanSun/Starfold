@@ -49,6 +49,7 @@ struct StreamFailureAdviceTests {
     @Test
     func initFromEndReasonWhenTheStreamSimplyEndedThenHasNoAdvice() {
         #expect(StreamFailureAdvice(endReason: .userStopped) == nil)
+        #expect(StreamFailureAdvice(endReason: .leftApp) == nil)
         #expect(StreamFailureAdvice(endReason: .hostEnded) == nil)
     }
 }

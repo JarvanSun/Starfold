@@ -280,10 +280,13 @@ Split View, Stage Manager and an unfolded iPhone Duo each get the layout that fi
   controller is in use until a tap. The menu: Xbox Guide, Statistics, Disconnect, then Picture
   Mode, Buffer and Edit Touch Controls; tapping outside closes it. Game dialogs and keyboard
   prompts are sheets.
-- **Leaving the app** works as on Apple TV: Control Center, a notification or a call sends a
-  neutral controller and a control held through it counts only after release; going to the
-  background ends the stream, and coming back shows the page it started from. No Picture in
-  Picture.
+- **Leaving the app:** Control Center, a notification, the app switcher or a call sends a neutral
+  controller, and a control held through it counts only after release; the stream keeps going.
+  Going to the background (Home Screen, another app, Notification Center) mutes the sound and keeps
+  the stream for as long as iOS lets the app run, at most a minute: coming back in time carries on
+  with a fresh picture. Otherwise the session ends just before that time runs out, and coming back
+  shows the ended stream with Close and Try Again.
+  No Picture in Picture.
 - **Sound** plays with the Ring/Silent switch on silent, pauses for calls and is released when the
   stream ends.
 - **Cellular:** a stream that starts on cellular uses the Cellular quality ceiling for the whole
