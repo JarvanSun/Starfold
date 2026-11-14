@@ -35,10 +35,7 @@ struct FavoriteButton: View {
     }
 
     private var style: AnyShapeStyle {
-        switch isFavorite {
-        case true: .init(palette.primaryTint)
-        case false: .init(.white)
-        }
+        isFavorite ? .init(palette.primaryTint) : .init(.white)
     }
 }
 

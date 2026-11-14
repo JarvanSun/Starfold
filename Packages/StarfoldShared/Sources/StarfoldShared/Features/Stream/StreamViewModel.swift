@@ -262,10 +262,8 @@ public final class StreamViewModel {
     }
 
     private func networkQuality(for requested: StreamQuality) -> StreamQuality {
-        switch streamDependencies.networkPath.isOnCellular {
-        case true: requested.capped(at: preferences.cellularQuality)
-        case false: requested
-        }
+        streamDependencies.networkPath.isOnCellular
+            ? requested.capped(at: preferences.cellularQuality) : requested
     }
 
     private func connect(with options: StreamOptions) async {

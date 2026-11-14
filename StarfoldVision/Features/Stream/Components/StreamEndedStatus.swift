@@ -27,9 +27,8 @@ struct StreamEndedStatus: View {
             Text(reason.title)
                 .font(.title.bold())
 
-            switch advice {
-            case let advice?: adviceText(advice)
-            case nil: EmptyView()
+            if let advice {
+                adviceText(advice)
             }
 
             HStack(spacing: dimensions.spaceLarge) {

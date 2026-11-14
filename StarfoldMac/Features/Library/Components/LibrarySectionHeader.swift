@@ -19,9 +19,8 @@ struct LibrarySectionHeader: View {
             Text(title)
                 .font(.title2.bold())
 
-            switch count {
-            case let count?: countLabel(count)
-            case nil: EmptyView()
+            if let count {
+                countLabel(count)
             }
         }
         .padding(.horizontal, dimensions.spaceXXLarge)

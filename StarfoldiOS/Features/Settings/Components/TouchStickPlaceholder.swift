@@ -15,9 +15,8 @@ struct TouchStickPlaceholder: View {
     let diameter: CGFloat
 
     var body: some View {
-        switch visibility.placeholderSymbol {
-        case let symbol?: outline(symbol)
-        case nil: EmptyView()
+        if let symbol = visibility.placeholderSymbol {
+            outline(symbol)
         }
     }
 

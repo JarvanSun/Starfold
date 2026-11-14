@@ -65,11 +65,9 @@ public struct StatisticsReadout {
     private func resolution(_ size: CGSize) -> String {
         let size = dimensions(of: size)
 
-        return switch usesAutomaticQuality {
-        case true:
-            String(localized: "stream.statistics.resolution.automatic \(size)", bundle: .module)
-        case false: size
-        }
+        return usesAutomaticQuality
+            ? String(localized: "stream.statistics.resolution.automatic \(size)", bundle: .module)
+            : size
     }
 
     private func dimensions(of size: CGSize) -> String {
@@ -127,9 +125,7 @@ public struct StatisticsReadout {
     }
 
     private var toneMapping: String? {
-        switch statistics.isToneMapped {
-        case true: String(localized: "stream.statistics.toneMapping", bundle: .module)
-        case false: nil
-        }
+        statistics.isToneMapped
+            ? String(localized: "stream.statistics.toneMapping", bundle: .module) : nil
     }
 }

@@ -82,10 +82,8 @@ struct StarfoldMacApp: App {
     }
 
     private var isMenuBarIconInserted: Binding<Bool> {
-        switch isHostingPreviewsOrTests {
-        case true: .constant(false)
-        case false: Bindable(appViewModel.settingsViewModel).shouldShowInMenuBar
-        }
+        isHostingPreviewsOrTests
+            ? .constant(false) : Bindable(appViewModel.settingsViewModel).shouldShowInMenuBar
     }
 
     private var menuBarMenu: some View {

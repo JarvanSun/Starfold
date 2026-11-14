@@ -284,9 +284,6 @@ struct MessageChannel: Sendable {
     ) -> [MessageChannelEvent] {
         let events = command.map { [MessageChannelEvent.touchControls($0)] } ?? []
 
-        return switch isTransaction {
-        case true: [.reply(cancel(id: id))] + events
-        case false: events
-        }
+        return isTransaction ? [.reply(cancel(id: id))] + events : events
     }
 }

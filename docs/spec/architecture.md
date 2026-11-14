@@ -11,24 +11,13 @@ packages; what a person sees and touches is written per platform.
 
 ![Modules: four platform apps over StarfoldShared, which uses XboxKit and StreamKit](images/modules.svg)
 
-```text
-Starfold.xcodeproj
-├── Configuration/          Starfold.xcconfig: bundle identifier, App Group, Microsoft client ID;
-│                           an optional, git-ignored Local.xcconfig overrides them and sets the team
-├── StarfoldMac/            the Mac app: entry point, its views of every feature, navigation,
-│                           AppKit bridges
-├── StarfoldVision/         the Vision Pro app, same shape
-├── StarfoldTV/             the Apple TV app, same shape
-├── StarfoldiOS/            the iPhone and iPad app, same shape
-├── StarfoldTopShelf/       the Apple TV Top Shelf extension
-├── Preview Content/        PreviewObjectPool and its preview services, compiled into the four
-│                           apps as Development Assets
-└── Packages/
-    ├── StarfoldShared      every feature's ViewModel and values, services, storage, shared
-    │                       interface pieces; and TopShelfKit, the Top Shelf snapshot
-    ├── XboxKit             sign-in, tokens, profile, consoles, cloud catalogue, session REST API
-    └── StreamKit           WebRTC, data channels, input, rendering, frame pacing, quality
-```
+- `Starfold<Platform>/`: one app per platform (Mac, Vision, TV, iOS), with its views, navigation
+  and system bridges; `StarfoldTopShelf/`: the Apple TV Top Shelf extension.
+- `Preview Content/`: `PreviewObjectPool`, compiled into the apps as Development Assets.
+- `Packages/StarfoldShared`: every feature's ViewModel and values, services, storage and shared
+  interface pieces; TopShelfKit, the Top Shelf snapshot.
+- `Packages/XboxKit`: sign-in, tokens, profile, consoles, cloud catalogue, session REST API.
+- `Packages/StreamKit`: WebRTC, data channels, input, rendering, frame pacing, quality.
 
 | Module | May import | Never imports |
 |---|---|---|
@@ -118,67 +107,19 @@ own folder and `Preview Content/`, and links the three packages (Apple TV also T
 
 ## A platform app
 
-```text
-StarfoldMac/
-├── StarfoldMacApp.swift  the entry point: its scenes
-├── Features/
-│   ├── SignIn/           SignInView, WelcomeView, Components/, Presentation/
-│   ├── Home/             HomeView, Components/, Model/
-│   ├── Library/          LibraryView, GameDetailView, Components/
-│   ├── Settings/         SettingsView and its tabs, Components/, Presentation/
-│   └── Stream/           StreamView, Components/
-├── Navigation/           MainWindowView, HomeRoute, MainToolbar, AccountMenu, StreamWindowView,
-│                         SignInHostView, …
-├── Platform/             AppKit bridges (Video/, Keyboard/, PictureInPicture/, FullScreen/),
-│                         AppDelegate, StreamPlatformOnMac
-├── UserInterface/        Buttons/, Modifiers/, Components/, Dimensions/ (DimensionsOnMac)
-├── Resources/            Assets.xcassets, AppIcon.icon, Localizable.xcstrings, PrivacyInfo
-└── Configuration/        Info.plist, StarfoldMac.entitlements
-```
-
 - A feature folder holds that platform's main View(s) at the top, views only it uses in
   `Components/`, and `Model/` and `Presentation/` only for values and wording that platform alone
   uses (`HomeCardStatus`).
 - Views have no platform prefix: `HomeView` is a different type in each app.
 - Beside `Features/`: `Navigation/` (how pages are reached), `Platform/` (wrapped system APIs,
   grouped by the feature they serve) and `UserInterface/`.
-- `StarfoldVision/` and `StarfoldTV/` have the same shape. Their `Navigation/` holds `RootView`
-  and a `…HostView` per tab (Apple TV's Search results view lives in `Features/Library/`);
-  `StarfoldTV/Platform/` also holds `Controller/`, `TopShelf/` and `Background/`.
-- `StarfoldiOS/` has the same shape, with Vision Pro's `RootView` and `…HostView`s. Its
-  `Platform/` holds `Touch/` (the Touch Controller overlay: drawing, touches, turning a
-  `TouchControlPlan` into controls), `Video/`, `Keyboard/` (`GCKeyCode` to `KeyboardKey`),
-  `Orientation/` (landscape while an iPhone streams) and `Background/` (keeping the stream for a
-  while after leaving the app, then ending the session). Which controls a layout has and where they go is decided in StarfoldShared
-  (`TouchLayoutPlanner`), so it is tested on macOS.
+- Every app has the same shape: the entry point, `Features/`, `Navigation/`, `Platform/`,
+  `UserInterface/`, `Resources/` and `Configuration/`. On Vision Pro, Apple TV, iPhone and iPad,
+  `Navigation/` holds `RootView` and a `…HostView` per tab.
+- Logic a platform folder would otherwise hold goes to StarfoldShared when it can be tested on
+  macOS (which touch controls a layout has and where they go is `TouchLayoutPlanner`).
 
 ## StarfoldShared
-
-```text
-StarfoldShared/Sources/StarfoldShared/
-├── App/                AppViewModel, AppDependencies (the composition root), AppInfo, SceneID;
-│                       Model/ (SessionState)
-├── Features/
-│   ├── SignIn/         SignInViewModel, SigningIn, Model/, Presentation/
-│   ├── Home/           HomeViewModel, Model/ (ConsolesContent, ConsoleCover, …), Presentation/
-│   ├── Library/        LibraryViewModel, GameDetailViewModel, Model/, Presentation/
-│   ├── Settings/       SettingsViewModel, SessionControlling, Model/, Presentation/
-│   └── Stream/         StreamViewModel, SystemDialogsViewModel, StreamPlatform, StreamOverlays,
-│                       Model/, Presentation/
-├── Services/           AccountService, ConsoleService, CloudLibraryService, StreamService and
-│                       their Live… implementations; Preferences, FavoritesStore, LibraryCache
-├── Model/              values the services and storage exchange (CloudLibrary, LoadState, …)
-├── Logging/            LogCategory, Logger(category:)
-├── UserInterface/
-│   ├── Colors/         Palette, PaletteID, semantic colours
-│   ├── Dimensions/     spacing, corner and shadow scales, shared sizes
-│   ├── Buttons/        PrimaryButtonStyle, CircleIconButtonStyle, ButtonStyleExtensions
-│   ├── Modifiers/      AppPalette, CardSurface, Shimmer
-│   ├── Components/     StatusDot, ClockView, PalettePicker
-│   ├── Backgrounds/    SkyBackground and its shader
-│   └── Extensions/     View, EnvironmentValues, BundleDescription extensions
-└── Resources/          Localizable.xcstrings, PrivacyInfo.xcprivacy
-```
 
 - A feature folder holds its ViewModel at the top, the values it shows (`Model/`) and their
   display text (`Presentation/`).
@@ -191,30 +132,8 @@ StarfoldShared/Sources/StarfoldShared/
 
 ## The packages
 
-XboxKit and StreamKit are grouped by domain. A package's root holds only folders.
-
-```text
-StarfoldShared/Sources/TopShelfKit/
-                 TopShelfSnapshot, TopShelfItem, TopShelfLink, TopShelfStore
-
-XboxKit/Sources/XboxKit/
-├── Auth/        device-code sign-in, Microsoft and Xbox Live tokens, accounts
-├── HTTP/        HTTPClient, XboxHTTPError, date parsing
-├── Library/     profile, consoles, the cloud catalogue
-├── Storage/     the keychain and its in-memory stand-in
-└── Streaming/   the session REST API: start, provisioning, SDP and ICE exchange
-
-StreamKit/Sources/StreamKit/
-├── Session/     StreamController and its public values: target, options, phase, updates
-├── Connection/  the peer connection, data channels, ICE gathering, decoder factory
-├── Protocol/    the bytes and messages on the data channels
-├── Input/       controllers, keyboard, rumble and the input sender
-├── Audio/       the stereo audio devices
-├── Rendering/   frame queue, Metal enhancement, frame pacing, the system video layer
-├── Quality/     quality choice and adaptive quality
-├── Statistics/  WebRTC statistics, network diagnostics, the copyable report
-└── Logging/     log categories
-```
+XboxKit and StreamKit are grouped in domain folders (`Auth/`, `Streaming/`, `Input/`,
+`Rendering/`, …). A package's root holds only folders.
 
 A type with more than one job is split by job, not by size: `StreamController` drives the
 lifecycle, `HostChannels` decides the data-channel conversation as pure values the controller

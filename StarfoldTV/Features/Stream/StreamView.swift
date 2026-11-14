@@ -95,27 +95,23 @@ struct StreamView: View {
 
     @ViewBuilder
     private func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
-        switch streamViewModel {
-        case let streamViewModel?:
+        if let streamViewModel {
             SystemDialogView(
                 systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
                 dialog: dialog
             )
             .interactiveDismissDisabled()
-        case nil: EmptyView()
         }
     }
 
     @ViewBuilder
     private var menu: some View {
-        switch streamViewModel {
-        case let streamViewModel?:
+        if let streamViewModel {
             StreamMenuView(
                 settingsViewModel: settingsViewModel,
                 streamViewModel: streamViewModel,
                 onDisconnect: { end() }
             )
-        case nil: EmptyView()
         }
     }
 

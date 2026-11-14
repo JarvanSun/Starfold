@@ -74,9 +74,10 @@ public struct KeyboardGamepad: Equatable, Sendable {
     public mutating func setKey(_ keyCode: UInt16, isDown: Bool) -> Bool {
         guard let key = KeyboardKey(rawValue: keyCode) else { return false }
 
-        switch isDown {
-        case true: pressedKeys.insert(key)
-        case false: pressedKeys.remove(key)
+        if isDown {
+            pressedKeys.insert(key)
+        } else {
+            pressedKeys.remove(key)
         }
 
         return true

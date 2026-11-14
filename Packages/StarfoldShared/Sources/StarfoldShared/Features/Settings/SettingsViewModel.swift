@@ -259,17 +259,15 @@ public final class SettingsViewModel {
     }
 
     public func title(ofBitrate bitrate: Int) -> LocalizedStringResource {
-        switch isAutomatic(bitrate: bitrate) {
-        case true: .init("settings.bitrate.automatic", bundle: .module)
-        case false: .init("settings.bitrate.option \(bitrate)", bundle: .module)
-        }
+        isAutomatic(bitrate: bitrate)
+            ? .init("settings.bitrate.automatic", bundle: .module)
+            : .init("settings.bitrate.option \(bitrate)", bundle: .module)
     }
 
     public func name(ofGameLanguage code: String) -> String {
-        switch isSystem(gameLanguage: code) {
-        case true: String(localized: "settings.gameLanguage.system", bundle: .module)
-        case false: Locale.current.localizedString(forIdentifier: code) ?? code
-        }
+        isSystem(gameLanguage: code)
+            ? String(localized: "settings.gameLanguage.system", bundle: .module)
+            : Locale.current.localizedString(forIdentifier: code) ?? code
     }
 
     public func playerNumber(of controller: ConnectedController) -> Int {

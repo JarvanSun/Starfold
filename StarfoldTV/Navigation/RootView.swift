@@ -82,9 +82,10 @@ struct RootView: View {
 
     @ViewBuilder
     private func background(isStreamPresented: Bool) -> some View {
-        switch isStreamPresented {
-        case true: Color.black.ignoresSafeArea()
-        case false: SkyBackground()
+        if isStreamPresented {
+            Color.black.ignoresSafeArea()
+        } else {
+            SkyBackground()
         }
     }
 

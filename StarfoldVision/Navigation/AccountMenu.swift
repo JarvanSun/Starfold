@@ -69,9 +69,10 @@ struct AccountMenu: View {
 
     @ViewBuilder
     private func accountLabel(_ account: AccountSummary) -> some View {
-        switch account.id == appViewModel.activeAccountID {
-        case true: Label(account.gamertag, systemImage: "checkmark")
-        case false: Text(account.gamertag)
+        if account.id == appViewModel.activeAccountID {
+            Label(account.gamertag, systemImage: "checkmark")
+        } else {
+            Text(account.gamertag)
         }
     }
 
@@ -103,13 +104,10 @@ struct AccountMenu: View {
 
     @ViewBuilder
     private var gamerscore: some View {
-        switch appViewModel.profile?.gamerscore {
-        case let score?:
+        if let score = appViewModel.profile?.gamerscore {
             Text("home.account.gamerscore \(score.formatted())")
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
-        case nil:
-            EmptyView()
         }
     }
 }

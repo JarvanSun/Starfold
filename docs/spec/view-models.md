@@ -4,90 +4,24 @@ A View lays out values and forwards what the person does; its ViewModel holds th
 decision. ViewModels are shared by all platforms, one per feature, in
 `StarfoldShared/Features/<Feature>/`.
 
-## The ViewModels
+## Ownership and services
 
-| ViewModel | Lives | Owns |
-|---|---|---|
-| `AppViewModel` | App lifetime; one per app, in the environment | Who is signed in, the accounts, the profile, the account's `HomeViewModel` and `LibraryViewModel`, the current `StreamViewModel` and each request to show it |
-| `SignInViewModel` | One sign-in screen | The device code and its renewal, retrying, the panel's step, when the sheet closes, the welcome features |
-| `HomeViewModel` | One signed-in account | Consoles, `consolesContent`, each console's status, cover and power control, playing a console, the power problem |
-| `LibraryViewModel` | One signed-in account | Cloud games, recent, curated rows, favourites, search text and results, sort, shelves, the placeholder |
-| `GameDetailViewModel` | One game's page | The game's artwork, inputs and facts ready to show, favourite, playing it |
-| `SettingsViewModel` | App lifetime | Settings and their choices, controllers, accounts to switch to, signing out, restarting a stream |
-| `StreamViewModel` | One stream | Phase, statistics, host dialogs, the renderer, input wiring |
-
-- `AppViewModel` creates the per-account ViewModels (switching accounts replaces them), the
-  per-stream one (a restart replaces it) and each `SignInViewModel` (`makeSignInViewModel()`).
-- A feature's View never creates a ViewModel: `Navigation/` hands it one. `SignInHostView` asks
-  for a `SignInViewModel` when its screen appears and keeps it while shown.
-
-## Services
-
-A ViewModel reaches the outside world only through services it is given: protocols in
-`StarfoldShared/Services/`, each with a `Live…` implementation beside it.
-
-```swift
-public protocol AccountService {
-    func restoreAccounts() async -> [SignedInAccount]
-    func beginSignIn() async throws -> DeviceCodePrompt
-    func completeSignIn(
-        _ prompt: DeviceCodePrompt,
-        onAuthorized: @escaping @MainActor () -> Void
-    ) async throws -> SignedInAccount
-    func profile(of account: SignedInAccount) async throws -> XboxProfile
-    func signOut(_ account: SignedInAccount) throws
-}
-
-public protocol ConsoleService {
-    func consoles() async throws -> [Console]
-    func activity() async throws -> ConsoleActivity?
-    func send(_ command: XboxLiveClient.PowerCommand, to consoleID: String) async throws
-}
-
-public protocol CloudLibraryService {
-    func library() async throws -> CloudLibrary
-}
-
-public protocol StreamService {
-    func connect(to target: StreamTarget, options: StreamOptions) async throws -> StreamConnection
-    func setDirectStereo(_ isEnabled: Bool)
-}
-```
-
-- `SignedInAccount` is an account's `AccountSummary` (xuid, gamertag) and its `ConsoleService`,
-  `CloudLibraryService` and `StreamService`; it holds no token, so previews and tests build one
-  from made-up values. `AppViewModel` keeps them by xuid.
+- `AppViewModel` lives for the app, one per app, in the environment. It creates the per-account
+  ViewModels (switching accounts replaces them), the per-stream one (a restart replaces it) and
+  each `SignInViewModel`.
+- A feature's View never creates a ViewModel: `Navigation/` hands it one.
+- A ViewModel reaches the outside world only through services it is given: protocols in
+  `StarfoldShared/Services/`, each with a `Live…` implementation beside it. Live services hold
+  protocol quirks; ViewModels hold state, order and saved snapshots.
 - Services throw XboxKit's errors; a ViewModel turns `XboxAccountError.signInRequired` into
-  `onSignInRequired`, which `AppViewModel` sets to raise `isSignInExpired`.
-- `StreamService.connect` answers with a `StreamConnection` (`updates`, `start(sink:)`,
-  `stop(reason:)`, `setGamepad`, `pressGuide()`, `requestKeyframe()`, `answerDialog`,
-  `answerKeyboard`), backed by StreamKit's `StreamController`. `StreamViewModel.start()` connects
-  in a `Task` it owns and reads updates until the stream ends.
-- `StreamViewModel` answers every question its screens ask (`status`, `isShowingControls`,
-  `statisticsReadout`, `canOpenMenu`, `needsController`, …) and applies picture, buffer and sound
-  settings itself whenever `Preferences` changes, so no screen forwards a setting. What to apply
-  is `StreamPlaybackSettings`, a value computed from `Preferences` and `PictureCapabilities`.
-  `tryAgain()` asks `AppViewModel` for a new stream through `onRestart`; closing stays with
-  `Navigation/`, which owns the window or cover.
-- The console's system dialogs are `StreamViewModel.dialogs`, a `SystemDialogsViewModel` it
-  creates and feeds from the connection's updates: the queue, the presented dialog, the drafted
-  text and the answers. `SystemDialogView` talks to it, not to the stream.
-- Live services hold protocol quirks (SmartGlass fallback, cloud access, catalogue joins);
-  ViewModels hold state, order (by name) and saved snapshots: each per-account ViewModel restores
-  and saves its part through `LibraryCache` (`HomeSnapshot`, `LibrarySnapshot`).
-- `SettingsViewModel` exposes each setting as a bindable property backed by `Preferences`, the
-  choices each picker offers, what the platform allows (`canToneMapHDR`, from the
-  `PictureCapabilities` passed in), and what needs the app as intents and queries
-  (`switchAccount(to:)`, `signOut()`, `needsStreamRestart`). Which sections exist is the
-  platform's `SettingsView`.
-- A ViewModel that needs the app sees only a narrow protocol `AppViewModel` conforms to:
-  `SigningIn` for `SignInViewModel`, `SessionControlling` for `SettingsViewModel`. Tests give a
-  stub.
-- Storage is plain types given in: `Preferences` (`UserDefaults`), `FavoritesStore`,
-  `LibraryCache`. Services, storage and their signature values are `public` where an app or a
-  preview builds or reads them.
-- `AppDependencies` (`StarfoldShared/App/`) is the composition root: it builds the live services
-  once and hands them to `AppViewModel`. No ViewModel has a preview-only or debug-only entry point.
+  `onSignInRequired`.
+- A ViewModel that needs the app sees only a narrow protocol `AppViewModel` conforms to
+  (`SigningIn`, `SessionControlling`), so tests give a stub.
+- Storage is plain types given in (`Preferences`, `FavoritesStore`, `LibraryCache`).
+- `AppDependencies` is the composition root: it builds the live services once and hands them to
+  `AppViewModel`. No ViewModel has a preview-only or debug-only entry point.
+- A screen never forwards a setting: the ViewModel that needs it applies it when `Preferences`
+  changes (`StreamViewModel` computes `StreamPlaybackSettings` from them).
 
 ## Shape
 
@@ -141,16 +75,5 @@ public protocol StreamService {
 ## Previews
 
 `PreviewObjectPool` builds real ViewModels on preview services that answer at once (`loaded`),
-never (`loading`) or fail (`failed`), via `PreviewReply`; the View's own `.task` does the rest
-([swift-style.md](swift-style.md#preview-data)). The preview services are
-`PreviewAccountService`, `PreviewConsoleService`, `PreviewCloudLibraryService`,
-`PreviewStreamService` and `PreviewStreamConnection`. A stream preview never shows a first frame.
-
-| Member | Gives |
-|---|---|
-| `appViewModel(signedIn:)`, `appViewModel(streamPhase:)` | An `AppViewModel` with one preview account or none, optionally already streaming |
-| `signInViewModel(phase:)` | A `SignInViewModel` that reaches that phase |
-| `homeViewModel(state:consoles:)`, `libraryViewModel(state:games:access:)` | Per-account ViewModels whose loads succeed, hang or fail |
-| `gameDetailViewModel`, `settingsViewModel` | The first preview game's page; Settings on the previews' own `UserDefaults` suite |
-| `streamViewModel(phase:dialogs:)`, `cloudStreamViewModel(phase:)` | A started `StreamViewModel` in that phase |
-| Values (`consoles`, `cloudGames`, `systemDialogs`, …) and states (`queuedPhase`, `failedLoadState`, …) | Made-up values and states to pass in |
+never (`loading`) or fail (`failed`); the View's own `.task` does the rest
+([swift-style.md](swift-style.md#preview-data)). A stream preview never shows a first frame.

@@ -90,10 +90,7 @@ public struct PrimaryButtonStyle: ButtonStyle {
     private var glowColor: Color {
         let shadowOpacity = 0.6
 
-        return switch palette.hasPrimaryGlow {
-        case true: palette.primaryTint
-        case false: .black.opacity(shadowOpacity)
-        }
+        return palette.hasPrimaryGlow ? palette.primaryTint : .black.opacity(shadowOpacity)
     }
 
     private var pressAnimation: Animation {

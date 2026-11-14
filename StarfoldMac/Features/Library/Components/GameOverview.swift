@@ -16,9 +16,8 @@ struct GameOverview: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: dimensions.spaceXXLarge) {
-            switch about {
-            case let about?: aboutSection(about)
-            case nil: EmptyView()
+            if let about {
+                aboutSection(about)
             }
 
             GameFacts(facts: facts)

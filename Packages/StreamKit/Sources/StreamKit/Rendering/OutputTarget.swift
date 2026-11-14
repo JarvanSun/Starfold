@@ -14,9 +14,10 @@ struct OutputTarget {
     let texture: MTLTexture
 
     func tagColor(from source: CVPixelBuffer, isToneMappingHDR: Bool) {
-        switch isToneMappingHDR {
-        case true: tagAsPQ()
-        case false: copyColorAttachments(from: source)
+        if isToneMappingHDR {
+            tagAsPQ()
+        } else {
+            copyColorAttachments(from: source)
         }
     }
 

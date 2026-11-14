@@ -37,9 +37,10 @@ public nonisolated struct TopShelfStore: Sendable {
     public func save(_ snapshot: TopShelfSnapshot) -> Bool {
         guard let file, load() != snapshot else { return false }
 
-        switch snapshot.isEmpty {
-        case true: try? FileManager.default.removeItem(at: file)
-        case false: write(snapshot, to: file)
+        if snapshot.isEmpty {
+            try? FileManager.default.removeItem(at: file)
+        } else {
+            write(snapshot, to: file)
         }
 
         return true

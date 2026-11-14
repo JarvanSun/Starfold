@@ -14,9 +14,8 @@ struct QRCodeView: View {
     let qrCode: QRCode
 
     var body: some View {
-        switch qrCode.image {
-        case let image?: picture(image)
-        case nil: EmptyView()
+        if let image = qrCode.image {
+            picture(image)
         }
     }
 

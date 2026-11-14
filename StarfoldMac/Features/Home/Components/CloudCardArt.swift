@@ -24,9 +24,10 @@ struct CloudCardArt: View {
                 endPoint: .bottom
             )
 
-            switch covers.isEmpty {
-            case true: placeholder
-            case false: coverFan
+            if covers.isEmpty {
+                placeholder
+            } else {
+                coverFan
             }
         }
         .animation(.smooth(duration: 0.5), value: covers)

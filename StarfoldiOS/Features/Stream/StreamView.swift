@@ -34,9 +34,8 @@ struct StreamView: View {
                 statusView
             }
 
-            switch streamViewModel.touchControlsViewModel {
-            case let touchControlsViewModel?: touchLayer(touchControlsViewModel)
-            case nil: EmptyView()
+            if let touchControlsViewModel = streamViewModel.touchControlsViewModel {
+                touchLayer(touchControlsViewModel)
             }
 
             if streamViewModel.isShowingStatistics {

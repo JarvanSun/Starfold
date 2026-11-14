@@ -143,9 +143,7 @@ public final class TouchLayoutEditorViewModel {
     }
 
     private func adjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
-        switch orientation == self.orientation {
-        case true: adjustments
-        case false: preferences.touchLayoutAdjustments(for: orientation)
-        }
+        orientation == self.orientation
+            ? adjustments : preferences.touchLayoutAdjustments(for: orientation)
     }
 }

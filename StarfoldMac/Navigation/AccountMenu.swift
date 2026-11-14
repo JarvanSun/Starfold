@@ -62,9 +62,10 @@ struct AccountMenu: View {
 
     @ViewBuilder
     private func accountLabel(_ account: AccountSummary) -> some View {
-        switch account.id == appViewModel.activeAccountID {
-        case true: Label(account.gamertag, systemImage: "checkmark")
-        case false: Text(account.gamertag)
+        if account.id == appViewModel.activeAccountID {
+            Label(account.gamertag, systemImage: "checkmark")
+        } else {
+            Text(account.gamertag)
         }
     }
 

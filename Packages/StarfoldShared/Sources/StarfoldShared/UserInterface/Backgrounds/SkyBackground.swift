@@ -67,10 +67,7 @@ public struct SkyBackground: View {
     private func shaderTime(at date: Date) -> Float {
         let stillFrameTime: Float = 12
 
-        return switch reduceMotion {
-        case true: stillFrameTime
-        case false: Float(date.timeIntervalSince(start))
-        }
+        return reduceMotion ? stillFrameTime : Float(date.timeIntervalSince(start))
     }
 
     private var isPaused: Bool {

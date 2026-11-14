@@ -120,17 +120,11 @@ struct GameTile: View {
     }
 
     private var playButtonTransition: AnyTransition {
-        switch reduceMotion {
-        case true: .opacity
-        case false: .scale(scale: 0.6).combined(with: .opacity)
-        }
+        reduceMotion ? .opacity : .scale(scale: 0.6).combined(with: .opacity)
     }
 
     private var nameStyle: HierarchicalShapeStyle {
-        switch isLifted {
-        case true: .primary
-        case false: .secondary
-        }
+        isLifted ? .primary : .secondary
     }
 }
 

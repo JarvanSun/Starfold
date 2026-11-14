@@ -185,9 +185,10 @@ public final class HomeViewModel {
             let age = consoleListAge
             let isListFresh = age < threshold
 
-            switch isListFresh {
-            case true: try? await clock.sleep(for: threshold - age)
-            case false: await refreshConsoles()
+            if isListFresh {
+                try? await clock.sleep(for: threshold - age)
+            } else {
+                await refreshConsoles()
             }
 
             threshold = interval

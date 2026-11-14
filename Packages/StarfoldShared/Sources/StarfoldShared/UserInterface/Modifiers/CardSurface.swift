@@ -41,10 +41,7 @@ private struct CardSurface: ViewModifier {
     }
 
     private var border: AnyShapeStyle {
-        switch isHighlighted {
-        case true: .init(palette.primaryFill)
-        case false: .init(.cardStroke)
-        }
+        isHighlighted ? .init(palette.primaryFill) : .init(.cardStroke)
     }
 
     private var borderWidth: CGFloat {

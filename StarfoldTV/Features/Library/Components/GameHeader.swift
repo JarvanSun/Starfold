@@ -17,9 +17,8 @@ struct GameHeader: View {
         VStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
             Text(gameDetailViewModel.name).font(.largeTitle.bold())
 
-            switch gameDetailViewModel.publisher {
-            case let publisher?: Text(publisher).foregroundStyle(.secondary)
-            case nil: EmptyView()
+            if let publisher = gameDetailViewModel.publisher {
+                Text(publisher).foregroundStyle(.secondary)
             }
 
             HStack(spacing: dimensions.spaceXXLarge) {

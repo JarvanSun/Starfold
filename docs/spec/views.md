@@ -10,32 +10,32 @@ platform.
 struct HomeView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let home: HomeViewModel
-    let library: LibraryViewModel
+    let homeViewModel: HomeViewModel
+    let libraryViewModel: LibraryViewModel
 
     var body: some View {
         ScrollView {
             VStack(spacing: dimensions.spaceXXLarge) {
-                HomeCardRow(home: home, library: library)
+                HomeCardRow(homeViewModel: homeViewModel, libraryViewModel: libraryViewModel)
 
                 RecentGamesRow(
-                    games: library.recentGames(limit: recentGameLimit),
-                    onPlay: library.play(_:)
+                    games: libraryViewModel.recentGames(limit: recentGameLimit),
+                    onPlay: { libraryViewModel.play($0) }
                 )
             }
         }
-        .refreshable { await home.refreshAccount() }
+        .refreshable { await homeViewModel.refreshAccount() }
     }
 }
 ```
 
-- A page's `body` is the list of its sections and nothing else. Each section is its own View in
-  the feature's `Components/` with its own preview, named for what it shows (`HomeCardRow`), never
-  where it sits (`TopView`).
+- A page's `body` reads as the list of its sections. A section becomes its own View in the
+  feature's `Components/`, with its own preview, when it has its own inputs or state, is reused,
+  or would make the `body` hard to scan; a short, plain section stays a private computed view of
+  the page. Either way it is named for what it shows (`HomeCardRow`), never where it sits
+  (`TopView`).
 - A section receives the values and actions it needs, not the whole model, unless it needs
   bindings or observes many properties.
-- `private` computed views are only for small details inside one component (a badge, a label),
-  never a section.
 - Closure properties are named for the event (`onPlay`, `onRetry`).
 - Actions and content builders are written as closures, never passed by name (a method, an
   initializer or a closure property): `Button("retry") { onRetry() }`, `onPlay: { play() }`,
@@ -73,12 +73,13 @@ ViewModel query or a presentation extension ([view-models.md](view-models.md#int
 
 ## State in the body
 
-- Optional content uses `overlay(if:)` or a `switch` over the optional, never `if let`.
+- Optional content may use `if let`; content laid over other content uses `overlay(if:)`.
 - Mutually exclusive content is a `switch` over an enum the ViewModel answers with
   (`LibraryPlaceholder`, `ConsolesContent`); each case is a line or a few calling an extracted
   piece.
-- No inline conditionals picking strings, symbols, colours or actions: they come from a
-  presentation extension or a private `switch`.
+- A choice between two strings, symbols, colours or actions on one `Bool` may be a ternary
+  (`isFavorite ? "heart.fill" : "heart"`); a choice among more, or one that reads model data,
+  comes from a presentation extension or a private `switch`.
 - No literal colours, strings or sizes. Every spacing, padding, frame size, corner radius, line
   width and point size is read from `@Environment(\.dimensions)`
   ([user-interface.md](user-interface.md#spacing-and-sizes)); a view never declares its own size
