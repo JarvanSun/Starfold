@@ -21,42 +21,6 @@ final class BackgroundStreamEnd {
         endNow(stop)
     }
 
-    func endBeforeTimeRunsOut(_ stop: @escaping () async -> Void) {
-        guard begin(onExpiry: stop) else { return }
-
-        log.info("Keeping the stream while the app is in the background")
-
-        deadline = Task { [weak self] in
-            let endingMargin: TimeInterval = 5
-            let longestKept: Duration = .seconds(60)
-            let checkInterval: Duration = .seconds(1)
-            let leftAt = ContinuousClock.now
-
-            while UIApplication.shared.backgroundTimeRemaining > endingMargin,
-                ContinuousClock.now - leftAt < longestKept
-            {
-                try? await Task.sleep(for: checkInterval)
-
-                guard !Task.isCancelled else { return }
-            }
-
-            self?.log.info("Ending the stream before the background time runs out")
-
-            self?.endNow(stop)
-        }
-    }
-
-    func keepStream() {
-        guard let deadline else { return }
-
-        deadline.cancel()
-        self.deadline = nil
-
-        log.info("Back before the stream had to end")
-
-        finish()
-    }
-
     private func begin(onExpiry stop: @escaping () async -> Void) -> Bool {
         guard task == .invalid else { return false }
 
@@ -92,5 +56,41 @@ final class BackgroundStreamEnd {
         UIApplication.shared.endBackgroundTask(task)
 
         task = .invalid
+    }
+
+    func endBeforeTimeRunsOut(_ stop: @escaping () async -> Void) {
+        guard begin(onExpiry: stop) else { return }
+
+        log.info("Keeping the stream while the app is in the background")
+
+        deadline = Task { [weak self] in
+            let endingMargin: TimeInterval = 5
+            let longestKept: Duration = .seconds(60)
+            let checkInterval: Duration = .seconds(1)
+            let leftAt = ContinuousClock.now
+
+            while UIApplication.shared.backgroundTimeRemaining > endingMargin,
+                ContinuousClock.now - leftAt < longestKept
+            {
+                try? await Task.sleep(for: checkInterval)
+
+                guard !Task.isCancelled else { return }
+            }
+
+            self?.log.info("Ending the stream before the background time runs out")
+
+            self?.endNow(stop)
+        }
+    }
+
+    func keepStream() {
+        guard let deadline else { return }
+
+        deadline.cancel()
+        self.deadline = nil
+
+        log.info("Back before the stream had to end")
+
+        finish()
     }
 }
