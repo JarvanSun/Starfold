@@ -319,7 +319,7 @@ start-up values in [Data channels](#data-channels).
 |---|---|
 | Does the title have touch? | `POST /v2/titles/inputconfigs` `{titleIds, titleIdType}` (`titleIdType` `xboxTitleId`, after `/streaming/properties/titleinfo` names the running title). Each entry has `supportedTabs` (`[{id}]`) and `supportedInputTypes` (`Controller`, `MKB`, `CustomTouchOverlay`, `GenericTouch`, `NativeTouch`, `NativeSensor`). Cloud titles carry the same two fields. A non-empty `supportedTabs` means a title layout. |
 | Its layout bundle | `GET /v1/sessions/tabs/<tabId>/download?noRedirect=true` with the gssv token returns a URL as plain text. A plain `GET` of that URL, without the token, returns a zip: `takxmanifest.json`, `layouts/<locale>/*.json` (falling back to `neutral`), `assets/<locale>/@Nx/*.png`, optional `context.json`. The URL's host is unconfirmed. |
-| Turning touch on | Session config `inputConfiguration.enableTouchInput` and `maxTouchPoints`; `touchinputenabledchanged {"touchInputEnabled": true}`; `clientdevicecapabilities {"maxTouchBundleLayoutVersion": "4.1.0.0", "maxTouchBundleManifestVersion": "2.0.0.0"}`; `/streaming/characteristics/touchBundleMetadataChanged {version, versionName}` for the loaded bundle. |
+| Turning touch on | `maxTouchPoints` in the input channel's client metadata (the web client's session `inputConfiguration` is not sent, and touch works without it); `touchinputenabledchanged {"touchInputEnabled": true}`; `clientdevicecapabilities {"maxTouchBundleLayoutVersion": "4.1.0.0", "maxTouchBundleManifestVersion": "2.0.0.0"}`; `/streaming/characteristics/touchBundleMetadataChanged {version, versionName}` for the loaded bundle. |
 
 When `titleinfo` names a focused title, ask for its bundle, send `touchBundleMetadataChanged` once
 it is loaded, and resolve the layout again after each `patchstate`.
@@ -381,6 +381,7 @@ The description is `<code>: <message>` for `GSSVSessionError.failed`, `Timed out
 | `Timed out waiting for state` | Console not ready within 90 s | Timed out waiting for the console |
 | HTTP 409 `DuplicateSessionRequest` | A second `/play` for the same user and title while the first provisions | Duplicate session |
 | HTTP 400 on `/play` | No Game Pass or ownership for a cloud title | HTTP 400 when starting |
+| `.connectionLost` (the peer failed mid-stream) | The network dropped | Network dropped |
 | `XboxAccountError.signInRequired` | Refresh token rejected | Sign-in no longer valid; the app also asks to sign in again |
 | `XboxAccountError.cloudGamingUnavailable` | Neither cloud offering available | The library shows cloud gaming as unavailable |
 | `CommandRejected` or no xccs reply | Power command did not reach the console | The library reports a power problem |

@@ -84,7 +84,10 @@ public struct CatalogClient: Sendable {
                     "calling-app-name": "Xbox Cloud Gaming Web",
                     "calling-app-version": "24.17.63",
                 ],
-                body: try JSONSerialization.data(withJSONObject: ["Products": ids])
+                body: try JSONSerialization.data(
+                    withJSONObject: ["Products": ids],
+                    options: [.withoutEscapingSlashes]
+                )
             )
         )
         return products(in: body)

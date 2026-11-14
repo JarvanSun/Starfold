@@ -47,6 +47,23 @@ struct GSSVSessionTests {
     }
 
     @Test
+    func waitUntilProvisionedWhenTokenHasSlashesThenSendsThemUnescaped() async throws {
+        // Given
+        let server = XboxServerStub()
+        server.on(stateURL, json: .dummySessionState("ReadyToConnect"))
+        server.on(stateURL, json: .dummySessionState("Provisioned"))
+        server.on(connectURL, json: "{}")
+        let session = makeSession(server: server)
+
+        // When
+        try await session.waitUntilProvisioned(transferToken: { "a/b" }, pollInterval: .zero)
+
+        // Then
+        let body = try #require(server.requests(to: connectURL).first?.body)
+        #expect(String(decoding: body, as: UTF8.self) == #"{"userToken":"a/b"}"#)
+    }
+
+    @Test
     func waitUntilProvisionedWhenQueuedThenReportsEstimateOnce() async throws {
         // Given
         let server = XboxServerStub()

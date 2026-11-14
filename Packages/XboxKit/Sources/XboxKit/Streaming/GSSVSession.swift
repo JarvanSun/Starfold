@@ -67,7 +67,10 @@ public struct GSSVSession: Sendable {
         _ = try await gssvClient.send(
             to: url.appending(path: "connect"),
             method: "POST",
-            body: try JSONSerialization.data(withJSONObject: ["userToken": userToken])
+            body: try JSONSerialization.data(
+                withJSONObject: ["userToken": userToken],
+                options: [.withoutEscapingSlashes]
+            )
         )
     }
 
