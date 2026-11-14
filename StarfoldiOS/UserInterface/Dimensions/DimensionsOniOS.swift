@@ -76,7 +76,6 @@ extension Dimensions {
     var touchInspectorTopInset: CGFloat { 72 }
     var touchEditorSliderWidth: CGFloat { 160 }
     var touchEditorButtonSize: CGFloat { 44 }
-    var settingsMaxWidth: CGFloat { 720 }
     var touchPlaceholderDash: CGFloat { 6 }
 
     func homeCardHeight(forVerticalSizeClass sizeClass: UserInterfaceSizeClass?) -> CGFloat {
