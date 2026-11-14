@@ -14,7 +14,7 @@ import XboxKit
 
 extension PreviewObjectPool {
     static var favoritesStore: FavoritesStore {
-        preferences.favorites(for: profile.xuid)
+        preferences.makeFavoritesStore(for: profile.xuid)
     }
 
     static func libraryViewModel(

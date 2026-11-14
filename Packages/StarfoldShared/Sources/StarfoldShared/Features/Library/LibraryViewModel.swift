@@ -111,7 +111,7 @@ public final class LibraryViewModel {
         self.cloudLibraryService = cloudLibraryService
         self.preferences = preferences
         self.libraryCache = libraryCache
-        self.favoritesStore = preferences.favorites(for: accountID)
+        self.favoritesStore = preferences.makeFavoritesStore(for: accountID)
 
         if let snapshot = libraryCache.librarySnapshot(for: accountID) {
             restore(snapshot)
@@ -190,7 +190,7 @@ public final class LibraryViewModel {
         onPlay(.cloud(titleID: game.id, name: game.name))
     }
 
-    public func detail(for game: CloudGame) -> GameDetailViewModel {
+    public func makeGameDetailViewModel(for game: CloudGame) -> GameDetailViewModel {
         .init(
             game: game,
             favoritesStore: favoritesStore,

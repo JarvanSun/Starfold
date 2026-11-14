@@ -31,7 +31,7 @@ struct LibraryHostView: View {
     private func page(_ library: LibraryViewModel) -> some View {
         LibraryView(libraryViewModel: library)
             .navigationDestination(for: CloudGame.self) { game in
-                GameDetailView(gameDetailViewModel: library.detail(for: game))
+                GameDetailView(gameDetailViewModel: library.makeGameDetailViewModel(for: game))
             }
     }
 }

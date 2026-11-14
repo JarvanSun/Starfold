@@ -33,7 +33,7 @@ struct HomeHostView: View {
     private func page(home: HomeViewModel, library: LibraryViewModel) -> some View {
         HomeView(homeViewModel: home, libraryViewModel: library, onBrowse: onBrowse)
             .navigationDestination(for: CloudGame.self) { game in
-                GameDetailView(gameDetailViewModel: library.detail(for: game))
+                GameDetailView(gameDetailViewModel: library.makeGameDetailViewModel(for: game))
             }
     }
 }

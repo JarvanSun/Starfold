@@ -54,9 +54,9 @@ decision. ViewModels are shared by all platforms, one per feature, in
   `switchAccount(to:)`, `togglePower(of:)`). An intent guards its precondition, changes state,
   then starts work.
 - The View asks; it never computes ([views.md](views.md#what-a-view-may-decide)). Every page has a
-  ViewModel, including a page reached from another (`LibraryViewModel.detail(for:)` makes a
-  `GameDetailViewModel`). A question about an element is a method (`cover(for:)`), about the whole
-  a property (`isStreaming`).
+  ViewModel, including a page reached from another
+  (`LibraryViewModel.makeGameDetailViewModel(for:)`). A question about an element is a method
+  (`cover(for:)`), about the whole a property (`isStreaming`).
 - An action that needs the app is still an intent of the page's ViewModel, calling a closure
   `AppViewModel` sets: `play(_:)` calls `onPlay` with the `StreamTarget`, `refreshAccount()` calls
   `onRefreshAccount`; `GameDetailViewModel.play()` goes through its library. `AppViewModel`

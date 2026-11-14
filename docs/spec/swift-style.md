@@ -59,6 +59,7 @@ succeed.
 | Boolean | `is` / `has` / `can` / `should` | `isStreaming` | `streaming` |
 | Intent method | Verb phrase the user would say | `play(_:)` | `handleTap()` |
 | Query method | Noun phrase or `is…(_:)` | `cover(for:)` | `getCover(_:)` |
+| Factory method | `make…`: only creates and returns a new object; one returning a cached instance it creates the first time is not a factory | `makeGameDetailViewModel(for:)`, `makeHomeClient(httpClient:)` | `detail(for:)`, `homeClient(httpClient:)` |
 | Closure property | What happens | `onRetry` | `callback` |
 | Test double | `Stub` suffix | `XboxServerStub` | `MockStuff` |
 | ViewModel property | The type's name | `homeViewModel: HomeViewModel` | `home: HomeViewModel` |

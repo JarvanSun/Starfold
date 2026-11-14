@@ -168,10 +168,10 @@ struct PreferencesTests {
         let preferences = Preferences(defaults: .dummyEmpty)
 
         // When
-        preferences.favorites(for: "1111").toggle("ALPHA")
+        preferences.makeFavoritesStore(for: "1111").toggle("ALPHA")
 
         // Then
-        #expect(preferences.favorites(for: "2222").titleIDs.isEmpty)
-        #expect(preferences.favorites(for: "1111").contains("ALPHA"))
+        #expect(preferences.makeFavoritesStore(for: "2222").titleIDs.isEmpty)
+        #expect(preferences.makeFavoritesStore(for: "1111").contains("ALPHA"))
     }
 }

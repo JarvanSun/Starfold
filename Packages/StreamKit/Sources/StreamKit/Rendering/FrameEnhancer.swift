@@ -63,7 +63,7 @@ final class FrameEnhancer {
     }
 
     func enhance(_ frame: CVPixelBuffer, request: EnhancementRequest) -> CVPixelBuffer? {
-        guard let planes = planeTextures(frame),
+        guard let planes = makePlaneTextures(from: frame),
             let commands = commandQueue.makeCommandBuffer()
         else { return nil }
 
@@ -126,7 +126,7 @@ final class FrameEnhancer {
         return target.pixelBuffer
     }
 
-    private func planeTextures(_ frame: CVPixelBuffer) -> PlaneTextures? {
+    private func makePlaneTextures(from frame: CVPixelBuffer) -> PlaneTextures? {
         guard CVPixelBufferGetPlaneCount(frame) == 2 else {
             log.error("Unsupported pixel format \(CVPixelBufferGetPixelFormatType(frame))")
 

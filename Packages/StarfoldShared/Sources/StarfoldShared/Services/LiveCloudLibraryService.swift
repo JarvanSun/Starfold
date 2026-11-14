@@ -28,7 +28,7 @@ struct LiveCloudLibraryService: CloudLibraryService {
     }
 
     private func loadLibrary(started: ContinuousClock.Instant) async throws -> CloudLibrary {
-        let client = try await xboxAccount.cloudClient(httpClient: httpClient)
+        let client = try await xboxAccount.makeCloudClient(httpClient: httpClient)
         log.info("Cloud signed in +\(self.elapsed(since: started), privacy: .public)")
 
         async let titlesFetch = client.titles()
@@ -37,7 +37,7 @@ struct LiveCloudLibraryService: CloudLibraryService {
         let recentTitles = (try? await recentFetch) ?? []
         log.info("Cloud titles fetched +\(self.elapsed(since: started), privacy: .public)")
 
-        let catalog = await catalogClient()
+        let catalog = await makeCatalogClient()
         let games = await games(for: titles.filter(\.isPlayable), from: catalog)
         log.info("Cloud catalog fetched +\(self.elapsed(since: started), privacy: .public)")
 
@@ -63,7 +63,7 @@ struct LiveCloudLibraryService: CloudLibraryService {
         (ContinuousClock.now - start).formatted(.units(allowed: [.milliseconds]))
     }
 
-    private func catalogClient() async -> CatalogClient {
+    private func makeCatalogClient() async -> CatalogClient {
         let fallbackMarket = "US"
         let market = await xboxAccount.market ?? Locale.current.region?.identifier ?? fallbackMarket
         let fallbackLanguage = "en-US"

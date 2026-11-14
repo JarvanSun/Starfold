@@ -24,7 +24,7 @@ struct LiveStreamService: StreamService {
 
     func connect(to target: StreamTarget, options: StreamOptions) async throws -> StreamConnection {
         let pressed = ContinuousClock.now
-        let client = try await streamingClient(for: target)
+        let client = try await makeStreamingClient(for: target)
         log.info(
             "Startup streaming token ready +\((ContinuousClock.now - pressed).formatted(.units(allowed: [.milliseconds])), privacy: .public)"
         )
@@ -38,16 +38,16 @@ struct LiveStreamService: StreamService {
         return LiveStreamConnection(streamController: controller, streamRuntime: streamRuntime)
     }
 
-    private func streamingClient(for target: StreamTarget) async throws -> GSSVClient {
+    private func makeStreamingClient(for target: StreamTarget) async throws -> GSSVClient {
         switch target {
-        case .console: try await xboxAccount.homeClient(httpClient: httpClient)
-        case .cloud: try await xboxAccount.cloudClient(httpClient: httpClient)
+        case .console: try await xboxAccount.makeHomeClient(httpClient: httpClient)
+        case .cloud: try await xboxAccount.makeCloudClient(httpClient: httpClient)
         }
     }
 
     func touchBundle(forTitle titleID: String, on target: StreamTarget) async throws -> TouchBundle?
     {
-        let client = try await streamingClient(for: target)
+        let client = try await makeStreamingClient(for: target)
         let configurations = try await client.inputConfigurations(xboxTitleIDs: [titleID])
 
         guard let bundleID = configurations.first?.touchBundleIDs.first else { return nil }

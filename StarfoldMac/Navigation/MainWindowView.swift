@@ -55,7 +55,8 @@ struct MainWindowView: View {
     private func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
         switch route {
         case .cloudLibrary: LibraryView(libraryViewModel: library) { homePath.append(.game($0)) }
-        case .game(let game): GameDetailView(gameDetailViewModel: library.detail(for: game))
+        case .game(let game):
+            GameDetailView(gameDetailViewModel: library.makeGameDetailViewModel(for: game))
         }
     }
 

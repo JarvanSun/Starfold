@@ -173,7 +173,7 @@ public final class Preferences {
         defaults.set(encoded, forKey: touchLayoutKey(for: orientation))
     }
 
-    public func favorites(for xuid: String) -> FavoritesStore {
+    public func makeFavoritesStore(for xuid: String) -> FavoritesStore {
         .init(defaults: defaults, key: favoritesKey(for: xuid))
     }
 

@@ -99,7 +99,7 @@ public actor XboxAccount {
         }
     }
 
-    public func homeClient(httpClient: HTTPClient) async throws -> GSSVClient {
+    public func makeHomeClient(httpClient: HTTPClient) async throws -> GSSVClient {
         let token = try await homeStreamingToken()
         guard let region = token.defaultRegion else {
             throw XboxHTTPError(
@@ -126,7 +126,7 @@ public actor XboxAccount {
         save()
     }
 
-    public func cloudClient(httpClient: HTTPClient) async throws -> GSSVClient {
+    public func makeCloudClient(httpClient: HTTPClient) async throws -> GSSVClient {
         let token = try await cloudStreamingToken()
         guard let region = token.defaultRegion else {
             throw XboxAccountError.cloudGamingUnavailable

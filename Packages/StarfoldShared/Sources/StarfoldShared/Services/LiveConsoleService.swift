@@ -21,7 +21,8 @@ struct LiveConsoleService: ConsoleService {
     }
 
     func consoles() async throws -> [Console] {
-        let remotePlayConsoles = try await xboxAccount.homeClient(httpClient: httpClient).consoles()
+        let remotePlayConsoles = try await xboxAccount.makeHomeClient(httpClient: httpClient)
+            .consoles()
         guard remotePlayConsoles.isEmpty else { return remotePlayConsoles }
 
         return try await xboxLiveClient.consoles()

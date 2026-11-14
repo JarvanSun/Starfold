@@ -32,7 +32,7 @@ struct SearchHostView: View {
         SearchResultsView(libraryViewModel: library)
             .searchable(text: Bindable(library).searchText, prompt: Text("search.field.prompt"))
             .navigationDestination(for: CloudGame.self) { game in
-                GameDetailView(gameDetailViewModel: library.detail(for: game))
+                GameDetailView(gameDetailViewModel: library.makeGameDetailViewModel(for: game))
             }
     }
 }

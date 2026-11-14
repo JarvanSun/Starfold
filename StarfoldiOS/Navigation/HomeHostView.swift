@@ -43,7 +43,7 @@ struct HomeHostView: View {
     }
 
     private func gameDetail(_ game: CloudGame) -> some View {
-        GameDetailView(gameDetailViewModel: libraryViewModel.detail(for: game))
+        GameDetailView(gameDetailViewModel: libraryViewModel.makeGameDetailViewModel(for: game))
             .background { SkyBackground() }
     }
 

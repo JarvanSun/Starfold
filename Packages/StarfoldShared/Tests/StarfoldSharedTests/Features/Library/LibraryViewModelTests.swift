@@ -401,7 +401,7 @@ struct LibraryViewModelTests {
         let library = await makeLoadedLibrary()
         var requested: [StreamTarget] = []
         library.onPlay = { requested.append($0) }
-        let detail = library.detail(for: .dummyZetaQuest)
+        let detail = library.makeGameDetailViewModel(for: .dummyZetaQuest)
 
         // When
         detail.play()
