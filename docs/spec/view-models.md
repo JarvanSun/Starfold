@@ -31,7 +31,6 @@ shared by all platforms, one per feature, in `StarfoldShared/Features/<Feature>/
 - `public` for what the apps and previews use, `internal` for its tests, the rest `private`.
 - Never imports SwiftUI or a platform UI framework, never reads the environment, no `#if`.
 - State is `private(set)`; a writable `var` only for what a View binds to.
-- What something is doing is one enum (`LoadState`), not several Booleans and optionals.
 - Lists a View shows are computed, never a second stored copy.
 - `@ObservationIgnored` only where the compiler needs it or a value must not refresh Views (reason
   in [decisions.md](decisions.md)).
@@ -51,9 +50,3 @@ shared by all platforms, one per feature, in `StarfoldShared/Features/<Feature>/
 - Work that outlives a View is a `Task` the ViewModel stores and cancels.
 - Parallel loads use `async let`. After each `await`, a cancelled load changes nothing.
 - Old content stays during a refresh; the saved snapshot shows until the first one finishes.
-
-## Previews
-
-Preview services answer at once (`loaded`), never (`loading`) or fail (`failed`), so the View's
-own `.task` drives the preview ([testing.md](testing.md#previews)). A stream preview never shows a
-first frame.

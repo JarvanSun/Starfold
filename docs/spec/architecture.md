@@ -70,7 +70,4 @@ three packages.
 - XboxKit and StreamKit are grouped by domain (`Auth/`, `Streaming/`, `Input/`, `Rendering/`).
 - A folder is named for what it holds; never `Shared/`, `Helpers/`, `Utils/`, `Common/`,
   `Managers/`, `Debug/`. Logic that can be tested on macOS goes to a package.
-- Each app creates one `AppViewModel` and puts it in the environment. No singletons or service
-  locators.
-- A type with more than one job is split by job, not size (`StreamController` drives the
-  lifecycle, `HostChannels` decides the data-channel conversation).
+- No singletons or service locators.

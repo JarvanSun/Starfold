@@ -3,8 +3,7 @@
 ## Tests
 
 - Swift Testing only (`@Test`, `#expect`, `#require`); no XCTest, no UI tests.
-- Every test is a package test on macOS; `scripts/test.sh` runs them. Logic that can be tested on
-  macOS lives where macOS tests reach it.
+- Every test is a package test on macOS; `scripts/test.sh` runs them.
 - One test file per source file with logic, at the mirrored path
   (`StarfoldSharedTests/Features/Library/LibraryViewModelTests.swift`), holding one
   `struct <Type>Tests`.
@@ -64,5 +63,7 @@ No mocking frameworks; each test target has its own doubles.
   Development Assets): an `enum` of computed static members named after their value
   (`consoles`, `homeViewModel(consoles:)`), one file per area, building real ViewModels on
   `Preview…` services. StarfoldShared's own previews use design values only.
+- Preview services answer at once (`loaded`), never (`loading`) or fail (`failed`), so the View's
+  own `.task` drives the preview.
 - Fake data is never a production default: no default argument or preset holds a sample account,
   game or console.

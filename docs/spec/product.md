@@ -10,19 +10,19 @@ endorsed by Microsoft.
 
 ## Accounts
 
-- Signed out, the welcome screen shows the sign-in at once: a code in boxes, "or enter the code at
-  microsoft.com/link" and, on Mac and Apple TV, a QR code. Open Link (Mac) or Sign In (Vision Pro,
-  iPhone, iPad) copies the code and opens the link with it filled in.
-- "Waiting for sign in…", then "Signing in…" after the browser step; then Home appears at once
-  with placeholders. An expired code is replaced; a declined sign-in or an error shows the reason
-  and Get a New Code.
+- Signed out, the welcome screen shows the sign-in at once: the code, the short link to enter it
+  at and, on Mac and Apple TV, a QR code. A button (Mac, Vision Pro, iPhone, iPad) copies the code
+  and opens the link with it filled in.
+- The page says when it waits for the browser and when it signs in; then Home appears at once with
+  placeholders. An expired code is replaced; a declined sign-in or an error shows the reason and a
+  new code on request.
 - Launch restores the last used account; tokens refresh before they expire. A rejected stored
-  sign-in shows "Sign-in expired" with Sign In or Not Now.
-- The account menu (avatar, gamertag, gamerscore) has Switch Account, Add Account… (sign-in in a
-  sheet that closes once signed in) and Sign Out…. Switching replaces profile, consoles, library
-  and favourites.
-- Sign Out asks "Sign out of <gamertag>?", deletes the account's sign-in, saved library and console
-  snapshots from the device, and moves to the next saved account or the welcome screen.
+  sign-in says so and offers to sign in again or not now.
+- The account menu (avatar, gamertag, gamerscore) switches, adds (sign-in in a sheet that closes
+  once signed in) and signs out accounts. Switching replaces profile, consoles, library and
+  favourites.
+- Signing out asks first, deletes the account's sign-in, saved library and console snapshots from
+  the device, and moves to the next saved account or the welcome screen.
 
 ## Home and consoles
 
@@ -30,11 +30,11 @@ endorsed by Microsoft.
 - A card per console and, on Mac and Apple TV, one for Xbox Cloud Gaming; recently played cloud
   games underneath.
 - A console card shows name, model and a power-state dot, a hint only (the reported state lags
-  about a minute). On Wi-Fi it adds a Wi-Fi symbol: "On Wi-Fi. A wired connection is steadier."
+  about a minute). On Wi-Fi it adds a Wi-Fi symbol that suggests a wired connection.
 - Consoles with remote play on are listed; if there are none, the account's other consoles. None
-  at all: "No consoles", "Turn on Remote features on your Xbox." and Refresh. A failed list:
-  "Couldn't load consoles", the reason and Try Again.
-- The list refreshes every 30 s while the app is active, and at once on return if older than 10 s.
+  at all: an empty state that says to turn on Remote features, with Refresh. A failed list: the
+  reason and Try Again.
+- The list refreshes regularly while the app is active, and on return when it is stale.
 
 | Console state | Power button | Effect |
 |---|---|---|
@@ -43,8 +43,7 @@ endorsed by Microsoft.
 | Off (Energy-saving mode) | Disabled | Tooltip: remote wake needs Power mode set to Sleep; turn it on by hand, then press Play |
 
 - A power command is done once the console accepts it; the app does not wait for the new state. A
-  rejected or lost one shows "Couldn't reach <console>", "Check that Remote features are on, then
-  try again."
+  rejected or lost one says the console couldn't be reached and to check Remote features.
 - **Cover:** the last frame of the console's last stream that showed a picture, else the game
   playing on (or last seen on) that console, else the model name; never a cloud or PC game. Last
   frames stay on the device, per account; Apple TV keeps none.
@@ -54,10 +53,8 @@ endorsed by Microsoft.
 - Only games the account can play (Game Pass or free to play), with names and art from the
   Microsoft Store catalogue; a part of the catalogue that fails loses only its names and art.
 - Without Game Pass the library falls back to free-to-play games and says so. Without cloud gaming
-  (account or region): "Cloud gaming isn't available", "Needs Xbox Game Pass in a supported
-  region.", not as an error.
-- The cloud card shows Available, Free to play, Unavailable or Loading…, the game count and Browse
-  Games.
+  (account or region) the card says it needs Game Pass in a supported region, not as an error.
+- The cloud card shows its availability and game count, and opens the library.
 - **Rows**, each only with games: Continue Playing, Favorites, Recently Added, Leaving Soon (with a
   "Leaving" badge). Curated rows hold only playable games.
 - **All Games** with its count, sorted by Name or Recently Played (played first, most recent
@@ -71,42 +68,41 @@ endorsed by Microsoft.
 
 - Play on a card, tile, game page or the menu bar opens the stream and starts the session; on a
   target already starting or playing it only brings that stream forward.
-- Waiting shows the name, one progress indicator, "Connecting…" and Cancel; in the cloud queue, "In
-  line — about N minutes" or "Waiting in line…". Behind it: the game's art blurred, or the sky.
+- Waiting shows the name, one progress indicator, what is happening and Cancel; in the cloud
+  queue, the estimated wait when known. Behind it: the game's art blurred, or the sky.
 - Every wait times out or ends with Cancel. Closing the stream ends the host session without
   confirmation.
-- The end page says Stream ended, Session ended, Connection lost, Connection failed or (iPhone,
-  iPad) Stream ended while you were away, with advice for a failure, and offers Close and Try
+- The end page says how the stream ended (stopped, ended by the host, connection lost, failed,
+  or on iPhone and iPad ended while away), with advice for a failure, and offers Close and Try
   Again.
 - Game message boxes and text prompts appear as sheets and are answered there.
 - The stream never pops up a network or quality notice.
 
 ### Settings that shape a stream
 
-| Setting | Options | Default | Where |
-|---|---|---|---|
-| Console quality | Automatic, 720p, 1080p, 1080p High Bitrate | Automatic | All |
-| Cloud quality | Automatic, 720p, 1080p, 1440p (Game Pass Ultimate) | Automatic | All |
-| Cellular quality | Automatic, 720p, 1080p | 720p | iPhone, iPad with cellular |
-| Maximum bitrate | Automatic, 10–80 Mbps | Automatic | Mac, Vision Pro, iPhone, iPad |
-| MetalFX upscaling | On, Off | On | Mac |
-| Sharpening | Off to High | Low | Mac |
-| Picture Mode | Fit; Fill (crops the edges); Scale (stretches to the view's shape) | Fit | Mac, Apple TV, iPhone, iPad |
-| HDR tone mapping | On, Off; shown only with an HDR screen connected | Off | Mac |
-| Buffer | Standard (at most 120 ms), Low Latency (at most 40 ms) | Standard | All |
-| Show statistics | On, Off | Off | All |
-| Game language (cloud) | System or one of 12 languages | System | All |
-| Keyboard as controller | On, Off | On | Mac, iPhone, iPad |
-| Rumble | On, Off | On | All |
-| Touch haptics | On, Off | On | iPhone |
+| Setting | Default | Where |
+|---|---|---|
+| Console quality | Automatic | All |
+| Cloud quality | Automatic | All |
+| Cellular quality | 720p | iPhone, iPad with cellular |
+| Maximum bitrate | Automatic | Mac, Vision Pro, iPhone, iPad |
+| MetalFX upscaling | On | Mac |
+| Sharpening | Low | Mac |
+| Picture Mode | Fit | Mac, Apple TV, iPhone, iPad |
+| HDR tone mapping (only with an HDR screen) | Off | Mac |
+| Buffer | Standard | All |
+| Show statistics | Off | All |
+| Game language (cloud) | System | All |
+| Keyboard as controller | On | Mac, iPhone, iPad |
+| Rumble | On | All |
+| Touch haptics | On | iPhone |
 
 - Automatic asks for 1080p; when bandwidth runs short the Xbox lowers the resolution mid-stream
   and keeps the frame rate. A fixed tier is a ceiling. Without Game Pass, cloud streams at 1080p,
   never 1440p.
 - Cellular quality caps both qualities for the whole of a stream that starts on cellular data.
-- Quality and bitrate are fixed per session: changing one mid-stream shows "Restart the stream to
-  use the new quality." with Restart Stream (Mac). Every other setting applies at once; a Buffer
-  switch keeps queued frames.
+- Quality and bitrate are fixed per session: changing one mid-stream offers to restart the stream
+  (Mac). Every other setting applies at once; a Buffer switch keeps queued frames.
 - The stream is at most 1080p from a console and 1440p from the cloud; upscaling renders it at the
   picture's size on screen. HDR tone mapping spreads it over the screen's HDR range and says it is
   not native HDR.
@@ -115,15 +111,8 @@ endorsed by Microsoft.
 ### Statistics
 
 - First line: estimated latency (round trip + jitter buffer + decode + display), with a green,
-  amber or red dot on Mac, Vision Pro, iPhone and iPad. Then each line the stream has a value for:
-  - **Mac:** resolution and codec (marked Automatic), upscaled size, SDR → HDR tone mapping,
-    "Lowered from <tier>", frame rate, bitrate, network path (Local network, Internet or Relay;
-    Wi-Fi or Ethernet), round trip, decode, jitter buffer, display, packet loss.
-  - **Vision Pro:** resolution (marked Automatic), "Lowered from <tier>", frame rate, bitrate,
-    round trip, decode, jitter buffer, packet loss.
-  - **Apple TV:** resolution, frame rate, bitrate, codec, "Lowered from <tier>", unlabeled.
-  - **iPhone, iPad:** resolution (marked Automatic), "Lowered from <tier>", frame rate, bitrate,
-    network path (as on Mac, or Cellular), round trip, packet loss.
+  amber or red dot except on Apple TV. Then each figure the stream has a value for, including when
+  the Xbox lowered the resolution.
 - Copy Statistics (Mac) copies the figures as English plain text, noting that controller input and
   the host's capture and encode are not included.
 
@@ -138,80 +127,50 @@ endorsed by Microsoft.
   the Xbox button, with a link to the system's controller settings.
   The stream's own Xbox Guide control always works. Apple TV gives the button to the Xbox only
   during play.
-- **Keyboard as controller** (Mac; iPhone and iPad with a hardware keyboard) goes by key position:
-  WASD left stick, IJKL right stick, arrows D-pad, Space A, Esc or Delete B, F X, R Y, Q LB, E RB,
-  Z and C triggers, Return Menu, Tab View, Shift and V stick presses.
+- **Keyboard as controller** (Mac; iPhone and iPad with a hardware keyboard) goes by key position,
+  with WASD as the left stick.
 - Diagonals stay on the unit circle, opposite keys cancel, keyboard and controller on one player
   merge. Unbound keys and Command shortcuts pass through. Keys release when the window loses
   focus; every stream starts with none held.
 
 ### Errors and advice
 
-A host error becomes the step that fixes it; only an unrecognised one is shown as is.
-
-| Host says | Player reads |
-|---|---|
-| Console not registered | Your console is offline. Make sure it's on or asleep and signed in. |
-| Streaming disabled | Remote play is off. Turn on Remote features on your Xbox. |
-| Start not found right after a stream | Your console is still closing the last stream. Try again in a few seconds. |
-| Timed out waiting for the console | Your console didn't answer. Make sure it's on or asleep, not in Energy-saving mode, then try again. |
-| Duplicate session | This game is still starting from your last try. Wait a moment, then try again. |
-| HTTP 400 when starting | This game needs Xbox Game Pass. |
-| Sign-in no longer valid | Your sign-in expired. Sign in again to keep playing. |
-| Connection lost mid-stream | Check your network, then try again. |
+A host error becomes one sentence on the step that fixes it (the cases are in
+[streaming.md](streaming.md#errors)); only an unrecognised one is shown as is.
 
 ## Mac
 
-- **Main window:** one window, 1180 × 760 by default, reopened as the same window: the cards and
-  Continue Playing (up to 10). Toolbar: account menu leading, clock and Settings trailing, no
-  visible title. Library and game pages push inside it, with search in the toolbar.
-- **Stream window:** separate, 1280 × 720 by default and at least 640 × 360, full screen on its
-  own, never restored at launch; only the picture and overlays. Quitting mid-stream ends the host
-  session first, waiting at most 2 s.
-- **Control bar:** icon-only Xbox Guide, Statistics, Picture (MetalFX Upscaling, HDR Tone Mapping,
-  Picture Mode, Sharpening, Buffer), Picture in Picture, Full Screen and Disconnect. It shows when
-  the pointer moves or the picture starts, and hides with the pointer after 3 s still.
-- **Menu commands:** every control-bar command but Sharpening, plus:
-
-| Command | Shortcut |
-|---|---|
-| Open Xbox Guide | ⌘G |
-| Show Statistics / Copy Statistics | ⌘I / ⌥⌘C |
-| MetalFX Upscaling, HDR Tone Mapping (with an HDR screen) | — |
-| Picture Mode: Fit, Fill, Scale | ⌃⌘1–3 |
-| Buffer: Standard, Low Latency | ⌥⌘1–2 |
-| Use Keyboard as Controller | ⇧⌘K |
-| Picture in Picture / Request Fresh Picture | ⌥⌘P / ⌥⌘R |
-| Disconnect (closes the stream window) / Full Screen (View menu) | ⌘W / ⌃⌘F |
-| Refresh Library (View menu) | ⌘R |
-
-- **Picture in Picture:** the stream window hides and the picture continues in a floating 16:9
-  window on every Space. Back to Window or a double-click returns; Disconnect ends the stream; a
+- **Main window:** one window, reopened as the same window: the cards and Continue Playing. The
+  toolbar holds the account menu, a clock and Settings, with no visible title. Library and game
+  pages push inside it, with search in the toolbar.
+- **Stream window:** separate, full screen on its own, never restored at launch; only the picture
+  and overlays. Quitting mid-stream ends the host session first.
+- **Control bar:** icon-only stream controls. It shows when the pointer moves or the picture
+  starts, and hides with the pointer when it rests.
+- **Menu commands:** every stream control is also a menu command, most with a shortcut.
+- **Picture in Picture:** the stream window hides and the picture continues in a floating window
+  on every Space. Back to Window or a double-click returns; Disconnect ends the stream; a
   stream the host ends returns to the window. Controllers keep working with another app in front.
-- **Menu bar extra:** gamertag (or a sign-in hint), Consoles (each starts a stream; "<console> ·
-  Playing <game>" when known), three Continue Playing games, controllers with battery, Open
-  Starfold, Settings… (⌘,), Quit (⌘Q). Windows it opens come to the front. Settings can hide it.
-- **Settings window:** Streaming (restart note, Quality, Cloud Gaming, Appearance: palette and menu
-  bar icon), Picture (upscaling, sharpening, HDR, Picture Mode, statistics, Buffer), Controls
-  (controllers, the Xbox button note, Rumble, keyboard toggle and key table). Each home card's gear
-  opens it.
+- **Menu bar extra:** the account, consoles to stream (with the game playing when known), recent
+  games, controllers with battery, and ways to open the app, Settings and quit. Windows it opens
+  come to the front. Settings can hide it.
+- **Settings window:** the stream settings, the palette and the menu bar icon. Each home card's
+  gear opens it.
 
 ## Vision Pro
 
 - **Tabs** (system vertical tab bar): Sign In and Settings signed out; Home, Cloud Gaming and
   Settings signed in. The account menu is in Home's toolbar.
-- **Home:** console cards (Play, power button, Wi-Fi hint), then Continue Playing (up to 8); no
-  cloud card. Cloud Gaming has search and a sort menu in the toolbar.
-- **Stream window** replaces the main window (1280 × 720, 16:9), connecting page included; closing
-  it ends the stream and brings the main window back.
+- **Home:** console cards, then Continue Playing; no cloud card. Cloud Gaming has search and a
+  sort menu in the toolbar.
+- **Stream window** replaces the main window, connecting page included; closing it ends the
+  stream and brings the main window back.
 - **Controls:** an ornament below the window, never over the picture, always shown while
-  streaming: Xbox Guide, Statistics, Stream Options (Buffer and Sound), Disconnect. No Picture
-  Mode, upscaling or sharpening.
+  streaming. No Picture Mode, upscaling or sharpening.
 - **Sound stage:** Follow Window (default) plays from the stream window, Direct Stereo straight to
   both ears; switching is immediate. Sound is stereo, mixes with other apps, returns after
   interruptions and is released when the stream ends.
-- **Settings tab:** Quality, Cloud Gaming, Picture (Buffer, statistics), Sound, Controllers. No
-  palette.
+- **Settings tab:** the stream settings that apply here and the sound stage; no palette.
 - During a stream Wi-Fi stays on the router's channel (low-latency streaming).
 
 ## Apple TV
@@ -225,16 +184,16 @@ A host error becomes the step that fixes it; only an unrecognised one is shown a
 - **Controller required:** a stream starts only with an extended game controller connected;
   otherwise "Connect a Controller" explains pairing, with Check Again, then Play. The remote never
   takes a player slot.
-- **Stream:** full screen. Play/Pause opens a system sheet (Xbox Guide, Statistics, Picture Mode,
-  Disconnect) that Back closes and no timer hides; Back during play ends the stream. The
-  controller's Menu button always goes to the Xbox.
+- **Stream:** full screen. Play/Pause opens a system sheet of stream controls that Back closes and
+  no timer hides; Back during play ends the stream. The controller's Menu button always goes to
+  the Xbox.
 - Menus, game dialogs and leaving the app send the Xbox a neutral controller; a control held
   through them counts only after release. Going to the background ends the stream and session.
-- **Settings:** Quality (no bitrate), Cloud Gaming, Picture (Buffer, statistics), Controllers,
-  Account (switch, Add Account, Sign Out…), Appearance (palette). No upscaling, sharpening or HDR.
-- **Top Shelf:** Continue Playing and Consoles rows, up to 10 items each, from what the app last
-  saved; the Top Shelf never signs in or fetches. A game opens its page and Play starts it; a
-  console starts a stream from Home. Signing out clears the rows; with nothing to show, a static
+- **Settings:** the stream settings that apply here, the account and the palette. No bitrate,
+  upscaling, sharpening or HDR.
+- **Top Shelf:** Continue Playing and Consoles rows, from what the app last saved; the Top Shelf
+  never signs in or fetches. A game opens its page and Play starts it; a console starts a stream
+  from Home. Signing out clears the rows; with nothing to show, a static
   image without text appears.
 
 ## iPhone and iPad
@@ -244,14 +203,11 @@ iPad Split View, Stage Manager and an unfolded iPhone Duo each get the layout th
 
 - **Tabs** when signed in: Home and Settings, at the bottom on iPhone and the top on iPad; no
   sidebar. The account menu is in Home's toolbar.
-- **Signed out:** the welcome page, no tabs, Settings in a sheet behind a gear. On iPhone the app
-  icon and three steps (sign in, pick a console or a cloud game, play) sit above a sign-in sheet
-  fixed to the bottom; in landscape they blur behind a centred sign-in card. A wide iPad window
-  puts them beside the card; a narrower one stacks icon, steps and card in one centred column.
-- **Home:** console cards, the Xbox Cloud Gaming row (three covers, availability, game count),
-  then Continue Playing (up to 10). On iPhone one card fills the width and the cards page sideways;
-  in landscape a card lies on its side, art left, details right. On iPad Mac-sized cards sit in a
-  row. With no cloud access the row says why and does not open.
+- **Signed out:** the welcome page, no tabs, Settings in a sheet behind a gear. The app icon and
+  the three steps to play sit with the sign-in, arranged for the space there is.
+- **Home:** console cards, the Xbox Cloud Gaming row, then Continue Playing. A compact width pages
+  through one card at a time; a regular width shows them in a row. With no cloud access the row
+  says why and does not open.
 - **Controller and keyboard:** Home starts on the first console card; select (A, Return or Space)
   plays, holding it or touching and holding offers Wake Up or Turn Off. The Cloud Gaming row opens
   the library; a Continue Playing game plays.
@@ -260,18 +216,15 @@ iPad Split View, Stage Manager and an unfolded iPhone Duo each get the layout th
   the first game, not the search field; selecting a game opens its page, holding it offers Play.
 - **Game page:** as on Mac, plus a Touch badge when the title has a touch layout. Focus starts on
   Play.
-- **Settings:** Streaming (console, cloud and Cellular quality, Maximum Bitrate, Buffer, Game
-  language), Display (Picture Mode, statistics, Color), Controls (Edit Layout and Touch haptics
-  when touch controls exist, the controllers, the Xbox button note, Rumble, Keyboard as
-  controller), Account (switch, Add Account, Sign Out…). Only a state the player must act on adds
-  a line; a choice names the option alone, never a recommendation. Cellular quality shows only on
-  a device with cellular data. On a wide iPad the rows keep a readable width.
+- **Settings:** the stream settings, the palette, the touch-control entries (only when touch
+  controls exist) and the account. Only a state the player must act on adds a line; a choice names
+  the option alone, never a recommendation. Cellular quality shows only on a device with cellular
+  data.
 - **Stream:** full screen, status bar and Home indicator hidden, system edge gestures deferred.
   iPhone streams in landscape only; iPad in any orientation and window size. The waiting and end
   pages are the Mac's.
-- **Stream menu:** a handle at the top centre opens it; the handle dims after 3 s and hides while
-  a controller is in use, until a tap. Xbox Guide, Statistics, Disconnect, then Picture Mode,
-  Buffer and Edit Touch Controls; tapping outside closes it.
+- **Stream menu:** a handle at the top centre opens it; the handle dims when idle and hides while
+  a controller is in use, until a tap. Tapping outside closes the menu.
 - **Interruptions:** Control Center, a notification, the app switcher or a call keeps the stream
   going and sends the Xbox a neutral controller; a control held through it counts only after
   release.
@@ -281,9 +234,7 @@ iPad Split View, Stage Manager and an unfolded iPhone Duo each get the layout th
   Stream ended while you were away with Close and Try Again.
 - No Picture in Picture. **Sound** plays with the Ring/Silent switch on silent, pauses for calls
   and is released when the stream ends.
-- **Haptics**, following the system's haptics setting, mark outcomes (a stream starting, ending or
-  failing, sign-in, a power command) and direct manipulation (selecting, dropping or resetting in
-  Edit Layout, a sort or stick choice, a favourite, the stream menu, a controller connecting).
+- **Haptics**, following the system's haptics setting, mark outcomes and direct manipulation.
 
 ### Touch controls
 
@@ -293,29 +244,21 @@ Starfold follows Xbox Cloud Gaming's own behaviour rather than inventing one.
   hides them; touching the screen or disconnecting the last controller brings them back.
 - **Layout:** a title with its own touch layout (Xbox Touch Adaptation Kit) gets it, in cloud and
   remote play, and the game decides when it shows, hides or changes. Every other title gets the
-  standard Xbox layout: left stick, D-pad, LB, LT and left stick click on the left; A, B, X, Y, RB,
-  RT, right stick and its click on the right; View and Menu at the top right.
+  standard Xbox layout ([streaming.md](streaming.md#touch-iphone-ipad)).
 - A title layout falls back to the standard one, rather than leave a control out, when Touch
-  Controller cannot draw it as the game meant: throttles, touchpads, arcade groups, layer
-  switches, turbo, toggle or pull buttons, several controls in a slot, centre controls, mouse
-  output. A title that reads touch directly gets the standard layout until Pointer reports are
-  specified in [streaming.md](streaming.md).
+  Controller cannot draw it as the game meant. A title that reads touch directly gets the standard
+  layout until Pointer reports are specified in [streaming.md](streaming.md).
 - **Look and feel:** Apple Touch Controller's system controls over the picture. A press highlights
   at once and, with Touch haptics on, taps. On the standard layout each half of the screen is its
   stick's area, so a stick starts where the thumb lands. Buttons carry Xbox names, since Starfold
   cannot know what each does in a game.
 - **Edit Layout** (Settings and the stream menu) changes the standard layout only, per device and
-  orientation: drag to move, select to resize, set the opacity; Reset restores the default. A
-  close button sits top left; a pill at the top centre holds the hint (or the selected control's
-  name), Opacity and Reset; a selected control gets a small inspector beside it, towards the
-  middle of the screen. Both fade while a control is dragged.
+  orientation: drag to move, select to resize, set the opacity; Reset restores the default.
 - **Sticks** show Always, On Touch (drawn under the thumb only while it is down) or Off (its half
   of the screen does nothing). Other controls keep their places, so turning a stick back on
   restores the layout. In the editor an On Touch or Off stick is a dashed outline, and Size is
   unavailable while it is Off. The choice covers both orientations, Reset restores Always, and a
   title's own layout always shows its sticks.
-- **Rumble** plays on the controller or, with only touch controls and Touch haptics on, as iPhone
-  haptics.
 
 ### iPhone Duo
 

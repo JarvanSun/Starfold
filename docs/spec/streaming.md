@@ -17,7 +17,7 @@ request.
 |---|---|
 | Client id (`STARFOLD_MICROSOFT_CLIENT_ID`) | `1f907974-e22b-4810-a9de-d9647380c97e`, the xbox.com web player's; the transfer token is only known to work with it |
 | Scope | `xboxlive.signin openid profile offline_access` |
-| Form bodies | `application/x-www-form-urlencoded`, every character outside `A-Z a-z 0-9 - . _ ~` percent-encoded |
+| Form bodies | `application/x-www-form-urlencoded`, every character outside `A-Z a-z 0-9 - . _ ~` percent-encoded (token endpoints read `+` as a space) |
 
 | Step | Request | Notes |
 |---|---|---|
@@ -139,8 +139,8 @@ Poll `GET state`, building the peer and its offer meanwhile.
 Build the peer in this order: audio transceiver `sendrecv`, video `recvonly`, the four data
 channels, then the offer.
 
-- Configuration: unified plan, `maxBundle`, RTCP mux required, gather once, link-local networks
-  and TCP candidates off, DSCP on, fast audio jitter-buffer accelerate on. ICE servers by default:
+- Configuration: unified plan, `maxBundle`, RTCP mux required, gather once, TCP candidates off,
+  DSCP on. ICE servers by default:
   `stun:stun.l.google.com:19302` and `stun:stun1.l.google.com:19302`. No TURN.
 - Video codec order: H.264 `profile-level-id` `4d…` (Main), `42e…` (constrained baseline),
   `420…` (baseline), other H.264, other codecs, RTX and RED last. The host is H.264 only. The
@@ -297,15 +297,8 @@ ServerMetadata, Vibration.
 
 - With both sections, vibration starts at offset 10. Percentages are clamped to 100 and mapped to
   0…1. Left is the strong low-frequency motor, right the weak high-frequency one.
-- Playback: one CoreHaptics engine per `GCHapticsLocality` (`leftHandle`, `rightHandle`,
-  `leftTrigger`, `rightTrigger`), or one `.default` engine at `max(left, right)`. Play
-  `repeat + 1` continuous events of `duration`, spaced `duration + delay`. Sharpness is 0.8 on the
-  right handle, 0.3 elsewhere. A new effect replaces the playing one.
-- An effect plays on the controllers in its slot. Else, for slot 0 with no controller connected
-  and device rumble on, it plays on the device's own haptics (one `.default` engine, only where
-  `CHHapticEngine.capabilitiesForHardware().supportsHaptics`); else nowhere. Connecting a
-  controller stops device rumble. Rumble plays only while its preference is on, and stops when the
-  stream ends.
+- An effect is `repeat + 1` pulses of `duration`, spaced `duration + delay`, for the controllers in
+  its slot; a new effect replaces the playing one.
 
 ## Touch (iPhone, iPad)
 
@@ -338,10 +331,7 @@ it is loaded, and resolve the layout again after each `patchstate`.
   they are decoded defensively as above.
 - Layout controls (`button`, `joystick`, `directionalPad`, `throttle`, `touchpad`,
   `arcadeButtons`, wheels, `layer` actions, `turbo`) produce a virtual gamepad: ordinary Gamepad
-  records on `input`, with virtual physicality. On iPhone and iPad they become Apple Touch
-  Controller controls, whose `GCController` takes no slot of its own and merges into slot 0.
-- A controller becomes the active input after a deliberate control (any button, or a stick or
-  trigger at 0.3 or more) from it or the keyboard.
+  records on `input`, with virtual physicality, merged into slot 0.
 - Not sent: relative mouse (a layout may emit it) and Pointer reports (report type 4, which a
   `NativeTouch` title takes). Both need their encodings pinned down here first.
 - The standard layout matches the MIT sample `standard-controller.json`: left joystick in

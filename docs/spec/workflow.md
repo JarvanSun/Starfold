@@ -30,6 +30,4 @@ The Xcode project's folders are synchronized: add, move and delete files in the 
 ## Git
 
 - Commit messages are imperative and say what changed and why.
-- Commit the project, shared schemes and `Package.resolved`; never `xcuserdata`, DerivedData or
-  `.build`.
 - No large binaries; media, recordings and screenshots stay outside the repository.

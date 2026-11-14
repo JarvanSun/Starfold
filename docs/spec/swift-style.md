@@ -4,12 +4,10 @@
 
 `scripts/format.sh` formats; `scripts/format.sh --lint` must pass. Beyond what it fixes:
 
-- 100 columns. What fits on one line is one line; a list is all on one line or one element per
-  line.
-- One blank line between declaration groups, sibling views and after a `guard`; never two.
+- What fits on one line is one line; a list is all on one line or one element per line.
+- One blank line between declaration groups, sibling views and after a `guard`.
 - A function is paragraphs: one blank line between steps, and around every `if`, `switch`, `for`,
   `while`, `do` unless it opens or closes the scope. A `let` stays with the line that uses it.
-- `#if` blocks are not indented.
 
 ## Files
 
@@ -136,8 +134,6 @@ private nested types, the protocol for a conformance, the type for another type'
 
 - Typed throws for APIs with one error enum.
 - `try?` only when the reason doesn't matter; otherwise `do / catch`.
-- What the host says about a failed stream becomes `StreamFailureAdvice`
-  ([streaming.md](streaming.md#errors)).
 
 ## Values with meaning
 

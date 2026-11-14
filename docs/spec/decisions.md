@@ -8,19 +8,12 @@ are in [streaming.md](streaming.md). When the reason goes, the bullet goes.
 
 In XboxKit.
 
-- **XboxDateParser**: Xbox Live sends seven fractional digits, which `Date.ISO8601FormatStyle`
-  rejects; they are trimmed to milliseconds, falling back to no fraction.
 - **DeviceCodeFlow**: A dropped connection, timeout or lost network is retried once at once, then
   left to the next poll. Sign-in happens in a browser, often on the same device, and iOS closes a
   suspended app's connections, so the first request back fails with `networkConnectionLost`;
   URLSession retries only idempotent requests, and these are POSTs.
-- **DeviceCodePrompt**: Without `verificationURLComplete`, the link is Microsoft's link page with
-  the code as `otc`, which skips code entry; the QR code and Open Link use it.
-- **HTTPClient**: `Request.timeout` overrides URLSession's 60 s default where someone waits.
 - **KeychainStore**: The Mac uses its sandboxed login keychain; the data-protection keychain needs
   a provisioned keychain-access-groups entitlement (else errSecMissingEntitlement, -34018).
-- **FormBody**: All but RFC 3986 unreserved characters are escaped, because URLComponents leaves
-  `+`, which token endpoints read as a space.
 - **URL**: `init(upgradingXboxImageToHTTPS:)` moves `http://images-eds.xboxlive.com` gamerpics to
   `images-eds-ssl.xboxlive.com`, because App Transport Security blocks HTTP.
 - **XboxLiveClient**: Presence lists the dashboard (title 750323071) like a game, so it is
@@ -29,7 +22,6 @@ In XboxKit.
   off console cannot wake when a session starts.
 - **CatalogClient**: The service sometimes fails a whole batch with 5xx, so a failed batch is
   retried once, then split in half; the call throws only if nothing was fetched.
-- **CatalogProduct**: Store image URLs are protocol-relative; `https:` is prepended.
 - **GSSVSession**: On tvOS `stop()` logs the DELETE outcome under `TVSessionCleanup` for the Apple
   TV background cleanup; with KeychainStore's, it is XboxKit's only `#if os`.
 - **CloudTitle**: A missing `touchBundleIDs` decodes as empty, so caches saved before touch
@@ -156,11 +148,6 @@ In StreamKit.
   stream's; without upscaling the stream's size is used, since the layer scales anyway.
 - **StatisticsReport**: Labels are fixed English, because whoever receives the report reads it
   and compares runs.
-- **ControlMessage**: JSON keys are sorted only for deterministic tests; the host ignores order.
-- **MessageChannel**: A touch-controls transaction is still cancelled, but its command is reported
-  too, since which envelope the host uses for layouts is unconfirmed.
-- **RunningTitleParsing**: The `titleinfo` payload is unconfirmed, so keys match in any case, a
-  numeric id is written in hex and a missing `focus` counts as focused.
 
 ## Shared app
 
@@ -194,14 +181,9 @@ In StarfoldShared.
   tokens; reading the store again would refresh them on every request.
 - **SignInViewModel**: `shouldClose` turns true 0.9 s after sign-in, so the Add Account sheet
   shows success first; the welcome screen ignores it.
-- **SignInCode**: `address` drops the scheme and `www.`, so it reads "microsoft.com/link", easier
-  to read and type than the full URL.
-- **WelcomeFeature**: The list is shared, but each app words it in its own
-  `WelcomeFeaturePresentation`; only cloud gaming reads the same everywhere (`WelcomeCopy`).
 - **QualityChoice**, **GamepadButton**: "720p", "1080p", A, B, X, Y and the bumpers are catalog
   keys though they are not language, so every case presents as a `LocalizedStringResource`.
-- **Palette**: Nebula matches the app icon's #6652E8; Sunrise keeps the pre-palette values,
-  including the 85 % black label and coral glow.
+- **Palette**: Nebula's primary fill is the app icon's #6652E8.
 - **WindowTint** (iPhone and iPad, Apple TV, Vision Pro): The accent is the window's `tintColor`,
   not a SwiftUI `.tint`, which also recolours controls the system draws neutral (menu values in a
   Form, glass buttons) and lowered their contrast. These apps set no global accent colour.
@@ -252,7 +234,7 @@ In `StarfoldMac/`.
 - **AppDelegate**: `applicationShouldTerminate` ends a running stream, waiting at most 2 s,
   because `onDisappear` tasks never run at termination and the host session would stay reserved.
 - **StarfoldMac**: Hardened runtime is on in the build settings, so a Developer ID export can be
-  notarized as it is; 1.0 was re-signed by hand, which can silently drop entitlements.
+  notarized as it is; re-signing by hand can silently drop entitlements.
 - **StarfoldMac**, **SettingsView**: The app keeps 1.0's grey `AccentColor` asset and leaves the
   Settings window untinted, because what AppKit draws from the asset (alerts, focus rings, the
   selected Settings tab) cannot follow a runtime palette and must never fall back to the system
@@ -273,8 +255,6 @@ In `StarfoldMac/`.
   request a second code.
 - **MainToolbar**: A flexible ToolbarSpacer keeps the clock and settings trailing once the title
   is removed.
-- **HomeCard**: The primary button has words, because a lone chevron did not say it opens the
-  library; it is compact to sit level with the round buttons.
 - **WelcomeView**: The sign-in task hangs off the GeometryReader, so resizing between layouts
   never restarts it and replaces the code.
 - **SignInHostView**: It creates the `SignInViewModel` in `onAppear`, not `task`, showing a clear
@@ -317,7 +297,6 @@ In `StarfoldVision/`.
   black bars.
 - **ConsoleCard**, **GameHero**, **SignInCodeStep**: Play and Sign In are an HStack centred on the
   icon, because a Label set the words below the glyph's middle.
-- **GameDetailView**: The title is inline, because the name is already large on the art.
 
 ## Apple TV
 
@@ -329,11 +308,6 @@ In `StarfoldTV/`, TopShelfKit and `StarfoldTopShelf/`.
 - **RootView**: A Top Shelf link arriving while the account restores waits in `pendingLink`.
 - **LibraryHostView**: RootView owns the library's navigation path, so a Top Shelf link can open a
   game.
-- **LibraryView**, **SearchResultsView**: The search text lives in `LibraryViewModel`, so the
-  Cloud Gaming tab reads only lists the search leaves alone and shows its library on `noResults`.
-- **SettingsHostView**: The settings root has no title; the selected tab names it.
-- **ConsoleCard**: The artwork alone shows the last game, with no caption; the model name fills
-  it only without activity.
 - **StreamPresenter**: An earlier presentation's work never acts on a later one. Ending waits for
   a cancelled start, so an old token request cannot open a session after returning to the
   library; any explicit end bumps `restartRequest`, dropping a restart that waits for cleanup;
@@ -350,19 +324,13 @@ In `StarfoldTV/`, TopShelfKit and `StarfoldTopShelf/`.
   TV button still go Home.
 - **StreamEventViewController**: Back and Play/Pause act on release, so restoring focus cannot
   consume the same press again. The Siri Remote's Play/Pause is `microGamepad.buttonX`.
-- **PreviewObjectPool**: The preview system dialogs equal what MessageChannel parses from
-  ShowMessageDialog / ShowVirtualKeyboard.
 - **ContentProvider**: It runs on the extension's own queue and touches no UI, so it is
   nonisolated; nil shows the static image.
 - **TopShelfSnapshot**: Section titles arrive localized, so the extension carries no strings.
 - **TopShelfSnapshot**: `init?(appViewModel:)` is nil while restoring, so a relaunch does not
   blank the Top Shelf.
-- **TopShelfSnapshot**: Game items prefer wide art with the title logo, so a row of pictures says
-  which game each is.
 - **TopShelfSnapshot**: `rowItemLimit` is 10, enough to span the screen; more is never visible
   without scrolling.
-- **TopShelfStore**: `save(_:)` returns whether the snapshot changed, so callers nudge the system
-  only then.
 
 ## iPhone and iPad
 
