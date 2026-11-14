@@ -112,6 +112,7 @@ In StarfoldShared.
 - **Palette**: Nebula matches the app icon's #6652E8; Sunrise keeps the original pre-palette values, including the 85 % black label and coral glow.
 - **PrimaryButtonStyle**: Under Reduce Motion the hover growth is dropped; the hover lightening stays.
 - **AppPalette**: On UIKit platforms the palette accent is the window's `tintColor`, not a SwiftUI `.tint`, because an explicit `.tint` also recolours controls the system draws neutral (menu values in a Form, glass buttons), which lowered their contrast; the window tint only replaces the system accent. No target sets a global accent colour.
+- **StarfoldMac**: The Mac keeps 1.0's grey `AccentColor` asset and leaves the Settings window untinted, because what AppKit draws (alerts, focus rings) cannot follow a palette chosen at runtime and should never fall back to the system accent.
 - **LiveNetworkPath**: Path updates arrive on the monitor's queue and are applied on the main actor to observable properties, so Settings shows or hides Cellular quality as soon as cellular data appears or goes.
 - **StreamViewModel**: Keys play as a gamepad only while nothing covers the game (no stream menu, no game dialog); a key that arrives otherwise releases every held key, so none stays pressed.
 - **StreamViewModel**: The Cellular quality ceiling caps the quality after the AdaptiveQuality override, so a pinned cloud stream still respects it.
