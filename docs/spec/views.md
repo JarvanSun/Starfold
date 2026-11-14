@@ -38,7 +38,6 @@ struct HomeView: View {
 - Pass actions as closures (`onPlay: { play() }`, `Button("retry") { onRetry() }`), not by name:
   previews break the conversion to SwiftUI's main-actor closure types. Forwarding a closure
   property as is (`onRetry: onRetry`) is fine.
-- Sibling views in a container are separated by one blank line.
 
 ## What a View decides
 
@@ -55,13 +54,6 @@ derives a title or flag from model data; the ViewModel or a presentation extensi
   ([user-interface.md](user-interface.md#sizes)).
 
 ## Platforms
-
-| Platform | Navigation | Input |
-|---|---|---|
-| Mac | Main window with a `NavigationStack` of `HomeRoute`s; stream window; Settings; menu bar extra. Every stream control has a menu command and shortcut | Pointer, keyboard |
-| Vision Pro | `TabView` of `…HostView`s; the stream window replaces the main window; controls in an ornament | Gaze and pinch, controller |
-| Apple TV | `TabView` of `…HostView`s; the stream is a full-screen cover; system cards and sheets | Siri Remote, controller |
-| iPhone, iPad | `TabView` of `…HostView`s; the stream is a full-screen cover; layout follows size classes | Touch, controller, keyboard |
 
 - A tab's `…HostView` in `Navigation/` owns its `NavigationStack` and hands pages their
   ViewModels; pages never create the stack they are pushed on.
