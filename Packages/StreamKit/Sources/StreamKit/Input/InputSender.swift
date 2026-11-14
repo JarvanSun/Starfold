@@ -9,29 +9,29 @@ import Foundation
 import QuartzCore
 
 final class InputSender: @unchecked Sendable {
-    private let state: InputState
+    private let inputState: InputState
     private let clockOrigin: CFTimeInterval
     private let condition = NSCondition()
     private let sendLock = NSLock()
 
     private var isSignalled = false
     private var isRunning = false
-    private var peer: PeerConnection?
-    private var sequence: UInt32 = 1
-    private var announced: Set<UInt8> = []
+    private var peerConnection: PeerConnection?
+    private var sequenceNumber: UInt32 = 1
+    private var announcedPads: Set<UInt8> = []
 
-    init(state: InputState, clockOrigin: CFTimeInterval) {
-        self.state = state
+    init(inputState: InputState, clockOrigin: CFTimeInterval) {
+        self.inputState = inputState
         self.clockOrigin = clockOrigin
 
-        state.setChangeHandler { [weak self] in self?.signal() }
+        inputState.setChangeHandler { [weak self] in self?.signal() }
     }
 
-    func start(peer: PeerConnection, announced: Set<UInt8>) {
-        sendLock.withLock { self.announced = announced }
+    func start(peerConnection: PeerConnection, announcedPads: Set<UInt8>) {
+        sendLock.withLock { self.announcedPads = announcedPads }
 
         condition.withLock {
-            self.peer = peer
+            self.peerConnection = peerConnection
 
             guard !isRunning else { return }
 
@@ -56,70 +56,71 @@ final class InputSender: @unchecked Sendable {
 
             isSignalled = false
 
-            let peer = isRunning ? self.peer : nil
+            let peerConnection = isRunning ? self.peerConnection : nil
             let isStillRunning = isRunning
 
             condition.unlock()
 
             guard isStillRunning else { return }
 
-            if let peer {
-                sendLock.withLock { send(on: peer) }
+            if let peerConnection {
+                sendLock.withLock { send(on: peerConnection) }
             }
         }
     }
 
-    private func send(on peer: PeerConnection) {
+    private func send(on peerConnection: PeerConnection) {
         let maximumQueuedBytes: UInt64 = 4096
 
-        guard peer.bufferedAmount(on: .input) < maximumQueuedBytes else { return }
+        guard peerConnection.bufferedAmount(on: .input) < maximumQueuedBytes else { return }
 
         let timestamp = (CACurrentMediaTime() - clockOrigin) * 1000
-        let snapshot = state.drain(now: timestamp)
-        announce(snapshot.addedPads, on: peer)
+        let snapshot = inputState.drain(now: timestamp)
+        announce(snapshot.addedPads, on: peerConnection)
 
-        withdraw(snapshot.removedPads, on: peer)
+        withdraw(snapshot.removedPads, on: peerConnection)
 
-        guard let packet = snapshot.report.encoded(sequence: sequence, timestamp: timestamp) else {
+        guard let packet = snapshot.report.encoded(sequence: sequenceNumber, timestamp: timestamp)
+        else {
             return
         }
 
-        if peer.send(packet, on: .input) {
-            sequence &+= 1
+        if peerConnection.send(packet, on: .input) {
+            sequenceNumber &+= 1
         }
     }
 
-    private func announce(_ addedPads: [UInt8], on peer: PeerConnection) {
-        for index in addedPads where !announced.contains(index) {
-            peer.send(
+    private func announce(_ addedPads: [UInt8], on peerConnection: PeerConnection) {
+        for index in addedPads where !announcedPads.contains(index) {
+            peerConnection.send(
                 ControlMessage.gamepadChanged(index: Int(index), isAdded: true).json,
                 on: .control
             )
 
-            announced.insert(index)
+            announcedPads.insert(index)
         }
     }
 
-    private func withdraw(_ removedPads: [UInt8], on peer: PeerConnection) {
-        for index in removedPads where announced.contains(index) && index != 0 {
-            peer.send(
+    private func withdraw(_ removedPads: [UInt8], on peerConnection: PeerConnection) {
+        for index in removedPads where announcedPads.contains(index) && index != 0 {
+            peerConnection.send(
                 ControlMessage.gamepadChanged(index: Int(index), isAdded: false).json,
                 on: .control
             )
 
-            announced.remove(index)
+            announcedPads.remove(index)
         }
     }
 
     func stop() -> Set<UInt8> {
         condition.withLock {
             isRunning = false
-            peer = nil
+            peerConnection = nil
 
             condition.signal()
         }
 
-        return sendLock.withLock { announced }
+        return sendLock.withLock { announcedPads }
     }
 
     private func signal() {

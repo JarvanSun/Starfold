@@ -21,33 +21,33 @@ public struct AppDependencies {
         let preferences = Preferences(defaults: .standard)
         let controllers = ControllerHub(
             routing: streamPlatform.controllerRouting,
-            touchControllerCategory: streamPlatform.touch?.controllerCategory
+            touchControllerCategory: streamPlatform.touchPlatform?.controllerCategory
         )
         let network = LiveNetworkPath()
         let accountsKeychainService = "\(bundleID).accounts"
         let accountService = LiveAccountService(
-            store: .init(
+            accountStore: .init(
                 microsoftClientID: microsoftClientID,
-                secrets: KeychainStore(service: accountsKeychainService),
-                http: http
+                secretStore: KeychainStore(keychainService: accountsKeychainService),
+                httpClient: http
             ),
-            http: http,
+            httpClient: http,
             streamRuntime: StreamRuntime()
         )
         return .init(
             accountService: accountService,
-            cache: .init(directory: savedLibrariesDirectory),
+            libraryCache: .init(directory: savedLibrariesDirectory),
             settingsViewModel: .init(
                 preferences: preferences,
-                controllers: controllers,
-                platform: streamPlatform,
-                network: network
+                controllerHub: controllers,
+                streamPlatform: streamPlatform,
+                networkPath: network
             ),
             streamDependencies: .init(
                 preferences: preferences,
-                controllers: controllers,
-                platform: streamPlatform,
-                network: network
+                controllerHub: controllers,
+                streamPlatform: streamPlatform,
+                networkPath: network
             )
         )
     }

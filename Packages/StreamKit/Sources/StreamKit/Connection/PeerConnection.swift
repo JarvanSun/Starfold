@@ -14,14 +14,14 @@ import os
 final class PeerConnection: NSObject, @unchecked Sendable {
     let frameReceiver = FrameReceiver()
 
-    private let factory: LKRTCPeerConnectionFactory
-    private let connection: LKRTCPeerConnection
+    private let connectionFactory: LKRTCPeerConnectionFactory
+    private let rtcConnection: LKRTCPeerConnection
     private let delegateProxy: DelegateProxy
     private let events: @Sendable (PeerEvent) -> Void
     private let lock = NSLock()
     private let log = Logger(category: .webRTC)
 
-    private var channels: [DataChannelLabel: LKRTCDataChannel] = [:]
+    private var dataChannels: [DataChannelLabel: LKRTCDataChannel] = [:]
     private var videoTrack: LKRTCVideoTrack?
     private var hasAudio = false
     private var hasVideo = false
@@ -31,10 +31,10 @@ final class PeerConnection: NSObject, @unchecked Sendable {
         stunServers: [String],
         events: @escaping @Sendable (PeerEvent) -> Void
     ) {
-        let factory = runtime.peerConnectionFactory()
+        let connectionFactory = runtime.peerConnectionFactory()
         let delegateProxy = DelegateProxy()
         guard
-            let connection = factory.peerConnection(
+            let rtcConnection = connectionFactory.peerConnection(
                 with: PeerConfiguration(stunServers: stunServers).rtcConfiguration,
                 constraints: LKRTCMediaConstraints(
                     mandatoryConstraints: nil,
@@ -44,9 +44,9 @@ final class PeerConnection: NSObject, @unchecked Sendable {
             )
         else { return nil }
 
-        self.factory = factory
+        self.connectionFactory = connectionFactory
         self.events = events
-        self.connection = connection
+        self.rtcConnection = rtcConnection
         self.delegateProxy = delegateProxy
 
         super.init()
@@ -61,18 +61,18 @@ final class PeerConnection: NSObject, @unchecked Sendable {
     private func addTransceivers() {
         let audio = LKRTCRtpTransceiverInit()
         audio.direction = .sendRecv
-        connection.addTransceiver(of: .audio, init: audio)
+        rtcConnection.addTransceiver(of: .audio, init: audio)
 
         let video = LKRTCRtpTransceiverInit()
         video.direction = .recvOnly
 
-        if let transceiver = connection.addTransceiver(of: .video, init: video) {
+        if let transceiver = rtcConnection.addTransceiver(of: .video, init: video) {
             preferH264(on: transceiver)
         }
     }
 
     private func preferH264(on transceiver: LKRTCRtpTransceiver) {
-        let codecs = factory.rtpReceiverCapabilities(forKind: "video").codecs
+        let codecs = connectionFactory.rtpReceiverCapabilities(forKind: "video").codecs
         let order = SDPMunger().preferredH264Order(
             mimeTypes: codecs.map(\.mimeType),
             profileLevelIDs: codecs.map { $0.parameters["profile-level-id"] }
@@ -91,12 +91,12 @@ final class PeerConnection: NSObject, @unchecked Sendable {
             configuration.isOrdered = true
             configuration.protocol = label.protocolName
 
-            if let channel = connection.dataChannel(
+            if let channel = rtcConnection.dataChannel(
                 forLabel: label.rawValue,
                 configuration: configuration
             ) {
                 channel.delegate = delegateProxy
-                channels[label] = channel
+                dataChannels[label] = channel
             }
         }
     }
@@ -107,7 +107,7 @@ final class PeerConnection: NSObject, @unchecked Sendable {
         let description = LKRTCSessionDescription(type: .offer, sdp: sdp)
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
-            connection.setLocalDescription(description) { error in
+            rtcConnection.setLocalDescription(description) { error in
                 switch error {
                 case let error?: continuation.resume(throwing: error)
                 case nil: continuation.resume()
@@ -124,7 +124,7 @@ final class PeerConnection: NSObject, @unchecked Sendable {
             optionalConstraints: nil
         )
         return try await withCheckedThrowingContinuation { continuation in
-            connection.offer(for: constraints) { description, error in
+            rtcConnection.offer(for: constraints) { description, error in
                 switch (description, error) {
                 case (let description?, _):
                     continuation.resume(returning: description)
@@ -151,7 +151,7 @@ final class PeerConnection: NSObject, @unchecked Sendable {
         let answer = LKRTCSessionDescription(type: .answer, sdp: sdp)
         try await withCheckedThrowingContinuation {
             (continuation: CheckedContinuation<Void, Error>) in
-            connection.setRemoteDescription(answer) { error in
+            rtcConnection.setRemoteDescription(answer) { error in
                 switch error {
                 case let error?: continuation.resume(throwing: error)
                 case nil: continuation.resume()
@@ -167,7 +167,7 @@ final class PeerConnection: NSObject, @unchecked Sendable {
             sdpMid: candidate.sdpMid
         )
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            connection.add(iceCandidate) { [log] error in
+            rtcConnection.add(iceCandidate) { [log] error in
                 if let error {
                     log.info(
                         "Remote candidate rejected (\(candidate.candidate)): \(error.localizedDescription)"
@@ -181,18 +181,18 @@ final class PeerConnection: NSObject, @unchecked Sendable {
 
     @discardableResult
     func send(_ data: Data, on label: DataChannelLabel) -> Bool {
-        guard let channel = channels[label], channel.readyState == .open else { return false }
+        guard let channel = dataChannels[label], channel.readyState == .open else { return false }
 
         return channel.sendData(LKRTCDataBuffer(data: data, isBinary: true))
     }
 
     func bufferedAmount(on label: DataChannelLabel) -> UInt64 {
-        channels[label]?.bufferedAmount ?? 0
+        dataChannels[label]?.bufferedAmount ?? 0
     }
 
     func statistics() async -> [String: LKRTCStatistics] {
         await withCheckedContinuation { continuation in
-            connection.statistics { report in
+            rtcConnection.statistics { report in
                 continuation.resume(returning: report.statistics)
             }
         }
@@ -204,11 +204,11 @@ final class PeerConnection: NSObject, @unchecked Sendable {
             videoTrack = nil
         }
 
-        for channel in channels.values {
+        for channel in dataChannels.values {
             channel.close()
         }
 
-        connection.close()
+        rtcConnection.close()
     }
 
     fileprivate func handleICEState(_ state: LKRTCIceConnectionState) {

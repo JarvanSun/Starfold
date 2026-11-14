@@ -33,7 +33,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
     public let systemVideo: SystemVideoPresenter
 
     private let keepsLastFrame: Bool
-    private let enhancer: FrameEnhancer
+    private let frameEnhancer: FrameEnhancer
     private let queue = DispatchQueue(label: "StreamKit.render", qos: .userInteractive)
     private let lock = OSAllocatedUnfairLock<PendingState>(initialState: PendingState())
 
@@ -52,12 +52,12 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
     @MainActor
     public init?(keepsLastFrame: Bool) {
         guard let device = MTLCreateSystemDefaultDevice(),
-            let enhancer = FrameEnhancer(device: device)
+            let frameEnhancer = FrameEnhancer(metalDevice: device)
         else { return nil }
 
         systemVideo = SystemVideoPresenter()
         self.keepsLastFrame = keepsLastFrame
-        self.enhancer = enhancer
+        self.frameEnhancer = frameEnhancer
     }
 
     public func notifyFirstFrame(_ handler: @escaping @Sendable () -> Void) {
@@ -162,7 +162,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         enhancements: RenderEnhancements,
         drawableSize: CGSize
     ) -> CVPixelBuffer? {
-        let isUpscaling = enhancements.isUpscaling && enhancer.supportsUpscaling
+        let isUpscaling = enhancements.isUpscaling && frameEnhancer.supportsUpscaling
         let sharpeningThreshold: Float = 0.001
         let isSharpening = enhancements.sharpening > sharpeningThreshold
         let isEnhancing = isUpscaling || isSharpening || enhancements.isToneMappingHDR
@@ -175,7 +175,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
             isToneMappingHDR: enhancements.isToneMappingHDR,
             drawableSize: drawableSize
         )
-        return enhancer.enhance(pixelBuffer, request: request)
+        return frameEnhancer.enhance(pixelBuffer, request: request)
     }
 
     private func recordUpscaledSize(of output: CVPixelBuffer, from input: CVPixelBuffer) {
@@ -226,7 +226,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
 
         queue.async { [self] in
             systemVideo.clear()
-            enhancer.clear()
+            frameEnhancer.clear()
         }
         #endif
     }

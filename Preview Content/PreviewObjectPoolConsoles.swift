@@ -29,8 +29,8 @@ extension PreviewObjectPool {
     ) -> HomeViewModel {
         let home = HomeViewModel(
             accountID: profile.xuid,
-            service: consoleService(state: state, consoles: consoles),
-            cache: libraryCache,
+            consoleService: consoleService(state: state, consoles: consoles),
+            libraryCache: libraryCache,
             clock: ContinuousClock()
         )
 

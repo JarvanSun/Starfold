@@ -12,8 +12,8 @@ import os
 final class BackgroundStreamEnd {
     private let log = Logger(category: .stream)
 
-    private var task: UIBackgroundTaskIdentifier = .invalid
-    private var deadline: Task<Void, Never>?
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+    private var deadlineWatch: Task<Void, Never>?
 
     func end(_ stop: @escaping () async -> Void) {
         guard begin(onExpiry: stop) else { return }
@@ -22,15 +22,16 @@ final class BackgroundStreamEnd {
     }
 
     private func begin(onExpiry stop: @escaping () async -> Void) -> Bool {
-        guard task == .invalid else { return false }
+        guard backgroundTask == .invalid else { return false }
 
         let taskName = "End Xbox session"
 
-        task = UIApplication.shared.beginBackgroundTask(withName: taskName) { [weak self] in
+        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: taskName) {
+            [weak self] in
             self?.log.warning("Background stream end ran out of time")
 
-            self?.deadline?.cancel()
-            self?.deadline = nil
+            self?.deadlineWatch?.cancel()
+            self?.deadlineWatch = nil
 
             Task { await stop() }
 
@@ -41,7 +42,7 @@ final class BackgroundStreamEnd {
     }
 
     private func endNow(_ stop: @escaping () async -> Void) {
-        deadline = nil
+        deadlineWatch = nil
 
         Task {
             await stop()
@@ -51,11 +52,11 @@ final class BackgroundStreamEnd {
     }
 
     private func finish() {
-        guard task != .invalid else { return }
+        guard backgroundTask != .invalid else { return }
 
-        UIApplication.shared.endBackgroundTask(task)
+        UIApplication.shared.endBackgroundTask(backgroundTask)
 
-        task = .invalid
+        backgroundTask = .invalid
     }
 
     func endBeforeTimeRunsOut(_ stop: @escaping () async -> Void) {
@@ -63,7 +64,7 @@ final class BackgroundStreamEnd {
 
         log.info("Keeping the stream while the app is in the background")
 
-        deadline = Task { [weak self] in
+        deadlineWatch = Task { [weak self] in
             let endingMargin: TimeInterval = 5
             let longestKept: Duration = .seconds(60)
             let checkInterval: Duration = .seconds(1)
@@ -84,10 +85,10 @@ final class BackgroundStreamEnd {
     }
 
     func keepStream() {
-        guard let deadline else { return }
+        guard let deadlineWatch else { return }
 
-        deadline.cancel()
-        self.deadline = nil
+        deadlineWatch.cancel()
+        self.deadlineWatch = nil
 
         log.info("Back before the stream had to end")
 

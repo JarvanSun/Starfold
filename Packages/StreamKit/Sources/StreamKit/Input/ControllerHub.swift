@@ -14,40 +14,42 @@ import os
 @MainActor
 @Observable
 public final class ControllerHub {
-    public let router: GamepadRouter
+    public let gamepadRouter: GamepadRouter
     public let xboxButton: XboxButtonSettings
 
     public var isDeviceRumbleEnabled = false
 
-    public private(set) var connected: [ConnectedController] = []
+    public private(set) var connectedControllers: [ConnectedController] = []
     public private(set) var isRoutingToGame: Bool
     public private(set) var activeInput: ActiveInput = .touch
 
-    private let destination: ControllerInputDestination
+    private let inputDestination: ControllerInputDestination
     private let inputQueue: DispatchQueue
     private let touchControllerCategory: String?
     private let log = Logger(category: .controllers)
 
-    private var slots: [ObjectIdentifier: UInt8] = [:]
+    private var controllerSlots: [ObjectIdentifier: UInt8] = [:]
     private var touchControllerID: ObjectIdentifier?
     private var rumblePlayers: [ObjectIdentifier: RumblePlayer] = [:]
     private var deviceRumble: RumblePlayer?
     private var observers: [NSObjectProtocol] = []
 
     public init(routing: ControllerRouting, touchControllerCategory: String? = nil) {
-        let router = GamepadRouter(routing: routing)
+        let gamepadRouter = GamepadRouter(controllerRouting: routing)
         let inputQueue = DispatchQueue(label: "StreamKit.controllers", qos: .userInteractive)
-        self.router = router
+        self.gamepadRouter = gamepadRouter
         xboxButton = XboxButtonSettings()
         self.inputQueue = inputQueue
         self.touchControllerCategory = touchControllerCategory
 
         switch routing {
         case .direct:
-            destination = .router(router)
+            inputDestination = .router(gamepadRouter)
             isRoutingToGame = true
         case .gated:
-            destination = .gated(GatedControllerInput(queue: inputQueue, router: router))
+            inputDestination = .gated(
+                GatedControllerInput(inputQueue: inputQueue, gamepadRouter: gamepadRouter)
+            )
             isRoutingToGame = false
         }
 
@@ -63,7 +65,7 @@ public final class ControllerHub {
     }
 
     private func observeActiveInput() {
-        router.setActiveInputHandler { [weak self] input in
+        gamepadRouter.setActiveInputHandler { [weak self] input in
             DispatchQueue.main.async {
                 MainActor.assumeIsolated { self?.activeInput = input }
             }
@@ -87,7 +89,7 @@ public final class ControllerHub {
         let current = GCController.controllers()
         let currentIDs = Set(current.map(ObjectIdentifier.init))
 
-        for id in slots.keys where !currentIDs.contains(id) {
+        for id in controllerSlots.keys where !currentIDs.contains(id) {
             detach(id)
         }
 
@@ -99,33 +101,33 @@ public final class ControllerHub {
             attach(controller)
         }
 
-        xboxButton.setControllerConnected(!slots.isEmpty)
+        xboxButton.setControllerConnected(!controllerSlots.isEmpty)
     }
 
     private func detach(_ id: ObjectIdentifier) {
-        guard let slot = slots.removeValue(forKey: id) else { return }
+        guard let slot = controllerSlots.removeValue(forKey: id) else { return }
 
         rumblePlayers[id]?.stop()
         rumblePlayers[id] = nil
 
-        connected.removeAll { $0.id == id }
+        connectedControllers.removeAll { $0.id == id }
 
-        let destination = destination
+        let inputDestination = inputDestination
         inputQueue.async {
-            destination.update(slot: slot, state: nil)
+            inputDestination.update(slot: slot, state: nil)
         }
 
-        if slots.isEmpty {
-            router.use(.touch)
+        if controllerSlots.isEmpty {
+            gamepadRouter.use(.touch)
         }
     }
 
     private func detachTouchController() {
         touchControllerID = nil
 
-        let destination = destination
+        let inputDestination = inputDestination
         inputQueue.async {
-            destination.updateTouch(nil)
+            inputDestination.updateTouch(nil)
         }
     }
 
@@ -147,14 +149,14 @@ public final class ControllerHub {
         controller.handlerQueue = inputQueue
 
         let profile = controller.physicalInputProfile
-        let destination = destination
+        let inputDestination = inputDestination
         profile.valueDidChangeHandler = { @Sendable profile, _ in
-            destination.updateTouch(GamepadState(reading: profile))
+            inputDestination.updateTouch(GamepadState(reading: profile))
         }
 
         nonisolated(unsafe) let initialProfile = profile
         inputQueue.async {
-            destination.attachTouch(initialProfile)
+            inputDestination.attachTouch(initialProfile)
         }
 
         log.info("Touch controller attached to slot 0")
@@ -163,11 +165,11 @@ public final class ControllerHub {
     private func attachPhysicalController(_ controller: GCController) {
         let id = ObjectIdentifier(controller)
         guard let gamepad = controller.extendedGamepad,
-            slots[id] == nil,
+            controllerSlots[id] == nil,
             let slot = freeSlot()
         else { return }
 
-        slots[id] = slot
+        controllerSlots[id] = slot
 
         startReading(gamepad, of: controller, slot: slot)
 
@@ -179,13 +181,13 @@ public final class ControllerHub {
 
         deviceRumble?.stop()
 
-        router.use(.controller)
+        gamepadRouter.use(.controller)
 
         log.info("Controller \(controller.vendorName ?? "?") → slot \(slot)")
     }
 
     private func freeSlot() -> UInt8? {
-        let used = Set(slots.values)
+        let used = Set(controllerSlots.values)
         let slotCount: UInt8 = 4
 
         return (0..<slotCount).first { !used.contains($0) }
@@ -196,18 +198,18 @@ public final class ControllerHub {
         of controller: GCController,
         slot: UInt8
     ) {
-        destination.prepare(gamepad)
+        inputDestination.prepare(gamepad)
 
         controller.handlerQueue = inputQueue
 
-        let destination = destination
+        let inputDestination = inputDestination
         gamepad.valueChangedHandler = { @Sendable gamepad, _ in
-            destination.update(slot: slot, state: GamepadState(reading: gamepad))
+            inputDestination.update(slot: slot, state: GamepadState(reading: gamepad))
         }
 
         nonisolated(unsafe) let initialGamepad = gamepad
         inputQueue.async {
-            destination.attach(slot: slot, gamepad: initialGamepad)
+            inputDestination.attach(slot: slot, gamepad: initialGamepad)
         }
     }
 
@@ -218,8 +220,8 @@ public final class ControllerHub {
             name: controller.vendorName ?? "Controller",
             batteryLevel: controller.battery?.batteryLevel
         )
-        connected.append(entry)
-        connected.sort { $0.slot < $1.slot }
+        connectedControllers.append(entry)
+        connectedControllers.sort { $0.slot < $1.slot }
     }
 
     public func checkControllers() {
@@ -227,7 +229,7 @@ public final class ControllerHub {
     }
 
     public func routeInput(toGame isPlaying: Bool) {
-        guard case .gated(let input) = destination else { return }
+        guard case .gated(let input) = inputDestination else { return }
 
         isRoutingToGame = isPlaying
 
@@ -239,13 +241,13 @@ public final class ControllerHub {
     }
 
     public func useTouchControls() {
-        router.use(.touch)
+        gamepadRouter.use(.touch)
     }
 
     public func playRumble(_ effect: VibrationEffect) {
         let target = RumbleTarget(
             effect: effect,
-            controllerSlots: Set(slots.values),
+            controllerSlots: Set(controllerSlots.values),
             isDeviceRumbleEnabled: isDeviceRumbleEnabled
         )
 
@@ -257,7 +259,7 @@ public final class ControllerHub {
     }
 
     private func playOnControllers(_ effect: VibrationEffect, slot: UInt8) {
-        for (id, controllerSlot) in slots where controllerSlot == slot {
+        for (id, controllerSlot) in controllerSlots where controllerSlot == slot {
             rumblePlayers[id]?.play(effect)
         }
     }

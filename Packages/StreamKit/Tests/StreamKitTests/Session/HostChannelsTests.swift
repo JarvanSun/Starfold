@@ -189,7 +189,7 @@ struct HostChannelsTests {
 private extension HostChannelsTests {
     func makeChannels(touch: TouchCapabilities? = nil) -> HostChannels {
         .init(
-            options: .init(clientAppInstallID: UUID(), touch: touch),
+            options: .init(clientAppInstallID: UUID(), touchCapabilities: touch),
             messageChannel: .init(correlationBase: "abc")
         )
     }

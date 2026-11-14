@@ -18,20 +18,20 @@ public struct XboxLiveClient: Sendable {
         let message: String?
     }
 
-    private let http: HTTPClient
+    private let httpClient: HTTPClient
     private let authorization: @Sendable () async throws -> String
 
-    init(http: HTTPClient, authorization: @escaping @Sendable () async throws -> String) {
-        self.http = http
+    init(httpClient: HTTPClient, authorization: @escaping @Sendable () async throws -> String) {
+        self.httpClient = httpClient
         self.authorization = authorization
     }
 
-    public init(account: XboxAccount, http: HTTPClient) {
-        self.init(http: http, authorization: { try await account.webAuthorization() })
+    public init(account: XboxAccount, httpClient: HTTPClient) {
+        self.init(httpClient: httpClient, authorization: { try await account.webAuthorization() })
     }
 
     public func profile() async throws -> XboxProfile {
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             ProfileResponse.self,
             for: .init(
                 url: URL(string: "https://profile.xboxlive.com/users/me/profile/settings")!
@@ -68,7 +68,7 @@ public struct XboxLiveClient: Sendable {
     }
 
     private func currentConsoleTitle(xuid: String) async throws -> PresenceResponse.Title? {
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             PresenceResponse.self,
             for: .init(
                 url: URL(
@@ -91,7 +91,7 @@ public struct XboxLiveClient: Sendable {
     }
 
     private func recentTitles(xuid: String) async throws -> [HistoryTitle] {
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             TitleHistoryResponse.self,
             for: .init(
                 url: URL(
@@ -122,7 +122,7 @@ public struct XboxLiveClient: Sendable {
     }
 
     public func consoles() async throws -> [Console] {
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             DeviceListResponse.self,
             for: .init(
                 url: URL(
@@ -154,7 +154,7 @@ public struct XboxLiveClient: Sendable {
         ]
 
         let spinnerTimeout: Duration = .seconds(10)
-        let reply = try await http.successfulBody(
+        let reply = try await httpClient.successfulBody(
             for: .init(
                 url: URL(string: "https://xccs.xboxlive.com/commands")!,
                 method: "POST",

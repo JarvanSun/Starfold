@@ -13,17 +13,17 @@ struct XboxLiveTokenClient: Sendable {
         case gssv = "http://gssv.xboxlive.com/"
     }
 
-    private let identity: MicrosoftIdentity
-    private let http: HTTPClient
+    private let microsoftIdentity: MicrosoftIdentity
+    private let httpClient: HTTPClient
     private let now: @Sendable () -> Date
 
     init(
-        identity: MicrosoftIdentity,
-        http: HTTPClient,
+        microsoftIdentity: MicrosoftIdentity,
+        httpClient: HTTPClient,
         now: @escaping @Sendable () -> Date = Date.init
     ) {
-        self.identity = identity
-        self.http = http
+        self.microsoftIdentity = microsoftIdentity
+        self.httpClient = httpClient
         self.now = now
     }
 
@@ -62,7 +62,7 @@ struct XboxLiveTokenClient: Sendable {
             headers: xboxComBrowserHeaders,
             body: try encoded(body)
         )
-        let response = try await http.decodedBody(TokenResponse.self, for: request)
+        let response = try await httpClient.decodedBody(TokenResponse.self, for: request)
         return try response.xboxToken()
     }
 
@@ -88,7 +88,7 @@ struct XboxLiveTokenClient: Sendable {
         gssvToken: XboxToken,
         offering: StreamingOffering
     ) async throws -> StreamingToken {
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             StreamingLoginResponse.self,
             for: .init(
                 url: offering.loginURL,
@@ -129,12 +129,12 @@ struct XboxLiveTokenClient: Sendable {
         let transferTokenScope =
             "service::http://Passport.NET/purpose::PURPOSE_XBOX_CLOUD_CONSOLE_TRANSFER_TOKEN"
         let form = FormBody([
-            ("client_id", identity.clientID),
+            ("client_id", microsoftIdentity.clientID),
             ("grant_type", "refresh_token"),
             ("refresh_token", refreshToken),
             ("scope", transferTokenScope),
         ])
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             TransferTokenResponse.self,
             for: .init(
                 url: URL(string: "https://login.live.com/oauth20_token.srf")!,

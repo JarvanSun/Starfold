@@ -18,6 +18,6 @@ struct StreamVideoView: NSViewRepresentable {
     }
 
     func updateNSView(_ view: StreamVideoHostView, context: Context) {
-        pictureInPicture?.host = view
+        pictureInPicture?.videoHostView = view
     }
 }

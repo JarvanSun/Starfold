@@ -9,22 +9,22 @@ import StreamKit
 import XboxKit
 
 final class LiveAccountService: AccountService {
-    private let store: AccountStore
-    private let http: HTTPClient
+    private let accountStore: AccountStore
+    private let httpClient: HTTPClient
     private let streamRuntime: StreamRuntime
 
     private var xboxAccounts: [String: XboxAccount] = [:]
 
-    init(store: AccountStore, http: HTTPClient, streamRuntime: StreamRuntime) {
-        self.store = store
-        self.http = http
+    init(accountStore: AccountStore, httpClient: HTTPClient, streamRuntime: StreamRuntime) {
+        self.accountStore = accountStore
+        self.httpClient = httpClient
         self.streamRuntime = streamRuntime
     }
 
     func restoreAccounts() async -> [SignedInAccount] {
         var accounts: [SignedInAccount] = []
 
-        for xboxAccount in store.restoreAccounts() {
+        for xboxAccount in accountStore.restoreAccounts() {
             accounts.append(await signedIn(xboxAccount))
         }
 
@@ -32,14 +32,14 @@ final class LiveAccountService: AccountService {
     }
 
     func beginSignIn() async throws -> DeviceCodePrompt {
-        try await store.beginSignIn()
+        try await accountStore.beginSignIn()
     }
 
     func completeSignIn(
         _ prompt: DeviceCodePrompt,
         onAuthorized: @escaping @MainActor () -> Void
     ) async throws -> SignedInAccount {
-        let xboxAccount = try await store.completeSignIn(prompt) { await onAuthorized() }
+        let xboxAccount = try await accountStore.completeSignIn(prompt) { await onAuthorized() }
         return await signedIn(xboxAccount)
     }
 
@@ -48,9 +48,16 @@ final class LiveAccountService: AccountService {
 
         return .init(
             summary: .init(id: xboxAccount.xuid, gamertag: await xboxAccount.gamertag),
-            consoles: LiveConsoleService(account: xboxAccount, http: http),
-            cloudLibrary: LiveCloudLibraryService(account: xboxAccount, http: http),
-            streams: LiveStreamService(account: xboxAccount, http: http, runtime: streamRuntime)
+            consoleService: LiveConsoleService(xboxAccount: xboxAccount, httpClient: httpClient),
+            cloudLibraryService: LiveCloudLibraryService(
+                xboxAccount: xboxAccount,
+                httpClient: httpClient
+            ),
+            streamService: LiveStreamService(
+                xboxAccount: xboxAccount,
+                httpClient: httpClient,
+                streamRuntime: streamRuntime
+            )
         )
     }
 
@@ -59,12 +66,12 @@ final class LiveAccountService: AccountService {
             throw XboxAccountError.signInRequired
         }
 
-        return try await XboxLiveClient(account: xboxAccount, http: http).profile()
+        return try await XboxLiveClient(account: xboxAccount, httpClient: httpClient).profile()
     }
 
     func signOut(_ account: SignedInAccount) throws {
         xboxAccounts[account.id] = nil
 
-        try store.signOut(xuid: account.id)
+        try accountStore.signOut(xuid: account.id)
     }
 }

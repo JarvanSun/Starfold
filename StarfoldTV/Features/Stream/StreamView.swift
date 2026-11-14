@@ -11,15 +11,15 @@ import SwiftUI
 
 struct StreamView: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var presenter: StreamPresenter
+    @Bindable var streamPresenter: StreamPresenter
 
     let streamViewModel: StreamViewModel?
     let settingsViewModel: SettingsViewModel
-    let controllers: ControllerHub
+    let controllerHub: ControllerHub
 
     var body: some View {
         StreamHost(
-            isRawInputEnabled: presenter.isRawInputEnabled(for: streamViewModel),
+            isRawInputEnabled: streamPresenter.isRawInputEnabled(for: streamViewModel),
             onRemoteBack: { goBack() },
             onRemotePlayPause: { openMenu() }
         ) {
@@ -32,7 +32,7 @@ struct StreamView: View {
                 case nil: StreamPreparingStatus()
                 }
 
-                if presenter.isEnding {
+                if streamPresenter.isEnding {
                     StreamDisconnectingStatus()
                 }
             }
@@ -42,22 +42,22 @@ struct StreamView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
-        .onChange(of: presenter.isRawInputEnabled(for: streamViewModel), initial: true) {
+        .onChange(of: streamPresenter.isRawInputEnabled(for: streamViewModel), initial: true) {
             _,
             isEnabled in
-            controllers.routeInput(toGame: isEnabled)
+            controllerHub.routeInput(toGame: isEnabled)
         }
-        .onDisappear { controllers.routeInput(toGame: false) }
-        .sheet(isPresented: $presenter.isMenuPresented) { menu }
+        .onDisappear { controllerHub.routeInput(toGame: false) }
+        .sheet(isPresented: $streamPresenter.isMenuPresented) { menu }
         .sheet(item: presentedDialog) { dialog in dialogSheet(dialog) }
     }
 
     private func goBack() {
-        Task { await presenter.goBack() }
+        Task { await streamPresenter.goBack() }
     }
 
     private func openMenu() {
-        presenter.openMenu(for: streamViewModel)
+        streamPresenter.openMenu(for: streamViewModel)
     }
 
     @ViewBuilder
@@ -81,16 +81,16 @@ struct StreamView: View {
         }
 
         if streamViewModel.needsController {
-            ControllerMissingStatus(onCheckAgain: { controllers.checkControllers() })
+            ControllerMissingStatus(onCheckAgain: { controllerHub.checkControllers() })
         }
     }
 
     private func restart() {
-        Task { await presenter.restart() }
+        Task { await streamPresenter.restart() }
     }
 
     private func end() {
-        Task { await presenter.end() }
+        Task { await streamPresenter.end() }
     }
 
     @ViewBuilder
@@ -137,20 +137,20 @@ struct StreamView: View {
 ) { phase in
     let app = PreviewObjectPool.appViewModel(signedIn: true)
     StreamView(
-        presenter: StreamPresenter(appViewModel: app),
+        streamPresenter: StreamPresenter(appViewModel: app),
         streamViewModel: PreviewObjectPool.streamViewModel(phase: phase),
         settingsViewModel: app.settingsViewModel,
-        controllers: app.controllers
+        controllerHub: app.controllerHub
     )
 }
 
 #Preview("Preparing") {
     let app = PreviewObjectPool.appViewModel(signedIn: true)
     StreamView(
-        presenter: StreamPresenter(appViewModel: app),
+        streamPresenter: StreamPresenter(appViewModel: app),
         streamViewModel: nil,
         settingsViewModel: app.settingsViewModel,
-        controllers: app.controllers
+        controllerHub: app.controllerHub
     )
 }
 #endif

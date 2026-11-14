@@ -41,7 +41,7 @@ struct MacStereoAudioDeviceTests {
         #expect(didStart)
         #expect(hasPulled)
         #expect(delegate.outputParameterChanges.load(ordering: .relaxed) >= 1)
-        #expect(Double(largestPull) <= ioBuffer * device.playout.sampleRate * 1.1 + 16)
+        #expect(Double(largestPull) <= ioBuffer * device.stereoPlayout.sampleRate * 1.1 + 16)
         #expect(latency >= ioBuffer)
     }
 }

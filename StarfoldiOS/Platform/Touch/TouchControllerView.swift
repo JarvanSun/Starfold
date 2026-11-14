@@ -24,7 +24,7 @@ final class TouchControllerView: MTKView {
     private var isHapticsEnabled = false
     private var touchController: TCTouchController?
     private var touches: [ObjectIdentifier: TrackedTouch] = [:]
-    private var plan: TouchControlPlan?
+    private var controlPlan: TouchControlPlan?
     private var placedControls: [String: TCControlLayout] = [:]
 
     init() {
@@ -46,37 +46,37 @@ final class TouchControllerView: MTKView {
         fatalError("init(coder:) is not supported")
     }
 
-    func show(_ plan: TouchControlPlan) {
-        guard plan != self.plan else { return }
+    func show(_ controlPlan: TouchControlPlan) {
+        guard controlPlan != self.controlPlan else { return }
 
-        let previous = self.plan
-        self.plan = plan
-        alpha = plan.opacity
+        let previous = self.controlPlan
+        self.controlPlan = controlPlan
+        alpha = controlPlan.opacity
 
-        switch previous.map(plan.isRearrangement(of:)) {
-        case true?: move(to: plan)
-        case false?, nil: rebuild(plan)
+        switch previous.map(controlPlan.isRearrangement(of:)) {
+        case true?: move(to: controlPlan)
+        case false?, nil: rebuild(controlPlan)
         }
     }
 
-    private func move(to plan: TouchControlPlan) {
-        for placement in plan.controls {
+    private func move(to controlPlan: TouchControlPlan) {
+        for placement in controlPlan.controls {
             placedControls[placement.id]?.offset = placement.offset
         }
         touchController?.size = bounds.size
         draw()
     }
 
-    private func rebuild(_ plan: TouchControlPlan) {
+    private func rebuild(_ controlPlan: TouchControlPlan) {
         let controller = connectedController()
         for touch in touches.values {
             _ = controller.handleTouchEnded(at: touch.point, index: touch.index)
         }
         controller.removeAllControls()
 
-        let builder = TouchControlBuilder(controller: controller, sticks: plan.sticks)
+        let builder = TouchControlBuilder(controller: controller, sticks: controlPlan.sticks)
         placedControls = [:]
-        for placement in plan.controls {
+        for placement in controlPlan.controls {
             placedControls[placement.id] = builder.add(placement)
         }
 
@@ -104,7 +104,7 @@ final class TouchControllerView: MTKView {
     func disconnect() {
         touchController?.disconnect()
         touchController = nil
-        plan = nil
+        controlPlan = nil
         placedControls = [:]
     }
 

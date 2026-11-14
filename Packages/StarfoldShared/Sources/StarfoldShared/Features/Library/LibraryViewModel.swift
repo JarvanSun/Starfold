@@ -22,14 +22,14 @@ public final class LibraryViewModel {
     public private(set) var recentGames: [CloudGame] = []
     public private(set) var cloudAccess: CloudAccess = .unknown
 
-    let favorites: FavoritesStore
-    private(set) var curated: [CatalogClient.List: [CloudGame]] = [:]
+    let favoritesStore: FavoritesStore
+    private(set) var curatedLists: [CatalogClient.List: [CloudGame]] = [:]
     private(set) var cloudState: LoadState = .idle
 
     private let accountID: String
-    private let service: CloudLibraryService
+    private let cloudLibraryService: CloudLibraryService
     private let preferences: Preferences
-    private let cache: LibraryCache
+    private let libraryCache: LibraryCache
     private let log = Logger(category: .library)
 
     public var sort: GameSort {
@@ -102,22 +102,22 @@ public final class LibraryViewModel {
     }
 
     var favoriteGames: [CloudGame] {
-        games.filter { favorites.contains($0.id) }
+        games.filter { favoritesStore.contains($0.id) }
     }
 
     public init(
         accountID: String,
-        service: CloudLibraryService,
+        cloudLibraryService: CloudLibraryService,
         preferences: Preferences,
-        cache: LibraryCache
+        libraryCache: LibraryCache
     ) {
         self.accountID = accountID
-        self.service = service
+        self.cloudLibraryService = cloudLibraryService
         self.preferences = preferences
-        self.cache = cache
-        self.favorites = preferences.favorites(for: accountID)
+        self.libraryCache = libraryCache
+        self.favoritesStore = preferences.favorites(for: accountID)
 
-        if let snapshot = cache.librarySnapshot(for: accountID) {
+        if let snapshot = libraryCache.librarySnapshot(for: accountID) {
             restore(snapshot)
         }
     }
@@ -127,7 +127,7 @@ public final class LibraryViewModel {
             snapshot.games.map { ($0.id, $0) },
             uniquingKeysWith: { first, _ in first }
         )
-        let curated = snapshot.curated.compactMap { key, ids in
+        let curatedLists = snapshot.curated.compactMap { key, ids in
             CatalogClient.List(rawValue: key).map { ($0, ids.compactMap { gamesByID[$0] }) }
         }
 
@@ -135,7 +135,7 @@ public final class LibraryViewModel {
             .init(
                 games: snapshot.games,
                 recentGames: snapshot.recentIDs.compactMap { gamesByID[$0] },
-                curated: .init(uniqueKeysWithValues: curated),
+                curated: .init(uniqueKeysWithValues: curatedLists),
                 access: CloudAccess(rawValue: snapshot.cloudAccess) ?? .unknown
             )
         )
@@ -144,7 +144,7 @@ public final class LibraryViewModel {
     private func show(_ library: CloudLibrary) {
         games = library.games.sorted { isNamed($0.name, before: $1.name) }
         recentGames = library.recentGames
-        curated = library.curated
+        curatedLists = library.curated
         cloudAccess = library.access
         cloudState = .loaded
     }
@@ -153,7 +153,7 @@ public final class LibraryViewModel {
         cloudState = .loading
 
         do {
-            let library = try await service.library()
+            let library = try await cloudLibraryService.library()
             guard !Task.isCancelled else { return }
 
             show(library)
@@ -169,11 +169,11 @@ public final class LibraryViewModel {
             games: games,
             recentIDs: recentGames.map(\.id),
             curated: .init(
-                uniqueKeysWithValues: curated.map { ($0.key.rawValue, $0.value.map(\.id)) }
+                uniqueKeysWithValues: curatedLists.map { ($0.key.rawValue, $0.value.map(\.id)) }
             ),
             cloudAccess: cloudAccess.rawValue
         )
-        cache.save(snapshot, for: accountID)
+        libraryCache.save(snapshot, for: accountID)
     }
 
     private func recordFailure(_ error: Error) {
@@ -191,15 +191,19 @@ public final class LibraryViewModel {
     }
 
     public func detail(for game: CloudGame) -> GameDetailViewModel {
-        .init(game: game, favorites: favorites, onPlay: { [weak self] in self?.play(game) })
+        .init(
+            game: game,
+            favoritesStore: favoritesStore,
+            onPlay: { [weak self] in self?.play(game) }
+        )
     }
 
     public func games(on shelf: LibraryShelf) -> [CloudGame] {
         switch shelf {
         case .continuePlaying: recentGames
         case .favorites: favoriteGames
-        case .recentlyAdded: curated[.recentlyAdded] ?? []
-        case .leavingSoon: curated[.leavingSoon] ?? []
+        case .recentlyAdded: curatedLists[.recentlyAdded] ?? []
+        case .leavingSoon: curatedLists[.leavingSoon] ?? []
         }
     }
 
@@ -208,7 +212,7 @@ public final class LibraryViewModel {
     }
 
     public func coverArtwork(limit: Int) -> [URL] {
-        let candidates = recentGames + (curated[.recentlyAdded] ?? []) + games
+        let candidates = recentGames + (curatedLists[.recentlyAdded] ?? []) + games
         var seenURLs = Set<URL>()
         let uniqueCovers = candidates.compactMap(\.coverArtwork).filter {
             seenURLs.insert($0).inserted

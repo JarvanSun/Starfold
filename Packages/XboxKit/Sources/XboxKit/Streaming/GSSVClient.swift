@@ -15,19 +15,19 @@ public struct GSSVClient: Sendable {
 
     let kind: Kind
     let baseURL: URL
-    let http: HTTPClient
+    let httpClient: HTTPClient
 
     private let token: @Sendable (TokenFreshness) async throws -> String
 
     init(
         kind: Kind,
         baseURL: URL,
-        http: HTTPClient,
+        httpClient: HTTPClient,
         token: @escaping @Sendable (TokenFreshness) async throws -> String
     ) {
         self.kind = kind
         self.baseURL = baseURL
-        self.http = http
+        self.httpClient = httpClient
         self.token = token
     }
 
@@ -85,7 +85,7 @@ public struct GSSVClient: Sendable {
             extraHeaders: ["X-MS-Device-Info": DeviceInfoHeader(quality: quality).json]
         )
         let sessionPath = try decoded(SessionResponse.self, from: response.body).sessionPath
-        return .init(client: self, url: try sessionURL(path: sessionPath), titleID: titleID)
+        return .init(gssvClient: self, url: try sessionURL(path: sessionPath), titleID: titleID)
     }
 
     private func decoded<Body: Decodable>(_ type: Body.Type, from body: Data) throws -> Body {
@@ -121,7 +121,7 @@ public struct GSSVClient: Sendable {
                 hasBody: body != nil,
                 adding: extraHeaders
             )
-            let response = try await http.send(
+            let response = try await httpClient.send(
                 .init(url: url, method: method, headers: headers, body: body)
             )
 

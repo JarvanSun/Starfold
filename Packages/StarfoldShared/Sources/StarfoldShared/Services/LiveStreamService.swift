@@ -11,15 +11,15 @@ import XboxKit
 import os
 
 struct LiveStreamService: StreamService {
-    private let account: XboxAccount
-    private let http: HTTPClient
-    private let runtime: StreamRuntime
+    private let xboxAccount: XboxAccount
+    private let httpClient: HTTPClient
+    private let streamRuntime: StreamRuntime
     private let log = Logger(category: .stream)
 
-    init(account: XboxAccount, http: HTTPClient, runtime: StreamRuntime) {
-        self.account = account
-        self.http = http
-        self.runtime = runtime
+    init(xboxAccount: XboxAccount, httpClient: HTTPClient, streamRuntime: StreamRuntime) {
+        self.xboxAccount = xboxAccount
+        self.httpClient = httpClient
+        self.streamRuntime = streamRuntime
     }
 
     func connect(to target: StreamTarget, options: StreamOptions) async throws -> StreamConnection {
@@ -30,18 +30,18 @@ struct LiveStreamService: StreamService {
         )
 
         let controller = StreamController(
-            client: client,
+            gssvClient: client,
             target: target,
             options: options,
-            transferToken: { [account] in try await account.transferToken() }
+            transferToken: { [xboxAccount] in try await xboxAccount.transferToken() }
         )
-        return LiveStreamConnection(controller: controller, runtime: runtime)
+        return LiveStreamConnection(streamController: controller, streamRuntime: streamRuntime)
     }
 
     private func streamingClient(for target: StreamTarget) async throws -> GSSVClient {
         switch target {
-        case .console: try await account.homeClient(http: http)
-        case .cloud: try await account.cloudClient(http: http)
+        case .console: try await xboxAccount.homeClient(http: httpClient)
+        case .cloud: try await xboxAccount.cloudClient(http: httpClient)
         }
     }
 
@@ -58,7 +58,7 @@ struct LiveStreamService: StreamService {
 
     func setDirectStereo(_ isEnabled: Bool) {
         #if !os(macOS)
-        runtime.setDirectStereo(isEnabled)
+        streamRuntime.setDirectStereo(isEnabled)
         #endif
     }
 }

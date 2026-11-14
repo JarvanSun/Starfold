@@ -13,12 +13,12 @@ import os
 import UIKit
 
 final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
-    private let playout = StereoPlayout(meter: PlayoutMeter())
+    private let stereoPlayout = StereoPlayout(meter: PlayoutMeter())
     private let log = Logger(category: .audio)
     private let lock = NSLock()
 
-    private var delegate: LKRTCAudioDeviceDelegate?
-    private var engine: AVAudioEngine?
+    private var deviceDelegate: LKRTCAudioDeviceDelegate?
+    private var audioEngine: AVAudioEngine?
     private var isPlayoutReady = false
     private var isPlayoutWanted = false
     private var observers: [NSObjectProtocol] = []
@@ -26,7 +26,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
     private var bypassesSpatialAudio = false
     private var isInBackground = false
 
-    var deviceInputSampleRate: Double { playout.sampleRate }
+    var deviceInputSampleRate: Double { stereoPlayout.sampleRate }
 
     var inputIOBufferDuration: TimeInterval { 0.01 }
 
@@ -34,7 +34,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
     var inputLatency: TimeInterval { 0 }
 
-    var deviceOutputSampleRate: Double { playout.sampleRate }
+    var deviceOutputSampleRate: Double { stereoPlayout.sampleRate }
 
     var outputIOBufferDuration: TimeInterval { 0.01 }
 
@@ -42,7 +42,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
     var outputLatency: TimeInterval { AVAudioSession.sharedInstance().outputLatency }
 
-    var isInitialized: Bool { lock.withLock { delegate != nil } }
+    var isInitialized: Bool { lock.withLock { deviceDelegate != nil } }
 
     var isPlayoutInitialized: Bool { lock.withLock { isPlayoutReady } }
 
@@ -54,8 +54,8 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
     private var watchdogInterval: Int { 5 }
 
-    func initialize(with delegate: LKRTCAudioDeviceDelegate) -> Bool {
-        lock.withLock { self.delegate = delegate }
+    func initialize(with deviceDelegate: LKRTCAudioDeviceDelegate) -> Bool {
+        lock.withLock { self.deviceDelegate = deviceDelegate }
 
         observeSystemChanges()
 
@@ -97,19 +97,19 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         #endif
     }
 
-    private func rebuildIfCurrent(_ engine: AVAudioEngine?) {
-        guard let engine, lock.withLock({ engine === self.engine }) else { return }
+    private func rebuildIfCurrent(_ audioEngine: AVAudioEngine?) {
+        guard let audioEngine, lock.withLock({ audioEngine === self.audioEngine }) else { return }
 
         recover(.rebuild("configuration change"))
     }
 
     private func setInBackground(_ isInBackground: Bool) {
-        let engine = lock.withLock {
+        let audioEngine = lock.withLock {
             self.isInBackground = isInBackground
-            return self.engine
+            return self.audioEngine
         }
 
-        engine?.mainMixerNode.outputVolume = volume(isInBackground: isInBackground)
+        audioEngine?.mainMixerNode.outputVolume = volume(isInBackground: isInBackground)
 
         log.info(
             "Audio \(isInBackground ? "muted in the background" : "unmuted", privacy: .public)"
@@ -134,15 +134,15 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
     }
 
     private func recover(_ recovery: PlayoutRecovery) {
-        guard let delegate = lock.withLock({ self.delegate }) else { return }
+        guard let deviceDelegate = lock.withLock({ self.deviceDelegate }) else { return }
 
-        delegate.dispatchAsync { [weak self] in
+        deviceDelegate.dispatchAsync { [weak self] in
             self?.recoverOnAudioThread(recovery)
         }
     }
 
     private func recoverOnAudioThread(_ recovery: PlayoutRecovery) {
-        let (isWanted, current) = lock.withLock { (isPlayoutWanted, engine) }
+        let (isWanted, current) = lock.withLock { (isPlayoutWanted, audioEngine) }
         guard isWanted else { return }
 
         let isResumed = resume(current, after: recovery)
@@ -176,7 +176,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
             defer {
                 isPlayoutReady = false
                 isInBackground = false
-                delegate = nil
+                deviceDelegate = nil
                 self.observers = []
             }
             return self.observers
@@ -191,7 +191,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
     func initializePlayout() -> Bool {
         lock.withLock {
-            isPlayoutReady = delegate != nil
+            isPlayoutReady = deviceDelegate != nil
             return isPlayoutReady
         }
     }
@@ -221,14 +221,14 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         }
         previous?.cancel()
 
-        playout.meter.take()
+        stereoPlayout.meter.take()
 
         timer.resume()
     }
 
     private func checkPlayout() {
-        let (pulls, frames, peak) = playout.meter.take()
-        let (engine, isWanted) = lock.withLock { (self.engine, isPlayoutWanted) }
+        let (pulls, frames, peak) = stereoPlayout.meter.take()
+        let (audioEngine, isWanted) = lock.withLock { (self.audioEngine, isPlayoutWanted) }
         log.info(
             "Playout \(self.watchdogInterval)s: \(pulls / self.watchdogInterval) pulls/s, \(frames / self.watchdogInterval) frames/s, peak \(peak) of \(Int16.max)"
         )
@@ -236,7 +236,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         guard isWanted, pulls == 0 else { return }
 
         let reason =
-            switch (engine, engine?.isRunning ?? false) {
+            switch (audioEngine, audioEngine?.isRunning ?? false) {
             case (nil, _): "no engine"
             case (_, true): "engine not pulling"
             case (_, false): "engine stopped"
@@ -246,16 +246,16 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
     @discardableResult
     func stopPlayout() -> Bool {
-        let engine = lock.withLock {
+        let audioEngine = lock.withLock {
             defer {
-                self.engine = nil
+                self.audioEngine = nil
                 isPlayoutWanted = false
             }
-            return self.engine
+            return self.audioEngine
         }
 
-        if let engine {
-            engine.stop()
+        if let audioEngine {
+            audioEngine.stop()
 
             deactivateSession()
         }
@@ -290,14 +290,15 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
     func stopRecording() -> Bool { true }
 
-    fileprivate func resume(_ engine: AVAudioEngine?, after recovery: PlayoutRecovery) -> Bool {
-        guard case .resume = recovery, let engine else { return false }
-        guard !engine.isRunning else { return true }
+    fileprivate func resume(_ audioEngine: AVAudioEngine?, after recovery: PlayoutRecovery) -> Bool
+    {
+        guard case .resume = recovery, let audioEngine else { return false }
+        guard !audioEngine.isRunning else { return true }
 
         do {
             try AVAudioSession.sharedInstance().setActive(true)
 
-            try engine.start()
+            try audioEngine.start()
             log.info("Audio resumed: \(recovery.description, privacy: .public)")
 
             return true
@@ -312,7 +313,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
     fileprivate func rebuild(replacing current: AVAudioEngine?, after recovery: PlayoutRecovery) {
         lock.withLock {
-            if self.engine === current { self.engine = nil }
+            if self.audioEngine === current { self.audioEngine = nil }
         }
 
         stopUnlessReplaced(current, recovery: recovery)
@@ -327,23 +328,23 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         }
     }
 
-    private func stopUnlessReplaced(_ engine: AVAudioEngine?, recovery: PlayoutRecovery) {
+    private func stopUnlessReplaced(_ audioEngine: AVAudioEngine?, recovery: PlayoutRecovery) {
         switch recovery {
         case .replace: break
-        case .resume, .rebuild: engine?.stop()
+        case .resume, .rebuild: audioEngine?.stop()
         }
     }
 
     @discardableResult
     private func startEngine() -> Bool {
-        guard let delegate = lock.withLock({ self.delegate }) else { return false }
+        guard let deviceDelegate = lock.withLock({ self.deviceDelegate }) else { return false }
 
         let session = AVAudioSession.sharedInstance()
         let preferredIOBufferDuration: TimeInterval = 0.005
 
         do {
             try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
-            try? session.setPreferredSampleRate(playout.sampleRate)
+            try? session.setPreferredSampleRate(stereoPlayout.sampleRate)
             try? session.setPreferredIOBufferDuration(preferredIOBufferDuration)
             try session.setActive(true)
         } catch {
@@ -354,21 +355,23 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
             return false
         }
 
-        guard let engine = makeEngine(pulling: delegate.getPlayoutData) else { return false }
+        guard let audioEngine = makeEngine(pulling: deviceDelegate.getPlayoutData) else {
+            return false
+        }
 
         let previous = lock.withLock {
-            defer { self.engine = engine }
-            return self.engine
+            defer { self.audioEngine = audioEngine }
+            return self.audioEngine
         }
         previous?.stop()
 
         do {
-            try engine.start()
+            try audioEngine.start()
         } catch {
             log.error("Audio engine start failed: \(String(describing: error), privacy: .public)")
 
             lock.withLock {
-                if self.engine === engine { self.engine = nil }
+                if self.audioEngine === audioEngine { self.audioEngine = nil }
             }
 
             deactivateSession()
@@ -377,7 +380,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         }
 
         log.info(
-            "Stereo playout at \(session.sampleRate) Hz, \(session.outputNumberOfChannels) output channels, IO buffer \(session.ioBufferDuration * 1000) ms, output latency \(session.outputLatency * 1000) ms, spatial \(self.spatialExperience(of: engine), privacy: .public)"
+            "Stereo playout at \(session.sampleRate) Hz, \(session.outputNumberOfChannels) output channels, IO buffer \(session.ioBufferDuration * 1000) ms, output latency \(session.outputLatency * 1000) ms, spatial \(self.spatialExperience(of: audioEngine), privacy: .public)"
         )
 
         return true
@@ -386,23 +389,25 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
     private func makeEngine(pulling pull: @escaping LKRTCAudioDeviceGetPlayoutDataBlock)
         -> AVAudioEngine?
     {
-        guard let (source, stereo) = playout.makeSource(pulling: pull) else { return nil }
+        guard let (source, stereo) = stereoPlayout.makeSource(pulling: pull) else { return nil }
 
-        let engine = AVAudioEngine()
-        bypassSpatialAudioIfChosen(on: engine)
+        let audioEngine = AVAudioEngine()
+        bypassSpatialAudioIfChosen(on: audioEngine)
 
-        engine.attach(source)
-        engine.connect(source, to: engine.mainMixerNode, format: stereo)
-        engine.connect(engine.mainMixerNode, to: engine.outputNode, format: nil)
-        engine.mainMixerNode.outputVolume = volume(isInBackground: lock.withLock { isInBackground })
-        engine.prepare()
-        return engine
+        audioEngine.attach(source)
+        audioEngine.connect(source, to: audioEngine.mainMixerNode, format: stereo)
+        audioEngine.connect(audioEngine.mainMixerNode, to: audioEngine.outputNode, format: nil)
+        audioEngine.mainMixerNode.outputVolume = volume(
+            isInBackground: lock.withLock { isInBackground }
+        )
+        audioEngine.prepare()
+        return audioEngine
     }
 
-    private func bypassSpatialAudioIfChosen(on engine: AVAudioEngine) {
+    private func bypassSpatialAudioIfChosen(on audioEngine: AVAudioEngine) {
         #if os(visionOS)
         if lock.withLock({ bypassesSpatialAudio }) {
-            engine.outputNode.intendedSpatialExperience = .bypassed
+            audioEngine.outputNode.intendedSpatialExperience = .bypassed
         }
         #endif
     }
@@ -420,9 +425,9 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         }
     }
 
-    private func spatialExperience(of engine: AVAudioEngine) -> String {
+    private func spatialExperience(of audioEngine: AVAudioEngine) -> String {
         #if os(visionOS)
-        String(describing: engine.outputNode.intendedSpatialExperience)
+        String(describing: audioEngine.outputNode.intendedSpatialExperience)
         #else
         "n/a"
         #endif

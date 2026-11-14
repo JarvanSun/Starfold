@@ -19,7 +19,7 @@ public final class TouchControlsViewModel {
     private var title = TouchTitleState()
     private var otherTitles: [String: TouchTitleState] = [:]
 
-    private let controllers: ControllerHub
+    private let controllerHub: ControllerHub
     private let preferences: Preferences
     private let standard = StandardTouchLayout()
     private let log = Logger(category: .stream)
@@ -33,7 +33,7 @@ public final class TouchControlsViewModel {
     }
 
     public var isShowing: Bool {
-        controllers.activeInput == .touch && !title.isHiddenByGame
+        controllerHub.activeInput == .touch && !title.isHiddenByGame
     }
 
     public var isHapticsEnabled: Bool {
@@ -44,13 +44,13 @@ public final class TouchControlsViewModel {
         titleLayout != nil
     }
 
-    init(controllers: ControllerHub, preferences: Preferences) {
-        self.controllers = controllers
+    init(controllerHub: ControllerHub, preferences: Preferences) {
+        self.controllerHub = controllerHub
         self.preferences = preferences
     }
 
     public func reveal() {
-        controllers.useTouchControls()
+        controllerHub.useTouchControls()
     }
 
     public func plan(for metrics: TouchMetrics, in orientation: TouchOrientation)

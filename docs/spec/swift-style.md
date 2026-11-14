@@ -62,6 +62,7 @@ succeed.
 | Closure property | What happens | `onRetry` | `callback` |
 | Test double | `Stub` suffix | `XboxServerStub` | `MockStuff` |
 | ViewModel property | The type's name | `homeViewModel: HomeViewModel` | `home: HomeViewModel` |
+| Dependency property | The type's name; for a capability protocol, its role without `-ing` | `consoleService: ConsoleService`, `networkPath: NetworkPathReading` | `service`, `network` |
 
 - No abbreviations except `ID`, `URL`, `API`, `JSON`, `HTTP`, `HDR`, `SDR` and the protocol's terms
   (`xuid`, `GSSV`, `SDP`, `ICE`).
@@ -71,6 +72,20 @@ succeed.
 - A ViewModel property is the exception: it keeps the type's name, and a value it holds is named
   for what it is (`consoleCover`, not `cover`).
 - Name a value after what it means at that point (`restored`, then `preferred`).
+- A stored property says what it is and what it is for, read without its type:
+  - one holding a dependency (a service, store, cache, client, hub, runtime or platform) takes its
+    type's name (`controllerHub: ControllerHub`, `libraryCache: LibraryCache`); one typed by a
+    capability protocol takes the role without `-ing` (`secretStore: SecretStoring`). Initializer
+    labels match the property;
+  - a collection or a piece of state names what it holds (`connectedControllers`, not
+    `connected`; `inputState`, not `state`);
+  - a word that could mean two things in the module gets its qualifier (`keyboardGamepad`, not
+    `keyboard`; `backgroundTask`, not `task`; `audioEngine`, not `engine`).
+- Methods that do different jobs do not share one generic verb as overloads: `receive(_ update:)`,
+  `enter(_ phase:)`, `record(_ statistics:)`, not four `apply(_:)`.
+- Short names stay where one meaning is certain: `log` (the type's one `Logger`), `lock`, `body`,
+  `id`, `defaults` (`UserDefaults`), and a property already named after its type (`renderer:
+  StreamRenderer`, `preferences: Preferences`).
 
 ## Declaration order
 
@@ -150,7 +165,7 @@ Marks never appear on the type's own declaration, inside a type or function, or 
   state or rules worth testing alone (`HostChannels`). No type for a job a private method does.
 - Split a function that does not fit on one screen or nests more than two levels.
 - At most four parameters; more means a value type is missing (`StreamDependencies`).
-- A protocol type is written bare (`secrets: SecretStoring`); `ExistentialAny` is off, so `any`
+- A protocol type is written bare (`secretStore: SecretStoring`); `ExistentialAny` is off, so `any`
   and `some` appear only where the compiler needs them (`clock: some Clock<Duration>`, stored as
   `any Clock<Duration>`; `some View`).
 - No boolean parameters that change behaviour (`load(force: true)`): two intents or an enum.

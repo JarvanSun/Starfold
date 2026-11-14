@@ -16,20 +16,20 @@ struct DeviceCodeFlow: Sendable {
     }
 
     private let configuration: Configuration
-    private let http: HTTPClient
+    private let httpClient: HTTPClient
     private let now: @Sendable () -> Date
     private let sleep: @Sendable (Duration) async throws -> Void
 
     init(
         configuration: Configuration,
-        http: HTTPClient,
+        httpClient: HTTPClient,
         now: @escaping @Sendable () -> Date = Date.init,
         sleep: @escaping @Sendable (Duration) async throws -> Void = {
             try await Task.sleep(for: $0)
         }
     ) {
         self.configuration = configuration
-        self.http = http
+        self.httpClient = httpClient
         self.now = now
         self.sleep = sleep
     }
@@ -41,7 +41,7 @@ struct DeviceCodeFlow: Sendable {
             ("response_type", "device_code"),
         ])
         let response = try await retryingOnceIfInterrupted {
-            try await http.decodedBody(
+            try await httpClient.decodedBody(
                 DeviceCodeResponse.self,
                 for: request(to: configuration.deviceCodeURL, form: form)
             )
@@ -104,7 +104,7 @@ struct DeviceCodeFlow: Sendable {
             ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
             ("device_code", deviceCode),
         ])
-        let response = try await http.send(request(to: configuration.tokenURL, form: form))
+        let response = try await httpClient.send(request(to: configuration.tokenURL, form: form))
         return try JSONDecoder().decode(TokenResponse.self, from: response.body)
     }
 
@@ -150,7 +150,7 @@ struct DeviceCodeFlow: Sendable {
             ("refresh_token", refreshToken),
             ("scope", configuration.scope),
         ])
-        let response = try await http.decodedBody(
+        let response = try await httpClient.decodedBody(
             TokenResponse.self,
             for: request(to: configuration.tokenURL, form: form)
         )

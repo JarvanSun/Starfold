@@ -53,7 +53,7 @@ struct RootView: View {
         .sheet(isPresented: $presenter.isControllerPromptPresented) {
             ControllerPrompt(
                 hasController: presenter.hasController,
-                onCheckAgain: { appViewModel.controllers.checkControllers() },
+                onCheckAgain: { appViewModel.controllerHub.checkControllers() },
                 onPlay: { presenter.startPromptedStream() }
             )
         }
@@ -112,10 +112,10 @@ struct RootView: View {
 
     private func stream(_ presenter: StreamPresenter) -> some View {
         StreamView(
-            presenter: presenter,
+            streamPresenter: presenter,
             streamViewModel: appViewModel.streamViewModel,
             settingsViewModel: appViewModel.settingsViewModel,
-            controllers: appViewModel.controllers
+            controllerHub: appViewModel.controllerHub
         )
         .appPalette()
         .alert("signIn.expired.title", isPresented: Bindable(appViewModel).isSignInExpired) {
@@ -188,7 +188,7 @@ struct RootView: View {
     private func apply(_ phase: ScenePhase, presenter: StreamPresenter) {
         presenter.moveToForeground(phase == .active)
 
-        if phase != .active { appViewModel.controllers.routeInput(toGame: false) }
+        if phase != .active { appViewModel.controllerHub.routeInput(toGame: false) }
 
         if phase == .background { backgroundCleanup.end(presenter) }
     }

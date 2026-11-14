@@ -12,7 +12,7 @@ extension StreamPlatform {
     init() {
         self.init(
             controllerRouting: .gated,
-            picture: .init(
+            pictureCapabilities: .init(
                 canFit: true,
                 canEnhance: false,
                 shouldKeepLastFrame: false,
@@ -22,7 +22,7 @@ extension StreamPlatform {
                 statisticsRows: [.resolution, .frameRate, .bitrate, .codec, .lowered],
                 controlsHideDelay: nil
             ),
-            touch: nil
+            touchPlatform: nil
         )
     }
 }

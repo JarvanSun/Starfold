@@ -12,31 +12,31 @@ public final class GamepadRouter: @unchecked Sendable {
 
     private var onActiveInputChange: (@Sendable (ActiveInput) -> Void)?
 
-    private let routing: ControllerRouting
+    private let controllerRouting: ControllerRouting
     private let lock = NSLock()
 
     private var destination: Destination?
-    private var pads: [UInt8: GamepadState] = [:]
-    private var touch: GamepadState?
-    private var keyboard = GamepadState()
+    private var gamepadStates: [UInt8: GamepadState] = [:]
+    private var touchGamepadState: GamepadState?
+    private var keyboardGamepadState = GamepadState()
     private var activeInput = ActiveInputSwitch()
 
-    init(routing: ControllerRouting) {
-        self.routing = routing
+    init(controllerRouting: ControllerRouting) {
+        self.controllerRouting = controllerRouting
     }
 
     public func setDestination(_ destination: Destination?) {
         lock.withLock {
             self.destination = destination
-            keyboard = GamepadState()
+            keyboardGamepadState = GamepadState()
 
             guard let destination else { return }
 
-            if pads[0] == nil {
-                destination(0, state(for: 0) ?? keyboard)
+            if gamepadStates[0] == nil {
+                destination(0, state(for: 0) ?? keyboardGamepadState)
             }
 
-            for slot in pads.keys.sorted() {
+            for slot in gamepadStates.keys.sorted() {
                 destination(slot, state(for: slot))
             }
         }
@@ -44,7 +44,7 @@ public final class GamepadRouter: @unchecked Sendable {
 
     public func setKeyboard(_ state: GamepadState) {
         lock.withLock {
-            keyboard = state
+            keyboardGamepadState = state
 
             destination?(0, self.state(for: 0))
 
@@ -73,7 +73,7 @@ public final class GamepadRouter: @unchecked Sendable {
 
     func update(slot: UInt8, state: GamepadState?) {
         lock.withLock {
-            pads[slot] = state
+            gamepadStates[slot] = state
 
             destination?(slot, self.state(for: slot))
 
@@ -85,7 +85,7 @@ public final class GamepadRouter: @unchecked Sendable {
 
     func updateTouch(_ state: GamepadState?) {
         lock.withLock {
-            touch = state
+            touchGamepadState = state
 
             destination?(0, self.state(for: 0))
 
@@ -96,25 +96,27 @@ public final class GamepadRouter: @unchecked Sendable {
     }
 
     private func state(for slot: UInt8) -> GamepadState? {
-        switch (slot, routing) {
-        case (0, .direct): playerOne(pads[0] ?? GamepadState())
+        switch (slot, controllerRouting) {
+        case (0, .direct): playerOne(gamepadStates[0] ?? GamepadState())
         case (0, .gated): gatedPlayerOne()
-        default: pads[slot]
+        default: gamepadStates[slot]
         }
     }
 
     private func gatedPlayerOne() -> GamepadState? {
-        let hasPlayerOne = pads[0] != nil || touch != nil || keyboard != GamepadState()
+        let hasPlayerOne =
+            gamepadStates[0] != nil || touchGamepadState != nil
+            || keyboardGamepadState != GamepadState()
         guard hasPlayerOne else { return nil }
 
-        return playerOne(pads[0] ?? GamepadState())
+        return playerOne(gamepadStates[0] ?? GamepadState())
     }
 
     private func playerOne(_ pad: GamepadState) -> GamepadState {
-        let physical = pad.merged(with: keyboard)
-        guard let touch else { return physical }
+        let physical = pad.merged(with: keyboardGamepadState)
+        guard let touchGamepadState else { return physical }
 
-        return physical.merged(withTouch: touch)
+        return physical.merged(withTouch: touchGamepadState)
     }
 
     private func record(_ state: GamepadState, from input: ActiveInput) {
@@ -128,7 +130,7 @@ public final class GamepadRouter: @unchecked Sendable {
             let slots = Set(sources.map(\.slot)).sorted()
 
             if slots.contains(0) {
-                keyboard = GamepadState()
+                keyboardGamepadState = GamepadState()
             }
 
             for slot in slots {
@@ -143,8 +145,8 @@ public final class GamepadRouter: @unchecked Sendable {
 
     private func reset(_ source: GamepadSource) {
         switch source {
-        case .slot(let slot): pads[slot] = GamepadState()
-        case .touch: touch = GamepadState()
+        case .slot(let slot): gamepadStates[slot] = GamepadState()
+        case .touch: touchGamepadState = GamepadState()
         }
     }
 }

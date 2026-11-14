@@ -17,9 +17,9 @@ extension SignedInAccount {
     ) -> SignedInAccount {
         .init(
             summary: .init(id: id, gamertag: gamertag),
-            consoles: consoles,
-            cloudLibrary: cloudLibrary,
-            streams: streams
+            consoleService: consoles,
+            cloudLibraryService: cloudLibrary,
+            streamService: streams
         )
     }
 }

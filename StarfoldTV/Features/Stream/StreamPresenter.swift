@@ -55,7 +55,7 @@ final class StreamPresenter {
         self.init(
             play: { await appViewModel.play($0) },
             stop: { await appViewModel.endStream() },
-            isControllerConnected: { !appViewModel.controllers.connected.isEmpty },
+            isControllerConnected: { !appViewModel.controllerHub.connectedControllers.isEmpty },
             isSignInExpired: { appViewModel.isSignInExpired }
         )
     }

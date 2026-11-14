@@ -20,31 +20,31 @@ public actor XboxAccount {
         category: "Account"
     )
 
-    private var stored: StoredAccount
+    private var storedAccount: StoredAccount
     private var userToken: XboxToken?
     private var refreshTask: Task<MicrosoftAccountToken, Error>?
 
     public var gamertag: String {
-        stored.gamertag
+        storedAccount.gamertag
     }
 
     public var isFreeToPlayCloud: Bool {
-        stored.cloudOffering == .cloudFreeToPlay
+        storedAccount.cloudOffering == .cloudFreeToPlay
     }
 
     public var market: String? {
-        stored.streamingTokens.values.compactMap(\.market).first
+        storedAccount.streamingTokens.values.compactMap(\.market).first
     }
 
     init(
-        stored: StoredAccount,
+        storedAccount: StoredAccount,
         deviceCodeFlow: DeviceCodeFlow,
         tokenClient: XboxLiveTokenClient,
         persist: @escaping @Sendable (StoredAccount) throws -> Void,
         now: @escaping @Sendable () -> Date
     ) {
-        self.xuid = stored.xuid
-        self.stored = stored
+        self.xuid = storedAccount.xuid
+        self.storedAccount = storedAccount
         self.deviceCodeFlow = deviceCodeFlow
         self.tokenClient = tokenClient
         self.persist = persist
@@ -71,7 +71,7 @@ public actor XboxAccount {
             )
         }
 
-        return .init(kind: .home, baseURL: region.baseURL, http: http) { [self] freshness in
+        return .init(kind: .home, baseURL: region.baseURL, httpClient: http) { [self] freshness in
             if freshness == .refreshRequired {
                 await invalidateStreamingToken(.home)
             }
@@ -87,7 +87,7 @@ public actor XboxAccount {
         }
 
         let offering = token.offering
-        return .init(kind: .cloud, baseURL: region.baseURL, http: http) { [self] freshness in
+        return .init(kind: .cloud, baseURL: region.baseURL, httpClient: http) { [self] freshness in
             if freshness == .refreshRequired {
                 await invalidateStreamingToken(offering)
             }
@@ -97,13 +97,13 @@ public actor XboxAccount {
     }
 
     private func invalidateStreamingToken(_ offering: StreamingOffering) {
-        stored.streamingTokens[offering] = nil
+        storedAccount.streamingTokens[offering] = nil
 
         save()
     }
 
     func webAuthorization() async throws -> String {
-        if let cached = stored.webToken, cached.isValid(at: now()) {
+        if let cached = storedAccount.webToken, cached.isValid(at: now()) {
             return cached.authorizationHeader
         }
 
@@ -111,10 +111,10 @@ public actor XboxAccount {
             userToken: try await validUserToken(),
             relyingParty: .xboxLive
         )
-        stored.webToken = token
+        storedAccount.webToken = token
 
         if let gamertag = token.gamertag {
-            stored.gamertag = gamertag
+            storedAccount.gamertag = gamertag
         }
 
         save()
@@ -147,11 +147,11 @@ public actor XboxAccount {
     }
 
     private var cloudOfferingCandidates: [StreamingOffering] {
-        stored.cloudOffering.map { [$0] } ?? [.cloud, .cloudFreeToPlay]
+        storedAccount.cloudOffering.map { [$0] } ?? [.cloud, .cloudFreeToPlay]
     }
 
     private func streamingToken(_ offering: StreamingOffering) async throws -> StreamingToken {
-        if let cached = stored.streamingTokens[offering], cached.isValid(at: now()) {
+        if let cached = storedAccount.streamingTokens[offering], cached.isValid(at: now()) {
             return cached
         }
 
@@ -159,7 +159,7 @@ public actor XboxAccount {
             gssvToken: try await validGSSVToken(),
             offering: offering
         )
-        stored.streamingTokens[offering] = token
+        storedAccount.streamingTokens[offering] = token
 
         save()
 
@@ -167,7 +167,7 @@ public actor XboxAccount {
     }
 
     private func validGSSVToken() async throws -> XboxToken {
-        if let cached = stored.gssvToken, cached.isValid(at: now()) {
+        if let cached = storedAccount.gssvToken, cached.isValid(at: now()) {
             return cached
         }
 
@@ -175,7 +175,7 @@ public actor XboxAccount {
             userToken: try await validUserToken(),
             relyingParty: .gssv
         )
-        stored.gssvToken = token
+        storedAccount.gssvToken = token
 
         save()
 
@@ -196,15 +196,15 @@ public actor XboxAccount {
     }
 
     private func validMicrosoftAccountToken() async throws -> MicrosoftAccountToken {
-        switch (stored.microsoftAccountToken.isValid(at: now()), refreshTask) {
-        case (true, _): return stored.microsoftAccountToken
+        switch (storedAccount.microsoftAccountToken.isValid(at: now()), refreshTask) {
+        case (true, _): return storedAccount.microsoftAccountToken
         case (false, let refreshTask?): return try await refreshTask.value
         case (false, nil): return try await refreshMicrosoftAccountToken()
         }
     }
 
     private func refreshMicrosoftAccountToken() async throws -> MicrosoftAccountToken {
-        let current = stored.microsoftAccountToken
+        let current = storedAccount.microsoftAccountToken
         let flow = deviceCodeFlow
         let task = Task { try await flow.refresh(current) }
         refreshTask = task
@@ -212,7 +212,7 @@ public actor XboxAccount {
 
         do {
             let refreshed = try await task.value
-            stored.microsoftAccountToken = refreshed
+            storedAccount.microsoftAccountToken = refreshed
 
             save()
 
@@ -228,23 +228,23 @@ public actor XboxAccount {
 
     private func save() {
         do {
-            try persist(stored)
+            try persist(storedAccount)
         } catch {
             log.error("Saving the account failed: \(String(describing: error), privacy: .public)")
         }
     }
 
     private func rememberCloudOffering(_ offering: StreamingOffering) {
-        if stored.cloudOffering != offering {
-            stored.cloudOffering = offering
+        if storedAccount.cloudOffering != offering {
+            storedAccount.cloudOffering = offering
 
             save()
         }
     }
 
     private func forgetLapsedCloudOffering() {
-        if stored.cloudOffering != nil {
-            stored.cloudOffering = nil
+        if storedAccount.cloudOffering != nil {
+            storedAccount.cloudOffering = nil
 
             save()
         }

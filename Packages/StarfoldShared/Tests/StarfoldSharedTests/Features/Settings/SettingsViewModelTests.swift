@@ -319,16 +319,16 @@ private extension SettingsViewModelTests {
     ) -> SettingsViewModel {
         let settings = SettingsViewModel(
             preferences: .init(defaults: defaults),
-            controllers: ControllerHub(routing: .direct),
-            platform: .init(
+            controllerHub: ControllerHub(routing: .direct),
+            streamPlatform: .init(
                 controllerRouting: .direct,
-                picture: picture,
+                pictureCapabilities: picture,
                 overlays: .init(statisticsRows: [], controlsHideDelay: nil),
-                touch: nil
+                touchPlatform: nil
             ),
-            network: NetworkPathStub()
+            networkPath: NetworkPathStub()
         )
-        settings.session = session
+        settings.sessionController = session
         return settings
     }
 }

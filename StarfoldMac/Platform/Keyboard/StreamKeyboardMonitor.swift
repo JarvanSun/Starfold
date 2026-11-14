@@ -13,7 +13,7 @@ final class StreamKeyboardMonitor {
 
     var streamViewModel: StreamViewModel
 
-    private var monitor: Any?
+    private var eventMonitor: Any?
     private weak var view: NSView?
 
     init(streamViewModel: StreamViewModel) {
@@ -23,7 +23,8 @@ final class StreamKeyboardMonitor {
     func install(for view: NSView) {
         self.view = view
 
-        monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged]) {
+        eventMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged])
+        {
             [weak self] event in
             let key = KeyEvent(event)
             let windowNumber = event.windowNumber
@@ -57,11 +58,11 @@ final class StreamKeyboardMonitor {
     }
 
     func uninstall() {
-        if let monitor {
-            NSEvent.removeMonitor(monitor)
+        if let eventMonitor {
+            NSEvent.removeMonitor(eventMonitor)
         }
 
-        monitor = nil
+        eventMonitor = nil
     }
 }
 

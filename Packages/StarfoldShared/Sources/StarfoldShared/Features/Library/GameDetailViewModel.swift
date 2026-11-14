@@ -13,7 +13,7 @@ import XboxKit
 public final class GameDetailViewModel {
     public let game: CloudGame
 
-    private let favorites: FavoritesStore
+    private let favoritesStore: FavoritesStore
     private let onPlay: () -> Void
 
     public var name: String {
@@ -74,7 +74,7 @@ public final class GameDetailViewModel {
     }
 
     public var isFavorite: Bool {
-        favorites.contains(game.id)
+        favoritesStore.contains(game.id)
     }
 
     public var favoriteAction: FavoriteAction {
@@ -84,9 +84,9 @@ public final class GameDetailViewModel {
         }
     }
 
-    init(game: CloudGame, favorites: FavoritesStore, onPlay: @escaping () -> Void) {
+    init(game: CloudGame, favoritesStore: FavoritesStore, onPlay: @escaping () -> Void) {
         self.game = game
-        self.favorites = favorites
+        self.favoritesStore = favoritesStore
         self.onPlay = onPlay
     }
 
@@ -95,6 +95,6 @@ public final class GameDetailViewModel {
     }
 
     public func toggleFavorite() {
-        favorites.toggle(game.id)
+        favoritesStore.toggle(game.id)
     }
 }

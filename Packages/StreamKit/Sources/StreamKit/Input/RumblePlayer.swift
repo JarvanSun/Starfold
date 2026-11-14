@@ -12,20 +12,20 @@ import os
 final class RumblePlayer {
     private let log = Logger(category: .controllers)
 
-    private var engines: [GCHapticsLocality: CHHapticEngine] = [:]
-    private var players: [GCHapticsLocality: CHHapticPatternPlayer] = [:]
+    private var hapticEngines: [GCHapticsLocality: CHHapticEngine] = [:]
+    private var patternPlayers: [GCHapticsLocality: CHHapticPatternPlayer] = [:]
 
     init?(controller: GCController) {
         guard let haptics = controller.haptics else { return nil }
 
         startLocalizedEngines(haptics)
 
-        if engines.isEmpty, let engine = haptics.createEngine(withLocality: .default) {
+        if hapticEngines.isEmpty, let engine = haptics.createEngine(withLocality: .default) {
             try? engine.start()
-            engines[.default] = engine
+            hapticEngines[.default] = engine
         }
 
-        guard !engines.isEmpty else { return nil }
+        guard !hapticEngines.isEmpty else { return nil }
     }
 
     init?(device: CHHapticDeviceCapability) {
@@ -33,7 +33,7 @@ final class RumblePlayer {
 
         engine.playsHapticsOnly = true
         try? engine.start()
-        engines[.default] = engine
+        hapticEngines[.default] = engine
     }
 
     private func startLocalizedEngines(_ haptics: GCDeviceHaptics) {
@@ -45,7 +45,7 @@ final class RumblePlayer {
             if let engine = haptics.createEngine(withLocality: locality) {
                 engine.playsHapticsOnly = true
                 try? engine.start()
-                engines[locality] = engine
+                hapticEngines[locality] = engine
             }
         }
     }
@@ -83,10 +83,12 @@ final class RumblePlayer {
     }
 
     func play(_ effect: VibrationEffect) {
-        for (locality, engine) in engines {
-            try? players[locality]?.stop(atTime: CHHapticTimeImmediate)
+        for (locality, engine) in hapticEngines {
+            try? patternPlayers[locality]?.stop(atTime: CHHapticTimeImmediate)
 
-            players[locality] = pattern(of: effect, at: locality).flatMap { start($0, on: engine) }
+            patternPlayers[locality] = pattern(of: effect, at: locality).flatMap {
+                start($0, on: engine)
+            }
         }
     }
 
@@ -127,11 +129,11 @@ final class RumblePlayer {
     }
 
     func stop() {
-        for player in players.values {
+        for player in patternPlayers.values {
             try? player.stop(atTime: CHHapticTimeImmediate)
         }
 
-        players.removeAll()
+        patternPlayers.removeAll()
     }
 }
 

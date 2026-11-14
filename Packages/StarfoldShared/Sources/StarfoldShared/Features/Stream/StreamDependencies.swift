@@ -9,31 +9,31 @@ import StreamKit
 
 public struct StreamDependencies {
     let preferences: Preferences
-    let controllers: ControllerHub
-    let platform: StreamPlatform
-    let network: NetworkPathReading
+    let controllerHub: ControllerHub
+    let streamPlatform: StreamPlatform
+    let networkPath: NetworkPathReading
 
-    var picture: PictureCapabilities {
-        platform.picture
+    var pictureCapabilities: PictureCapabilities {
+        streamPlatform.pictureCapabilities
     }
 
     var overlays: StreamOverlays {
-        platform.overlays
+        streamPlatform.overlays
     }
 
-    var touch: TouchPlatform? {
-        platform.touch
+    var touchPlatform: TouchPlatform? {
+        streamPlatform.touchPlatform
     }
 
     public init(
         preferences: Preferences,
-        controllers: ControllerHub,
-        platform: StreamPlatform,
-        network: NetworkPathReading
+        controllerHub: ControllerHub,
+        streamPlatform: StreamPlatform,
+        networkPath: NetworkPathReading
     ) {
         self.preferences = preferences
-        self.controllers = controllers
-        self.platform = platform
-        self.network = network
+        self.controllerHub = controllerHub
+        self.streamPlatform = streamPlatform
+        self.networkPath = networkPath
     }
 }

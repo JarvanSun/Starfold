@@ -148,8 +148,8 @@ private extension XboxAccountTests {
         let secrets = InMemorySecretStore()
         let store = AccountStore(
             microsoftClientID: .dummyClientID,
-            secrets: secrets,
-            http: server.client,
+            secretStore: secrets,
+            httpClient: server.client,
             now: clock.nowProvider
         )
         let stored = StoredAccount(

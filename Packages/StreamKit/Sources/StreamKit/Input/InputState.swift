@@ -19,12 +19,12 @@ final class InputState: @unchecked Sendable {
     private let clockOrigin = CACurrentMediaTime()
     private let heartbeatMs: Double
 
-    private var pads: [UInt8: GamepadState] = [:]
-    private var latched: [UInt8: GamepadButtons] = [:]
+    private var gamepadStates: [UInt8: GamepadState] = [:]
+    private var latchedButtons: [UInt8: GamepadButtons] = [:]
     private var lastSent: [UInt8: (state: GamepadState, at: Double)] = [:]
     private var knownPads: Set<UInt8> = []
     private var pulses: [Pulse] = []
-    private var frames: [FrameTimingRecord] = []
+    private var frameTimings: [FrameTimingRecord] = []
     private var onChange: (@Sendable () -> Void)?
 
     init(heartbeatMs: Double = 50) {
@@ -37,17 +37,17 @@ final class InputState: @unchecked Sendable {
 
     func setGamepad(_ index: UInt8, state: GamepadState?) {
         update {
-            let hasChanged = pads[index] != state
+            let hasChanged = gamepadStates[index] != state
 
             switch state {
             case let state?:
-                let newlyPressed = state.buttons.subtracting(pads[index]?.buttons ?? [])
-                latched[index, default: []].formUnion(newlyPressed)
+                let newlyPressed = state.buttons.subtracting(gamepadStates[index]?.buttons ?? [])
+                latchedButtons[index, default: []].formUnion(newlyPressed)
             case nil:
-                latched[index] = nil
+                latchedButtons[index] = nil
             }
 
-            pads[index] = state
+            gamepadStates[index] = state
 
             return hasChanged
         }
@@ -80,11 +80,11 @@ final class InputState: @unchecked Sendable {
         let maximumPendingFrames = 29
 
         lock.withLock {
-            if frames.count >= maximumPendingFrames {
-                frames.removeFirst()
+            if frameTimings.count >= maximumPendingFrames {
+                frameTimings.removeFirst()
             }
 
-            frames.append(record)
+            frameTimings.append(record)
         }
     }
 
@@ -104,8 +104,8 @@ final class InputState: @unchecked Sendable {
 
             snapshot.report.gamepads = gamepadsToSend(effective, now: now)
             snapshot.report.gamepads += snapshot.removedPads.map { ($0, GamepadState()) }
-            snapshot.report.frames = frames
-            frames.removeAll(keepingCapacity: true)
+            snapshot.report.frames = frameTimings
+            frameTimings.removeAll(keepingCapacity: true)
 
             return snapshot
         }
@@ -115,17 +115,17 @@ final class InputState: @unchecked Sendable {
         let pulseClock = (CACurrentMediaTime() - clockOrigin) * 1000
         pulses.removeAll { $0.until < pulseClock }
 
-        var effective = pads
+        var effective = gamepadStates
 
         for pulse in pulses {
             effective[pulse.index, default: GamepadState()].buttons.insert(pulse.button)
         }
 
-        for (index, buttons) in latched where effective[index] != nil {
+        for (index, buttons) in latchedButtons where effective[index] != nil {
             effective[index]?.buttons.formUnion(buttons)
         }
 
-        latched.removeAll(keepingCapacity: true)
+        latchedButtons.removeAll(keepingCapacity: true)
 
         return effective
     }

@@ -10,13 +10,13 @@ import XboxKit
 import os
 
 struct LiveCloudLibraryService: CloudLibraryService {
-    private let account: XboxAccount
-    private let http: HTTPClient
+    private let xboxAccount: XboxAccount
+    private let httpClient: HTTPClient
     private let log = Logger(category: .library)
 
-    init(account: XboxAccount, http: HTTPClient) {
-        self.account = account
-        self.http = http
+    init(xboxAccount: XboxAccount, httpClient: HTTPClient) {
+        self.xboxAccount = xboxAccount
+        self.httpClient = httpClient
     }
 
     func library() async throws -> CloudLibrary {
@@ -28,7 +28,7 @@ struct LiveCloudLibraryService: CloudLibraryService {
     }
 
     private func loadLibrary(started: ContinuousClock.Instant) async throws -> CloudLibrary {
-        let client = try await account.cloudClient(http: http)
+        let client = try await xboxAccount.cloudClient(http: httpClient)
         log.info("Cloud signed in +\(self.elapsed(since: started), privacy: .public)")
 
         async let titlesFetch = client.titles()
@@ -45,7 +45,7 @@ struct LiveCloudLibraryService: CloudLibraryService {
             games.map { ($0.id, $0) },
             uniquingKeysWith: { first, _ in first }
         )
-        let isFreeToPlayOffering = await account.isFreeToPlayCloud
+        let isFreeToPlayOffering = await xboxAccount.isFreeToPlayCloud
         let library = CloudLibrary(
             games: games,
             recentGames: recentTitles.compactMap { gamesByID[$0.id] },
@@ -65,10 +65,10 @@ struct LiveCloudLibraryService: CloudLibraryService {
 
     private func catalogClient() async -> CatalogClient {
         let fallbackMarket = "US"
-        let market = await account.market ?? Locale.current.region?.identifier ?? fallbackMarket
+        let market = await xboxAccount.market ?? Locale.current.region?.identifier ?? fallbackMarket
         let fallbackLanguage = "en-US"
         let language = Locale.preferredLanguages.first ?? fallbackLanguage
-        return .init(http: http, market: market, language: language)
+        return .init(httpClient: httpClient, market: market, language: language)
     }
 
     private func curatedLists(

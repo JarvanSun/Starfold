@@ -8,29 +8,33 @@
 import Foundation
 
 public struct AccountStore: Sendable {
-    private let identity: MicrosoftIdentity
-    private let secrets: SecretStoring
-    private let http: HTTPClient
+    private let microsoftIdentity: MicrosoftIdentity
+    private let secretStore: SecretStoring
+    private let httpClient: HTTPClient
     private let now: @Sendable () -> Date
     private let accountKeyPrefix = "account."
 
     private var deviceCodeFlow: DeviceCodeFlow {
-        .init(configuration: identity.deviceCodeConfiguration, http: http, now: now)
+        .init(
+            configuration: microsoftIdentity.deviceCodeConfiguration,
+            httpClient: httpClient,
+            now: now
+        )
     }
 
     private var tokenClient: XboxLiveTokenClient {
-        .init(identity: identity, http: http, now: now)
+        .init(microsoftIdentity: microsoftIdentity, httpClient: httpClient, now: now)
     }
 
     public init(
         microsoftClientID: String,
-        secrets: SecretStoring,
-        http: HTTPClient = HTTPClient(),
+        secretStore: SecretStoring,
+        httpClient: HTTPClient = HTTPClient(),
         now: @escaping @Sendable () -> Date = Date.init
     ) {
-        self.identity = MicrosoftIdentity(clientID: microsoftClientID)
-        self.secrets = secrets
-        self.http = http
+        self.microsoftIdentity = MicrosoftIdentity(clientID: microsoftClientID)
+        self.secretStore = secretStore
+        self.httpClient = httpClient
         self.now = now
     }
 
@@ -69,7 +73,7 @@ public struct AccountStore: Sendable {
     }
 
     public func restoreAccounts() -> [XboxAccount] {
-        let keys = (try? secrets.allKeys()) ?? []
+        let keys = (try? secretStore.allKeys()) ?? []
         return keys.filter(isAccountKey)
             .compactMap(restoredAccount(key:))
             .sorted { $0.xuid < $1.xuid }
@@ -81,7 +85,7 @@ public struct AccountStore: Sendable {
 
     private func restoredAccount(key: String) -> XboxAccount? {
         guard
-            let secret = try? secrets.read(key),
+            let secret = try? secretStore.read(key),
             let stored = try? JSONDecoder().decode(StoredAccount.self, from: secret)
         else {
             return nil
@@ -92,7 +96,7 @@ public struct AccountStore: Sendable {
 
     private func account(for stored: StoredAccount) -> XboxAccount {
         .init(
-            stored: stored,
+            storedAccount: stored,
             deviceCodeFlow: deviceCodeFlow,
             tokenClient: tokenClient,
             persist: { account in try save(account) },
@@ -101,7 +105,7 @@ public struct AccountStore: Sendable {
     }
 
     private func save(_ stored: StoredAccount) throws {
-        try secrets.write(try JSONEncoder().encode(stored), for: secretKey(for: stored.xuid))
+        try secretStore.write(try JSONEncoder().encode(stored), for: secretKey(for: stored.xuid))
     }
 
     private func secretKey(for xuid: String) -> String {
@@ -109,6 +113,6 @@ public struct AccountStore: Sendable {
     }
 
     public func signOut(xuid: String) throws {
-        try secrets.delete(secretKey(for: xuid))
+        try secretStore.delete(secretKey(for: xuid))
     }
 }

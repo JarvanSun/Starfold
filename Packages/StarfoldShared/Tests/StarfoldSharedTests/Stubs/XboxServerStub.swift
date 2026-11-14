@@ -72,8 +72,8 @@ extension XboxServerStub {
 
         let store = AccountStore(
             microsoftClientID: .dummyClientID,
-            secrets: InMemorySecretStore(),
-            http: client
+            secretStore: InMemorySecretStore(),
+            httpClient: client
         )
         return try await store.completeSignIn(try await store.beginSignIn())
     }

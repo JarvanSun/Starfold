@@ -25,7 +25,7 @@ struct StreamCoverView: View {
         StreamView(
             streamViewModel: streamViewModel,
             settingsViewModel: appViewModel.settingsViewModel,
-            controllers: appViewModel.controllers
+            controllerHub: appViewModel.controllerHub
         ) {
             dismiss()
         }

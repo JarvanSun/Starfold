@@ -24,9 +24,9 @@ extension PreviewObjectPool {
     ) -> LibraryViewModel {
         let library = LibraryViewModel(
             accountID: profile.xuid,
-            service: cloudLibraryService(state: state, games: games, access: access),
+            cloudLibraryService: cloudLibraryService(state: state, games: games, access: access),
             preferences: preferences,
-            cache: libraryCache
+            libraryCache: libraryCache
         )
 
         Task { await library.refresh() }

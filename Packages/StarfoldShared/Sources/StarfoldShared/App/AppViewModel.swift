@@ -28,7 +28,7 @@ public final class AppViewModel: SigningIn, SessionControlling {
     public private(set) var streamPresentationRequest = 0
 
     private let accountService: AccountService
-    private let cache: LibraryCache
+    private let libraryCache: LibraryCache
     private let streamDependencies: StreamDependencies
     private let log = Logger(category: .app)
 
@@ -43,8 +43,8 @@ public final class AppViewModel: SigningIn, SessionControlling {
         profile?.gamertag ?? accounts.first { $0.id == activeAccountID }?.gamertag
     }
 
-    public var controllers: ControllerHub {
-        streamDependencies.controllers
+    public var controllerHub: ControllerHub {
+        streamDependencies.controllerHub
     }
 
     var needsStreamRestartForSettings: Bool {
@@ -57,16 +57,16 @@ public final class AppViewModel: SigningIn, SessionControlling {
 
     public init(
         accountService: AccountService,
-        cache: LibraryCache,
+        libraryCache: LibraryCache,
         settingsViewModel: SettingsViewModel,
         streamDependencies: StreamDependencies
     ) {
         self.accountService = accountService
-        self.cache = cache
+        self.libraryCache = libraryCache
         self.settingsViewModel = settingsViewModel
         self.streamDependencies = streamDependencies
 
-        settingsViewModel.session = self
+        settingsViewModel.sessionController = self
     }
 
     public func restore() async {
@@ -79,7 +79,7 @@ public final class AppViewModel: SigningIn, SessionControlling {
     }
 
     public func makeSignInViewModel() -> SignInViewModel {
-        .init(service: self, clock: ContinuousClock())
+        .init(signInService: self, clock: ContinuousClock())
     }
 
     func beginSignIn() async throws -> DeviceCodePrompt {
@@ -112,7 +112,7 @@ public final class AppViewModel: SigningIn, SessionControlling {
 
         try? accountService.signOut(account)
 
-        cache.removeLastFrames(for: id)
+        libraryCache.removeLastFrames(for: id)
 
         signedInAccounts[id] = nil
         accounts.removeAll { $0.id == id }
@@ -152,8 +152,8 @@ public final class AppViewModel: SigningIn, SessionControlling {
     private func makeHome(for account: SignedInAccount) -> HomeViewModel {
         let homeViewModel = HomeViewModel(
             accountID: account.id,
-            service: account.consoles,
-            cache: cache,
+            consoleService: account.consoleService,
+            libraryCache: libraryCache,
             clock: ContinuousClock()
         )
         homeViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
@@ -165,9 +165,9 @@ public final class AppViewModel: SigningIn, SessionControlling {
     private func makeLibrary(for account: SignedInAccount) -> LibraryViewModel {
         let libraryViewModel = LibraryViewModel(
             accountID: account.id,
-            service: account.cloudLibrary,
+            cloudLibraryService: account.cloudLibraryService,
             preferences: preferences,
-            cache: cache
+            libraryCache: libraryCache
         )
         libraryViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
         libraryViewModel.onPlay = { [weak self] in self?.requestPlay($0) }
@@ -279,8 +279,8 @@ public final class AppViewModel: SigningIn, SessionControlling {
             target: target,
             backdrop: backdrop(for: target),
             qualityOverride: qualityOverride(for: target),
-            service: account.streams,
-            dependencies: streamDependencies
+            streamService: account.streamService,
+            streamDependencies: streamDependencies
         )
         streamViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
         streamViewModel.onRestart = { [weak self] in await self?.restartStream() }

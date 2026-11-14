@@ -190,7 +190,7 @@ private extension SignInViewModelTests {
     func makeSignIn() -> (AppHarness, ClockStub, SignInViewModel) {
         let harness = AppHarness()
         let clock = ClockStub()
-        return (harness, clock, .init(service: harness.appViewModel, clock: clock))
+        return (harness, clock, .init(signInService: harness.appViewModel, clock: clock))
     }
 
     func qrImage(of signIn: SignInViewModel) -> CGImage? {

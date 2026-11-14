@@ -6,7 +6,7 @@
 //
 
 struct ActiveInputSwitch {
-    private(set) var current: ActiveInput = .touch
+    private(set) var currentInput: ActiveInput = .touch
 
     private var deliberateInputThreshold: Float { 0.3 }
 
@@ -19,9 +19,9 @@ struct ActiveInputSwitch {
 
     @discardableResult
     mutating func use(_ input: ActiveInput) -> ActiveInput? {
-        guard current != input else { return nil }
+        guard currentInput != input else { return nil }
 
-        current = input
+        currentInput = input
         return input
     }
 

@@ -9,10 +9,10 @@ import Foundation
 import Security
 
 public struct KeychainStore: SecretStoring {
-    private let service: String
+    private let keychainService: String
 
-    public init(service: String) {
-        self.service = service
+    public init(keychainService: String) {
+        self.keychainService = keychainService
     }
 
     public func read(_ key: String) throws -> Data? {
@@ -58,7 +58,7 @@ public struct KeychainStore: SecretStoring {
     private func itemQuery(account: String?) -> [String: Any] {
         var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
+            kSecAttrService as String: keychainService,
         ]
 
         if usesDataProtectionKeychain {

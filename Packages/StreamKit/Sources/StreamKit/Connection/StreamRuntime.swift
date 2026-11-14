@@ -16,7 +16,7 @@ public final class StreamRuntime: @unchecked Sendable {
     private let audioDevice = StereoAudioDevice()
     #endif
 
-    private var factory: LKRTCPeerConnectionFactory?
+    private var connectionFactory: LKRTCPeerConnectionFactory?
 
     public init() {}
 
@@ -28,9 +28,9 @@ public final class StreamRuntime: @unchecked Sendable {
 
     func peerConnectionFactory() -> LKRTCPeerConnectionFactory {
         lock.withLock {
-            let factory = factory ?? makeFactory()
-            self.factory = factory
-            return factory
+            let connectionFactory = connectionFactory ?? makeFactory()
+            self.connectionFactory = connectionFactory
+            return connectionFactory
         }
     }
 
@@ -39,16 +39,16 @@ public final class StreamRuntime: @unchecked Sendable {
 
         LKRTCInitializeSSL()
 
-        let factory = LKRTCPeerConnectionFactory(
+        let connectionFactory = LKRTCPeerConnectionFactory(
             encoderFactory: LKRTCDefaultVideoEncoderFactory(),
             decoderFactory: XboxVideoDecoderFactory(),
             audioDevice: audioDevice
         )
         let options = LKRTCPeerConnectionFactoryOptions()
         options.ignoreLoopbackNetworkAdapter = true
-        factory.setOptions(options)
+        connectionFactory.setOptions(options)
 
-        return factory
+        return connectionFactory
     }
 
     private func enableNetworkPathMonitor() {

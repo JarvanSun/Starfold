@@ -8,47 +8,47 @@
 import StreamKit
 
 struct LiveStreamConnection: StreamConnection {
-    private let controller: StreamController
-    private let runtime: StreamRuntime
+    private let streamController: StreamController
+    private let streamRuntime: StreamRuntime
 
     var updates: AsyncStream<StreamUpdate> {
-        controller.updates
+        streamController.updates
     }
 
-    init(controller: StreamController, runtime: StreamRuntime) {
-        self.controller = controller
-        self.runtime = runtime
+    init(streamController: StreamController, streamRuntime: StreamRuntime) {
+        self.streamController = streamController
+        self.streamRuntime = streamRuntime
     }
 
     func start(sink: VideoFrameReceiving) async {
-        await controller.start(sink: sink, runtime: runtime)
+        await streamController.start(sink: sink, runtime: streamRuntime)
     }
 
     func stop(reason: StreamEndReason) async {
-        await controller.stop(reason: reason)
+        await streamController.stop(reason: reason)
     }
 
     func setGamepad(_ index: UInt8, state: GamepadState?) {
-        controller.setGamepad(index, state: state)
+        streamController.setGamepad(index, state: state)
     }
 
     func pressGuide() async {
-        await controller.pressGuide()
+        await streamController.pressGuide()
     }
 
     func requestKeyframe() async {
-        await controller.requestKeyframe()
+        await streamController.requestKeyframe()
     }
 
     func answerDialog(id: String, buttonIndex: Int) async {
-        await controller.answerDialog(id: id, buttonIndex: buttonIndex)
+        await streamController.answerDialog(id: id, buttonIndex: buttonIndex)
     }
 
     func answerKeyboard(id: String, text: String?) async {
-        await controller.answerKeyboard(id: id, text: text)
+        await streamController.answerKeyboard(id: id, text: text)
     }
 
     func announceTouchBundle(version: String, versionName: String) async {
-        await controller.announceTouchBundle(version: version, versionName: versionName)
+        await streamController.announceTouchBundle(version: version, versionName: versionName)
     }
 }

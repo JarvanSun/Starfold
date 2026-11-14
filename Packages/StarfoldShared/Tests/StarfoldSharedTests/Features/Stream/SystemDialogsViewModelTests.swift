@@ -41,7 +41,7 @@ struct SystemDialogsViewModelTests {
 
         // Then
         #expect(dialogs.presentedDialog == message)
-        #expect(dialogs.queue.map(\.id) == ["save", "name"])
+        #expect(dialogs.dialogQueue.map(\.id) == ["save", "name"])
     }
 
     @Test
@@ -53,7 +53,7 @@ struct SystemDialogsViewModelTests {
         dialogs.answer(message, buttonIndex: 0)
 
         // Then
-        #expect(dialogs.queue.isEmpty)
+        #expect(dialogs.dialogQueue.isEmpty)
     }
 
     @Test
@@ -130,7 +130,7 @@ struct SystemDialogsViewModelTests {
         dialogs.cancel(message)
 
         // Then
-        #expect(dialogs.queue.isEmpty)
+        #expect(dialogs.dialogQueue.isEmpty)
     }
 
     @Test
@@ -142,7 +142,7 @@ struct SystemDialogsViewModelTests {
         dialogs.cancel(notice)
 
         // Then
-        #expect(dialogs.queue == [notice])
+        #expect(dialogs.dialogQueue == [notice])
     }
 
     @Test

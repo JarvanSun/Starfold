@@ -11,7 +11,7 @@ import StarfoldShared
 import StreamKit
 
 final class StreamPictureInPicture {
-    weak var host: StreamVideoHostView?
+    weak var videoHostView: StreamVideoHostView?
 
     private let renderer: StreamRenderer
     private let dimensions: Dimensions
@@ -25,7 +25,7 @@ final class StreamPictureInPicture {
     }
 
     private var window: NSWindow? {
-        host?.window
+        videoHostView?.window
     }
 
     init(renderer: StreamRenderer, dimensions: Dimensions) {
@@ -121,7 +121,7 @@ final class StreamPictureInPicture {
         panel?.contentView = nil
         panel = nil
 
-        host?.reattachVideo()
+        videoHostView?.reattachVideo()
 
         GCController.shouldMonitorBackgroundEvents = false
 

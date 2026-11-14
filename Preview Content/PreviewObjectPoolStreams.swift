@@ -210,8 +210,8 @@ private extension PreviewObjectPool {
             target: target,
             backdrop: backdrop,
             qualityOverride: nil,
-            service: service,
-            dependencies: dependencies
+            streamService: service,
+            streamDependencies: dependencies
         )
 
         stream.start()

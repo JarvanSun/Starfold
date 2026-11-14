@@ -12,7 +12,7 @@ import os
 #endif
 
 public struct GSSVSession: Sendable {
-    let client: GSSVClient
+    let gssvClient: GSSVClient
     let url: URL
     let titleID: String?
 
@@ -57,14 +57,14 @@ public struct GSSVSession: Sendable {
     }
 
     private func state() async throws -> SessionState {
-        let response = try await client.send(to: url.appending(path: "state"))
+        let response = try await gssvClient.send(to: url.appending(path: "state"))
         let fields =
             (try JSONSerialization.jsonObject(with: response.body) as? [String: Any]) ?? [:]
         return .init(fields: fields)
     }
 
     private func connect(userToken: String) async throws {
-        _ = try await client.send(
+        _ = try await gssvClient.send(
             to: url.appending(path: "connect"),
             method: "POST",
             body: try JSONSerialization.data(withJSONObject: ["userToken": userToken])
@@ -76,11 +76,11 @@ public struct GSSVSession: Sendable {
             return nil
         }
 
-        return try? await client.estimatedWait(titleID: titleID)
+        return try? await gssvClient.estimatedWait(titleID: titleID)
     }
 
     public func keepAliveInterval() async throws -> Duration {
-        let response = try await client.send(to: url.appending(path: "configuration"))
+        let response = try await gssvClient.send(to: url.appending(path: "configuration"))
         let configuration =
             (try JSONSerialization.jsonObject(with: response.body) as? [String: Any]) ?? [:]
 
@@ -99,7 +99,7 @@ public struct GSSVSession: Sendable {
         offer: String,
         timeout: Duration = .seconds(30)
     ) async throws -> (sdp: String, versions: ChannelVersions) {
-        _ = try await client.send(
+        _ = try await gssvClient.send(
             to: url.appending(path: "sdp"),
             method: "POST",
             body: try JSONSerialization.data(
@@ -144,7 +144,7 @@ public struct GSSVSession: Sendable {
                 "sdpMLineIndex": Int(candidate.sdpMLineIndex),
             ]
         }
-        _ = try await client.send(
+        _ = try await gssvClient.send(
             to: url.appending(path: "ice"),
             method: "POST",
             body: try JSONSerialization.data(
@@ -168,7 +168,7 @@ public struct GSSVSession: Sendable {
         let deadline = start + timeout
 
         while clock.now < deadline {
-            let response = try await client.send(to: url.appending(path: resource))
+            let response = try await gssvClient.send(to: url.appending(path: resource))
             let hasAnswerBody = response.statusCode != 204 && !response.body.isEmpty
 
             if hasAnswerBody, let answer = try parse(response.body) {
@@ -182,7 +182,7 @@ public struct GSSVSession: Sendable {
     }
 
     public func keepAlive() async throws {
-        _ = try await client.send(
+        _ = try await gssvClient.send(
             to: url.appending(path: "keepalive"),
             method: "POST",
             body: Data("{}".utf8)
@@ -197,13 +197,13 @@ public struct GSSVSession: Sendable {
         )
 
         do {
-            let response = try await client.send(to: url, method: "DELETE")
+            let response = try await gssvClient.send(to: url, method: "DELETE")
             log.info("Remote session DELETE returned HTTP \(response.statusCode)")
         } catch {
             log.error("Remote session DELETE failed: \(String(describing: error))")
         }
         #else
-        _ = try? await client.send(to: url, method: "DELETE")
+        _ = try? await gssvClient.send(to: url, method: "DELETE")
         #endif
     }
 }

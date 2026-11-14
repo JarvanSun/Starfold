@@ -9,19 +9,19 @@ import StreamKit
 
 public struct StreamPlatform {
     let controllerRouting: ControllerRouting
-    let picture: PictureCapabilities
+    let pictureCapabilities: PictureCapabilities
     let overlays: StreamOverlays
-    let touch: TouchPlatform?
+    let touchPlatform: TouchPlatform?
 
     public init(
         controllerRouting: ControllerRouting,
-        picture: PictureCapabilities,
+        pictureCapabilities: PictureCapabilities,
         overlays: StreamOverlays,
-        touch: TouchPlatform?
+        touchPlatform: TouchPlatform?
     ) {
         self.controllerRouting = controllerRouting
-        self.picture = picture
+        self.pictureCapabilities = pictureCapabilities
         self.overlays = overlays
-        self.touch = touch
+        self.touchPlatform = touchPlatform
     }
 }

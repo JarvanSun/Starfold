@@ -16,7 +16,7 @@ struct StreamView: View {
 
     let streamViewModel: StreamViewModel
     let settingsViewModel: SettingsViewModel
-    let controllers: ControllerHub
+    let controllerHub: ControllerHub
 
     let onClose: () -> Void
 
@@ -57,7 +57,7 @@ struct StreamView: View {
         .persistentSystemOverlays(.hidden)
         .defersSystemGestures(on: .all)
         .sensoryFeedback(trigger: streamViewModel.phase) { _, phase in phase.arrivalFeedback }
-        .sensoryFeedback(.impact(weight: .light), trigger: controllers.connected.count)
+        .sensoryFeedback(.impact(weight: .light), trigger: controllerHub.connectedControllers.count)
         .sensoryFeedback(.impact(weight: .light), trigger: streamViewModel.isMenuOpen) {
             _,
             isOpen in
@@ -67,7 +67,7 @@ struct StreamView: View {
         .streamKeyboardInput(streamViewModel)
         .onAppear { appear() }
         .onChange(of: streamViewModel.isRoutingInputToGame) { _, isRouting in
-            controllers.routeInput(toGame: isRouting)
+            controllerHub.routeInput(toGame: isRouting)
         }
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
@@ -75,7 +75,7 @@ struct StreamView: View {
             default: streamViewModel.enterBackground()
             }
         }
-        .onDisappear { controllers.routeInput(toGame: false) }
+        .onDisappear { controllerHub.routeInput(toGame: false) }
         .touchLayoutEditorCover(
             isPresented: $isEditingTouchLayout,
             settingsViewModel: settingsViewModel
@@ -91,14 +91,14 @@ struct StreamView: View {
 
     private func appear() {
         streamViewModel.revealControls()
-        controllers.routeInput(toGame: streamViewModel.isRoutingInputToGame)
+        controllerHub.routeInput(toGame: streamViewModel.isRoutingInputToGame)
     }
 
     private func touchLayer(_ touchControlsViewModel: TouchControlsViewModel) -> some View {
         TouchControlsLayer(
             touchControlsViewModel: touchControlsViewModel,
             isActive: streamViewModel.isShowingTouchControls,
-            onConnect: { controllers.checkControllers() }
+            onConnect: { controllerHub.checkControllers() }
         )
     }
 
@@ -178,7 +178,7 @@ struct StreamView: View {
     StreamView(
         streamViewModel: preview.streamViewModel,
         settingsViewModel: preview.settingsViewModel,
-        controllers: .init(routing: .direct)
+        controllerHub: .init(routing: .direct)
     ) {}
 }
 
@@ -188,7 +188,7 @@ struct StreamView: View {
     StreamView(
         streamViewModel: preview.streamViewModel,
         settingsViewModel: preview.settingsViewModel,
-        controllers: .init(routing: .direct)
+        controllerHub: .init(routing: .direct)
     ) {}
 }
 #endif

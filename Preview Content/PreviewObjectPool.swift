@@ -80,7 +80,12 @@ extension PreviewObjectPool {
     }
 
     static var streamPlatform: StreamPlatform {
-        .init(controllerRouting: .direct, picture: picture, overlays: streamOverlays, touch: nil)
+        .init(
+            controllerRouting: .direct,
+            pictureCapabilities: picture,
+            overlays: streamOverlays,
+            touchPlatform: nil
+        )
     }
 
     static var streamDependencies: StreamDependencies {
@@ -97,7 +102,7 @@ extension PreviewObjectPool {
 
         return .init(
             accountService: accountService,
-            cache: libraryCache,
+            libraryCache: libraryCache,
             settingsViewModel: settingsViewModel(
                 preferences: preferences,
                 controllers: controllers
@@ -115,9 +120,9 @@ extension PreviewObjectPool {
     ) -> SettingsViewModel {
         .init(
             preferences: preferences,
-            controllers: controllers,
-            platform: streamPlatform,
-            network: PreviewNetworkPath()
+            controllerHub: controllers,
+            streamPlatform: streamPlatform,
+            networkPath: PreviewNetworkPath()
         )
     }
 
@@ -127,18 +132,22 @@ extension PreviewObjectPool {
     ) -> StreamDependencies {
         .init(
             preferences: preferences,
-            controllers: controllers,
-            platform: streamPlatform,
-            network: PreviewNetworkPath()
+            controllerHub: controllers,
+            streamPlatform: streamPlatform,
+            networkPath: PreviewNetworkPath()
         )
     }
 
     static func account(streamPhase: StreamPhase) -> SignedInAccount {
         .init(
             summary: .init(id: profile.xuid, gamertag: profile.gamertag),
-            consoles: consoleService(state: .loaded, consoles: consoles),
-            cloudLibrary: cloudLibraryService(state: .loaded, games: cloudGames, access: .gamePass),
-            streams: streamService(phase: streamPhase, dialogs: [])
+            consoleService: consoleService(state: .loaded, consoles: consoles),
+            cloudLibraryService: cloudLibraryService(
+                state: .loaded,
+                games: cloudGames,
+                access: .gamePass
+            ),
+            streamService: streamService(phase: streamPhase, dialogs: [])
         )
     }
 }

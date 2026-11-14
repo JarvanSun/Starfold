@@ -21,7 +21,7 @@ struct ActiveInputSwitchTests {
 
         // Then
         #expect(flips == [.controller])
-        #expect(activeInput.current == .controller)
+        #expect(activeInput.currentInput == .controller)
     }
 
     @Test
@@ -35,7 +35,7 @@ struct ActiveInputSwitchTests {
 
         // Then
         #expect(flip == .touch)
-        #expect(activeInput.current == .touch)
+        #expect(activeInput.currentInput == .touch)
     }
 
     @Test(arguments: [
@@ -53,7 +53,7 @@ struct ActiveInputSwitchTests {
 
         // Then
         #expect(flip == nil)
-        #expect(activeInput.current == .touch)
+        #expect(activeInput.currentInput == .touch)
     }
 
     @Test

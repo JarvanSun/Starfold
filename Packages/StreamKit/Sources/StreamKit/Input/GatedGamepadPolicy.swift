@@ -14,8 +14,8 @@ struct GatedGamepadPolicy {
 
     private(set) var isPlaying = false
 
-    private var held: [GamepadSource: GamepadState] = [:]
-    private var blocked: [GamepadSource: GamepadState] = [:]
+    private var heldGamepads: [GamepadSource: GamepadState] = [:]
+    private var blockedGamepads: [GamepadSource: GamepadState] = [:]
 
     private var releaseThreshold: Float { 0.1 }
 
@@ -24,22 +24,24 @@ struct GatedGamepadPolicy {
         guard self.isPlaying != isPlaying else { return Output() }
 
         self.isPlaying = isPlaying
-        blocked = held
+        blockedGamepads = heldGamepads
 
-        let neutral = Dictionary(uniqueKeysWithValues: held.keys.map { ($0, GamepadState()) })
+        let neutral = Dictionary(
+            uniqueKeysWithValues: heldGamepads.keys.map { ($0, GamepadState()) }
+        )
         return Output(states: neutral, shouldClearPendingInput: true)
     }
 
     @discardableResult
     mutating func update(_ source: GamepadSource, state: GamepadState?) -> Output {
         guard let state else {
-            held[source] = nil
-            blocked[source] = nil
+            heldGamepads[source] = nil
+            blockedGamepads[source] = nil
 
             return Output(removed: [source])
         }
 
-        held[source] = state
+        heldGamepads[source] = state
 
         guard isPlaying else { return Output(states: [source: GamepadState()]) }
 
@@ -49,8 +51,8 @@ struct GatedGamepadPolicy {
     private mutating func quarantine(_ state: GamepadState, from source: GamepadSource)
         -> GamepadState
     {
-        let barrier = releasedBarrier(blocked[source] ?? GamepadState(), current: state)
-        blocked[source] = barrier
+        let barrier = releasedBarrier(blockedGamepads[source] ?? GamepadState(), current: state)
+        blockedGamepads[source] = barrier
 
         var clean = state
         clean.buttons.subtract(barrier.buttons)

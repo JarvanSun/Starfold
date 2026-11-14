@@ -37,11 +37,11 @@ public final class StreamViewModel {
     private(set) var isResolutionLowered = false
 
     private let qualityOverride: StreamQuality?
-    private let service: StreamService
-    private let dependencies: StreamDependencies
+    private let streamService: StreamService
+    private let streamDependencies: StreamDependencies
     private let log = Logger(category: .stream)
 
-    private var connection: StreamConnection?
+    private var streamConnection: StreamConnection?
     private var connectTask: Task<Void, Never>?
     private var updatesTask: Task<Void, Never>?
     private var runTask: Task<Void, Never>?
@@ -49,7 +49,7 @@ public final class StreamViewModel {
     private var hideControlsTask: Task<Void, Never>?
     private var settingsTask: Task<Void, Never>?
     private var appliedSettings: StreamPlaybackSettings?
-    private var keyboard = KeyboardGamepad()
+    private var keyboardGamepad = KeyboardGamepad()
     private var hasLoggedFirstRumble = false
     private var statisticsTicks = 0
     private var isInForeground = true
@@ -94,11 +94,11 @@ public final class StreamViewModel {
     }
 
     public var canOpenMenu: Bool {
-        isStreaming && systemDialogsViewModel.queue.isEmpty
+        isStreaming && systemDialogsViewModel.dialogQueue.isEmpty
     }
 
     public var isPlayable: Bool {
-        !isWaitingForPicture && systemDialogsViewModel.queue.isEmpty && hasInput
+        !isWaitingForPicture && systemDialogsViewModel.dialogQueue.isEmpty && hasInput
     }
 
     public var needsController: Bool {
@@ -106,7 +106,7 @@ public final class StreamViewModel {
     }
 
     private var hasInput: Bool {
-        dependencies.touch != nil || !controllers.connected.isEmpty
+        streamDependencies.touchPlatform != nil || !controllerHub.connectedControllers.isEmpty
     }
 
     public var isShowingMenuHandle: Bool {
@@ -123,7 +123,7 @@ public final class StreamViewModel {
     }
 
     public var isXboxButtonTakenBySystem: Bool {
-        controllers.xboxButton.owner == .system
+        controllerHub.xboxButton.owner == .system
     }
 
     public var isShowingStatistics: Bool {
@@ -133,7 +133,7 @@ public final class StreamViewModel {
     public var statisticsReadout: StatisticsReadout {
         .init(
             statistics: statistics,
-            kinds: dependencies.overlays.statisticsRows,
+            kinds: streamDependencies.overlays.statisticsRows,
             usesAutomaticQuality: usesAutomaticQuality,
             loweredFrom: isResolutionLowered ? quality : nil
         )
@@ -157,35 +157,44 @@ public final class StreamViewModel {
     }
 
     private var preferences: Preferences {
-        dependencies.preferences
+        streamDependencies.preferences
     }
 
-    private var controllers: ControllerHub {
-        dependencies.controllers
+    private var controllerHub: ControllerHub {
+        streamDependencies.controllerHub
     }
 
     private var playbackSettings: StreamPlaybackSettings {
-        .init(preferences: preferences, picture: dependencies.picture, touch: dependencies.touch)
+        .init(
+            preferences: preferences,
+            picture: streamDependencies.pictureCapabilities,
+            touch: streamDependencies.touchPlatform
+        )
     }
 
     public init(
         target: StreamTarget,
         backdrop: StreamBackdrop,
         qualityOverride: StreamQuality?,
-        service: StreamService,
-        dependencies: StreamDependencies
+        streamService: StreamService,
+        streamDependencies: StreamDependencies
     ) {
         self.target = target
         self.backdrop = backdrop
         self.qualityOverride = qualityOverride
-        self.service = service
-        self.dependencies = dependencies
-        renderer = StreamRenderer(keepsLastFrame: dependencies.picture.shouldKeepLastFrame)
-        touchControlsViewModel = dependencies.touch.map { _ in
-            .init(controllers: dependencies.controllers, preferences: dependencies.preferences)
+        self.streamService = streamService
+        self.streamDependencies = streamDependencies
+        renderer = StreamRenderer(
+            keepsLastFrame: streamDependencies.pictureCapabilities.shouldKeepLastFrame
+        )
+        touchControlsViewModel = streamDependencies.touchPlatform.map { _ in
+            .init(
+                controllerHub: streamDependencies.controllerHub,
+                preferences: streamDependencies.preferences
+            )
         }
 
-        apply(playbackSettings)
+        configure(for: playbackSettings)
 
         observeSettings()
     }
@@ -195,19 +204,19 @@ public final class StreamViewModel {
             for await settings in Observations({ self?.playbackSettings }) {
                 guard let self, let settings, !hasEnded else { return }
 
-                apply(settings)
+                configure(for: settings)
             }
         }
     }
 
-    private func apply(_ settings: StreamPlaybackSettings) {
+    private func configure(for settings: StreamPlaybackSettings) {
         guard settings != appliedSettings else { return }
 
         appliedSettings = settings
 
-        service.setDirectStereo(settings.isDirectStereo)
+        streamService.setDirectStereo(settings.isDirectStereo)
 
-        controllers.isDeviceRumbleEnabled = settings.isDeviceRumbleEnabled
+        controllerHub.isDeviceRumbleEnabled = settings.isDeviceRumbleEnabled
 
         guard let renderer else { return }
 
@@ -241,7 +250,7 @@ public final class StreamViewModel {
             maxBitrateKbps: settings.maxBitrateKbps,
             gameLocale: preferences.effectiveGameLanguage,
             clientAppInstallID: preferences.clientAppInstallID,
-            touch: dependencies.touch?.capabilities
+            touchCapabilities: streamDependencies.touchPlatform?.capabilities
         )
 
         startedAt = .now
@@ -249,7 +258,7 @@ public final class StreamViewModel {
     }
 
     private func networkQuality(for requested: StreamQuality) -> StreamQuality {
-        switch dependencies.network.isOnCellular {
+        switch streamDependencies.networkPath.isOnCellular {
         case true: requested.capped(at: preferences.cellularQuality)
         case false: requested
         }
@@ -257,10 +266,10 @@ public final class StreamViewModel {
 
     private func connect(with options: StreamOptions) async {
         do {
-            let connection = try await service.connect(to: target, options: options)
+            let streamConnection = try await streamService.connect(to: target, options: options)
             guard !Task.isCancelled, let renderer else { return }
 
-            run(connection, on: renderer)
+            run(streamConnection, on: renderer)
         } catch XboxAccountError.signInRequired {
             onSignInRequired()
 
@@ -272,24 +281,24 @@ public final class StreamViewModel {
         }
     }
 
-    private func run(_ connection: StreamConnection, on renderer: StreamRenderer) {
-        self.connection = connection
+    private func run(_ streamConnection: StreamConnection, on renderer: StreamRenderer) {
+        self.streamConnection = streamConnection
 
         renderer.notifyFirstFrame { [weak self] in
             Task { @MainActor in self?.didPresentFirstFrame() }
         }
 
         updatesTask = Task { [weak self] in
-            for await update in connection.updates {
-                self?.apply(update)
+            for await update in streamConnection.updates {
+                self?.receive(update)
             }
         }
 
-        systemDialogsViewModel.attach(connection)
+        systemDialogsViewModel.attach(streamConnection)
 
-        wireInput(to: connection)
+        wireInput(to: streamConnection)
 
-        runTask = Task { await connection.start(sink: renderer) }
+        runTask = Task { await streamConnection.start(sink: renderer) }
     }
 
     private func didPresentFirstFrame() {
@@ -301,10 +310,10 @@ public final class StreamViewModel {
         )
     }
 
-    private func apply(_ update: StreamUpdate) {
+    private func receive(_ update: StreamUpdate) {
         switch update {
-        case .phase(let phase): apply(phase)
-        case .statistics(let statistics): apply(statistics)
+        case .phase(let phase): enter(phase)
+        case .statistics(let statistics): record(statistics)
         case .dialog(let request): systemDialogsViewModel.add(request)
         case .dialogDismissed(let id): systemDialogsViewModel.remove(id: id)
         case .vibration(let effect): play(effect)
@@ -343,7 +352,7 @@ public final class StreamViewModel {
         defer { touchBundleTasks[titleID] = nil }
 
         do {
-            let bundle = try await service.touchBundle(forTitle: titleID, on: target)
+            let bundle = try await streamService.touchBundle(forTitle: titleID, on: target)
             guard !Task.isCancelled else { return }
 
             touchBundleTitles.insert(titleID)
@@ -361,10 +370,10 @@ public final class StreamViewModel {
     }
 
     private func announceTouchBundle(_ manifest: TouchBundleManifest?) {
-        guard let manifest, let connection else { return }
+        guard let manifest, let streamConnection else { return }
 
         Task {
-            await connection.announceTouchBundle(
+            await streamConnection.announceTouchBundle(
                 version: manifest.version,
                 versionName: manifest.versionName ?? manifest.version
             )
@@ -374,9 +383,9 @@ public final class StreamViewModel {
     private func play(_ effect: VibrationEffect) {
         logFirstRumble(effect)
 
-        guard controllers.isRoutingToGame, preferences.isRumbleEnabled else { return }
+        guard controllerHub.isRoutingToGame, preferences.isRumbleEnabled else { return }
 
-        controllers.playRumble(effect)
+        controllerHub.playRumble(effect)
     }
 
     private func logFirstRumble(_ effect: VibrationEffect) {
@@ -388,7 +397,7 @@ public final class StreamViewModel {
         )
     }
 
-    private func apply(_ phase: StreamPhase) {
+    private func enter(_ phase: StreamPhase) {
         self.phase = phase
 
         switch phase {
@@ -402,12 +411,12 @@ public final class StreamViewModel {
         hideControlsTask?.cancel()
         settingsTask?.cancel()
 
-        controllers.stopRumble()
+        controllerHub.stopRumble()
 
         onEnd()
     }
 
-    private func apply(_ statistics: StreamStatistics) {
+    private func record(_ statistics: StreamStatistics) {
         var statistics = statistics
         statistics.displayMs = renderer?.displayLatencyMs
         statistics.upscaledTo = renderer?.upscaledTo
@@ -439,9 +448,9 @@ public final class StreamViewModel {
             .isLoweredByHost(received: received, requested: quality)
     }
 
-    private func wireInput(to connection: StreamConnection) {
-        controllers.router.setDestination { slot, state in
-            connection.setGamepad(slot, state: state)
+    private func wireInput(to streamConnection: StreamConnection) {
+        controllerHub.gamepadRouter.setDestination { slot, state in
+            streamConnection.setGamepad(slot, state: state)
         }
     }
 
@@ -452,8 +461,8 @@ public final class StreamViewModel {
     func stop(_ reason: StreamEndReason) async {
         onStop()
 
-        controllers.router.setDestination(nil)
-        controllers.stopRumble()
+        controllerHub.gamepadRouter.setDestination(nil)
+        controllerHub.stopRumble()
 
         connectTask?.cancel()
         runTask?.cancel()
@@ -461,8 +470,8 @@ public final class StreamViewModel {
         settingsTask?.cancel()
         for task in touchBundleTasks.values { task.cancel() }
 
-        if let connection {
-            await connection.stop(reason: reason)
+        if let streamConnection {
+            await streamConnection.stop(reason: reason)
         }
 
         updatesTask?.cancel()
@@ -485,7 +494,7 @@ public final class StreamViewModel {
 
         hideControlsTask?.cancel()
 
-        guard let delay = dependencies.overlays.controlsHideDelay else { return }
+        guard let delay = streamDependencies.overlays.controlsHideDelay else { return }
 
         hideControlsTask = Task { await hideControls(after: delay) }
     }
@@ -521,19 +530,19 @@ public final class StreamViewModel {
     }
 
     public func openGuide() {
-        guard let connection else { return }
+        guard let streamConnection else { return }
 
-        Task { await connection.pressGuide() }
+        Task { await streamConnection.pressGuide() }
     }
 
     public func openXboxButtonSettings() {
-        controllers.xboxButton.openSettings()
+        controllerHub.xboxButton.openSettings()
     }
 
     public func requestKeyframe() {
-        guard let connection else { return }
+        guard let streamConnection else { return }
 
-        Task { await connection.requestKeyframe() }
+        Task { await streamConnection.requestKeyframe() }
     }
 
     public func showNextPictureFit() {
@@ -551,22 +560,22 @@ public final class StreamViewModel {
             return false
         }
 
-        let isHandled = keyboard.setKey(keyCode, isDown: isDown)
+        let isHandled = keyboardGamepad.setKey(keyCode, isDown: isDown)
 
         if isHandled {
-            controllers.router.setKeyboard(keyboard.state)
+            controllerHub.gamepadRouter.setKeyboard(keyboardGamepad.state)
         }
 
         return isHandled
     }
 
     private var isAcceptingKeyboard: Bool {
-        !isMenuOpen && systemDialogsViewModel.queue.isEmpty
+        !isMenuOpen && systemDialogsViewModel.dialogQueue.isEmpty
     }
 
     public func releaseKeyboard() {
-        keyboard.releaseAll()
-        controllers.router.setKeyboard(keyboard.state)
+        keyboardGamepad.releaseAll()
+        controllerHub.gamepadRouter.setKeyboard(keyboardGamepad.state)
     }
 
     public func statisticsReport(device: String) -> String {
