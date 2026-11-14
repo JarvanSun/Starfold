@@ -12,6 +12,7 @@ extension StreamEndReason {
     public var title: LocalizedStringResource {
         switch self {
         case .userStopped: .init("stream.end.userStopped.title", bundle: .module)
+        case .leftApp: .init("stream.end.leftApp.title", bundle: .module)
         case .hostEnded: .init("stream.end.hostEnded.title", bundle: .module)
         case .connectionLost: .init("stream.end.connectionLost.title", bundle: .module)
         case .failed: .init("stream.end.failed.title", bundle: .module)
@@ -20,14 +21,14 @@ extension StreamEndReason {
 
     public var systemImage: String {
         switch self {
-        case .userStopped, .hostEnded: "stop.circle.fill"
+        case .userStopped, .leftApp, .hostEnded: "stop.circle.fill"
         case .connectionLost, .failed: "exclamationmark.triangle.fill"
         }
     }
 
     public var symbolStyle: AnyShapeStyle {
         switch self {
-        case .userStopped, .hostEnded: .init(.secondary)
+        case .userStopped, .leftApp, .hostEnded: .init(.secondary)
         case .connectionLost, .failed: .init(Color.attention)
         }
     }

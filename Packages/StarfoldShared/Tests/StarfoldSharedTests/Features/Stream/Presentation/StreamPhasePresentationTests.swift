@@ -19,6 +19,7 @@ struct StreamPhasePresentationTests {
             (.ended(.connectionLost), .error),
             (.ended(.failed("4004")), .error),
             (.ended(.userStopped), nil),
+            (.ended(.leftApp), nil),
             (.connecting, nil),
             (.provisioning, nil),
         ]

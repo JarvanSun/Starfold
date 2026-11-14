@@ -228,7 +228,7 @@ struct StreamViewModelTests {
         let stream = makeStream(service: StreamServiceStub())
 
         // When
-        await stream.stop()
+        await stream.stop(.userStopped)
 
         // Then
         #expect(stream.status == .ended(.userStopped, advice: nil))
@@ -583,8 +583,8 @@ struct StreamViewModelTests {
         #expect(!stream.isMenuOpen)
     }
 
-    @Test
-    func stopThenEndsAsStoppedByThePlayer() async {
+    @Test(arguments: [StreamEndReason.userStopped, .leftApp])
+    func stopThenEndsTheConnectionForTheGivenReason(reason: StreamEndReason) async {
         // Given
         let service = StreamServiceStub()
         service.updates = [.phase(.streaming)]
@@ -593,10 +593,28 @@ struct StreamViewModelTests {
         await Eventually().holds { stream.isStreaming }
 
         // When
-        await stream.stop()
+        await stream.stop(reason)
 
         // Then
-        #expect(stream.phase == .ended(.userStopped))
+        #expect(stream.phase == .ended(reason))
+        #expect(service.connection?.stopReasons == [reason])
+    }
+
+    @Test
+    func enterForegroundWhenStreamingThenAsksForAKeyframe() async {
+        // Given
+        let service = StreamServiceStub()
+        service.updates = [.phase(.streaming)]
+        let stream = makeStream(service: service)
+        stream.start()
+        await Eventually().holds { stream.isStreaming }
+        stream.enterBackground()
+
+        // When
+        stream.enterForeground()
+
+        // Then
+        #expect(await Eventually().holds { service.connection?.keyframeRequestCount == 1 })
     }
 }
 

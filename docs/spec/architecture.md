@@ -148,8 +148,8 @@ StarfoldMac/
 - `StarfoldiOS/` has the same shape, with Vision Pro's `RootView` and `…HostView`s. Its
   `Platform/` holds `Touch/` (the Touch Controller overlay: drawing, touches, turning a
   `TouchControlPlan` into controls), `Video/`, `Keyboard/` (`GCKeyCode` to `KeyboardKey`),
-  `Orientation/` (landscape while an iPhone streams) and `Background/` (ending the session on
-  leaving the app). Which controls a layout has and where they go is decided in StarfoldShared
+  `Orientation/` (landscape while an iPhone streams) and `Background/` (keeping the stream for a
+  while after leaving the app, then ending the session). Which controls a layout has and where they go is decided in StarfoldShared
   (`TouchLayoutPlanner`), so it is tested on macOS.
 
 ## StarfoldShared

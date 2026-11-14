@@ -272,7 +272,7 @@ public final class AppViewModel: SigningIn, SessionControlling {
         if let streamViewModel {
             keepLastFrame(of: streamViewModel)
 
-            await streamViewModel.stop()
+            await streamViewModel.stop(.userStopped)
         }
 
         let streamViewModel = StreamViewModel(
@@ -332,11 +332,19 @@ public final class AppViewModel: SigningIn, SessionControlling {
 
         keepLastFrame(of: ending)
 
-        await ending.stop()
+        await ending.stop(.userStopped)
 
         if streamViewModel === ending {
             streamViewModel = nil
         }
+    }
+
+    public func endStreamWhileAway() async {
+        guard let streamViewModel else { return }
+
+        keepLastFrame(of: streamViewModel)
+
+        await streamViewModel.stop(.leftApp)
     }
 
     func needsNewStream(for target: StreamTarget) -> Bool {

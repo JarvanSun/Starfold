@@ -1147,6 +1147,24 @@
         }
       }
     },
+    "stream.end.leftApp.title" : {
+      "comment" : "Stream status: title when the stream ended because Starfold stayed in the background too long",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stream ended while you were away"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "离开期间串流已结束"
+          }
+        }
+      }
+    },
     "stream.end.userStopped.title" : {
       "comment" : "Stream status: title after the player stops a stream",
       "extractionState" : "manual",

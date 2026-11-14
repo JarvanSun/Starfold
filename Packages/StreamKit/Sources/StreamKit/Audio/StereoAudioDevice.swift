@@ -24,6 +24,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
     private var observers: [NSObjectProtocol] = []
     private var meterTimer: DispatchSourceTimer?
     private var bypassesSpatialAudio = false
+    private var isInBackground = false
 
     var deviceInputSampleRate: Double { playout.sampleRate }
 
@@ -77,13 +78,46 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
             },
         ]
         let resumptions = resumptionObservers()
-        lock.withLock { self.observers = observers + resumptions }
+        let backgrounding = backgroundObservers()
+        lock.withLock { self.observers = observers + resumptions + backgrounding }
+    }
+
+    private func backgroundObservers() -> [NSObjectProtocol] {
+        #if os(iOS)
+        [
+            observe(UIApplication.didEnterBackgroundNotification) { [weak self] _ in
+                self?.setInBackground(true)
+            },
+            observe(UIApplication.willEnterForegroundNotification) { [weak self] _ in
+                self?.setInBackground(false)
+            },
+        ]
+        #else
+        []
+        #endif
     }
 
     private func rebuildIfCurrent(_ engine: AVAudioEngine?) {
         guard let engine, lock.withLock({ engine === self.engine }) else { return }
 
         recover(.rebuild("configuration change"))
+    }
+
+    private func setInBackground(_ isInBackground: Bool) {
+        let engine = lock.withLock {
+            self.isInBackground = isInBackground
+            return self.engine
+        }
+
+        engine?.mainMixerNode.outputVolume = volume(isInBackground: isInBackground)
+
+        log.info(
+            "Audio \(isInBackground ? "muted in the background" : "unmuted", privacy: .public)"
+        )
+    }
+
+    private func volume(isInBackground: Bool) -> Float {
+        isInBackground ? 0 : 1
     }
 
     private func handleInterruption(_ userInfo: [AnyHashable: Any]?) {
@@ -141,6 +175,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         let observers = lock.withLock {
             defer {
                 isPlayoutReady = false
+                isInBackground = false
                 delegate = nil
                 self.observers = []
             }
@@ -359,6 +394,7 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         engine.attach(source)
         engine.connect(source, to: engine.mainMixerNode, format: stereo)
         engine.connect(engine.mainMixerNode, to: engine.outputNode, format: nil)
+        engine.mainMixerNode.outputVolume = volume(isInBackground: lock.withLock { isInBackground })
         engine.prepare()
         return engine
     }

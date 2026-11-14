@@ -38,7 +38,7 @@ public enum StreamFailureAdvice: Equatable {
         switch endReason {
         case .failed(let message): self.init(hostMessage: message)
         case .connectionLost: self = .networkDropped
-        case .userStopped, .hostEnded: return nil
+        case .userStopped, .leftApp, .hostEnded: return nil
         }
     }
 }

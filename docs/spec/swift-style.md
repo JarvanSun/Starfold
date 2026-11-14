@@ -91,7 +91,7 @@ Inside a type, one blank line between groups:
 
 A private helper sits right below the member it serves, in call order: a step one method uses
 follows that method, a part of `body` follows `body`. A helper several members share follows the
-last of them; a private computed property several members share joins the computed properties.
+first of them; a private computed property several members share joins the computed properties.
 Extensions group protocol conformances, members of a type declared in another file, and private
 decoding types, never members by access level.
 
