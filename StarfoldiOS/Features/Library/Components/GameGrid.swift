@@ -17,9 +17,13 @@ struct GameGrid: View {
     let onPlay: (CloudGame) -> Void
     let onOpen: (CloudGame) -> Void
 
+    var firstTileFocus: FocusState<Bool>.Binding?
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: dimensions.spaceXLarge) {
-            ForEach(games) { tile(for: $0) }
+            ForEach(games) { game in
+                focusTarget(tile(for: game), isFirst: game.id == games.first?.id)
+            }
         }
         .pageMargins()
     }
@@ -35,6 +39,14 @@ struct GameGrid: View {
                 alignment: .top
             )
         ]
+    }
+
+    @ViewBuilder
+    private func focusTarget(_ tile: some View, isFirst: Bool) -> some View {
+        switch (firstTileFocus, isFirst) {
+        case (let focus?, true): tile.focused(focus)
+        default: tile
+        }
     }
 
     private func tile(for game: CloudGame) -> some View {

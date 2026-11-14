@@ -216,6 +216,9 @@ In `StarfoldiOS/`.
 - **TouchLayoutEditorView**: The editor draws the real Touch Controller controls, non-interactive, under transparent drag handles, so what is edited is exactly what is played.
 - **HomeCard** (iOS, Mac): The card surface goes on before the corner clip; clipped first, `.secondary` text could not blend with the material and drew nothing.
 - **ConsoleCardArt** (iOS): The cover is an overlay, so a `scaledToFill` image cannot widen the card.
+- **ConsoleCard** (iOS): The card is one `Button` made `.focusable()`, with its power and Play buttons `.focusable(false)`; as a focusable container, a controller's A ran the first button inside it (power) instead of Play.
+- **GameTile**, **RecentGameTile**, **CloudGamingRow** (iOS): Buttons take keyboard and controller focus on iOS only with Full Keyboard Access, so each is `.focusable()`; without it the search field was the only focusable view on Cloud Gaming.
+- **RootView** (iOS): The sky's canvas size is the root's size plus its safe-area insets; a page's own frame shrinks with the keyboard, which moved the ribbons and showed a black band while the keyboard hid.
 - **TouchPlatform**: `maxTouchPoints` 5 is an assumption about what a phone browser reports to xbox.com; it is not confirmed against the service.
 - **RootView**: Going to the background ends the stream inside a background task, as Apple TV does, because a suspended app cannot delete the host session.
 - **StreamView**: Game input routing is applied again on every appearance, not only when it changes, because a full-screen cover over the stream (the touch editor) makes the stream view disappear, which turns routing off.

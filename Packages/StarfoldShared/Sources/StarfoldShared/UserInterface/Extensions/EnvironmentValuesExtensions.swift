@@ -11,4 +11,5 @@ extension EnvironmentValues {
     @Entry public var skipsEntranceAnimations = false
     @Entry public var palette = Palette(.nebula)
     @Entry public var dimensions = Dimensions()
+    @Entry public var skyCanvasSize: CGSize?
 }

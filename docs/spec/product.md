@@ -257,9 +257,15 @@ Split View, Stage Manager and an unfolded iPhone Duo each get the layout that fi
   then Continue Playing (up to 10). On iPhone one card fills the width and the cards page
   sideways; in landscape the card lies on its side, art left and details right. On iPad the cards
   are Mac-sized, in a row. With no cloud access the row says why and does not open.
+- **Controller and keyboard:** Home starts on the first console card. A console card's select
+  (A, Return or Space) plays; holding it, or touching and holding, offers Wake Up or Turn Off. The
+  Cloud Gaming row opens the library, a Continue Playing game plays.
 - **Cloud Gaming** opens from that row: the Mac's rows and All Games, a sort menu (Name, Recently
-  Played) and a search field under the title. There is no search tab.
+  Played) and a search field under the title. There is no search tab. With a controller, focus
+  starts on the first game, not the search field; selecting a game opens its page, holding it
+  offers Play.
 - **Game page:** as on Mac; Touch shows among the input badges when the title has a touch layout.
+  Focus starts on Play.
 - **Settings:** Streaming (console, cloud and Cellular quality, Maximum Bitrate, Buffer, Game
   language), Display (Picture Mode, statistics, Color), Controls (Edit Layout and Touch haptics
   when touch controls exist, the controllers, the Xbox button note, Rumble, Keyboard as

@@ -18,19 +18,31 @@ struct ShelfRow: View {
     let onPlay: (CloudGame) -> Void
     let onOpen: (CloudGame) -> Void
 
+    var firstTileFocus: FocusState<Bool>.Binding?
+
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
             LibrarySectionHeader(title: shelf.title, count: nil)
 
             ScrollView(.horizontal) {
                 LazyHStack(alignment: .top, spacing: dimensions.spaceLarge) {
-                    ForEach(games) { tile(for: $0) }
+                    ForEach(games) { game in
+                        focusTarget(tile(for: game), isFirst: game.id == games.first?.id)
+                    }
                 }
                 .padding(.vertical, dimensions.spaceSmall)
             }
             .pageScrollMargins()
             .scrollIndicators(.hidden)
             .scrollClipDisabled()
+        }
+    }
+
+    @ViewBuilder
+    private func focusTarget(_ tile: some View, isFirst: Bool) -> some View {
+        switch (firstTileFocus, isFirst) {
+        case (let focus?, true): tile.focused(focus)
+        default: tile
         }
     }
 

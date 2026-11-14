@@ -15,6 +15,8 @@ struct HomeCardRow: View {
 
     let homeViewModel: HomeViewModel
 
+    var firstCardFocus: FocusState<Bool>.Binding?
+
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: dimensions.spaceLarge) {
@@ -44,7 +46,21 @@ struct HomeCardRow: View {
 
     private var consoleCards: some View {
         ForEach(Array(homeViewModel.consoles.enumerated()), id: \.element.id) { index, console in
-            card(ConsoleCard(console: console, homeViewModel: homeViewModel), index: index)
+            card(
+                focusTarget(
+                    ConsoleCard(console: console, homeViewModel: homeViewModel),
+                    index: index
+                ),
+                index: index
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func focusTarget(_ card: some View, index: Int) -> some View {
+        switch (firstCardFocus, index) {
+        case (let focus?, 0): card.focused(focus)
+        default: card
         }
     }
 

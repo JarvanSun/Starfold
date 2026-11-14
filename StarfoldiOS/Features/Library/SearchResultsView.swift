@@ -11,6 +11,7 @@ import XboxKit
 
 struct SearchResultsView: View {
     @Environment(\.dimensions) private var dimensions
+    @FocusState private var isFirstResultFocused: Bool
 
     let libraryViewModel: LibraryViewModel
 
@@ -28,10 +29,12 @@ struct SearchResultsView: View {
             GameGrid(
                 games: libraryViewModel.searchResults,
                 onPlay: { libraryViewModel.play($0) },
-                onOpen: { onOpenGame($0) }
+                onOpen: { onOpenGame($0) },
+                firstTileFocus: $isFirstResultFocused
             )
             .padding(.vertical, dimensions.spaceLarge)
         }
+        .defaultFocus($isFirstResultFocused, true)
     }
 }
 

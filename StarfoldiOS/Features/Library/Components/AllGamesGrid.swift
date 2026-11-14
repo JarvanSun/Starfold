@@ -15,6 +15,8 @@ struct AllGamesGrid: View {
 
     let onOpenGame: (CloudGame) -> Void
 
+    var firstTileFocus: FocusState<Bool>.Binding?
+
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
             LibrarySectionHeader(
@@ -25,7 +27,8 @@ struct AllGamesGrid: View {
             GameGrid(
                 games: libraryViewModel.sortedGames,
                 onPlay: { libraryViewModel.play($0) },
-                onOpen: { onOpenGame($0) }
+                onOpen: { onOpenGame($0) },
+                firstTileFocus: firstTileFocus
             )
         }
     }

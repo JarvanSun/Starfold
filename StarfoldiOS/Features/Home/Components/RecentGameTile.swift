@@ -10,7 +10,9 @@ import SwiftUI
 import XboxKit
 
 struct RecentGameTile: View {
+    @Environment(\.palette) private var palette
     @Environment(\.dimensions) private var dimensions
+    @FocusState private var isFocused: Bool
 
     let game: CloudGame
 
@@ -22,6 +24,14 @@ struct RecentGameTile: View {
         } label: {
             VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
                 GameArtwork(url: game.tileArtwork, aspectRatio: 1)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: dimensions.cornerRadiusMedium)
+                            .strokeBorder(
+                                palette.primaryFill,
+                                lineWidth: dimensions.highlightBorderWidth
+                            )
+                            .opacity(isFocused ? 1 : 0)
+                    }
 
                 Text(game.name)
                     .font(.caption.weight(.medium))
@@ -31,6 +41,9 @@ struct RecentGameTile: View {
             .frame(width: dimensions.recentGameTileWidth)
         }
         .buttonStyle(.tile)
+        .focusable()
+        .focusEffectDisabled()
+        .focused($isFocused)
         .help(Text("home.recentGames.play \(game.name)"))
         .accessibilityLabel(Text("home.recentGames.play \(game.name)"))
     }
