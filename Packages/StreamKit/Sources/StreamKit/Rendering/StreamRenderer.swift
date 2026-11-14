@@ -90,6 +90,26 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         #endif
     }
 
+    private func recordDisplayLatency(_ milliseconds: Double) {
+        guard milliseconds >= 0, milliseconds < 1000 else { return }
+
+        let latencySmoothing = 0.1
+
+        lock.withLock { state in
+            state.displayMs =
+                state.displayMs.map { $0 + (milliseconds - $0) * latencySmoothing } ?? milliseconds
+        }
+    }
+
+    private func fireFirstFrame() {
+        let onFirstFrame = lock.withLock { state in
+            defer { state.onFirstFrame = nil }
+
+            return state.onFirstFrame
+        }
+        onFirstFrame?()
+    }
+
     private func schedule(_ frame: DecodedFrame) {
         let maximumPendingFrames = maximumPendingFrames
         let shouldSchedule = lock.withLock { state in
@@ -109,8 +129,6 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
             queue.async { [self] in drainPending() }
         }
     }
-
-    private var maximumPendingFrames: Int { 6 }
 
     private func drainPending() {
         while let (frame, enhancements, drawableSize) = nextPendingFrame() {
@@ -187,25 +205,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         lock.withLock { $0.upscaledTo = upscaledTo }
     }
 
-    private func recordDisplayLatency(_ milliseconds: Double) {
-        guard milliseconds >= 0, milliseconds < 1000 else { return }
-
-        let latencySmoothing = 0.1
-
-        lock.withLock { state in
-            state.displayMs =
-                state.displayMs.map { $0 + (milliseconds - $0) * latencySmoothing } ?? milliseconds
-        }
-    }
-
-    private func fireFirstFrame() {
-        let onFirstFrame = lock.withLock { state in
-            defer { state.onFirstFrame = nil }
-
-            return state.onFirstFrame
-        }
-        onFirstFrame?()
-    }
+    private var maximumPendingFrames: Int { 6 }
 
     public func lastFrameImage() -> CGImage? {
         guard let buffer = lock.withLock({ $0.lastFrame })?.pixelBuffer else { return nil }

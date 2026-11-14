@@ -72,15 +72,29 @@ public struct AccountStore: Sendable {
         return account(for: stored)
     }
 
+    private func save(_ stored: StoredAccount) throws {
+        try secretStore.write(try JSONEncoder().encode(stored), for: secretKey(for: stored.xuid))
+    }
+
+    private func secretKey(for xuid: String) -> String {
+        accountKeyPrefix + xuid
+    }
+
+    private func account(for stored: StoredAccount) -> XboxAccount {
+        .init(
+            storedAccount: stored,
+            deviceCodeFlow: deviceCodeFlow,
+            tokenClient: tokenClient,
+            persist: { account in try save(account) },
+            now: now
+        )
+    }
+
     public func restoreAccounts() -> [XboxAccount] {
         let keys = (try? secretStore.allKeys()) ?? []
         return keys.filter(isAccountKey)
             .compactMap(restoredAccount(key:))
             .sorted { $0.xuid < $1.xuid }
-    }
-
-    private func isAccountKey(_ key: String) -> Bool {
-        key.hasPrefix(accountKeyPrefix)
     }
 
     private func restoredAccount(key: String) -> XboxAccount? {
@@ -94,22 +108,8 @@ public struct AccountStore: Sendable {
         return account(for: stored)
     }
 
-    private func account(for stored: StoredAccount) -> XboxAccount {
-        .init(
-            storedAccount: stored,
-            deviceCodeFlow: deviceCodeFlow,
-            tokenClient: tokenClient,
-            persist: { account in try save(account) },
-            now: now
-        )
-    }
-
-    private func save(_ stored: StoredAccount) throws {
-        try secretStore.write(try JSONEncoder().encode(stored), for: secretKey(for: stored.xuid))
-    }
-
-    private func secretKey(for xuid: String) -> String {
-        accountKeyPrefix + xuid
+    private func isAccountKey(_ key: String) -> Bool {
+        key.hasPrefix(accountKeyPrefix)
     }
 
     public func signOut(xuid: String) throws {

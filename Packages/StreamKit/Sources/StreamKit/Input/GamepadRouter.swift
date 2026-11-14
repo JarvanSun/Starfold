@@ -42,6 +42,30 @@ public final class GamepadRouter: @unchecked Sendable {
         }
     }
 
+    private func state(for slot: UInt8) -> GamepadState? {
+        switch (slot, controllerRouting) {
+        case (0, .direct): playerOne(gamepadStates[0] ?? GamepadState())
+        case (0, .gated): gatedPlayerOne()
+        default: gamepadStates[slot]
+        }
+    }
+
+    private func playerOne(_ pad: GamepadState) -> GamepadState {
+        let physical = pad.merged(with: keyboardGamepadState)
+        guard let touchGamepadState else { return physical }
+
+        return physical.merged(withTouch: touchGamepadState)
+    }
+
+    private func gatedPlayerOne() -> GamepadState? {
+        let hasPlayerOne =
+            gamepadStates[0] != nil || touchGamepadState != nil
+            || keyboardGamepadState != GamepadState()
+        guard hasPlayerOne else { return nil }
+
+        return playerOne(gamepadStates[0] ?? GamepadState())
+    }
+
     public func setKeyboard(_ state: GamepadState) {
         lock.withLock {
             keyboardGamepadState = state
@@ -49,6 +73,12 @@ public final class GamepadRouter: @unchecked Sendable {
             destination?(0, self.state(for: 0))
 
             record(state, from: .controller)
+        }
+    }
+
+    private func record(_ state: GamepadState, from input: ActiveInput) {
+        if let flipped = activeInput.record(state, from: input) {
+            onActiveInputChange?(flipped)
         }
     }
 
@@ -92,36 +122,6 @@ public final class GamepadRouter: @unchecked Sendable {
             if let state {
                 record(state, from: .touch)
             }
-        }
-    }
-
-    private func state(for slot: UInt8) -> GamepadState? {
-        switch (slot, controllerRouting) {
-        case (0, .direct): playerOne(gamepadStates[0] ?? GamepadState())
-        case (0, .gated): gatedPlayerOne()
-        default: gamepadStates[slot]
-        }
-    }
-
-    private func gatedPlayerOne() -> GamepadState? {
-        let hasPlayerOne =
-            gamepadStates[0] != nil || touchGamepadState != nil
-            || keyboardGamepadState != GamepadState()
-        guard hasPlayerOne else { return nil }
-
-        return playerOne(gamepadStates[0] ?? GamepadState())
-    }
-
-    private func playerOne(_ pad: GamepadState) -> GamepadState {
-        let physical = pad.merged(with: keyboardGamepadState)
-        guard let touchGamepadState else { return physical }
-
-        return physical.merged(withTouch: touchGamepadState)
-    }
-
-    private func record(_ state: GamepadState, from input: ActiveInput) {
-        if let flipped = activeInput.record(state, from: input) {
-            onActiveInputChange?(flipped)
         }
     }
 

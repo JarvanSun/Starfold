@@ -28,14 +28,6 @@ final class RumblePlayer {
         guard !hapticEngines.isEmpty else { return nil }
     }
 
-    init?(device: CHHapticDeviceCapability) {
-        guard device.supportsHaptics, let engine = try? CHHapticEngine() else { return nil }
-
-        engine.playsHapticsOnly = true
-        try? engine.start()
-        hapticEngines[.default] = engine
-    }
-
     private func startLocalizedEngines(_ haptics: GCDeviceHaptics) {
         let localities: [GCHapticsLocality] = [
             .leftHandle, .rightHandle, .leftTrigger, .rightTrigger,
@@ -60,6 +52,14 @@ final class RumblePlayer {
         }
     }
 
+    private func startPlayer(_ pattern: CHHapticPattern, on engine: CHHapticEngine) throws
+        -> CHHapticPatternPlayer
+    {
+        let player = try engine.makePlayer(with: pattern)
+        try player.start(atTime: CHHapticTimeImmediate)
+        return player
+    }
+
     private func restartEngineAndStartPlayer(
         _ pattern: CHHapticPattern,
         on engine: CHHapticEngine
@@ -74,12 +74,12 @@ final class RumblePlayer {
         }
     }
 
-    private func startPlayer(_ pattern: CHHapticPattern, on engine: CHHapticEngine) throws
-        -> CHHapticPatternPlayer
-    {
-        let player = try engine.makePlayer(with: pattern)
-        try player.start(atTime: CHHapticTimeImmediate)
-        return player
+    init?(device: CHHapticDeviceCapability) {
+        guard device.supportsHaptics, let engine = try? CHHapticEngine() else { return nil }
+
+        engine.playsHapticsOnly = true
+        try? engine.start()
+        hapticEngines[.default] = engine
     }
 
     func play(_ effect: VibrationEffect) {

@@ -57,12 +57,8 @@ public struct PrimaryButtonStyle: ButtonStyle {
         )
     }
 
-    private var rim: some View {
-        let rimOpacity = 0.35
-
-        return Capsule()
-            .strokeBorder(.white.opacity(rimOpacity), lineWidth: dimensions.hairline)
-            .blendMode(.overlay)
+    private func isHoverLit(isPressed: Bool) -> Bool {
+        isHovering && isEnabled && !isPressed
     }
 
     private func glow(isPressed: Bool) -> Color {
@@ -70,15 +66,6 @@ public struct PrimaryButtonStyle: ButtonStyle {
         let pressedGlowOpacity = 0.2
 
         return glowColor.opacity(isPressed ? pressedGlowOpacity : glowOpacity)
-    }
-
-    private var glowColor: Color {
-        let shadowOpacity = 0.6
-
-        return switch palette.hasPrimaryGlow {
-        case true: palette.primaryTint
-        case false: .black.opacity(shadowOpacity)
-        }
     }
 
     private func glowRadius(isPressed: Bool) -> CGFloat {
@@ -92,8 +79,21 @@ public struct PrimaryButtonStyle: ButtonStyle {
         return growsUnderPointer ? hoverGrowth : 1
     }
 
-    private func isHoverLit(isPressed: Bool) -> Bool {
-        isHovering && isEnabled && !isPressed
+    private var rim: some View {
+        let rimOpacity = 0.35
+
+        return Capsule()
+            .strokeBorder(.white.opacity(rimOpacity), lineWidth: dimensions.hairline)
+            .blendMode(.overlay)
+    }
+
+    private var glowColor: Color {
+        let shadowOpacity = 0.6
+
+        return switch palette.hasPrimaryGlow {
+        case true: palette.primaryTint
+        case false: .black.opacity(shadowOpacity)
+        }
     }
 
     private var pressAnimation: Animation {

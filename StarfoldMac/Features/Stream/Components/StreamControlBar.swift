@@ -45,6 +45,19 @@ struct StreamControlBar: View {
         .environment(\.colorScheme, .dark)
     }
 
+    private func pictureInPictureButton(_ pictureInPicture: StreamPictureInPicture) -> some View {
+        Button {
+            pictureInPicture.toggle()
+        } label: {
+            Label(
+                String(localized: "stream.controlBar.pictureInPicture.label"),
+                systemImage: "pip.enter"
+            )
+        }
+        .disabled(!pictureInPicture.isPossible)
+        .help(Text("stream.controlBar.pictureInPicture.tooltip"))
+    }
+
     private var guideButton: some View {
         Button {
             streamViewModel.openGuide()
@@ -63,19 +76,6 @@ struct StreamControlBar: View {
         }
         .toggleStyle(.button)
         .help(Text("stream.controlBar.statistics.tooltip"))
-    }
-
-    private func pictureInPictureButton(_ pictureInPicture: StreamPictureInPicture) -> some View {
-        Button {
-            pictureInPicture.toggle()
-        } label: {
-            Label(
-                String(localized: "stream.controlBar.pictureInPicture.label"),
-                systemImage: "pip.enter"
-            )
-        }
-        .disabled(!pictureInPicture.isPossible)
-        .help(Text("stream.controlBar.pictureInPicture.tooltip"))
     }
 
     private var fullScreenButton: some View {

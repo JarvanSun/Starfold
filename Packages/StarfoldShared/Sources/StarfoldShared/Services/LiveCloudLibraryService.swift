@@ -71,6 +71,24 @@ struct LiveCloudLibraryService: CloudLibraryService {
         return .init(httpClient: httpClient, market: market, language: language)
     }
 
+    private func games(for titles: [CloudTitle], from catalog: CatalogClient) async -> [CloudGame] {
+        let products = await catalogProducts(for: titles, from: catalog)
+        return titles.map { CloudGame(title: $0, product: products[$0.productID.uppercased()]) }
+    }
+
+    private func catalogProducts(
+        for titles: [CloudTitle],
+        from catalog: CatalogClient
+    ) async -> [String: CatalogProduct] {
+        do {
+            return try await catalog.products(titles.map(\.productID))
+        } catch {
+            log.error("Catalog lookup failed: \(String(describing: error), privacy: .public)")
+
+            return [:]
+        }
+    }
+
     private func curatedLists(
         of games: [CloudGame],
         from catalog: CatalogClient
@@ -90,24 +108,6 @@ struct LiveCloudLibraryService: CloudLibraryService {
         }
 
         return lists
-    }
-
-    private func games(for titles: [CloudTitle], from catalog: CatalogClient) async -> [CloudGame] {
-        let products = await catalogProducts(for: titles, from: catalog)
-        return titles.map { CloudGame(title: $0, product: products[$0.productID.uppercased()]) }
-    }
-
-    private func catalogProducts(
-        for titles: [CloudTitle],
-        from catalog: CatalogClient
-    ) async -> [String: CatalogProduct] {
-        do {
-            return try await catalog.products(titles.map(\.productID))
-        } catch {
-            log.error("Catalog lookup failed: \(String(describing: error), privacy: .public)")
-
-            return [:]
-        }
     }
 
     private func access(for titles: [CloudTitle], isFreeToPlayOffering: Bool) -> CloudAccess {

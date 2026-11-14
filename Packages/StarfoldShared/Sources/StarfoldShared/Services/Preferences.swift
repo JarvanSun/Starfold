@@ -143,6 +143,22 @@ public final class Preferences {
         touchSticks = storedTouchSticks() ?? .init()
     }
 
+    private func storedTouchLayout(for orientation: TouchOrientation) -> TouchLayoutAdjustments? {
+        let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
+        return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
+    }
+
+    private func touchLayoutKey(for orientation: TouchOrientation) -> String {
+        let touchLayoutKeyPrefix = "touchLayout."
+
+        return touchLayoutKeyPrefix + orientation.rawValue
+    }
+
+    private func storedTouchSticks() -> TouchSticks? {
+        let stored: Data? = defaults.object(for: .touchSticks)
+        return stored.flatMap { try? JSONDecoder().decode(TouchSticks.self, from: $0) }
+    }
+
     func touchLayoutAdjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
         touchLayouts[orientation] ?? .init()
     }
@@ -155,22 +171,6 @@ public final class Preferences {
 
         let encoded = try? JSONEncoder().encode(adjustments)
         defaults.set(encoded, forKey: touchLayoutKey(for: orientation))
-    }
-
-    private func storedTouchLayout(for orientation: TouchOrientation) -> TouchLayoutAdjustments? {
-        let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
-        return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
-    }
-
-    private func storedTouchSticks() -> TouchSticks? {
-        let stored: Data? = defaults.object(for: .touchSticks)
-        return stored.flatMap { try? JSONDecoder().decode(TouchSticks.self, from: $0) }
-    }
-
-    private func touchLayoutKey(for orientation: TouchOrientation) -> String {
-        let touchLayoutKeyPrefix = "touchLayout."
-
-        return touchLayoutKeyPrefix + orientation.rawValue
     }
 
     public func favorites(for xuid: String) -> FavoritesStore {

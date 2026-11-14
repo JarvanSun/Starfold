@@ -28,6 +28,14 @@ struct RootView: View {
             .onChange(of: appViewModel.streamPresentationRequest) { showStreamWindow() }
     }
 
+    private func presentSignIn() {
+        isSignInPresented = true
+    }
+
+    private func showStreamWindow() {
+        pushWindow(id: SceneID.stream.rawValue)
+    }
+
     @ViewBuilder
     private var content: some View {
         switch (
@@ -47,10 +55,6 @@ struct RootView: View {
         )
     }
 
-    private func presentSignIn() {
-        isSignInPresented = true
-    }
-
     private var signedOutTabs: some View {
         TabView {
             Tab("app.tab.signIn", systemImage: "person.crop.circle") {
@@ -61,10 +65,6 @@ struct RootView: View {
                 SettingsHostView()
             }
         }
-    }
-
-    private func showStreamWindow() {
-        pushWindow(id: SceneID.stream.rawValue)
     }
 }
 

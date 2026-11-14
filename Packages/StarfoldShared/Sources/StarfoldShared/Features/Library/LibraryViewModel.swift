@@ -149,6 +149,10 @@ public final class LibraryViewModel {
         cloudState = .loaded
     }
 
+    private func isNamed(_ name: String, before otherName: String) -> Bool {
+        name.localizedStandardCompare(otherName) == .orderedAscending
+    }
+
     public func refresh() async {
         cloudState = .loading
 
@@ -247,10 +251,6 @@ public final class LibraryViewModel {
             case (nil, nil): isNamed(lhs.name, before: rhs.name)
             }
         }
-    }
-
-    private func isNamed(_ name: String, before otherName: String) -> Bool {
-        name.localizedStandardCompare(otherName) == .orderedAscending
     }
 }
 

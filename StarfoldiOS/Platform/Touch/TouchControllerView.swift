@@ -85,6 +85,17 @@ final class TouchControllerView: MTKView {
         }
     }
 
+    private func connectedController() -> TCTouchController {
+        touchController ?? makeController()
+    }
+
+    private func makeController() -> TCTouchController {
+        let controller = TCTouchController(descriptor: TCTouchControllerDescriptor(mtkView: self))
+        controller.connect()
+        touchController = controller
+        return controller
+    }
+
     func apply(_ mode: TouchControlsMode) {
         isPaused = mode == .hidden
         isHidden = mode == .hidden
@@ -101,22 +112,19 @@ final class TouchControllerView: MTKView {
         }
     }
 
+    private func releaseAllTouches() {
+        for touch in touches.values {
+            _ = touchController?.handleTouchEnded(at: touch.point, index: touch.index)
+        }
+
+        touches.removeAll()
+    }
+
     func disconnect() {
         touchController?.disconnect()
         touchController = nil
         controlPlan = nil
         placedControls = [:]
-    }
-
-    private func connectedController() -> TCTouchController {
-        touchController ?? makeController()
-    }
-
-    private func makeController() -> TCTouchController {
-        let controller = TCTouchController(descriptor: TCTouchControllerDescriptor(mtkView: self))
-        controller.connect()
-        touchController = controller
-        return controller
     }
 
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
@@ -173,10 +181,6 @@ final class TouchControllerView: MTKView {
         end(touches)
     }
 
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        end(touches)
-    }
-
     private func end(_ touches: Set<UITouch>) {
         for touch in touches {
             guard let tracked = self.touches.removeValue(forKey: ObjectIdentifier(touch)) else {
@@ -190,12 +194,8 @@ final class TouchControllerView: MTKView {
         }
     }
 
-    private func releaseAllTouches() {
-        for touch in touches.values {
-            _ = touchController?.handleTouchEnded(at: touch.point, index: touch.index)
-        }
-
-        touches.removeAll()
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        end(touches)
     }
 }
 

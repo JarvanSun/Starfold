@@ -51,6 +51,34 @@ public struct XboxLiveClient: Sendable {
         return profile(of: user)
     }
 
+    private func headers(
+        contractVersion: Int,
+        adding extraHeaders: [String: String] = [:]
+    ) async throws -> [String: String] {
+        var headers = [
+            "Authorization": try await authorization(),
+            "x-xbl-contract-version": String(contractVersion),
+            "Accept-Language": Locale.preferredLanguages.first ?? "en-US",
+            "Accept": "application/json",
+            "x-xbl-client-name": "XboxApp",
+            "x-xbl-client-type": "UWA",
+            "x-xbl-client-version": "39.39.22001.0",
+        ]
+        headers.merge(extraHeaders) { _, new in new }
+        return headers
+    }
+
+    private func profile(of user: ProfileResponse.User) -> XboxProfile {
+        let settings = Dictionary(user.settings.map { ($0.id, $0.value) }) { first, _ in first }
+        let modernGamertag = settings["ModernGamertag"].flatMap { $0.isEmpty ? nil : $0 }
+        return .init(
+            xuid: user.id,
+            gamertag: modernGamertag ?? settings["Gamertag"] ?? user.id,
+            gamerscore: settings["Gamerscore"].flatMap(Int.init),
+            pictureURL: settings["GameDisplayPicRaw"].flatMap(URL.init(upgradingXboxImageToHTTPS:))
+        )
+    }
+
     public func consoleActivity(xuid: String) async throws -> ConsoleActivity? {
         async let presence = currentConsoleTitle(xuid: xuid)
         async let history = recentTitles(xuid: xuid)
@@ -84,12 +112,6 @@ public struct XboxLiveClient: Sendable {
         return titles.first { $0.placement == "Full" } ?? titles.first
     }
 
-    private func isActiveGame(_ title: PresenceResponse.Title) -> Bool {
-        let dashboardTitleID = "750323071"
-
-        return title.id != dashboardTitleID && title.state != "Inactive"
-    }
-
     private func recentTitles(xuid: String) async throws -> [HistoryTitle] {
         let response = try await httpClient.decodedBody(
             TitleHistoryResponse.self,
@@ -104,21 +126,10 @@ public struct XboxLiveClient: Sendable {
         return response.titles
     }
 
-    private func headers(
-        contractVersion: Int,
-        adding extraHeaders: [String: String] = [:]
-    ) async throws -> [String: String] {
-        var headers = [
-            "Authorization": try await authorization(),
-            "x-xbl-contract-version": String(contractVersion),
-            "Accept-Language": Locale.preferredLanguages.first ?? "en-US",
-            "Accept": "application/json",
-            "x-xbl-client-name": "XboxApp",
-            "x-xbl-client-type": "UWA",
-            "x-xbl-client-version": "39.39.22001.0",
-        ]
-        headers.merge(extraHeaders) { _, new in new }
-        return headers
+    private func isActiveGame(_ title: PresenceResponse.Title) -> Bool {
+        let dashboardTitleID = "750323071"
+
+        return title.id != dashboardTitleID && title.state != "Inactive"
     }
 
     public func consoles() async throws -> [Console] {
@@ -188,17 +199,6 @@ public struct XboxLiveClient: Sendable {
         }
 
         return .init(code: code, message: status.errorMessage)
-    }
-
-    private func profile(of user: ProfileResponse.User) -> XboxProfile {
-        let settings = Dictionary(user.settings.map { ($0.id, $0.value) }) { first, _ in first }
-        let modernGamertag = settings["ModernGamertag"].flatMap { $0.isEmpty ? nil : $0 }
-        return .init(
-            xuid: user.id,
-            gamertag: modernGamertag ?? settings["Gamertag"] ?? user.id,
-            gamerscore: settings["Gamerscore"].flatMap(Int.init),
-            pictureURL: settings["GameDisplayPicRaw"].flatMap(URL.init(upgradingXboxImageToHTTPS:))
-        )
     }
 }
 

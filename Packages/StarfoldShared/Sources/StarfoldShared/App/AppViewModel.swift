@@ -78,6 +78,110 @@ public final class AppViewModel: SigningIn, SessionControlling {
         activateOrShowWelcome(preferred)
     }
 
+    private func activateOrShowWelcome(_ account: SignedInAccount?) {
+        switch account {
+        case let account?: activate(account)
+        case nil: sessionState = .signedOut
+        }
+    }
+
+    private func activate(_ account: SignedInAccount) {
+        activeAccountID = account.id
+        preferences.lastAccountID = account.id
+        sessionState = .signedIn
+        profile = nil
+
+        let homeViewModel = makeHome(for: account)
+        let libraryViewModel = makeLibrary(for: account)
+        self.homeViewModel = homeViewModel
+        self.libraryViewModel = libraryViewModel
+
+        loadInBackground(account, homeViewModel: homeViewModel, libraryViewModel: libraryViewModel)
+
+        restartConsoleRefresh()
+    }
+
+    private func makeHome(for account: SignedInAccount) -> HomeViewModel {
+        let homeViewModel = HomeViewModel(
+            accountID: account.id,
+            consoleService: account.consoleService,
+            libraryCache: libraryCache,
+            clock: ContinuousClock()
+        )
+        homeViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
+        homeViewModel.onPlay = { [weak self] in self?.requestPlay($0) }
+        homeViewModel.onRefreshAccount = { [weak self] in await self?.refresh() }
+        return homeViewModel
+    }
+
+    private func requestPlay(_ target: StreamTarget) {
+        switch onPlayRequest {
+        case let onPlayRequest?: onPlayRequest(target)
+        case nil: playInBackground(target)
+        }
+    }
+
+    private func playInBackground(_ target: StreamTarget) {
+        playTask?.cancel()
+        playTask = Task { await play(target) }
+    }
+
+    private func makeLibrary(for account: SignedInAccount) -> LibraryViewModel {
+        let libraryViewModel = LibraryViewModel(
+            accountID: account.id,
+            cloudLibraryService: account.cloudLibraryService,
+            preferences: preferences,
+            libraryCache: libraryCache
+        )
+        libraryViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
+        libraryViewModel.onPlay = { [weak self] in self?.requestPlay($0) }
+        return libraryViewModel
+    }
+
+    private func loadInBackground(
+        _ account: SignedInAccount,
+        homeViewModel: HomeViewModel,
+        libraryViewModel: LibraryViewModel
+    ) {
+        loadTask?.cancel()
+        loadTask = Task {
+            async let profileLoad: Void = loadProfile(account)
+            async let homeLoad: Void = homeViewModel.refresh()
+            async let libraryLoad: Void = libraryViewModel.refresh()
+            _ = await (profileLoad, homeLoad, libraryLoad)
+        }
+    }
+
+    private func loadProfile(_ account: SignedInAccount) async {
+        do {
+            let profile = try await accountService.profile(of: account)
+            guard !Task.isCancelled else { return }
+
+            self.profile = profile
+
+            updateGamertag(of: account, to: profile.gamertag)
+        } catch XboxAccountError.signInRequired {
+            isSignInExpired = true
+        } catch {
+            log.error("Profile failed: \(String(describing: error))")
+        }
+    }
+
+    private func updateGamertag(of account: SignedInAccount, to gamertag: String) {
+        guard let index = accounts.firstIndex(where: { $0.id == account.id }) else { return }
+
+        accounts[index].gamertag = gamertag
+    }
+
+    private func restartConsoleRefresh() {
+        consoleRefreshTask?.cancel()
+        consoleRefreshTask = nil
+
+        guard isActive, let homeViewModel else { return }
+
+        consoleRefreshTask = Task { await homeViewModel.keepConsolesFresh() }
+    }
+
     public func makeSignInViewModel() -> SignInViewModel {
         .init(signInService: self, clock: ContinuousClock())
     }
@@ -126,110 +230,6 @@ public final class AppViewModel: SigningIn, SessionControlling {
         activateOrShowWelcome(accounts.first.flatMap { signedInAccounts[$0.id] })
     }
 
-    private func activateOrShowWelcome(_ account: SignedInAccount?) {
-        switch account {
-        case let account?: activate(account)
-        case nil: sessionState = .signedOut
-        }
-    }
-
-    private func activate(_ account: SignedInAccount) {
-        activeAccountID = account.id
-        preferences.lastAccountID = account.id
-        sessionState = .signedIn
-        profile = nil
-
-        let homeViewModel = makeHome(for: account)
-        let libraryViewModel = makeLibrary(for: account)
-        self.homeViewModel = homeViewModel
-        self.libraryViewModel = libraryViewModel
-
-        loadInBackground(account, homeViewModel: homeViewModel, libraryViewModel: libraryViewModel)
-
-        restartConsoleRefresh()
-    }
-
-    private func makeHome(for account: SignedInAccount) -> HomeViewModel {
-        let homeViewModel = HomeViewModel(
-            accountID: account.id,
-            consoleService: account.consoleService,
-            libraryCache: libraryCache,
-            clock: ContinuousClock()
-        )
-        homeViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
-        homeViewModel.onPlay = { [weak self] in self?.requestPlay($0) }
-        homeViewModel.onRefreshAccount = { [weak self] in await self?.refresh() }
-        return homeViewModel
-    }
-
-    private func makeLibrary(for account: SignedInAccount) -> LibraryViewModel {
-        let libraryViewModel = LibraryViewModel(
-            accountID: account.id,
-            cloudLibraryService: account.cloudLibraryService,
-            preferences: preferences,
-            libraryCache: libraryCache
-        )
-        libraryViewModel.onSignInRequired = { [weak self] in self?.isSignInExpired = true }
-        libraryViewModel.onPlay = { [weak self] in self?.requestPlay($0) }
-        return libraryViewModel
-    }
-
-    private func requestPlay(_ target: StreamTarget) {
-        switch onPlayRequest {
-        case let onPlayRequest?: onPlayRequest(target)
-        case nil: playInBackground(target)
-        }
-    }
-
-    private func playInBackground(_ target: StreamTarget) {
-        playTask?.cancel()
-        playTask = Task { await play(target) }
-    }
-
-    private func loadInBackground(
-        _ account: SignedInAccount,
-        homeViewModel: HomeViewModel,
-        libraryViewModel: LibraryViewModel
-    ) {
-        loadTask?.cancel()
-        loadTask = Task {
-            async let profileLoad: Void = loadProfile(account)
-            async let homeLoad: Void = homeViewModel.refresh()
-            async let libraryLoad: Void = libraryViewModel.refresh()
-            _ = await (profileLoad, homeLoad, libraryLoad)
-        }
-    }
-
-    private func loadProfile(_ account: SignedInAccount) async {
-        do {
-            let profile = try await accountService.profile(of: account)
-            guard !Task.isCancelled else { return }
-
-            self.profile = profile
-
-            updateGamertag(of: account, to: profile.gamertag)
-        } catch XboxAccountError.signInRequired {
-            isSignInExpired = true
-        } catch {
-            log.error("Profile failed: \(String(describing: error))")
-        }
-    }
-
-    private func updateGamertag(of account: SignedInAccount, to gamertag: String) {
-        guard let index = accounts.firstIndex(where: { $0.id == account.id }) else { return }
-
-        accounts[index].gamertag = gamertag
-    }
-
-    private func restartConsoleRefresh() {
-        consoleRefreshTask?.cancel()
-        consoleRefreshTask = nil
-
-        guard isActive, let homeViewModel else { return }
-
-        consoleRefreshTask = Task { await homeViewModel.keepConsolesFresh() }
-    }
-
     public func refresh() async {
         guard let homeViewModel, let libraryViewModel else { return }
 
@@ -254,18 +254,6 @@ public final class AppViewModel: SigningIn, SessionControlling {
         requestStreamPresentation()
     }
 
-    private func requestStreamPresentation() {
-        guard streamViewModel != nil else { return }
-
-        streamPresentationRequest += 1
-    }
-
-    public func restartStream() async {
-        guard let target = streamViewModel?.target else { return }
-
-        await startStream(target)
-    }
-
     private func startStream(_ target: StreamTarget) async {
         guard let account = activeAccount else { return }
 
@@ -288,10 +276,6 @@ public final class AppViewModel: SigningIn, SessionControlling {
         streamHomeViewModel = homeViewModel
 
         streamViewModel.start()
-    }
-
-    private var activeAccount: SignedInAccount? {
-        activeAccountID.flatMap { signedInAccounts[$0] }
     }
 
     private func keepLastFrame(of streamViewModel: StreamViewModel) {
@@ -325,6 +309,22 @@ public final class AppViewModel: SigningIn, SessionControlling {
         let allowed = AdaptiveQuality(target: target)
             .requestedQuality(for: choice, hasGamePass: libraryViewModel?.cloudAccess == .gamePass)
         return allowed != choice.requestedQuality ? allowed : nil
+    }
+
+    private func requestStreamPresentation() {
+        guard streamViewModel != nil else { return }
+
+        streamPresentationRequest += 1
+    }
+
+    public func restartStream() async {
+        guard let target = streamViewModel?.target else { return }
+
+        await startStream(target)
+    }
+
+    private var activeAccount: SignedInAccount? {
+        activeAccountID.flatMap { signedInAccounts[$0] }
     }
 
     public func endStream() async {

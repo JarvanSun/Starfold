@@ -28,6 +28,14 @@ struct RootView: View {
             .task { createStreamPresenter() }
     }
 
+    private func createStreamPresenter() {
+        guard streamPresenter == nil else { return }
+
+        let presenter = StreamPresenter(appViewModel: appViewModel)
+        appViewModel.onPlayRequest = { [weak presenter] in presenter?.start($0) }
+        streamPresenter = presenter
+    }
+
     @ViewBuilder
     private var content: some View {
         switch streamPresenter {
@@ -70,6 +78,14 @@ struct RootView: View {
         .onOpenURL { url in open(url, presenter: presenter) }
         .onChange(of: appViewModel.sessionState) { followPendingLink(presenter) }
         .onChange(of: scenePhase, initial: true) { _, phase in apply(phase, presenter: presenter) }
+    }
+
+    @ViewBuilder
+    private func background(isStreamPresented: Bool) -> some View {
+        switch isStreamPresented {
+        case true: Color.black.ignoresSafeArea()
+        case false: SkyBackground()
+        }
     }
 
     @ViewBuilder
@@ -191,22 +207,6 @@ struct RootView: View {
         if phase != .active { appViewModel.controllerHub.routeInput(toGame: false) }
 
         if phase == .background { backgroundCleanup.end(presenter) }
-    }
-
-    @ViewBuilder
-    private func background(isStreamPresented: Bool) -> some View {
-        switch isStreamPresented {
-        case true: Color.black.ignoresSafeArea()
-        case false: SkyBackground()
-        }
-    }
-
-    private func createStreamPresenter() {
-        guard streamPresenter == nil else { return }
-
-        let presenter = StreamPresenter(appViewModel: appViewModel)
-        appViewModel.onPlayRequest = { [weak presenter] in presenter?.start($0) }
-        streamPresenter = presenter
     }
 }
 

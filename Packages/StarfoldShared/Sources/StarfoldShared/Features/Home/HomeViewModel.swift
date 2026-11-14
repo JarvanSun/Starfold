@@ -135,6 +135,13 @@ public final class HomeViewModel {
         }
     }
 
+    private func saveSnapshot() {
+        libraryCache.save(
+            HomeSnapshot(consoles: consoles, lastPlayedHere: lastPlayedHere),
+            for: accountID
+        )
+    }
+
     private func recordFailure(_ error: Error) {
         if case XboxAccountError.signInRequired = error {
             onSignInRequired()
@@ -166,13 +173,6 @@ public final class HomeViewModel {
 
         activity.kind = .lastPlayedHere
         lastPlayedHere[console.id] = activity
-    }
-
-    private func saveSnapshot() {
-        libraryCache.save(
-            HomeSnapshot(consoles: consoles, lastPlayedHere: lastPlayedHere),
-            for: accountID
-        )
     }
 
     func keepConsolesFresh(

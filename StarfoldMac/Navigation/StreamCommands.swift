@@ -118,6 +118,10 @@ struct StreamCommands: Commands {
         }
     }
 
+    private func shortcutKey(at index: Int) -> KeyEquivalent {
+        .init(Character("\(index + 1)"))
+    }
+
     private func isSelected(_ fit: PictureFit) -> Binding<Bool> {
         .init(
             get: { settingsViewModel.pictureFit == fit },
@@ -149,10 +153,6 @@ struct StreamCommands: Commands {
                 }
             }
         )
-    }
-
-    private func shortcutKey(at index: Int) -> KeyEquivalent {
-        .init(Character("\(index + 1)"))
     }
 
     private var keyboardControllerToggle: some View {

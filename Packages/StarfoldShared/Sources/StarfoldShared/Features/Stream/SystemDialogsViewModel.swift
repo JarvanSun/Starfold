@@ -37,20 +37,20 @@ public final class SystemDialogsViewModel {
         answerKeyboard(dialog, text: text)
     }
 
-    public func cancel(_ dialog: SystemDialogRequest) {
-        switch dialog.kind {
-        case .message(_, _, _, _, let cancelIndex?): answer(dialog, buttonIndex: cancelIndex)
-        case .message(_, _, _, _, nil): break
-        case .keyboard: answerKeyboard(dialog, text: nil)
-        }
-    }
-
     private func answerKeyboard(_ dialog: SystemDialogRequest, text: String?) {
         remove(id: dialog.id)
 
         guard let streamConnection else { return }
 
         Task { await streamConnection.answerKeyboard(id: dialog.id, text: text) }
+    }
+
+    public func cancel(_ dialog: SystemDialogRequest) {
+        switch dialog.kind {
+        case .message(_, _, _, _, let cancelIndex?): answer(dialog, buttonIndex: cancelIndex)
+        case .message(_, _, _, _, nil): break
+        case .keyboard: answerKeyboard(dialog, text: nil)
+        }
     }
 
     public func buttons(of dialog: SystemDialogRequest) -> [DialogButton] {
@@ -98,17 +98,17 @@ public final class SystemDialogsViewModel {
         draftTextForPresentedDialog()
     }
 
-    func remove(id: String) {
-        dialogQueue.removeAll { $0.id == id }
-
-        draftTextForPresentedDialog()
-    }
-
     private func draftTextForPresentedDialog() {
         guard draftedDialogID != presentedDialog?.id else { return }
 
         draftedDialogID = presentedDialog?.id
         text = presentedDialog?.defaultText ?? ""
+    }
+
+    func remove(id: String) {
+        dialogQueue.removeAll { $0.id == id }
+
+        draftTextForPresentedDialog()
     }
 }
 

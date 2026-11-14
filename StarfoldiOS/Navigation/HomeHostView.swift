@@ -42,6 +42,11 @@ struct HomeHostView: View {
         }
     }
 
+    private func gameDetail(_ game: CloudGame) -> some View {
+        GameDetailView(gameDetailViewModel: libraryViewModel.detail(for: game))
+            .background { SkyBackground() }
+    }
+
     private var cloudGaming: some View {
         cloudGamingContent
             .background { SkyBackground() }
@@ -71,11 +76,6 @@ struct HomeHostView: View {
 
     private func openGame(_ game: CloudGame) {
         path.append(.game(game))
-    }
-
-    private func gameDetail(_ game: CloudGame) -> some View {
-        GameDetailView(gameDetailViewModel: libraryViewModel.detail(for: game))
-            .background { SkyBackground() }
     }
 }
 

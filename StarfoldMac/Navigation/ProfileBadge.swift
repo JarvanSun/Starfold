@@ -34,6 +34,17 @@ struct ProfileBadge: View {
         .contentShape(.rect)
     }
 
+    private func gamerscoreLabel(_ gamerscore: Int) -> some View {
+        Label {
+            Text(gamerscore, format: .number)
+        } icon: {
+            gamerscoreSymbol
+        }
+        .labelStyle(GamerscoreLabelStyle(spacing: dimensions.spaceXSmall))
+        .font(.caption.monospacedDigit())
+        .foregroundStyle(.secondary)
+    }
+
     private var picture: some View {
         AsyncImage(url: profile?.pictureURL) { image in
             image.resizable().scaledToFill()
@@ -51,17 +62,6 @@ struct ProfileBadge: View {
         Text(gamertag)
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
-    }
-
-    private func gamerscoreLabel(_ gamerscore: Int) -> some View {
-        Label {
-            Text(gamerscore, format: .number)
-        } icon: {
-            gamerscoreSymbol
-        }
-        .labelStyle(GamerscoreLabelStyle(spacing: dimensions.spaceXSmall))
-        .font(.caption.monospacedDigit())
-        .foregroundStyle(.secondary)
     }
 
     private var gamerscoreSymbol: some View {

@@ -65,6 +65,11 @@ private struct TouchControlsPayload {
         }
     }
 
+    private func serialized(_ document: Any) -> Data? {
+        let options: JSONSerialization.WritingOptions = [.sortedKeys, .withoutEscapingSlashes]
+        return try? JSONSerialization.data(withJSONObject: document, options: options)
+    }
+
     var rawPatch: Data? {
         switch decodedText {
         case let document as [Any]: serialized(document)
@@ -83,10 +88,5 @@ private struct TouchControlsPayload {
         case true: .standard
         case false: .named(id)
         }
-    }
-
-    private func serialized(_ document: Any) -> Data? {
-        let options: JSONSerialization.WritingOptions = [.sortedKeys, .withoutEscapingSlashes]
-        return try? JSONSerialization.data(withJSONObject: document, options: options)
     }
 }

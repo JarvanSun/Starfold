@@ -82,55 +82,17 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         lock.withLock { self.observers = observers + resumptions + backgrounding }
     }
 
-    private func backgroundObservers() -> [NSObjectProtocol] {
-        #if os(iOS)
-        [
-            observe(UIApplication.didEnterBackgroundNotification) { [weak self] _ in
-                self?.setInBackground(true)
-            },
-            observe(UIApplication.willEnterForegroundNotification) { [weak self] _ in
-                self?.setInBackground(false)
-            },
-        ]
-        #else
-        []
-        #endif
+    private func observe(
+        _ name: Notification.Name,
+        using block: @escaping @Sendable (Notification) -> Void
+    ) -> NSObjectProtocol {
+        NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil, using: block)
     }
 
     private func rebuildIfCurrent(_ audioEngine: AVAudioEngine?) {
         guard let audioEngine, lock.withLock({ audioEngine === self.audioEngine }) else { return }
 
         recover(.rebuild("configuration change"))
-    }
-
-    private func setInBackground(_ isInBackground: Bool) {
-        let audioEngine = lock.withLock {
-            self.isInBackground = isInBackground
-            return self.audioEngine
-        }
-
-        audioEngine?.mainMixerNode.outputVolume = volume(isInBackground: isInBackground)
-
-        log.info(
-            "Audio \(isInBackground ? "muted in the background" : "unmuted", privacy: .public)"
-        )
-    }
-
-    private func volume(isInBackground: Bool) -> Float {
-        isInBackground ? 0 : 1
-    }
-
-    private func handleInterruption(_ userInfo: [AnyHashable: Any]?) {
-        let type = (userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt)
-            .flatMap(AVAudioSession.InterruptionType.init)
-        let reason = (userInfo?[AVAudioSessionInterruptionReasonKey] as? UInt) ?? 0
-        log.info(
-            "Audio interruption \(type == .ended ? "ended" : "began", privacy: .public), reason \(reason)"
-        )
-
-        if type == .ended {
-            recover(.resume("interruption ended"))
-        }
     }
 
     private func recover(_ recovery: PlayoutRecovery) {
@@ -152,6 +114,19 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         }
     }
 
+    private func handleInterruption(_ userInfo: [AnyHashable: Any]?) {
+        let type = (userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt)
+            .flatMap(AVAudioSession.InterruptionType.init)
+        let reason = (userInfo?[AVAudioSessionInterruptionReasonKey] as? UInt) ?? 0
+        log.info(
+            "Audio interruption \(type == .ended ? "ended" : "began", privacy: .public), reason \(reason)"
+        )
+
+        if type == .ended {
+            recover(.resume("interruption ended"))
+        }
+    }
+
     private func resumptionObservers() -> [NSObjectProtocol] {
         guard #available(iOS 27, tvOS 27, visionOS 27, *) else { return [] }
 
@@ -162,11 +137,36 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         return [observer]
     }
 
-    private func observe(
-        _ name: Notification.Name,
-        using block: @escaping @Sendable (Notification) -> Void
-    ) -> NSObjectProtocol {
-        NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil, using: block)
+    private func backgroundObservers() -> [NSObjectProtocol] {
+        #if os(iOS)
+        [
+            observe(UIApplication.didEnterBackgroundNotification) { [weak self] _ in
+                self?.setInBackground(true)
+            },
+            observe(UIApplication.willEnterForegroundNotification) { [weak self] _ in
+                self?.setInBackground(false)
+            },
+        ]
+        #else
+        []
+        #endif
+    }
+
+    private func setInBackground(_ isInBackground: Bool) {
+        let audioEngine = lock.withLock {
+            self.isInBackground = isInBackground
+            return self.audioEngine
+        }
+
+        audioEngine?.mainMixerNode.outputVolume = volume(isInBackground: isInBackground)
+
+        log.info(
+            "Audio \(isInBackground ? "muted in the background" : "unmuted", privacy: .public)"
+        )
+    }
+
+    private func volume(isInBackground: Bool) -> Float {
+        isInBackground ? 0 : 1
     }
 
     func terminateDevice() -> Bool {
@@ -242,97 +242,6 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
             case (_, false): "engine stopped"
             }
         recover(.rebuild(reason))
-    }
-
-    @discardableResult
-    func stopPlayout() -> Bool {
-        let audioEngine = lock.withLock {
-            defer {
-                self.audioEngine = nil
-                isPlayoutWanted = false
-            }
-            return self.audioEngine
-        }
-
-        if let audioEngine {
-            audioEngine.stop()
-
-            deactivateSession()
-        }
-
-        stopWatchdog()
-
-        return true
-    }
-
-    private func stopWatchdog() {
-        let timer = lock.withLock {
-            defer { meterTimer = nil }
-            return meterTimer
-        }
-        timer?.cancel()
-    }
-
-    func setBypassesSpatialAudio(_ bypassesSpatialAudio: Bool) {
-        let hasChanged = lock.withLock {
-            defer { self.bypassesSpatialAudio = bypassesSpatialAudio }
-            return self.bypassesSpatialAudio != bypassesSpatialAudio
-        }
-
-        if hasChanged {
-            recover(.rebuild("sound stage change"))
-        }
-    }
-
-    func initializeRecording() -> Bool { false }
-
-    func startRecording() -> Bool { false }
-
-    func stopRecording() -> Bool { true }
-
-    fileprivate func resume(_ audioEngine: AVAudioEngine?, after recovery: PlayoutRecovery) -> Bool
-    {
-        guard case .resume = recovery, let audioEngine else { return false }
-        guard !audioEngine.isRunning else { return true }
-
-        do {
-            try AVAudioSession.sharedInstance().setActive(true)
-
-            try audioEngine.start()
-            log.info("Audio resumed: \(recovery.description, privacy: .public)")
-
-            return true
-        } catch {
-            log.info(
-                "Audio restart failed, rebuilding: \(String(describing: error), privacy: .public)"
-            )
-
-            return false
-        }
-    }
-
-    fileprivate func rebuild(replacing current: AVAudioEngine?, after recovery: PlayoutRecovery) {
-        lock.withLock {
-            if self.audioEngine === current { self.audioEngine = nil }
-        }
-
-        stopUnlessReplaced(current, recovery: recovery)
-
-        switch startEngine() {
-        case true:
-            log.info("Audio engine rebuilt: \(recovery.description, privacy: .public)")
-        case false:
-            log.error(
-                "Audio still unavailable after \(recovery.description, privacy: .public); will retry"
-            )
-        }
-    }
-
-    private func stopUnlessReplaced(_ audioEngine: AVAudioEngine?, recovery: PlayoutRecovery) {
-        switch recovery {
-        case .replace: break
-        case .resume, .rebuild: audioEngine?.stop()
-        }
     }
 
     @discardableResult
@@ -431,6 +340,97 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
         #else
         "n/a"
         #endif
+    }
+
+    @discardableResult
+    func stopPlayout() -> Bool {
+        let audioEngine = lock.withLock {
+            defer {
+                self.audioEngine = nil
+                isPlayoutWanted = false
+            }
+            return self.audioEngine
+        }
+
+        if let audioEngine {
+            audioEngine.stop()
+
+            deactivateSession()
+        }
+
+        stopWatchdog()
+
+        return true
+    }
+
+    private func stopWatchdog() {
+        let timer = lock.withLock {
+            defer { meterTimer = nil }
+            return meterTimer
+        }
+        timer?.cancel()
+    }
+
+    func setBypassesSpatialAudio(_ bypassesSpatialAudio: Bool) {
+        let hasChanged = lock.withLock {
+            defer { self.bypassesSpatialAudio = bypassesSpatialAudio }
+            return self.bypassesSpatialAudio != bypassesSpatialAudio
+        }
+
+        if hasChanged {
+            recover(.rebuild("sound stage change"))
+        }
+    }
+
+    func initializeRecording() -> Bool { false }
+
+    func startRecording() -> Bool { false }
+
+    func stopRecording() -> Bool { true }
+
+    fileprivate func resume(_ audioEngine: AVAudioEngine?, after recovery: PlayoutRecovery) -> Bool
+    {
+        guard case .resume = recovery, let audioEngine else { return false }
+        guard !audioEngine.isRunning else { return true }
+
+        do {
+            try AVAudioSession.sharedInstance().setActive(true)
+
+            try audioEngine.start()
+            log.info("Audio resumed: \(recovery.description, privacy: .public)")
+
+            return true
+        } catch {
+            log.info(
+                "Audio restart failed, rebuilding: \(String(describing: error), privacy: .public)"
+            )
+
+            return false
+        }
+    }
+
+    fileprivate func rebuild(replacing current: AVAudioEngine?, after recovery: PlayoutRecovery) {
+        lock.withLock {
+            if self.audioEngine === current { self.audioEngine = nil }
+        }
+
+        stopUnlessReplaced(current, recovery: recovery)
+
+        switch startEngine() {
+        case true:
+            log.info("Audio engine rebuilt: \(recovery.description, privacy: .public)")
+        case false:
+            log.error(
+                "Audio still unavailable after \(recovery.description, privacy: .public); will retry"
+            )
+        }
+    }
+
+    private func stopUnlessReplaced(_ audioEngine: AVAudioEngine?, recovery: PlayoutRecovery) {
+        switch recovery {
+        case .replace: break
+        case .resume, .rebuild: audioEngine?.stop()
+        }
     }
 }
 

@@ -89,11 +89,6 @@ struct StreamView: View {
         }
     }
 
-    private func appear() {
-        streamViewModel.revealControls()
-        controllerHub.routeInput(toGame: streamViewModel.isRoutingInputToGame)
-    }
-
     private func touchLayer(_ touchControlsViewModel: TouchControlsViewModel) -> some View {
         TouchControlsLayer(
             touchControlsViewModel: touchControlsViewModel,
@@ -106,6 +101,11 @@ struct StreamView: View {
         streamViewModel.revealControls()
 
         streamViewModel.touchControlsViewModel?.reveal()
+    }
+
+    private func appear() {
+        streamViewModel.revealControls()
+        controllerHub.routeInput(toGame: streamViewModel.isRoutingInputToGame)
     }
 
     private var statusView: some View {

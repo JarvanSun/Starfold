@@ -102,16 +102,16 @@ final class PictureInPictureView: NSView {
         fadeControls(to: 1, duration: 0.15)
     }
 
-    override func mouseExited(with event: NSEvent) {
-        fadeControls(to: 0, duration: 0.25)
-    }
-
     private func fadeControls(to alpha: CGFloat, duration: TimeInterval) {
         NSAnimationContext.runAnimationGroup { context in
             context.duration = duration
 
             controls.animator().alphaValue = alpha
         }
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        fadeControls(to: 0, duration: 0.25)
     }
 
     override func mouseDown(with event: NSEvent) {

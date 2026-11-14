@@ -31,18 +31,6 @@ final class LiveAccountService: AccountService {
         return accounts
     }
 
-    func beginSignIn() async throws -> DeviceCodePrompt {
-        try await accountStore.beginSignIn()
-    }
-
-    func completeSignIn(
-        _ prompt: DeviceCodePrompt,
-        onAuthorized: @escaping @MainActor () -> Void
-    ) async throws -> SignedInAccount {
-        let xboxAccount = try await accountStore.completeSignIn(prompt) { await onAuthorized() }
-        return await signedIn(xboxAccount)
-    }
-
     private func signedIn(_ xboxAccount: XboxAccount) async -> SignedInAccount {
         xboxAccounts[xboxAccount.xuid] = xboxAccount
 
@@ -59,6 +47,18 @@ final class LiveAccountService: AccountService {
                 streamRuntime: streamRuntime
             )
         )
+    }
+
+    func beginSignIn() async throws -> DeviceCodePrompt {
+        try await accountStore.beginSignIn()
+    }
+
+    func completeSignIn(
+        _ prompt: DeviceCodePrompt,
+        onAuthorized: @escaping @MainActor () -> Void
+    ) async throws -> SignedInAccount {
+        let xboxAccount = try await accountStore.completeSignIn(prompt) { await onAuthorized() }
+        return await signedIn(xboxAccount)
     }
 
     func profile(of account: SignedInAccount) async throws -> XboxProfile {

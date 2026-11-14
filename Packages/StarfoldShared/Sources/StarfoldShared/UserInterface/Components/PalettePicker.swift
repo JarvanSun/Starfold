@@ -23,10 +23,6 @@ public struct PalettePicker: View {
         }
     }
 
-    private var palettes: [Palette] {
-        PaletteID.allCases.map(Palette.init)
-    }
-
     private func option(for palette: Palette) -> some View {
         Label {
             Text(palette.name)
@@ -36,6 +32,10 @@ public struct PalettePicker: View {
                 .frame(width: dimensions.paletteSwatchSize, height: dimensions.paletteSwatchSize)
         }
         .tag(palette.id)
+    }
+
+    private var palettes: [Palette] {
+        PaletteID.allCases.map(Palette.init)
     }
 }
 

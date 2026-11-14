@@ -41,6 +41,14 @@ final class BackgroundStreamEnd {
         return true
     }
 
+    private func finish() {
+        guard backgroundTask != .invalid else { return }
+
+        UIApplication.shared.endBackgroundTask(backgroundTask)
+
+        backgroundTask = .invalid
+    }
+
     private func endNow(_ stop: @escaping () async -> Void) {
         deadlineWatch = nil
 
@@ -49,14 +57,6 @@ final class BackgroundStreamEnd {
 
             finish()
         }
-    }
-
-    private func finish() {
-        guard backgroundTask != .invalid else { return }
-
-        UIApplication.shared.endBackgroundTask(backgroundTask)
-
-        backgroundTask = .invalid
     }
 
     func endBeforeTimeRunsOut(_ stop: @escaping () async -> Void) {

@@ -27,6 +27,14 @@ final class InputSender: @unchecked Sendable {
         inputState.setChangeHandler { [weak self] in self?.signal() }
     }
 
+    private func signal() {
+        condition.withLock {
+            isSignalled = true
+
+            condition.signal()
+        }
+    }
+
     func start(peerConnection: PeerConnection, announcedPads: Set<UInt8>) {
         sendLock.withLock { self.announcedPads = announcedPads }
 
@@ -121,13 +129,5 @@ final class InputSender: @unchecked Sendable {
         }
 
         return sendLock.withLock { announcedPads }
-    }
-
-    private func signal() {
-        condition.withLock {
-            isSignalled = true
-
-            condition.signal()
-        }
     }
 }

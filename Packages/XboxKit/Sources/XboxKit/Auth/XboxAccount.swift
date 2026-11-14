@@ -60,141 +60,6 @@ public actor XboxAccount {
         return try await tokenClient.transferToken(refreshToken: refreshToken)
     }
 
-    public func homeClient(http: HTTPClient) async throws -> GSSVClient {
-        let token = try await homeStreamingToken()
-        guard let region = token.defaultRegion else {
-            throw XboxHTTPError(
-                url: StreamingOffering.home.loginURL,
-                statusCode: 0,
-                body: "No regions",
-                headers: [:]
-            )
-        }
-
-        return .init(kind: .home, baseURL: region.baseURL, httpClient: http) { [self] freshness in
-            if freshness == .refreshRequired {
-                await invalidateStreamingToken(.home)
-            }
-
-            return try await homeStreamingToken().token
-        }
-    }
-
-    public func cloudClient(http: HTTPClient) async throws -> GSSVClient {
-        let token = try await cloudStreamingToken()
-        guard let region = token.defaultRegion else {
-            throw XboxAccountError.cloudGamingUnavailable
-        }
-
-        let offering = token.offering
-        return .init(kind: .cloud, baseURL: region.baseURL, httpClient: http) { [self] freshness in
-            if freshness == .refreshRequired {
-                await invalidateStreamingToken(offering)
-            }
-
-            return try await cloudStreamingToken().token
-        }
-    }
-
-    private func invalidateStreamingToken(_ offering: StreamingOffering) {
-        storedAccount.streamingTokens[offering] = nil
-
-        save()
-    }
-
-    func webAuthorization() async throws -> String {
-        if let cached = storedAccount.webToken, cached.isValid(at: now()) {
-            return cached.authorizationHeader
-        }
-
-        let token = try await tokenClient.securityToken(
-            userToken: try await validUserToken(),
-            relyingParty: .xboxLive
-        )
-        storedAccount.webToken = token
-
-        if let gamertag = token.gamertag {
-            storedAccount.gamertag = gamertag
-        }
-
-        save()
-
-        return token.authorizationHeader
-    }
-
-    func homeStreamingToken() async throws -> StreamingToken {
-        try await streamingToken(.home)
-    }
-
-    func cloudStreamingToken() async throws -> StreamingToken {
-        var lastError: Error = XboxAccountError.cloudGamingUnavailable
-
-        for offering in cloudOfferingCandidates {
-            do {
-                let token = try await streamingToken(offering)
-
-                rememberCloudOffering(offering)
-
-                return token
-            } catch let error as XboxHTTPError where error.statusCode == 403 {
-                lastError = error
-            }
-        }
-
-        forgetLapsedCloudOffering()
-
-        throw lastError is XboxHTTPError ? XboxAccountError.cloudGamingUnavailable : lastError
-    }
-
-    private var cloudOfferingCandidates: [StreamingOffering] {
-        storedAccount.cloudOffering.map { [$0] } ?? [.cloud, .cloudFreeToPlay]
-    }
-
-    private func streamingToken(_ offering: StreamingOffering) async throws -> StreamingToken {
-        if let cached = storedAccount.streamingTokens[offering], cached.isValid(at: now()) {
-            return cached
-        }
-
-        let token = try await tokenClient.streamingToken(
-            gssvToken: try await validGSSVToken(),
-            offering: offering
-        )
-        storedAccount.streamingTokens[offering] = token
-
-        save()
-
-        return token
-    }
-
-    private func validGSSVToken() async throws -> XboxToken {
-        if let cached = storedAccount.gssvToken, cached.isValid(at: now()) {
-            return cached
-        }
-
-        let token = try await tokenClient.securityToken(
-            userToken: try await validUserToken(),
-            relyingParty: .gssv
-        )
-        storedAccount.gssvToken = token
-
-        save()
-
-        return token
-    }
-
-    private func validUserToken() async throws -> XboxToken {
-        if let userToken, userToken.isValid(at: now()) {
-            return userToken
-        }
-
-        let microsoftToken = try await validMicrosoftAccountToken()
-        let token = try await tokenClient.userToken(
-            microsoftAccessToken: microsoftToken.accessToken
-        )
-        userToken = token
-        return token
-    }
-
     private func validMicrosoftAccountToken() async throws -> MicrosoftAccountToken {
         switch (storedAccount.microsoftAccountToken.isValid(at: now()), refreshTask) {
         case (true, _): return storedAccount.microsoftAccountToken
@@ -234,6 +99,137 @@ public actor XboxAccount {
         }
     }
 
+    public func homeClient(http: HTTPClient) async throws -> GSSVClient {
+        let token = try await homeStreamingToken()
+        guard let region = token.defaultRegion else {
+            throw XboxHTTPError(
+                url: StreamingOffering.home.loginURL,
+                statusCode: 0,
+                body: "No regions",
+                headers: [:]
+            )
+        }
+
+        return .init(kind: .home, baseURL: region.baseURL, httpClient: http) { [self] freshness in
+            if freshness == .refreshRequired {
+                await invalidateStreamingToken(.home)
+            }
+
+            return try await homeStreamingToken().token
+        }
+    }
+
+    private func invalidateStreamingToken(_ offering: StreamingOffering) {
+        storedAccount.streamingTokens[offering] = nil
+
+        save()
+    }
+
+    public func cloudClient(http: HTTPClient) async throws -> GSSVClient {
+        let token = try await cloudStreamingToken()
+        guard let region = token.defaultRegion else {
+            throw XboxAccountError.cloudGamingUnavailable
+        }
+
+        let offering = token.offering
+        return .init(kind: .cloud, baseURL: region.baseURL, httpClient: http) { [self] freshness in
+            if freshness == .refreshRequired {
+                await invalidateStreamingToken(offering)
+            }
+
+            return try await cloudStreamingToken().token
+        }
+    }
+
+    func webAuthorization() async throws -> String {
+        if let cached = storedAccount.webToken, cached.isValid(at: now()) {
+            return cached.authorizationHeader
+        }
+
+        let token = try await tokenClient.securityToken(
+            userToken: try await validUserToken(),
+            relyingParty: .xboxLive
+        )
+        storedAccount.webToken = token
+
+        if let gamertag = token.gamertag {
+            storedAccount.gamertag = gamertag
+        }
+
+        save()
+
+        return token.authorizationHeader
+    }
+
+    private func validUserToken() async throws -> XboxToken {
+        if let userToken, userToken.isValid(at: now()) {
+            return userToken
+        }
+
+        let microsoftToken = try await validMicrosoftAccountToken()
+        let token = try await tokenClient.userToken(
+            microsoftAccessToken: microsoftToken.accessToken
+        )
+        userToken = token
+        return token
+    }
+
+    func homeStreamingToken() async throws -> StreamingToken {
+        try await streamingToken(.home)
+    }
+
+    private func streamingToken(_ offering: StreamingOffering) async throws -> StreamingToken {
+        if let cached = storedAccount.streamingTokens[offering], cached.isValid(at: now()) {
+            return cached
+        }
+
+        let token = try await tokenClient.streamingToken(
+            gssvToken: try await validGSSVToken(),
+            offering: offering
+        )
+        storedAccount.streamingTokens[offering] = token
+
+        save()
+
+        return token
+    }
+
+    private func validGSSVToken() async throws -> XboxToken {
+        if let cached = storedAccount.gssvToken, cached.isValid(at: now()) {
+            return cached
+        }
+
+        let token = try await tokenClient.securityToken(
+            userToken: try await validUserToken(),
+            relyingParty: .gssv
+        )
+        storedAccount.gssvToken = token
+
+        save()
+
+        return token
+    }
+
+    func cloudStreamingToken() async throws -> StreamingToken {
+        var lastError: Error = XboxAccountError.cloudGamingUnavailable
+
+        for offering in cloudOfferingCandidates {
+            do {
+                let token = try await streamingToken(offering)
+
+                rememberCloudOffering(offering)
+
+                return token
+            } catch let error as XboxHTTPError where error.statusCode == 403 {
+                lastError = error
+            }
+        }
+
+        forgetLapsedCloudOffering()
+
+        throw lastError is XboxHTTPError ? XboxAccountError.cloudGamingUnavailable : lastError
+    }
+
     private func rememberCloudOffering(_ offering: StreamingOffering) {
         if storedAccount.cloudOffering != offering {
             storedAccount.cloudOffering = offering
@@ -248,5 +244,9 @@ public actor XboxAccount {
 
             save()
         }
+    }
+
+    private var cloudOfferingCandidates: [StreamingOffering] {
+        storedAccount.cloudOffering.map { [$0] } ?? [.cloud, .cloudFreeToPlay]
     }
 }

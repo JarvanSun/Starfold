@@ -94,6 +94,19 @@ struct StreamView: View {
     }
 
     @ViewBuilder
+    private func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
+        switch streamViewModel {
+        case let streamViewModel?:
+            SystemDialogView(
+                systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
+                dialog: dialog
+            )
+            .interactiveDismissDisabled()
+        case nil: EmptyView()
+        }
+    }
+
+    @ViewBuilder
     private var menu: some View {
         switch streamViewModel {
         case let streamViewModel?:
@@ -108,19 +121,6 @@ struct StreamView: View {
 
     private var presentedDialog: Binding<SystemDialogRequest?> {
         .init(get: { streamViewModel?.systemDialogsViewModel.presentedDialog }, set: { _ in })
-    }
-
-    @ViewBuilder
-    private func dialogSheet(_ dialog: SystemDialogRequest) -> some View {
-        switch streamViewModel {
-        case let streamViewModel?:
-            SystemDialogView(
-                systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
-                dialog: dialog
-            )
-            .interactiveDismissDisabled()
-        case nil: EmptyView()
-        }
     }
 }
 

@@ -32,19 +32,6 @@ public final class XboxButtonSettings {
         changeObservation?.cancel()
     }
 
-    public func openSettings() {
-        do {
-            try settingsSource?.openSettings()
-        } catch {
-            log.error("Couldn't open the Xbox button settings: \(error)")
-        }
-    }
-
-    func setControllerConnected(_ isConnected: Bool) {
-        isControllerConnected = isConnected
-        refresh()
-    }
-
     private func refresh() {
         guard isControllerConnected, let settingsSource else {
             owner = .unknown
@@ -57,5 +44,18 @@ public final class XboxButtonSettings {
             log.error("Couldn't read the Xbox button setting: \(error)")
             owner = .unknown
         }
+    }
+
+    public func openSettings() {
+        do {
+            try settingsSource?.openSettings()
+        } catch {
+            log.error("Couldn't open the Xbox button settings: \(error)")
+        }
+    }
+
+    func setControllerConnected(_ isConnected: Bool) {
+        isControllerConnected = isConnected
+        refresh()
     }
 }

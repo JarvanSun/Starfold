@@ -12,12 +12,12 @@ public struct AppInfo {
         string(for: .displayName) ?? string(for: .bundleName) ?? ""
     }
 
-    public var version: String {
-        string(for: .shortVersion) ?? ""
-    }
-
     private func string(for key: InfoKey) -> String? {
         Bundle.main.infoDictionary?[key.rawValue] as? String
+    }
+
+    public var version: String {
+        string(for: .shortVersion) ?? ""
     }
 
     public init() {}

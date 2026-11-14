@@ -53,6 +53,17 @@ public struct JSONPatch: Sendable, Hashable, Decodable {
         return try replacingValue(at: path.parent, with: changedParent, in: document)
     }
 
+    private func existingParent(
+        of path: JSONPointer,
+        in document: JSONValue
+    ) throws(JSONPatchError) -> JSONValue {
+        guard let parent = path.parent.value(in: document) else {
+            throw .pathNotFound(path.description)
+        }
+
+        return parent
+    }
+
     private func inserting(
         _ value: JSONValue,
         named token: String,
@@ -74,6 +85,36 @@ public struct JSONPatch: Sendable, Hashable, Decodable {
         case (.array, _, _): throw .invalidArrayIndex(path.description)
         default: throw .pathNotFound(path.description)
         }
+    }
+
+    private func replacingValue(
+        at path: JSONPointer,
+        with value: JSONValue,
+        in document: JSONValue
+    ) throws(JSONPatchError) -> JSONValue {
+        guard let first = path.tokens.first else { return value }
+
+        let rest = JSONPointer(tokens: Array(path.tokens.dropFirst()))
+        let child = try existing(at: JSONPointer(tokens: [first]), in: document)
+        let changedChild = try replacingValue(at: rest, with: value, in: child)
+
+        switch (document, path.arrayIndex(from: first)) {
+        case (.object(var members), _):
+            members[first] = changedChild
+            return .object(members)
+        case (.array(var elements), let index?):
+            elements[index] = changedChild
+            return .array(elements)
+        default: throw .pathNotFound(path.description)
+        }
+    }
+
+    private func existing(at path: JSONPointer, in document: JSONValue) throws(JSONPatchError)
+        -> JSONValue
+    {
+        guard let value = path.value(in: document) else { throw .pathNotFound(path.description) }
+
+        return value
     }
 
     private func removing(
@@ -137,46 +178,5 @@ public struct JSONPatch: Sendable, Hashable, Decodable {
         }
 
         return document
-    }
-
-    private func existing(at path: JSONPointer, in document: JSONValue) throws(JSONPatchError)
-        -> JSONValue
-    {
-        guard let value = path.value(in: document) else { throw .pathNotFound(path.description) }
-
-        return value
-    }
-
-    private func existingParent(
-        of path: JSONPointer,
-        in document: JSONValue
-    ) throws(JSONPatchError) -> JSONValue {
-        guard let parent = path.parent.value(in: document) else {
-            throw .pathNotFound(path.description)
-        }
-
-        return parent
-    }
-
-    private func replacingValue(
-        at path: JSONPointer,
-        with value: JSONValue,
-        in document: JSONValue
-    ) throws(JSONPatchError) -> JSONValue {
-        guard let first = path.tokens.first else { return value }
-
-        let rest = JSONPointer(tokens: Array(path.tokens.dropFirst()))
-        let child = try existing(at: JSONPointer(tokens: [first]), in: document)
-        let changedChild = try replacingValue(at: rest, with: value, in: child)
-
-        switch (document, path.arrayIndex(from: first)) {
-        case (.object(var members), _):
-            members[first] = changedChild
-            return .object(members)
-        case (.array(var elements), let index?):
-            elements[index] = changedChild
-            return .array(elements)
-        default: throw .pathNotFound(path.description)
-        }
     }
 }

@@ -29,6 +29,16 @@ private struct Shimmer: ViewModifier {
             .onAppear { sweep() }
     }
 
+    private func sweep() {
+        guard !reduceMotion else { return }
+
+        let sweepAnimation: Animation = .linear(duration: 1.4).repeatForever(autoreverses: false)
+
+        withAnimation(sweepAnimation) {
+            phase = 1
+        }
+    }
+
     private var highlight: some View {
         let highlightOpacity = 0.10
         let highlightWidthFraction: CGFloat = 0.6
@@ -42,16 +52,6 @@ private struct Shimmer: ViewModifier {
             )
             .frame(width: proxy.size.width * highlightWidthFraction)
             .offset(x: phase * proxy.size.width * travelFraction)
-        }
-    }
-
-    private func sweep() {
-        guard !reduceMotion else { return }
-
-        let sweepAnimation: Animation = .linear(duration: 1.4).repeatForever(autoreverses: false)
-
-        withAnimation(sweepAnimation) {
-            phase = 1
         }
     }
 }

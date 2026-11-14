@@ -49,6 +49,10 @@ struct LibraryView: View {
         )
     }
 
+    private func refresh() {
+        Task { await libraryViewModel.refresh() }
+    }
+
     @ViewBuilder
     private var placeholder: some View {
         switch libraryViewModel.placeholder {
@@ -64,10 +68,6 @@ struct LibraryView: View {
             onRetry: { refresh() }
         )
         .pageMargins()
-    }
-
-    private func refresh() {
-        Task { await libraryViewModel.refresh() }
     }
 }
 

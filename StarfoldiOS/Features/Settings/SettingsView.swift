@@ -40,6 +40,10 @@ struct SettingsView: View {
         )
     }
 
+    private func trailingMargin(in width: CGFloat) -> CGFloat {
+        max(0, width - dimensions.settingsMaxWidth)
+    }
+
     private var form: some View {
         Form {
             StreamingSettingsSection(settingsViewModel: settingsViewModel)
@@ -54,8 +58,9 @@ struct SettingsView: View {
         }
     }
 
-    private func trailingMargin(in width: CGFloat) -> CGFloat {
-        max(0, width - dimensions.settingsMaxWidth)
+    private func editTouchLayout() {
+        settingsViewModel.editTouchLayout()
+        isEditingTouchLayout = true
     }
 
     private var accountSection: some View {
@@ -69,11 +74,6 @@ struct SettingsView: View {
 
     private func switchAccount(to account: AccountChoice) {
         Task { await settingsViewModel.switchAccount(to: account) }
-    }
-
-    private func editTouchLayout() {
-        settingsViewModel.editTouchLayout()
-        isEditingTouchLayout = true
     }
 }
 

@@ -64,6 +64,12 @@ final class StreamVideoHostView: NSView {
         updateDrawableSize()
     }
 
+    private func updateDrawableSize() {
+        let fallbackBackingScale: CGFloat = 2
+        let scale = window?.backingScaleFactor ?? fallbackBackingScale
+        renderer.setDrawableSize(CGSize(width: bounds.width * scale, height: bounds.height * scale))
+    }
+
     override func viewDidChangeBackingProperties() {
         super.viewDidChangeBackingProperties()
 
@@ -77,12 +83,6 @@ final class StreamVideoHostView: NSView {
         layoutSubtreeIfNeeded()
 
         updateDrawableSize()
-    }
-
-    private func updateDrawableSize() {
-        let fallbackBackingScale: CGFloat = 2
-        let scale = window?.backingScaleFactor ?? fallbackBackingScale
-        renderer.setDrawableSize(CGSize(width: bounds.width * scale, height: bounds.height * scale))
     }
 }
 

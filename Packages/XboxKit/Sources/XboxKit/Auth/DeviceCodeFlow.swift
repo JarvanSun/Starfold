@@ -63,6 +63,20 @@ struct DeviceCodeFlow: Sendable {
         )
     }
 
+    private func retryingOnceIfInterrupted<Value>(
+        _ operation: () async throws -> Value
+    ) async throws -> Value {
+        do {
+            return try await operation()
+        } catch let error as URLError where error.isConnectionInterruption {
+            return try await operation()
+        }
+    }
+
+    private func request(to url: URL, form: FormBody) -> HTTPClient.Request {
+        .init(url: url, method: "POST", headers: form.headers, body: form.encoded)
+    }
+
     private func prefilledVerificationURL(_ url: URL, code: String) -> URL {
         url.appending(queryItems: [URLQueryItem(name: "otc", value: code)])
     }
@@ -108,20 +122,6 @@ struct DeviceCodeFlow: Sendable {
         return try JSONDecoder().decode(TokenResponse.self, from: response.body)
     }
 
-    private func retryingOnceIfInterrupted<Value>(
-        _ operation: () async throws -> Value
-    ) async throws -> Value {
-        do {
-            return try await operation()
-        } catch let error as URLError where error.isConnectionInterruption {
-            return try await operation()
-        }
-    }
-
-    private func request(to url: URL, form: FormBody) -> HTTPClient.Request {
-        .init(url: url, method: "POST", headers: form.headers, body: form.encoded)
-    }
-
     private func signedInToken(_ accessToken: String, from reply: TokenResponse)
         -> MicrosoftAccountToken
     {
@@ -137,6 +137,10 @@ struct DeviceCodeFlow: Sendable {
         let defaultTokenLifetime = 3600
 
         return now().addingTimeInterval(TimeInterval(response.expiresIn ?? defaultTokenLifetime))
+    }
+
+    private func serverError(from response: TokenResponse) -> DeviceCodeError {
+        .server(code: response.error ?? "unknown", description: response.errorDescription ?? "")
     }
 
     func refresh(_ token: MicrosoftAccountToken) async throws -> MicrosoftAccountToken {
@@ -164,10 +168,6 @@ struct DeviceCodeFlow: Sendable {
             expiresAt: expiry(of: response),
             userID: response.userID ?? token.userID
         )
-    }
-
-    private func serverError(from response: TokenResponse) -> DeviceCodeError {
-        .server(code: response.error ?? "unknown", description: response.errorDescription ?? "")
     }
 }
 

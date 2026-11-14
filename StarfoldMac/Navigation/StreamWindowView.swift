@@ -25,6 +25,10 @@ struct StreamWindowView: View {
             .onDisappear { endStream() }
     }
 
+    private func endStream() {
+        Task { await appViewModel.endStream() }
+    }
+
     @ViewBuilder
     private var streamContent: some View {
         switch appViewModel.streamViewModel {
@@ -49,10 +53,6 @@ struct StreamWindowView: View {
             systemImage: "gamecontroller"
         )
         .background { SkyBackground() }
-    }
-
-    private func endStream() {
-        Task { await appViewModel.endStream() }
     }
 }
 

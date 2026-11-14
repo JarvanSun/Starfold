@@ -30,6 +30,23 @@ public struct KeychainStore: SecretStoring {
         }
     }
 
+    private func itemQuery(account: String?) -> [String: Any] {
+        var query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+        ]
+
+        if usesDataProtectionKeychain {
+            query[kSecUseDataProtectionKeychain as String] = true
+        }
+
+        if let account {
+            query[kSecAttrAccount as String] = account
+        }
+
+        return query
+    }
+
     public func write(_ secret: Data, for key: String) throws {
         let attributes: [String: Any] = [
             kSecValueData as String: secret,
@@ -53,23 +70,6 @@ public struct KeychainStore: SecretStoring {
         guard status == errSecSuccess else {
             throw KeychainError(status: status)
         }
-    }
-
-    private func itemQuery(account: String?) -> [String: Any] {
-        var query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
-        ]
-
-        if usesDataProtectionKeychain {
-            query[kSecUseDataProtectionKeychain as String] = true
-        }
-
-        if let account {
-            query[kSecAttrAccount as String] = account
-        }
-
-        return query
     }
 
     public func delete(_ key: String) throws {

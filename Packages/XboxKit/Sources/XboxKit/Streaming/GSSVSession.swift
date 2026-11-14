@@ -133,6 +133,29 @@ public struct GSSVSession: Sendable {
         ]
     }
 
+    private func poll<Answer: Sendable>(
+        _ resource: String,
+        timeout: Duration,
+        parse: (Data) throws -> Answer?
+    ) async throws -> Answer {
+        let clock = ContinuousClock()
+        let start = clock.now
+        let deadline = start + timeout
+
+        while clock.now < deadline {
+            let response = try await gssvClient.send(to: url.appending(path: resource))
+            let hasAnswerBody = response.statusCode != 204 && !response.body.isEmpty
+
+            if hasAnswerBody, let answer = try parse(response.body) {
+                return answer
+            }
+
+            try await Task.sleep(for: backoff.delay(after: clock.now - start))
+        }
+
+        throw GSSVSessionError.timedOut(resource)
+    }
+
     public func exchangeICE(
         _ candidates: [LocalICECandidate],
         timeout: Duration = .seconds(30)
@@ -156,29 +179,6 @@ public struct GSSVSession: Sendable {
         return try await poll("ice", timeout: timeout) { body in
             try SignalingAnswerParser().iceCandidates(from: body)
         }
-    }
-
-    private func poll<Answer: Sendable>(
-        _ resource: String,
-        timeout: Duration,
-        parse: (Data) throws -> Answer?
-    ) async throws -> Answer {
-        let clock = ContinuousClock()
-        let start = clock.now
-        let deadline = start + timeout
-
-        while clock.now < deadline {
-            let response = try await gssvClient.send(to: url.appending(path: resource))
-            let hasAnswerBody = response.statusCode != 204 && !response.body.isEmpty
-
-            if hasAnswerBody, let answer = try parse(response.body) {
-                return answer
-            }
-
-            try await Task.sleep(for: backoff.delay(after: clock.now - start))
-        }
-
-        throw GSSVSessionError.timedOut(resource)
     }
 
     public func keepAlive() async throws {

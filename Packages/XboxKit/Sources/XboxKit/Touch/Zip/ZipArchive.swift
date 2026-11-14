@@ -210,6 +210,12 @@ private struct ZipBytes: Sendable {
         return (entry, centralDirectoryHeaderLength + nameLength + extraLength + commentLength)
     }
 
+    private func slice(from offset: Int, count: Int) throws(ZipArchiveError) -> ArraySlice<UInt8> {
+        guard offset >= 0, count >= 0, offset <= contents.count - count else { throw .truncated }
+
+        return contents[offset..<(offset + count)]
+    }
+
     private func method(_ code: UInt16) -> ZipEntry.Method {
         let storedCode: UInt16 = 0
         let deflatedCode: UInt16 = 8
@@ -253,11 +259,5 @@ private struct ZipBytes: Sendable {
     private func uint32(at offset: Int) throws(ZipArchiveError) -> UInt32 {
         let bytes = try slice(from: offset, count: MemoryLayout<UInt32>.size)
         return bytes.reversed().reduce(0) { ($0 << UInt8.bitWidth) | UInt32($1) }
-    }
-
-    private func slice(from offset: Int, count: Int) throws(ZipArchiveError) -> ArraySlice<UInt8> {
-        guard offset >= 0, count >= 0, offset <= contents.count - count else { throw .truncated }
-
-        return contents[offset..<(offset + count)]
     }
 }

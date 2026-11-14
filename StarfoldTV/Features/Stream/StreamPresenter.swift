@@ -122,12 +122,6 @@ final class StreamPresenter {
         if isStillRequested { start(target) }
     }
 
-    func end() async {
-        restartRequest += 1
-
-        await finish()
-    }
-
     private func finish() async {
         switch endTask {
         case let endTask?: await endTask.value
@@ -158,6 +152,12 @@ final class StreamPresenter {
         isPresented = false
         isMenuPresented = false
         isEnding = false
+    }
+
+    func end() async {
+        restartRequest += 1
+
+        await finish()
     }
 
     func end(presentationID: Int) async {

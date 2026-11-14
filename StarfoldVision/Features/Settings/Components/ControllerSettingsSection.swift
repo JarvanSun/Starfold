@@ -29,6 +29,16 @@ struct ControllerSettingsSection: View {
         }
     }
 
+    private func row(for controller: ConnectedController) -> some View {
+        ControllerRow(
+            name: controller.name,
+            playerNumber: settingsViewModel.playerNumber(of: controller),
+            batteryLevel: settingsViewModel.batteryLevel(of: controller)
+        ) {
+            settingsViewModel.testRumble(on: controller)
+        }
+    }
+
     private var xboxButtonRow: some View {
         LabeledContent {
             Button("settings.controllers.xboxButton.openSettings") {
@@ -37,16 +47,6 @@ struct ControllerSettingsSection: View {
         } label: {
             Text("settings.controllers.xboxButton.title")
             Text("settings.controllers.xboxButton.detail")
-        }
-    }
-
-    private func row(for controller: ConnectedController) -> some View {
-        ControllerRow(
-            name: controller.name,
-            playerNumber: settingsViewModel.playerNumber(of: controller),
-            batteryLevel: settingsViewModel.batteryLevel(of: controller)
-        ) {
-            settingsViewModel.testRumble(on: controller)
         }
     }
 }

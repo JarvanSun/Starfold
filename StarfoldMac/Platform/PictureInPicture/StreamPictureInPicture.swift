@@ -40,6 +40,26 @@ final class StreamPictureInPicture {
         }
     }
 
+    private func returnToWindow() {
+        closePanel()
+
+        window?.makeKeyAndOrderFront(nil)
+
+        NSApp.activate()
+    }
+
+    private func closePanel() {
+        panel?.orderOut(nil)
+        panel?.contentView = nil
+        panel = nil
+
+        videoHostView?.reattachVideo()
+
+        GCController.shouldMonitorBackgroundEvents = false
+
+        isActive = false
+    }
+
     private func start() {
         let panel = makePanel()
         panel.orderFrontRegardless()
@@ -77,6 +97,12 @@ final class StreamPictureInPicture {
         return panel
     }
 
+    private func endStream() {
+        closePanel()
+
+        window?.close()
+    }
+
     private var panelFrame: NSRect {
         let fallbackVisibleFrame = NSRect(origin: .zero, size: panelSize).insetBy(
             dx: -dimensions.spaceXLarge,
@@ -90,42 +116,16 @@ final class StreamPictureInPicture {
         return .init(origin: origin, size: panelSize)
     }
 
-    private func size(width: CGFloat) -> NSSize {
-        .init(width: width, height: width * panelAspectRatio.height / panelAspectRatio.width)
-    }
-
     private var panelSize: NSSize {
         size(width: dimensions.pictureInPictureWidth)
     }
 
+    private func size(width: CGFloat) -> NSSize {
+        .init(width: width, height: width * panelAspectRatio.height / panelAspectRatio.width)
+    }
+
     private var minimumPanelSize: NSSize {
         size(width: dimensions.pictureInPictureMinimumWidth)
-    }
-
-    private func returnToWindow() {
-        closePanel()
-
-        window?.makeKeyAndOrderFront(nil)
-
-        NSApp.activate()
-    }
-
-    private func endStream() {
-        closePanel()
-
-        window?.close()
-    }
-
-    private func closePanel() {
-        panel?.orderOut(nil)
-        panel?.contentView = nil
-        panel = nil
-
-        videoHostView?.reattachVideo()
-
-        GCController.shouldMonitorBackgroundEvents = false
-
-        isActive = false
     }
 
     func stop() {

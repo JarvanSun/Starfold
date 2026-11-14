@@ -40,19 +40,19 @@ extension TouchLayer {
         }
     }
 
+    private func isShown(_ control: TouchControl) -> Bool {
+        switch control.kind {
+        case .blank: false
+        default: control.isVisible
+        }
+    }
+
     private func isDrawable(_ control: TouchControl) -> Bool {
         guard isShown(control) else { return true }
 
         switch control.kind {
         case .button(let button) where button.isToggle || button.pullAction != nil: return false
         default: return TouchInput(kind: control.kind) != nil
-        }
-    }
-
-    private func isShown(_ control: TouchControl) -> Bool {
-        switch control.kind {
-        case .blank: false
-        default: control.isVisible
         }
     }
 }

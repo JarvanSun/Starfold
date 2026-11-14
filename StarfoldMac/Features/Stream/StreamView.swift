@@ -110,10 +110,6 @@ struct StreamView: View {
         streamViewModel.releaseKeyboard()
     }
 
-    private var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { streamViewModel.systemDialogsViewModel.presentedDialog }, set: { _ in })
-    }
-
     private func preparePictureInPicture() {
         guard let renderer = streamViewModel.renderer else { return }
 
@@ -121,6 +117,10 @@ struct StreamView: View {
         streamViewModel.onStop = { pictureInPicture.dismiss() }
         streamViewModel.onEnd = { pictureInPicture.stop() }
         self.pictureInPicture = pictureInPicture
+    }
+
+    private var presentedDialog: Binding<SystemDialogRequest?> {
+        .init(get: { streamViewModel.systemDialogsViewModel.presentedDialog }, set: { _ in })
     }
 }
 

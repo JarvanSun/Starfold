@@ -92,6 +92,40 @@ public final class TouchControlsViewModel {
         resolveTitleLayout()
     }
 
+    private func resolveTitleLayout() {
+        guard let titleBundle = title.bundle, let name = layoutName(in: titleBundle) else {
+            titleLayout = nil
+            return
+        }
+
+        do {
+            let layout = try titleBundle.layout(
+                named: name,
+                locale: preferences.effectiveGameLanguage,
+                context: title.context
+            )
+            titleLayout = isDrawable(layout) ? layout : nil
+        } catch {
+            log.error("Touch layout \(name) could not be shown: \(error)")
+            titleLayout = nil
+        }
+    }
+
+    private func layoutName(in bundle: TouchBundle) -> String? {
+        switch title.reference {
+        case .standard: nil
+        case .titleDefault: bundle.manifest.defaultLayoutName ?? bundle.layoutNames.first
+        case .named(let name): name
+        }
+    }
+
+    private func isDrawable(_ layout: TouchLayout) -> Bool {
+        let isDrawable = layout.base.isDrawable
+        if !isDrawable { log.info("Touch layout uses controls without a Touch Controller match") }
+
+        return isDrawable
+    }
+
     func load(_ bundle: TouchBundle, forTitle id: String) {
         switch id == titleID {
         case true:
@@ -108,6 +142,15 @@ public final class TouchControlsViewModel {
         state.context = state.pendingPatches.reduce(bundle.context) { applying($1, to: $0) }
         state.pendingPatches = []
         return state
+    }
+
+    private func applying(_ patch: JSONPatch, to context: TouchContext) -> TouchContext {
+        do {
+            return try context.applying(patch)
+        } catch {
+            log.error("Touch state patch was not applied: \(error)")
+            return context
+        }
     }
 
     func apply(_ command: TouchControlsCommand) {
@@ -141,48 +184,5 @@ public final class TouchControlsViewModel {
         }
 
         resolveTitleLayout()
-    }
-
-    private func applying(_ patch: JSONPatch, to context: TouchContext) -> TouchContext {
-        do {
-            return try context.applying(patch)
-        } catch {
-            log.error("Touch state patch was not applied: \(error)")
-            return context
-        }
-    }
-
-    private func resolveTitleLayout() {
-        guard let titleBundle = title.bundle, let name = layoutName(in: titleBundle) else {
-            titleLayout = nil
-            return
-        }
-
-        do {
-            let layout = try titleBundle.layout(
-                named: name,
-                locale: preferences.effectiveGameLanguage,
-                context: title.context
-            )
-            titleLayout = isDrawable(layout) ? layout : nil
-        } catch {
-            log.error("Touch layout \(name) could not be shown: \(error)")
-            titleLayout = nil
-        }
-    }
-
-    private func isDrawable(_ layout: TouchLayout) -> Bool {
-        let isDrawable = layout.base.isDrawable
-        if !isDrawable { log.info("Touch layout uses controls without a Touch Controller match") }
-
-        return isDrawable
-    }
-
-    private func layoutName(in bundle: TouchBundle) -> String? {
-        switch title.reference {
-        case .standard: nil
-        case .titleDefault: bundle.manifest.defaultLayoutName ?? bundle.layoutNames.first
-        case .named(let name): name
-        }
     }
 }

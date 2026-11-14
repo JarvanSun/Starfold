@@ -48,14 +48,6 @@ public struct SkyBackground: View {
         }
     }
 
-    private var isPaused: Bool {
-        #if os(macOS)
-        reduceMotion || activeState == .inactive
-        #else
-        reduceMotion
-        #endif
-    }
-
     private func sky(size: CGSize, time: Float) -> Shader {
         let sky = palette.sky
         return ShaderLibrary.bundle(.module).paletteSky(
@@ -79,6 +71,14 @@ public struct SkyBackground: View {
         case true: stillFrameTime
         case false: Float(date.timeIntervalSince(start))
         }
+    }
+
+    private var isPaused: Bool {
+        #if os(macOS)
+        reduceMotion || activeState == .inactive
+        #else
+        reduceMotion
+        #endif
     }
 }
 

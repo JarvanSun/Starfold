@@ -66,17 +66,6 @@ public struct CatalogClient: Sendable {
         }
     }
 
-    private func productsRetrying(
-        _ ids: [String],
-        after error: Error
-    ) async -> Result<[CatalogProduct], Error> {
-        switch (try? await productBatch(ids), ids.count > 1) {
-        case (let retried?, _): return .success(retried)
-        case (nil, false): return .failure(error)
-        case (nil, true): return await productsSplittingInHalves(ids, after: error)
-        }
-    }
-
     private func productBatch(_ ids: [String]) async throws -> [CatalogProduct] {
         let url = URL(string: "https://catalog.gamepass.com/v3/products")!
             .appending(queryItems: [
@@ -99,6 +88,30 @@ public struct CatalogClient: Sendable {
             )
         )
         return products(in: body)
+    }
+
+    private func products(in body: Data) -> [CatalogProduct] {
+        guard
+            let root = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
+            let products = root["Products"] as? [String: [String: Any]]
+        else {
+            return []
+        }
+
+        return products.compactMap { storeKey, fields in
+            CatalogProduct(storeKey: storeKey, fields: fields)
+        }
+    }
+
+    private func productsRetrying(
+        _ ids: [String],
+        after error: Error
+    ) async -> Result<[CatalogProduct], Error> {
+        switch (try? await productBatch(ids), ids.count > 1) {
+        case (let retried?, _): return .success(retried)
+        case (nil, false): return .failure(error)
+        case (nil, true): return await productsSplittingInHalves(ids, after: error)
+        }
     }
 
     private func productsSplittingInHalves(
@@ -132,19 +145,6 @@ public struct CatalogClient: Sendable {
         switch (productsByID.isEmpty, lastError) {
         case (true, let lastError?): throw lastError
         default: return productsByID
-        }
-    }
-
-    private func products(in body: Data) -> [CatalogProduct] {
-        guard
-            let root = try? JSONSerialization.jsonObject(with: body) as? [String: Any],
-            let products = root["Products"] as? [String: [String: Any]]
-        else {
-            return []
-        }
-
-        return products.compactMap { storeKey, fields in
-            CatalogProduct(storeKey: storeKey, fields: fields)
         }
     }
 

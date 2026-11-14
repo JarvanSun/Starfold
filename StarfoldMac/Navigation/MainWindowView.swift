@@ -45,6 +45,26 @@ struct MainWindowView: View {
     }
 
     @ViewBuilder
+    private func destination(for route: HomeRoute) -> some View {
+        switch appViewModel.libraryViewModel {
+        case let library?: page(for: route, in: library).background { SkyBackground() }
+        case nil: EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
+        switch route {
+        case .cloudLibrary: LibraryView(libraryViewModel: library) { path.append(.game($0)) }
+        case .game(let game): GameDetailView(gameDetailViewModel: library.detail(for: game))
+        }
+    }
+
+    private func showSignIn() {
+        isShowingSignIn = true
+    }
+
+    @ViewBuilder
     private var sessionContent: some View {
         switch appViewModel.sessionState {
         case .restoring: restoringPlaceholder
@@ -72,30 +92,10 @@ struct MainWindowView: View {
     }
 
     @ViewBuilder
-    private func destination(for route: HomeRoute) -> some View {
-        switch appViewModel.libraryViewModel {
-        case let library?: page(for: route, in: library).background { SkyBackground() }
-        case nil: EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    private func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
-        switch route {
-        case .cloudLibrary: LibraryView(libraryViewModel: library) { path.append(.game($0)) }
-        case .game(let game): GameDetailView(gameDetailViewModel: library.detail(for: game))
-        }
-    }
-
-    @ViewBuilder
     private var signInExpiredActions: some View {
         Button(String(localized: "mainWindow.signInExpired.signIn")) { showSignIn() }
 
         Button(String(localized: "mainWindow.signInExpired.notNow"), role: .cancel) {}
-    }
-
-    private func showSignIn() {
-        isShowingSignIn = true
     }
 
     private var isShowingPowerProblem: Binding<Bool> {

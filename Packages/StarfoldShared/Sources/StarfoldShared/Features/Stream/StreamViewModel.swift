@@ -199,16 +199,6 @@ public final class StreamViewModel {
         observeSettings()
     }
 
-    private func observeSettings() {
-        settingsTask = Task { [weak self] in
-            for await settings in Observations({ self?.playbackSettings }) {
-                guard let self, let settings, !hasEnded else { return }
-
-                configure(for: settings)
-            }
-        }
-    }
-
     private func configure(for settings: StreamPlaybackSettings) {
         guard settings != appliedSettings else { return }
 
@@ -229,6 +219,16 @@ public final class StreamViewModel {
 
         if let enhancements = settings.enhancements {
             renderer.setEnhancements(enhancements)
+        }
+    }
+
+    private func observeSettings() {
+        settingsTask = Task { [weak self] in
+            for await settings in Observations({ self?.playbackSettings }) {
+                guard let self, let settings, !hasEnded else { return }
+
+                configure(for: settings)
+            }
         }
     }
 
@@ -255,6 +255,10 @@ public final class StreamViewModel {
 
         startedAt = .now
         connectTask = Task { await connect(with: options) }
+    }
+
+    private func fail(_ message: String) {
+        phase = .ended(.failed(message))
     }
 
     private func networkQuality(for requested: StreamQuality) -> StreamQuality {
@@ -323,80 +327,6 @@ public final class StreamViewModel {
         }
     }
 
-    private func loadTouchLayouts(for title: RunningTitle) {
-        guard let touchControlsViewModel, title.isFocused else { return }
-
-        let id = title.titleID
-        let isNewlyFocused = !touchControlsViewModel.isFocused(onTitle: id)
-        touchControlsViewModel.focus(onTitle: id)
-        if isNewlyFocused { announceTouchBundle(touchControlsViewModel.titleBundleManifest) }
-        guard needsTouchBundle(for: id) else { return }
-
-        touchBundleAttempts[id, default: 0] += 1
-        touchBundleTasks[id] = Task {
-            await loadTouchBundle(for: id, into: touchControlsViewModel)
-        }
-    }
-
-    private func needsTouchBundle(for titleID: String) -> Bool {
-        let maximumAttempts = 3
-
-        return !touchBundleTitles.contains(titleID) && touchBundleTasks[titleID] == nil
-            && touchBundleAttempts[titleID, default: 0] < maximumAttempts
-    }
-
-    private func loadTouchBundle(
-        for titleID: String,
-        into touchControlsViewModel: TouchControlsViewModel
-    ) async {
-        defer { touchBundleTasks[titleID] = nil }
-
-        do {
-            let bundle = try await streamService.touchBundle(forTitle: titleID, on: target)
-            guard !Task.isCancelled else { return }
-
-            touchBundleTitles.insert(titleID)
-            guard let bundle else { return }
-
-            touchControlsViewModel.load(bundle, forTitle: titleID)
-            if touchControlsViewModel.isFocused(onTitle: titleID) {
-                announceTouchBundle(bundle.manifest)
-            }
-        } catch {
-            log.error(
-                "Touch layouts for \(titleID, privacy: .public) could not be loaded: \(error)"
-            )
-        }
-    }
-
-    private func announceTouchBundle(_ manifest: TouchBundleManifest?) {
-        guard let manifest, let streamConnection else { return }
-
-        Task {
-            await streamConnection.announceTouchBundle(
-                version: manifest.version,
-                versionName: manifest.versionName ?? manifest.version
-            )
-        }
-    }
-
-    private func play(_ effect: VibrationEffect) {
-        logFirstRumble(effect)
-
-        guard controllerHub.isRoutingToGame, preferences.isRumbleEnabled else { return }
-
-        controllerHub.playRumble(effect)
-    }
-
-    private func logFirstRumble(_ effect: VibrationEffect) {
-        guard !hasLoggedFirstRumble else { return }
-
-        hasLoggedFirstRumble = true
-        log.info(
-            "Host sent rumble for pad \(effect.gamepadIndex): \(effect.leftMotor) / \(effect.rightMotor), enabled \(self.preferences.isRumbleEnabled)"
-        )
-    }
-
     private func enter(_ phase: StreamPhase) {
         self.phase = phase
 
@@ -448,14 +378,84 @@ public final class StreamViewModel {
             .isLoweredByHost(received: received, requested: quality)
     }
 
+    private func play(_ effect: VibrationEffect) {
+        logFirstRumble(effect)
+
+        guard controllerHub.isRoutingToGame, preferences.isRumbleEnabled else { return }
+
+        controllerHub.playRumble(effect)
+    }
+
+    private func logFirstRumble(_ effect: VibrationEffect) {
+        guard !hasLoggedFirstRumble else { return }
+
+        hasLoggedFirstRumble = true
+        log.info(
+            "Host sent rumble for pad \(effect.gamepadIndex): \(effect.leftMotor) / \(effect.rightMotor), enabled \(self.preferences.isRumbleEnabled)"
+        )
+    }
+
+    private func loadTouchLayouts(for title: RunningTitle) {
+        guard let touchControlsViewModel, title.isFocused else { return }
+
+        let id = title.titleID
+        let isNewlyFocused = !touchControlsViewModel.isFocused(onTitle: id)
+        touchControlsViewModel.focus(onTitle: id)
+        if isNewlyFocused { announceTouchBundle(touchControlsViewModel.titleBundleManifest) }
+        guard needsTouchBundle(for: id) else { return }
+
+        touchBundleAttempts[id, default: 0] += 1
+        touchBundleTasks[id] = Task {
+            await loadTouchBundle(for: id, into: touchControlsViewModel)
+        }
+    }
+
+    private func announceTouchBundle(_ manifest: TouchBundleManifest?) {
+        guard let manifest, let streamConnection else { return }
+
+        Task {
+            await streamConnection.announceTouchBundle(
+                version: manifest.version,
+                versionName: manifest.versionName ?? manifest.version
+            )
+        }
+    }
+
+    private func needsTouchBundle(for titleID: String) -> Bool {
+        let maximumAttempts = 3
+
+        return !touchBundleTitles.contains(titleID) && touchBundleTasks[titleID] == nil
+            && touchBundleAttempts[titleID, default: 0] < maximumAttempts
+    }
+
+    private func loadTouchBundle(
+        for titleID: String,
+        into touchControlsViewModel: TouchControlsViewModel
+    ) async {
+        defer { touchBundleTasks[titleID] = nil }
+
+        do {
+            let bundle = try await streamService.touchBundle(forTitle: titleID, on: target)
+            guard !Task.isCancelled else { return }
+
+            touchBundleTitles.insert(titleID)
+            guard let bundle else { return }
+
+            touchControlsViewModel.load(bundle, forTitle: titleID)
+            if touchControlsViewModel.isFocused(onTitle: titleID) {
+                announceTouchBundle(bundle.manifest)
+            }
+        } catch {
+            log.error(
+                "Touch layouts for \(titleID, privacy: .public) could not be loaded: \(error)"
+            )
+        }
+    }
+
     private func wireInput(to streamConnection: StreamConnection) {
         controllerHub.gamepadRouter.setDestination { slot, state in
             streamConnection.setGamepad(slot, state: state)
         }
-    }
-
-    private func fail(_ message: String) {
-        phase = .ended(.failed(message))
     }
 
     func stop(_ reason: StreamEndReason) async {

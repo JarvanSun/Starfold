@@ -26,13 +26,6 @@ struct GameOverview: View {
         }
     }
 
-    private var layout: AnyLayout {
-        switch horizontalSizeClass {
-        case .compact: .init(VStackLayout(alignment: .leading, spacing: dimensions.spaceXLarge))
-        default: .init(HStackLayout(alignment: .top, spacing: dimensions.spaceXXLarge))
-        }
-    }
-
     private func aboutSection(_ about: String) -> some View {
         VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
             Text("gameDetail.about.title")
@@ -44,6 +37,13 @@ struct GameOverview: View {
                 .textSelection(.enabled)
         }
         .frame(maxWidth: dimensions.gameDescriptionMaxWidth, alignment: .leading)
+    }
+
+    private var layout: AnyLayout {
+        switch horizontalSizeClass {
+        case .compact: .init(VStackLayout(alignment: .leading, spacing: dimensions.spaceXLarge))
+        default: .init(HStackLayout(alignment: .top, spacing: dimensions.spaceXXLarge))
+        }
     }
 }
 

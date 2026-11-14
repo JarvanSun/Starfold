@@ -194,10 +194,6 @@ public actor StreamController {
         inputSender.start(peerConnection: peerConnection, announcedPads: [0])
     }
 
-    private var currentTimestamp: Double {
-        (CACurrentMediaTime() - clockOrigin) * 1000
-    }
-
     private func mark(_ stage: StaticString) {
         let milliseconds = Int((ContinuousClock.now - startedAt) / .milliseconds(1))
         log.info("Startup \(stage) +\(milliseconds) ms")
@@ -237,6 +233,14 @@ public actor StreamController {
         }
     }
 
+    private func setPhase(_ phase: StreamPhase) {
+        guard self.phase != phase else { return }
+
+        self.phase = phase
+
+        updateContinuation.yield(.phase(phase))
+    }
+
     private func connect(peerConnection: PeerConnection, offer: String) async throws {
         guard let gssvSession else { return }
 
@@ -269,14 +273,6 @@ public actor StreamController {
         mark("connected")
 
         keepAliveInterval = await configuredKeepAlive ?? keepAliveInterval
-    }
-
-    private func setPhase(_ phase: StreamPhase) {
-        guard self.phase != phase else { return }
-
-        self.phase = phase
-
-        updateContinuation.yield(.phase(phase))
     }
 
     private func waitForLocalCandidates() async throws {
@@ -360,6 +356,10 @@ public actor StreamController {
 
         let statistics = statisticsCollector.collect(await peerConnection.statistics())
         updateContinuation.yield(.statistics(statistics))
+    }
+
+    private var currentTimestamp: Double {
+        (CACurrentMediaTime() - clockOrigin) * 1000
     }
 
     public func stop(reason: StreamEndReason) async {

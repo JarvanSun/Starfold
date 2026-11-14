@@ -55,6 +55,12 @@ struct GameTile: View {
         .onHover { hover($0) }
     }
 
+    private func hover(_ isInside: Bool) {
+        withAnimation(.spring(duration: 0.3, bounce: 0.35)) {
+            isHovering = isInside
+        }
+    }
+
     private var isLifted: Bool {
         isHovering || isFocused
     }
@@ -124,12 +130,6 @@ struct GameTile: View {
         switch isLifted {
         case true: .primary
         case false: .secondary
-        }
-    }
-
-    private func hover(_ isInside: Bool) {
-        withAnimation(.spring(duration: 0.3, bounce: 0.35)) {
-            isHovering = isInside
         }
     }
 }

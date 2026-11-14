@@ -53,6 +53,11 @@ final class InputState: @unchecked Sendable {
         }
     }
 
+    private func update(_ body: () -> Bool) {
+        let notify = lock.withLock { body() ? onChange : nil }
+        notify?()
+    }
+
     func pulse(_ button: GamepadButton, on index: UInt8, duration: TimeInterval) {
         let until = (CACurrentMediaTime() - clockOrigin) * 1000 + duration * 1000
         update {
@@ -60,11 +65,6 @@ final class InputState: @unchecked Sendable {
 
             return true
         }
-    }
-
-    private func update(_ body: () -> Bool) {
-        let notify = lock.withLock { body() ? onChange : nil }
-        notify?()
     }
 
     func recordFrame(rtpTimestamp: UInt32, at milliseconds: Double) {

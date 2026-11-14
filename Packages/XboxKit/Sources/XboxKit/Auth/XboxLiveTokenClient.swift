@@ -43,6 +43,24 @@ struct XboxLiveTokenClient: Sendable {
         return try await xboxToken(posting: body, to: userAuthenticationURL)
     }
 
+    private func xboxToken(posting body: [String: Any], to url: URL) async throws -> XboxToken {
+        let request = HTTPClient.Request(
+            url: url,
+            method: "POST",
+            headers: xboxComBrowserHeaders,
+            body: try encoded(body)
+        )
+        let response = try await httpClient.decodedBody(TokenResponse.self, for: request)
+        return try response.xboxToken()
+    }
+
+    private func encoded(_ body: [String: Any]) throws -> Data {
+        try JSONSerialization.data(
+            withJSONObject: body,
+            options: [.withoutEscapingSlashes, .sortedKeys]
+        )
+    }
+
     func securityToken(userToken: XboxToken, relyingParty: RelyingParty) async throws -> XboxToken {
         let body: [String: Any] = [
             "Properties": ["SandboxId": "RETAIL", "UserTokens": [userToken.token]],
@@ -55,17 +73,6 @@ struct XboxLiveTokenClient: Sendable {
         return try await xboxToken(posting: body, to: securityTokenURL)
     }
 
-    private func xboxToken(posting body: [String: Any], to url: URL) async throws -> XboxToken {
-        let request = HTTPClient.Request(
-            url: url,
-            method: "POST",
-            headers: xboxComBrowserHeaders,
-            body: try encoded(body)
-        )
-        let response = try await httpClient.decodedBody(TokenResponse.self, for: request)
-        return try response.xboxToken()
-    }
-
     private var xboxComBrowserHeaders: [String: String] {
         [
             "x-xbl-contract-version": "1",
@@ -75,13 +82,6 @@ struct XboxLiveTokenClient: Sendable {
             "Origin": "https://www.xbox.com",
             "Referer": "https://www.xbox.com/",
         ]
-    }
-
-    private func encoded(_ body: [String: Any]) throws -> Data {
-        try JSONSerialization.data(
-            withJSONObject: body,
-            options: [.withoutEscapingSlashes, .sortedKeys]
-        )
     }
 
     func streamingToken(

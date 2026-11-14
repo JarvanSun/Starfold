@@ -39,6 +39,10 @@ public struct GSSVClient: Sendable {
         return try decoded(ServersResponse.self, from: response.body).results.map(\.console)
     }
 
+    private func decoded<Body: Decodable>(_ type: Body.Type, from body: Data) throws -> Body {
+        try JSONDecoder(dateParser: .init()).decode(type, from: body)
+    }
+
     public func titles() async throws -> [CloudTitle] {
         let response = try await send(to: baseURL.appending(path: "v2/titles"))
         return try decoded(TitlesResponse.self, from: response.body).titles
@@ -88,10 +92,6 @@ public struct GSSVClient: Sendable {
         return .init(gssvClient: self, url: try sessionURL(path: sessionPath), titleID: titleID)
     }
 
-    private func decoded<Body: Decodable>(_ type: Body.Type, from body: Data) throws -> Body {
-        try JSONDecoder(dateParser: .init()).decode(type, from: body)
-    }
-
     private func sessionURL(path: String) throws -> URL {
         switch (path.hasPrefix("http"), URL(string: path)) {
         case (true, let absoluteURL?): return absoluteURL
@@ -132,21 +132,6 @@ public struct GSSVClient: Sendable {
         }
     }
 
-    private func successful(_ response: HTTPClient.Response, from url: URL) throws
-        -> HTTPClient.Response
-    {
-        guard (200..<300).contains(response.statusCode) else {
-            throw XboxHTTPError(
-                url: url,
-                statusCode: response.statusCode,
-                body: String(decoding: response.body, as: UTF8.self),
-                headers: response.headers
-            )
-        }
-
-        return response
-    }
-
     private func headers(
         freshness: TokenFreshness,
         hasBody: Bool,
@@ -164,6 +149,21 @@ public struct GSSVClient: Sendable {
 
         headers.merge(extraHeaders) { _, new in new }
         return headers
+    }
+
+    private func successful(_ response: HTTPClient.Response, from url: URL) throws
+        -> HTTPClient.Response
+    {
+        guard (200..<300).contains(response.statusCode) else {
+            throw XboxHTTPError(
+                url: url,
+                statusCode: response.statusCode,
+                body: String(decoding: response.body, as: UTF8.self),
+                headers: response.headers
+            )
+        }
+
+        return response
     }
 }
 

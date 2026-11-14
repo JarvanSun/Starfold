@@ -30,6 +30,10 @@ struct ConsoleCard: View {
         }
     }
 
+    private func togglePower() {
+        Task { await homeViewModel.togglePower(of: console) }
+    }
+
     private var heading: HomeCardHeading {
         let status = homeViewModel.status(of: console)
         return .init(
@@ -55,10 +59,6 @@ struct ConsoleCard: View {
 
     private func play() {
         homeViewModel.play(console)
-    }
-
-    private func togglePower() {
-        Task { await homeViewModel.togglePower(of: console) }
     }
 
     private var wirelessHint: some View {

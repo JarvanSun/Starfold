@@ -37,6 +37,12 @@ struct WelcomeView: View {
         return isWideEnough && isTallEnough
     }
 
+    private func enter() {
+        withAnimation(.spring(duration: 0.8, bounce: 0.3)) {
+            hasEntered = true
+        }
+    }
+
     private var sideBySide: some View {
         HStack(alignment: .center, spacing: dimensions.spaceXXXLarge) {
             pitch
@@ -83,12 +89,6 @@ struct WelcomeView: View {
     private var signInCard: some View {
         WelcomeSignInCard(step: signInViewModel.step, onRetry: { signInViewModel.retry() })
             .opacity(isVisible ? 1 : 0)
-    }
-
-    private func enter() {
-        withAnimation(.spring(duration: 0.8, bounce: 0.3)) {
-            hasEntered = true
-        }
     }
 }
 
