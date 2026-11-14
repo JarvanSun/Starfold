@@ -32,12 +32,15 @@
 
 - **Remote Play**: stream your own Xbox Series X|S or Xbox One.
 - **Cloud Gaming**: play Xbox Cloud Gaming without a console.
+- **Accounts**: sign in with several Microsoft accounts and switch between them.
+- **Library**: Continue Playing, favorites, search and sorting.
 - **Platforms**: Mac, iPhone, iPad, Apple Vision Pro and Apple TV, all native.
 - **Video**: up to 80 Mbps, low-latency mode; MetalFX upscaling and HDR tone mapping on Mac.
+- **Picture in Picture**: keep playing in a floating window on Mac.
 - **Input**: game controllers on every platform; keyboard on Mac, iPhone and iPad.
 - **Touch controls**: on iPhone and iPad, with Apple's
-  [Touch Controller](https://developer.apple.com/documentation/touchcontroller); the standard layout
-  can be customized.
+  [Touch Controller](https://developer.apple.com/documentation/touchcontroller); games' own touch
+  layouts are supported, and the standard layout can be customized.
 
 ## Mac
 
@@ -49,6 +52,31 @@
   <tr>
     <td><img src=".github/assets/en/mac-metalfx.jpg" alt="Sharper with MetalFX"></td>
     <td><img src=".github/assets/en/mac-picture-in-picture.jpg" alt="Picture in Picture"></td>
+  </tr>
+</table>
+
+## iPhone
+
+<table>
+  <tr>
+    <td width="19.6%"><img src=".github/assets/en/iphone-home.jpg" alt="Home on iPhone"></td>
+    <td width="80.4%"><img src=".github/assets/en/iphone-touch.jpg" alt="Touch controls on iPhone"></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="80.4%"><img src=".github/assets/en/iphone-layout.jpg" alt="Customizing the touch layout"></td>
+    <td width="19.6%"><img src=".github/assets/en/iphone-cloud.jpg" alt="Cloud Gaming on iPhone"></td>
+  </tr>
+</table>
+
+## iPad
+
+<table>
+  <tr>
+    <td><img src=".github/assets/en/ipad-welcome.jpg" alt="Welcome on iPad"></td>
+    <td><img src=".github/assets/en/ipad-game.jpg" alt="Game details on iPad"></td>
   </tr>
 </table>
 
