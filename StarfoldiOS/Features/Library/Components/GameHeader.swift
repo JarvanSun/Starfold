@@ -11,6 +11,7 @@ import SwiftUI
 struct GameHeader: View {
     @Environment(\.palette) private var palette
     @Environment(\.dimensions) private var dimensions
+    @FocusState private var isPlayFocused: Bool
 
     let gameDetailViewModel: GameDetailViewModel
 
@@ -40,8 +41,10 @@ struct GameHeader: View {
                     isFavorite: gameDetailViewModel.isFavorite,
                     onToggle: { gameDetailViewModel.toggleFavorite() }
                 )
+                .focusable()
             }
         }
+        .defaultFocus($isPlayFocused, true)
     }
 
     @ViewBuilder
@@ -78,6 +81,8 @@ struct GameHeader: View {
         }
         .buttonStyle(.primaryLarge)
         .keyboardShortcut(.defaultAction)
+        .focusable()
+        .focused($isPlayFocused)
     }
 }
 

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TileButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
     @State private var isHovering = false
 
     func makeBody(configuration: Configuration) -> some View {
@@ -15,7 +16,7 @@ struct TileButtonStyle: ButtonStyle {
 
         return configuration.label
             .scaleEffect(configuration.isPressed ? pressedScale : 1)
-            .hoverLift(isHovering: isHovering)
+            .hoverLift(isHovering: isHovering || isFocused)
             .animation(.spring(duration: 0.3, bounce: 0.35), value: isHovering)
             .animation(.spring(duration: 0.2), value: configuration.isPressed)
             .onHover { isHovering = $0 }

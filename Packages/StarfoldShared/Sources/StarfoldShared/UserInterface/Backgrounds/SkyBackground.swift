@@ -10,6 +10,7 @@ import SwiftUI
 public struct SkyBackground: View {
     @Environment(\.palette) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.skyCanvasSize) private var canvasSize
     #if os(macOS)
     @Environment(\.controlActiveState) private var activeState
     #endif
@@ -18,16 +19,33 @@ public struct SkyBackground: View {
     public init() {}
 
     public var body: some View {
+        canvas
+            .ignoresSafeArea()
+            .accessibilityHidden(true)
+    }
+
+    @ViewBuilder
+    private var canvas: some View {
+        switch canvasSize {
+        case let size?:
+            Color.clear
+                .overlay(alignment: .top) {
+                    animatedSky.frame(width: size.width, height: size.height)
+                }
+        case nil: animatedSky
+        }
+    }
+
+    private var animatedSky: some View {
         let frameInterval: Double = 1 / 30
 
-        TimelineView(.animation(minimumInterval: frameInterval, paused: isPaused)) { context in
+        return TimelineView(.animation(minimumInterval: frameInterval, paused: isPaused)) {
+            context in
             GeometryReader { proxy in
                 Rectangle()
                     .colorEffect(sky(size: proxy.size, time: shaderTime(at: context.date)))
             }
         }
-        .ignoresSafeArea()
-        .accessibilityHidden(true)
     }
 
     private var isPaused: Bool {

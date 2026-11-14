@@ -64,7 +64,7 @@ public struct Dimensions: Sendable {
 
     public var circleButtonSize: CGFloat { 34 }
 
-    var highlightBorderWidth: CGFloat { 2 }
+    public var highlightBorderWidth: CGFloat { 2 }
 
     var statusDotSize: CGFloat { 8 }
 

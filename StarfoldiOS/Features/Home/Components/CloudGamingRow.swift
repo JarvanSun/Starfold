@@ -10,6 +10,7 @@ import SwiftUI
 
 struct CloudGamingRow: View {
     @Environment(\.dimensions) private var dimensions
+    @FocusState private var isFocused: Bool
 
     let libraryViewModel: LibraryViewModel
     let onOpen: () -> Void
@@ -21,6 +22,9 @@ struct CloudGamingRow: View {
             label
         }
         .buttonStyle(.plain)
+        .focusable()
+        .focusEffectDisabled()
+        .focused($isFocused)
         .disabled(!libraryViewModel.canBrowse)
         .accessibilityElement(children: .combine)
     }
@@ -44,7 +48,7 @@ struct CloudGamingRow: View {
                 .opacity(libraryViewModel.canBrowse ? 1 : 0)
         }
         .padding(dimensions.spaceMedium)
-        .cardSurface()
+        .cardSurface(highlighted: isFocused)
         .contentShape(.rect)
     }
 

@@ -14,6 +14,7 @@ struct GameTile: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dimensions) private var dimensions
     @State private var isHovering = false
+    @FocusState private var isFocused: Bool
 
     let game: CloudGame
     let badge: LocalizedStringResource?
@@ -22,6 +23,26 @@ struct GameTile: View {
     let onOpen: () -> Void
 
     var body: some View {
+        Button {
+            onOpen()
+        } label: {
+            label
+        }
+        .buttonStyle(.card)
+        .hoverEffectDisabled()
+        .focusable()
+        .focusEffectDisabled()
+        .focused($isFocused)
+        .contextMenu {
+            Button(String(localized: "library.tile.play")) { onPlay() }
+
+            Button(String(localized: "library.tile.showDetails")) { onOpen() }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAction(named: Text("library.tile.play"), onPlay)
+    }
+
+    private var label: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
             artwork
 
@@ -32,16 +53,10 @@ struct GameTile: View {
         }
         .contentShape(.rect)
         .onHover { hover($0) }
-        .onTapGesture { onOpen() }
-        .contextMenu {
-            Button(String(localized: "library.tile.play")) { onPlay() }
+    }
 
-            Button(String(localized: "library.tile.showDetails")) { onOpen() }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAction(named: Text("library.tile.play"), onPlay)
-        .accessibilityAction(.default, onOpen)
+    private var isLifted: Bool {
+        isHovering || isFocused
     }
 
     private var artwork: some View {
@@ -55,12 +70,9 @@ struct GameTile: View {
             }
             .overlay {
                 RoundedRectangle(cornerRadius: dimensions.cornerRadiusMedium)
-                    .strokeBorder(
-                        .white.opacity(isHovering ? 0.35 : 0.08),
-                        lineWidth: dimensions.hairline
-                    )
+                    .strokeBorder(border, lineWidth: borderWidth)
             }
-            .hoverLift(isHovering: isHovering)
+            .hoverLift(isHovering: isLifted)
     }
 
     private func badgeLabel(_ badge: LocalizedStringResource) -> some View {
@@ -85,7 +97,20 @@ struct GameTile: View {
                 )
         }
         .buttonStyle(.primary)
+        .focusable(false)
         .padding(dimensions.spaceSmall)
+    }
+
+    private var border: AnyShapeStyle {
+        switch (isFocused, isHovering) {
+        case (true, _): .init(palette.primaryFill)
+        case (false, true): .init(.white.opacity(0.35))
+        case (false, false): .init(.white.opacity(0.08))
+        }
+    }
+
+    private var borderWidth: CGFloat {
+        isFocused ? dimensions.highlightBorderWidth : dimensions.hairline
     }
 
     private var playButtonTransition: AnyTransition {
@@ -96,7 +121,7 @@ struct GameTile: View {
     }
 
     private var nameStyle: HierarchicalShapeStyle {
-        switch isHovering {
+        switch isLifted {
         case true: .primary
         case false: .secondary
         }

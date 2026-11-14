@@ -14,9 +14,12 @@ struct RootView: View {
     @State private var isSignInPresented = false
     @State private var isStreamPresented = false
     @State private var backgroundStreamEnd = BackgroundStreamEnd()
+    @State private var skyCanvasSize: CGSize?
 
     var body: some View {
         content
+            .environment(\.skyCanvasSize, skyCanvasSize)
+            .background { windowSizeReader }
             .preferredColorScheme(.dark)
             .sheet(isPresented: $isSignInPresented) {
                 SignInHostView { SignInView(signInViewModel: $0) }
@@ -57,6 +60,20 @@ struct RootView: View {
             libraryViewModel: libraryViewModel,
             onAddAccount: { presentSignIn() }
         )
+    }
+
+    private var windowSizeReader: some View {
+        Color.clear
+            .onGeometryChange(for: CGSize.self) { proxy in
+                CGSize(
+                    width: proxy.size.width + proxy.safeAreaInsets.leading
+                        + proxy.safeAreaInsets.trailing,
+                    height: proxy.size.height + proxy.safeAreaInsets.top
+                        + proxy.safeAreaInsets.bottom
+                )
+            } action: {
+                skyCanvasSize = $0
+            }
     }
 
     private func presentSignIn() {

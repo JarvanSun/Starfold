@@ -12,3 +12,9 @@ extension ButtonStyle where Self == TileButtonStyle {
         .init()
     }
 }
+
+extension ButtonStyle where Self == CardButtonStyle {
+    static var card: CardButtonStyle {
+        .init()
+    }
+}

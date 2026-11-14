@@ -11,6 +11,7 @@ import XboxKit
 
 struct LibraryView: View {
     @Environment(\.dimensions) private var dimensions
+    @FocusState private var isFirstGameFocused: Bool
 
     let libraryViewModel: LibraryViewModel
 
@@ -22,11 +23,16 @@ struct LibraryView: View {
                 ForEach(libraryViewModel.shelves) { shelfRow($0) }
 
                 if !libraryViewModel.games.isEmpty {
-                    AllGamesGrid(libraryViewModel: libraryViewModel, onOpenGame: onOpenGame)
+                    AllGamesGrid(
+                        libraryViewModel: libraryViewModel,
+                        onOpenGame: onOpenGame,
+                        firstTileFocus: libraryViewModel.shelves.isEmpty ? $isFirstGameFocused : nil
+                    )
                 }
             }
             .padding(.vertical, dimensions.spaceLarge)
         }
+        .defaultFocus($isFirstGameFocused, true)
         .overlay { placeholder }
         .navigationTitle(Text("library.title"))
         .refreshable { await libraryViewModel.refresh() }
@@ -37,7 +43,9 @@ struct LibraryView: View {
             shelf: shelf,
             games: libraryViewModel.games(on: shelf),
             onPlay: { libraryViewModel.play($0) },
-            onOpen: onOpenGame
+            onOpen: onOpenGame,
+            firstTileFocus: shelf.id == libraryViewModel.shelves.first?.id
+                ? $isFirstGameFocused : nil
         )
     }
 

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.dimensions) private var dimensions
+    @FocusState private var isFirstConsoleFocused: Bool
 
     let homeViewModel: HomeViewModel
     let libraryViewModel: LibraryViewModel
@@ -21,7 +22,7 @@ struct HomeView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: dimensions.spaceXLarge) {
-                HomeCardRow(homeViewModel: homeViewModel)
+                HomeCardRow(homeViewModel: homeViewModel, firstCardFocus: $isFirstConsoleFocused)
 
                 CloudGamingRow(libraryViewModel: libraryViewModel, onOpen: onOpenCloudGaming)
                     .pageMargins()
@@ -39,6 +40,7 @@ struct HomeView: View {
             .animation(.smooth(duration: 0.45), value: libraryViewModel.recentGames)
         }
         .scrollIndicators(.hidden)
+        .defaultFocus($isFirstConsoleFocused, true)
         .refreshable { await homeViewModel.refreshAccount() }
     }
 }

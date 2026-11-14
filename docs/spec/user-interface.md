@@ -78,6 +78,8 @@ A status colour always comes with words: visible text or the dot's VoiceOver lab
 - It sits behind home, library and game pages, the welcome screen, a console stream's waiting
   page, and the Apple TV tabs.
 - It freezes on one frame under Reduce Motion, and on the Mac while its window is inactive.
+- On iPhone and iPad it is drawn at the window's size from the top of the page, so the keyboard
+  never resizes it or moves its ribbons.
 - Every main-window scene is dark (`.preferredColorScheme(.dark)`).
 
 ## Cards
@@ -86,6 +88,9 @@ A status colour always comes with words: visible text or the dot's VoiceOver lab
   the primary button trailing. The whole card runs the primary action.
 - `cardSurface()`: ultra-thin material, `.cardFill`, 1-pt `.cardStroke` border, a 2-pt
   `primaryFill` outline with keyboard focus. Material, not Liquid Glass.
+- On iPhone and iPad every card, row and game tile is one focus stop for a game controller or a
+  keyboard: focus shows the same 2-pt `primaryFill` outline (on a tile, around its artwork, which
+  also lifts); the buttons inside a card are never focused on their own.
 
 | Platform | Size | Corner radius | Artwork |
 |---|---|---|---|

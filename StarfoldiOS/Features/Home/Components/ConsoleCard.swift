@@ -24,6 +24,24 @@ struct ConsoleCard: View {
     }
 
     var body: some View {
+        Button {
+            play()
+        } label: {
+            card
+        }
+        .buttonStyle(.card)
+        .hoverEffectDisabled()
+        .focusable()
+        .focusEffectDisabled()
+        .focused($isFocused)
+        .contextMenu { powerMenu }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(
+            Text("home.card.accessibilityLabel \(console.name) \(console.powerStateDescription)")
+        )
+    }
+
+    private var card: some View {
         layout
             .frame(maxWidth: .infinity)
             .frame(height: dimensions.homeCardHeight(forVerticalSizeClass: verticalSizeClass))
@@ -39,17 +57,6 @@ struct ConsoleCard: View {
             .animation(.easeOut(duration: 0.15), value: isFocused)
             .contentShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
             .onHover { isHovering = $0 }
-            .onTapGesture { play() }
-            .focusable()
-            .focusEffectDisabled()
-            .focused($isFocused)
-            .onKeyPress(.return) { pressReturn() }
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel(
-                Text(
-                    "home.card.accessibilityLabel \(console.name) \(console.powerStateDescription)"
-                )
-            )
     }
 
     @ViewBuilder
@@ -109,6 +116,7 @@ struct ConsoleCard: View {
                     control: homeViewModel.powerControl(for: console),
                     onToggle: { togglePower() }
                 )
+                .focusable(false)
 
                 if console.hasWirelessWarning {
                     wirelessHint
@@ -145,17 +153,29 @@ struct ConsoleCard: View {
                 .font(.callout.weight(.semibold))
         }
         .buttonStyle(PrimaryButtonStyle(size: .compact))
+        .focusable(false)
         .help(Text("home.console.play"))
+    }
+
+    @ViewBuilder
+    private var powerMenu: some View {
+        switch homeViewModel.powerControl(for: console) {
+        case .command(let command): powerMenuButton(for: command)
+        case .sending(let command): powerMenuButton(for: command).disabled(true)
+        case .unavailable: EmptyView()
+        }
+    }
+
+    private func powerMenuButton(for command: XboxLiveClient.PowerCommand) -> some View {
+        Button {
+            togglePower()
+        } label: {
+            Label(command.title, systemImage: "power")
+        }
     }
 
     private func play() {
         homeViewModel.play(console)
-    }
-
-    private func pressReturn() -> KeyPress.Result {
-        play()
-
-        return .handled
     }
 
     private func togglePower() {
