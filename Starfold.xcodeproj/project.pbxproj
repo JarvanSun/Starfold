@@ -655,6 +655,7 @@
 				CODE_SIGN_ENTITLEMENTS = StarfoldMac/Configuration/StarfoldMac.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = StarfoldMac/Configuration/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -695,6 +696,7 @@
 				CODE_SIGN_ENTITLEMENTS = StarfoldMac/Configuration/StarfoldMac.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = StarfoldMac/Configuration/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
