@@ -13,22 +13,27 @@ import os
 
 @Observable
 public final class TouchControlsViewModel {
-    private(set) var reference: TouchLayoutReference = .standard
-    private var isHiddenByGame = false
-
-    private var titleBundle: TouchBundle?
     private(set) var titleLayout: TouchLayout?
+
+    private var titleID: String?
+    private var title = TouchTitleState()
+    private var otherTitles: [String: TouchTitleState] = [:]
 
     private let controllers: ControllerHub
     private let preferences: Preferences
     private let standard = StandardTouchLayout()
     private let log = Logger(category: .stream)
 
-    private var context = TouchContext()
-    private var pendingPatches: [JSONPatch] = []
+    var reference: TouchLayoutReference {
+        title.reference
+    }
+
+    var titleBundleManifest: TouchBundleManifest? {
+        title.bundle?.manifest
+    }
 
     public var isShowing: Bool {
-        controllers.activeInput == .touch && !isHiddenByGame
+        controllers.activeInput == .touch && !title.isHiddenByGame
     }
 
     public var isHapticsEnabled: Bool {
@@ -68,34 +73,54 @@ public final class TouchControlsViewModel {
         }
     }
 
-    func load(_ bundle: TouchBundle) {
-        titleBundle = bundle
-        context = pendingPatches.reduce(bundle.context) { applying($1, to: $0) }
-        pendingPatches = []
+    func isFocused(onTitle id: String) -> Bool {
+        titleID == id
+    }
+
+    func focus(onTitle id: String) {
+        guard id != titleID else { return }
+
+        switch titleID {
+        case let previous?:
+            otherTitles[previous] = title
+            title = otherTitles.removeValue(forKey: id) ?? TouchTitleState()
+        case nil:
+            break
+        }
+        titleID = id
 
         resolveTitleLayout()
     }
 
-    func clearTitle() {
-        titleBundle = nil
-        titleLayout = nil
-        context = TouchContext()
-        pendingPatches = []
-        reference = .standard
-        isHiddenByGame = false
+    func load(_ bundle: TouchBundle, forTitle id: String) {
+        switch id == titleID {
+        case true:
+            title = loaded(bundle, into: title)
+            resolveTitleLayout()
+        case false:
+            otherTitles[id] = loaded(bundle, into: otherTitles[id] ?? TouchTitleState())
+        }
+    }
+
+    private func loaded(_ bundle: TouchBundle, into state: TouchTitleState) -> TouchTitleState {
+        var state = state
+        state.bundle = bundle
+        state.context = state.pendingPatches.reduce(bundle.context) { applying($1, to: $0) }
+        state.pendingPatches = []
+        return state
     }
 
     func apply(_ command: TouchControlsCommand) {
         switch command {
         case .showLayout(let reference, let patch): show(reference, patch: patch)
         case .patchState(let patch): applyPatch(patch)
-        case .hide: isHiddenByGame = true
+        case .hide: title.isHiddenByGame = true
         }
     }
 
     private func show(_ reference: TouchLayoutReference, patch: Data?) {
-        self.reference = reference
-        isHiddenByGame = false
+        title.reference = reference
+        title.isHiddenByGame = false
 
         switch patch {
         case let patch?: applyPatch(patch)
@@ -107,9 +132,9 @@ public final class TouchControlsViewModel {
         do {
             let patch = try JSONDecoder().decode(JSONPatch.self, from: data)
 
-            switch titleBundle {
-            case nil: pendingPatches.append(patch)
-            case _?: context = applying(patch, to: context)
+            switch title.bundle {
+            case nil: title.pendingPatches.append(patch)
+            case _?: title.context = applying(patch, to: title.context)
             }
         } catch {
             log.error("Touch state patch could not be read: \(error)")
@@ -128,7 +153,7 @@ public final class TouchControlsViewModel {
     }
 
     private func resolveTitleLayout() {
-        guard let titleBundle, let name = layoutName(in: titleBundle) else {
+        guard let titleBundle = title.bundle, let name = layoutName(in: titleBundle) else {
             titleLayout = nil
             return
         }
@@ -137,7 +162,7 @@ public final class TouchControlsViewModel {
             let layout = try titleBundle.layout(
                 named: name,
                 locale: preferences.effectiveGameLanguage,
-                context: context
+                context: title.context
             )
             titleLayout = isDrawable(layout) ? layout : nil
         } catch {
@@ -154,7 +179,7 @@ public final class TouchControlsViewModel {
     }
 
     private func layoutName(in bundle: TouchBundle) -> String? {
-        switch reference {
+        switch title.reference {
         case .standard: nil
         case .titleDefault: bundle.manifest.defaultLayoutName ?? bundle.layoutNames.first
         case .named(let name): name

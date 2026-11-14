@@ -16,25 +16,16 @@ struct SignInPanel: View {
     var body: some View {
         content
             .frame(maxWidth: .infinity)
-            .animation(.smooth(duration: 0.35), value: step)
             .sensoryFeedback(trigger: step) { _, step in step.arrivalFeedback }
     }
 
     @ViewBuilder
     private var content: some View {
         switch step {
-        case .preparing:
-            SignInPlaceholder()
-                .transition(.opacity)
-        case .code(let code):
-            SignInCodeStep(code: code)
-                .transition(.opacity.combined(with: .scale(scale: 0.98)))
-        case .progress(let progress):
-            SignInProgressStatus(progress: progress)
-                .transition(.opacity)
-        case .failure(let message):
-            SignInFailure(message: message, onRetry: onRetry)
-                .transition(.opacity)
+        case .preparing: SignInPlaceholder()
+        case .code(let code): SignInCodeStep(code: code)
+        case .progress(let progress): SignInProgressStatus(progress: progress)
+        case .failure(let message): SignInFailure(message: message, onRetry: onRetry)
         }
     }
 }

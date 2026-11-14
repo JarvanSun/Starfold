@@ -11,7 +11,6 @@ public struct TouchBundleManifest: Sendable, Hashable, Decodable {
         case versionName
         case defaultLayoutName = "defaultLayout"
         case layoutsFolder = "layouts"
-        case assetsFolder = "assets"
         case contextPath = "context"
     }
 
@@ -20,7 +19,6 @@ public struct TouchBundleManifest: Sendable, Hashable, Decodable {
     public let defaultLayoutName: String?
 
     let layoutsFolder: String
-    let assetsFolder: String
     let contextPath: String
 
     public init(version: String, versionName: String? = nil, defaultLayoutName: String? = nil) {
@@ -28,7 +26,6 @@ public struct TouchBundleManifest: Sendable, Hashable, Decodable {
         self.versionName = versionName
         self.defaultLayoutName = defaultLayoutName
         self.layoutsFolder = "layouts"
-        self.assetsFolder = "assets"
         self.contextPath = "context.json"
     }
 
@@ -44,7 +41,6 @@ public struct TouchBundleManifest: Sendable, Hashable, Decodable {
         versionName = try container.decodeIfPresent(String.self, forKey: .versionName)
         defaultLayoutName = try container.decodeIfPresent(String.self, forKey: .defaultLayoutName)
         layoutsFolder = path(.layoutsFolder, defaults.layoutsFolder)
-        assetsFolder = path(.assetsFolder, defaults.assetsFolder)
         contextPath = path(.contextPath, defaults.contextPath)
     }
 }

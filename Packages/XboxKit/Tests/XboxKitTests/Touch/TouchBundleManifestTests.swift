@@ -27,7 +27,6 @@ struct TouchBundleManifestTests {
         #expect(manifest.versionName == "Launch")
         #expect(manifest.defaultLayoutName == "custom-assets")
         #expect(manifest.layoutsFolder == "Layouts")
-        #expect(manifest.assetsFolder == "art")
         #expect(manifest.contextPath == "state/context.json")
     }
 
@@ -42,7 +41,6 @@ struct TouchBundleManifestTests {
         // Then
         #expect(manifest.defaultLayoutName == nil)
         #expect(manifest.layoutsFolder == "layouts")
-        #expect(manifest.assetsFolder == "assets")
         #expect(manifest.contextPath == "context.json")
     }
 }

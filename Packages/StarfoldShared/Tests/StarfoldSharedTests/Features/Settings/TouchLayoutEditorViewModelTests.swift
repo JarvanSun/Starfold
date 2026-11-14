@@ -38,10 +38,26 @@ struct TouchLayoutEditorViewModelTests {
         editor.select(a)
 
         // When
-        let selected = editor.selectedPlacement(in: editor.plan(for: .dummy))
+        let selected = editor.selectedPlacement(in: editor.plan(for: .dummy, in: .landscape))
 
         // Then
         #expect(selected?.id == a.id)
+    }
+
+    @Test
+    func planWhenTheOrientationIsNotShownYetThenUsesThatOrientationsEdits() {
+        // Given
+        let preferences = Preferences(defaults: .dummyEmpty)
+        var portrait = TouchLayoutAdjustments()
+        portrait.opacity = 0.4
+        preferences.setTouchLayoutAdjustments(portrait, for: .portrait)
+        let editor = TouchLayoutEditorViewModel(preferences: preferences)
+
+        // When
+        let plan = editor.plan(for: .dummy, in: .portrait)
+
+        // Then
+        #expect(plan.opacity == 0.4)
     }
 
     @Test
@@ -142,7 +158,9 @@ struct TouchLayoutEditorViewModelTests {
         // Then
         #expect(preferences.touchSticks.visibility(of: .rightStick) == .onTouch)
         #expect(preferences.touchSticks.visibility(of: .leftStick) == .always)
-        #expect(editor.plan(for: .dummy).sticks.visibility(of: .rightStick) == .onTouch)
+        #expect(
+            editor.plan(for: .dummy, in: .landscape).sticks.visibility(of: .rightStick) == .onTouch
+        )
     }
 
     @Test
@@ -181,6 +199,6 @@ private extension TouchLayoutEditorViewModelTests {
         _ input: TouchInput,
         in editor: TouchLayoutEditorViewModel
     ) throws -> TouchControlPlacement {
-        try #require(editor.plan(for: .dummy).controls.first { $0.input == input })
+        try #require(editor.plan(for: .dummy, in: .landscape).controls.first { $0.input == input })
     }
 }

@@ -472,6 +472,55 @@ struct StreamViewModelTests {
     }
 
     @Test
+    func runningTitleWhenATitleRegainsFocusThenKeepsItsTouchLayout() async throws {
+        // Given
+        let service = StreamServiceStub()
+        service.touchBundle = try .dummy()
+        let game = RunningTitle(titleID: "1717", isFocused: true)
+        service.updates = [.phase(.streaming), .runningTitle(game)]
+        let stream = makeStream(service: service, touch: .dummy)
+        stream.start()
+        let touch = try #require(stream.touchControlsViewModel)
+        await Eventually().holds { service.touchBundleRequests == ["1717"] }
+        let connection = try #require(service.connection)
+        connection.send(.touchControls(.showLayout(.titleDefault, statePatch: .hidingTheWheel)))
+        await Eventually().holds { touch.isShowingTitleLayout }
+        connection.send(.runningTitle(RunningTitle(titleID: "750c", isFocused: true)))
+        await Eventually().holds { !touch.isShowingTitleLayout }
+
+        // When
+        connection.send(.runningTitle(game))
+
+        // Then
+        #expect(await Eventually().holds { touch.isShowingTitleLayout })
+        #expect(service.touchBundleRequests == ["1717", "750c"])
+    }
+
+    @Test
+    func runningTitleWhenTheTouchLayoutsKeepFailingThenStopsTryingAfterThreeTries() async throws {
+        // Given
+        let service = StreamServiceStub()
+        let title = RunningTitle(titleID: "1717", isFocused: true)
+        service.updates = [.phase(.streaming), .runningTitle(title)]
+        service.touchBundleFailures = Array(repeating: URLError(.timedOut), count: 5)
+        let stream = makeStream(service: service, touch: .dummy)
+        stream.start()
+        await Eventually().holds { service.connection != nil }
+        let connection = try #require(service.connection)
+
+        // When
+        for attempt in 1...5 {
+            await Eventually().holds { service.touchBundleRequests.count >= min(attempt, 3) }
+            connection.send(.runningTitle(title))
+        }
+        connection.send(.runningTitle(RunningTitle(titleID: "750c", isFocused: true)))
+
+        // Then
+        #expect(await Eventually().holds { service.touchBundleRequests.last == "750c" })
+        #expect(service.touchBundleRequests.filter { $0 == "1717" }.count == 3)
+    }
+
+    @Test
     func handleKeyWhenTheMenuIsOpenThenLeavesTheKeyToTheMenu() async {
         // Given
         let stream = await makeStreamingStream(touch: .dummy)

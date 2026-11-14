@@ -65,8 +65,8 @@ struct StreamView: View {
         }
         .landscapeOnPhone()
         .streamKeyboardInput(streamViewModel)
-        .onAppear { streamViewModel.revealControls() }
-        .onChange(of: streamViewModel.isRoutingInputToGame, initial: true) { _, isRouting in
+        .onAppear { appear() }
+        .onChange(of: streamViewModel.isRoutingInputToGame) { _, isRouting in
             controllers.routeInput(toGame: isRouting)
         }
         .onChange(of: scenePhase, initial: true) { _, phase in
@@ -87,6 +87,11 @@ struct StreamView: View {
             )
             .interactiveDismissDisabled()
         }
+    }
+
+    private func appear() {
+        streamViewModel.revealControls()
+        controllers.routeInput(toGame: streamViewModel.isRoutingInputToGame)
     }
 
     private func touchLayer(_ touchControlsViewModel: TouchControlsViewModel) -> some View {

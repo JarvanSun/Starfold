@@ -29,6 +29,30 @@ struct TouchBundleTests {
     }
 
     @Test
+    func initWhenAnUnreadEntryCannotBeExpandedThenStillLoads() throws {
+        // Given
+        let manifest = #"{"defaultLayout":"main","layouts":"layouts","version":"1.0.0.0"}"#
+        let entries = [
+            ZipArchiveBuilder.Entry(name: "takxmanifest.json", contents: Data(manifest.utf8)),
+            ZipArchiveBuilder.Entry(
+                name: "layouts/neutral/main.json",
+                contents: Data(menuLayout(.menu).utf8)
+            ),
+            ZipArchiveBuilder.Entry(
+                name: "assets/neutral/@1.0x/Bow.png",
+                contents: Data("bow".utf8),
+                method: .bzip2
+            ),
+        ]
+
+        // When
+        let bundle = try TouchBundle(archive: ZipArchiveBuilder().archive(entries))
+
+        // Then
+        #expect(bundle.layoutNames == ["main"])
+    }
+
+    @Test
     func layoutThenDecodesASampleFileThatStartsWithAByteOrderMark() throws {
         // Given
         let bundle = try TouchBundle(archive: .dummySampleLayoutsBundle)
@@ -120,44 +144,6 @@ struct TouchBundleTests {
         // Then
         #expect(shieldFaceImage(in: original) == .asset("ShieldIdle"))
         #expect(shieldFaceImage(in: changed) == .asset("ShieldRaised"))
-    }
-
-    @Test(arguments: [(1.0, 1.0), (1.2, 1.5), (2.0, 2.0), (3.0, 2.0)])
-    func assetThenPicksTheSmallestScaleAtLeastTheRequestedOne(requested: Double, expected: Double)
-        throws
-    {
-        // Given
-        let bundle = try makeBundle([
-            "assets/neutral/@1.0x/Bow.png": "one",
-            "assets/neutral/@1.5x/Bow.png": "one and a half",
-            "assets/neutral/@2.0x/Bow.png": "two",
-        ])
-
-        // When
-        let asset = try #require(bundle.asset(named: "Bow", scale: requested, locale: "en-US"))
-
-        // Then
-        #expect(asset.scale == expected)
-    }
-
-    @Test
-    func assetThenPrefersTheLocaleFolderAndFallsBackToNeutral() throws {
-        // Given
-        let bundle = try makeBundle([
-            "assets/neutral/@1.0x/Bow.png": "neutral bow",
-            "assets/neutral/@1.0x/Sword.png": "neutral sword",
-            "assets/ja-JP/@1.0x/Bow.png": "japanese bow",
-        ])
-
-        // When
-        let bow = bundle.asset(named: "bow", scale: 1, locale: "ja-JP")
-        let sword = bundle.asset(named: "Sword", scale: 1, locale: "ja-JP")
-        let missing = bundle.asset(named: "Shield", scale: 1, locale: "ja-JP")
-
-        // Then
-        #expect(bow?.png == Data("japanese bow".utf8))
-        #expect(sword?.png == Data("neutral sword".utf8))
-        #expect(missing == nil)
     }
 }
 

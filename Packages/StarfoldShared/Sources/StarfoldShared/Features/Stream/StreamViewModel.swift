@@ -53,8 +53,9 @@ public final class StreamViewModel {
     private var hasLoggedFirstRumble = false
     private var statisticsTicks = 0
     private var isInForeground = true
-    private var touchTitleID: String?
-    private var touchBundleTask: Task<Void, Never>?
+    private var touchBundleTasks: [String: Task<Void, Never>] = [:]
+    private var touchBundleAttempts: [String: Int] = [:]
+    private var touchBundleTitles: Set<String> = []
     private var startedAt = ContinuousClock.now
 
     public var sharpeningLevel: SharpeningLevel {
@@ -314,41 +315,59 @@ public final class StreamViewModel {
     }
 
     private func loadTouchLayouts(for title: RunningTitle) {
-        guard let touchControlsViewModel, title.isFocused, title.titleID != touchTitleID else {
-            return
-        }
+        guard let touchControlsViewModel, title.isFocused else { return }
 
-        touchTitleID = title.titleID
-        touchControlsViewModel.clearTitle()
-        touchBundleTask?.cancel()
-        touchBundleTask = Task {
-            await loadTouchBundle(for: title.titleID, into: touchControlsViewModel)
+        let id = title.titleID
+        let isNewlyFocused = !touchControlsViewModel.isFocused(onTitle: id)
+        touchControlsViewModel.focus(onTitle: id)
+        if isNewlyFocused { announceTouchBundle(touchControlsViewModel.titleBundleManifest) }
+        guard needsTouchBundle(for: id) else { return }
+
+        touchBundleAttempts[id, default: 0] += 1
+        touchBundleTasks[id] = Task {
+            await loadTouchBundle(for: id, into: touchControlsViewModel)
         }
+    }
+
+    private func needsTouchBundle(for titleID: String) -> Bool {
+        let maximumAttempts = 3
+
+        return !touchBundleTitles.contains(titleID) && touchBundleTasks[titleID] == nil
+            && touchBundleAttempts[titleID, default: 0] < maximumAttempts
     }
 
     private func loadTouchBundle(
         for titleID: String,
         into touchControlsViewModel: TouchControlsViewModel
-    )
-        async
-    {
+    ) async {
+        defer { touchBundleTasks[titleID] = nil }
+
         do {
-            guard let bundle = try await service.touchBundle(forTitle: titleID, on: target),
-                !Task.isCancelled
-            else { return }
+            let bundle = try await service.touchBundle(forTitle: titleID, on: target)
+            guard !Task.isCancelled else { return }
 
-            touchControlsViewModel.load(bundle)
+            touchBundleTitles.insert(titleID)
+            guard let bundle else { return }
 
-            await connection?.announceTouchBundle(
-                version: bundle.manifest.version,
-                versionName: bundle.manifest.versionName ?? bundle.manifest.version
-            )
+            touchControlsViewModel.load(bundle, forTitle: titleID)
+            if touchControlsViewModel.isFocused(onTitle: titleID) {
+                announceTouchBundle(bundle.manifest)
+            }
         } catch {
             log.error(
                 "Touch layouts for \(titleID, privacy: .public) could not be loaded: \(error)"
             )
+        }
+    }
 
-            if touchTitleID == titleID { touchTitleID = nil }
+    private func announceTouchBundle(_ manifest: TouchBundleManifest?) {
+        guard let manifest, let connection else { return }
+
+        Task {
+            await connection.announceTouchBundle(
+                version: manifest.version,
+                versionName: manifest.versionName ?? manifest.version
+            )
         }
     }
 
@@ -440,7 +459,7 @@ public final class StreamViewModel {
         runTask?.cancel()
         hideControlsTask?.cancel()
         settingsTask?.cancel()
-        touchBundleTask?.cancel()
+        for task in touchBundleTasks.values { task.cancel() }
 
         if let connection {
             await connection.stop(reason: .userStopped)

@@ -114,13 +114,23 @@ public final class TouchLayoutEditorViewModel {
         save()
     }
 
-    public func plan(for metrics: TouchMetrics) -> TouchControlPlan {
+    public func plan(
+        for metrics: TouchMetrics,
+        in orientation: TouchOrientation
+    ) -> TouchControlPlan {
         TouchLayoutPlanner(
             metrics: metrics,
-            adjustments: adjustments,
+            adjustments: adjustments(for: orientation),
             sticks: preferences.touchSticks
         )
         .plan(for: standard.layout.base)
+    }
+
+    private func adjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
+        switch orientation == self.orientation {
+        case true: adjustments
+        case false: preferences.touchLayoutAdjustments(for: orientation)
+        }
     }
 
     private func changeSelected(_ update: (inout TouchControlAdjustment) -> Void) {

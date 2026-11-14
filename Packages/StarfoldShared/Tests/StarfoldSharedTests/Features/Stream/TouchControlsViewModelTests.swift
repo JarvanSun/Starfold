@@ -69,30 +69,66 @@ struct TouchControlsViewModelTests {
     func loadWhenTheGamePatchedItsStateBeforeTheBundleArrivedThenKeepsThatState() throws {
         // Given
         let touch = makeTouchControls()
+        touch.focus(onTitle: "1717")
         let patch = #"[{"op":"replace","path":"/showsWheel","value":false}]"#
         touch.apply(.showLayout(.titleDefault, statePatch: Data(patch.utf8)))
 
         // When
-        touch.load(try makeBundle())
+        touch.load(try .dummy(), forTitle: "1717")
 
         // Then
         #expect(touch.isShowingTitleLayout)
     }
 
     @Test
-    func clearTitleThenShowsTheStandardLayoutAgain() {
+    func focusWhenAnotherTitleTakesFocusThenShowsTheStandardLayoutAgain() {
         // Given
         let touch = makeTouchControls()
+        touch.focus(onTitle: "1717")
         touch.apply(.showLayout(.named("driving"), statePatch: nil))
         touch.apply(.hide)
 
         // When
-        touch.clearTitle()
+        touch.focus(onTitle: "750c")
 
         // Then
         #expect(touch.isShowing)
         #expect(touch.reference == .standard)
         #expect(!touch.isShowingTitleLayout)
+    }
+
+    @Test
+    func focusWhenATitleRegainsFocusThenRestoresItsLayoutAndState() throws {
+        // Given
+        let touch = makeTouchControls()
+        touch.focus(onTitle: "1717")
+        touch.load(try .dummy(), forTitle: "1717")
+        touch.apply(.showLayout(.titleDefault, statePatch: .hidingTheWheel))
+        touch.focus(onTitle: "750c")
+
+        // When
+        touch.focus(onTitle: "1717")
+
+        // Then
+        #expect(touch.reference == .titleDefault)
+        #expect(touch.isShowingTitleLayout)
+    }
+
+    @Test
+    func loadWhenTheBundleIsForATitleNoLongerFocusedThenKeepsItForThatTitle() throws {
+        // Given
+        let touch = makeTouchControls()
+        touch.focus(onTitle: "1717")
+        touch.apply(.showLayout(.titleDefault, statePatch: .hidingTheWheel))
+        touch.focus(onTitle: "750c")
+
+        // When
+        touch.load(try .dummy(), forTitle: "1717")
+
+        // Then
+        #expect(!touch.isShowingTitleLayout)
+        touch.focus(onTitle: "1717")
+        #expect(touch.isShowingTitleLayout)
     }
 
     @Test
@@ -150,19 +186,6 @@ struct TouchControlsViewModelTests {
 }
 
 private extension TouchControlsViewModelTests {
-    func makeBundle() throws -> TouchBundle {
-        let files = [
-            "takxmanifest.json":
-                #"{"defaultLayout":"main","layouts":"layouts","assets":"assets","version":"1.0.0.0"}"#,
-            "context.json": #"{"state":{"showsWheel":true}}"#,
-            "layouts/neutral/main.json":
-                #"{"content":{"right":{"inner":[{"type":"steeringWheel","visible":{"$ref":"../../context.json#/state/showsWheel"}}]}}}"#,
-        ]
-        let entries = files.sorted { $0.key < $1.key }
-            .map { path, text in ZipArchiveBuilder.Entry(name: path, contents: Data(text.utf8)) }
-        return try TouchBundle(archive: ZipArchiveBuilder().archive(entries))
-    }
-
     func makeTouchControls(
         preferences: Preferences = .init(defaults: .dummyEmpty)
     ) -> TouchControlsViewModel {

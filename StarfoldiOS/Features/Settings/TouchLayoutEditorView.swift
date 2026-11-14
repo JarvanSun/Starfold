@@ -15,27 +15,35 @@ struct TouchLayoutEditorView: View {
     @Bindable var touchLayoutEditorViewModel: TouchLayoutEditorViewModel
 
     var body: some View {
-        let plan = touchLayoutEditorViewModel.plan(
-            for: dimensions.touchMetrics(forVerticalSizeClass: verticalSizeClass)
-        )
-        let selected = touchLayoutEditorViewModel.selectedPlacement(in: plan)
-
         ZStack {
             SkyBackground()
                 .ignoresSafeArea()
                 .onTapGesture { touchLayoutEditorViewModel.select(nil) }
 
             GeometryReader { proxy in
-                controls(plan, in: proxy.size)
-                    .overlay(if: selected, alignment: .topLeading) {
-                        inspector(beside: $0, in: proxy.size)
-                    }
-                    .onChange(of: TouchOrientation(size: proxy.size), initial: true) {
-                        _,
-                        orientation in
-                        touchLayoutEditorViewModel.show(orientation)
-                    }
+                editor(in: proxy.size)
             }
+        }
+        .statusBarHidden()
+        .persistentSystemOverlays(.hidden)
+        .landscapeOnPhone()
+        .environment(\.colorScheme, .dark)
+    }
+
+    private func editor(in size: CGSize) -> some View {
+        let orientation = TouchOrientation(size: size)
+        let plan = touchLayoutEditorViewModel.plan(
+            for: dimensions.touchMetrics(forVerticalSizeClass: verticalSizeClass),
+            in: orientation
+        )
+        let selected = touchLayoutEditorViewModel.selectedPlacement(in: plan)
+
+        return ZStack(alignment: .topLeading) {
+            controls(plan, in: size)
+                .overlay(if: selected, alignment: .topLeading) { inspector(beside: $0, in: size) }
+                .onChange(of: orientation, initial: true) { _, orientation in
+                    touchLayoutEditorViewModel.show(orientation)
+                }
 
             hiddenWhileMoving(
                 TouchLayoutEditorPill(
@@ -46,22 +54,22 @@ struct TouchLayoutEditorView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             )
 
-            Button(role: .close) {
-                dismiss()
-            } label: {
-                Label("touchEditor.close", systemImage: "xmark")
-                    .labelStyle(.iconOnly)
-            }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
-            .controlSize(.large)
-            .padding(dimensions.spaceLarge)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            closeButton
         }
-        .statusBarHidden()
-        .persistentSystemOverlays(.hidden)
-        .landscapeOnPhone()
-        .environment(\.colorScheme, .dark)
+    }
+
+    private var closeButton: some View {
+        Button(role: .close) {
+            dismiss()
+        } label: {
+            Label("touchEditor.close", systemImage: "xmark")
+                .labelStyle(.iconOnly)
+        }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
+        .padding(dimensions.spaceLarge)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private func hiddenWhileMoving(_ content: some View) -> some View {

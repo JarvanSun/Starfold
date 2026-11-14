@@ -112,12 +112,13 @@ In StarfoldShared.
 - **Palette**: Nebula matches the app icon's #6652E8; Sunrise keeps the original pre-palette values, including the 85 % black label and coral glow.
 - **PrimaryButtonStyle**: Under Reduce Motion the hover growth is dropped; the hover lightening stays.
 - **AppPalette**: On UIKit platforms the palette accent is the window's `tintColor`, not a SwiftUI `.tint`, because an explicit `.tint` also recolours controls the system draws neutral (menu values in a Form, glass buttons), which lowered their contrast; the window tint only replaces the system accent. No target sets a global accent colour.
-- **LiveNetworkPath**: The cellular state sits behind an unfair lock because NWPathMonitor reports on its own queue while ViewModels read it on the main actor.
+- **LiveNetworkPath**: Path updates arrive on the monitor's queue and are applied on the main actor to observable properties, so Settings shows or hides Cellular quality as soon as cellular data appears or goes.
 - **StreamViewModel**: Keys play as a gamepad only while nothing covers the game (no stream menu, no game dialog); a key that arrives otherwise releases every held key, so none stays pressed.
 - **StreamViewModel**: The Cellular quality ceiling caps the quality after the AdaptiveQuality override, so a pinned cloud stream still respects it.
 - **TouchLayoutPlanner**: Microsoft does not publish where its renderer puts TAK slots, so outer slots are spread evenly over a 100° arc around their wheel, the right wheel running from the top towards the centre to match the order of the standard sample.
 - **TouchControlsViewModel**: A title layout is used only when the planner can draw every visible control as the game meant it (`TouchLayer.isDrawable`): each has a Touch Controller counterpart, no slot holds more than one, nothing sits in the centre wheel, and no button toggles or has a pull action. A partly drawn layout could leave out the control a game needs.
-- **TouchControlsViewModel**: State patches that arrive before the title's bundle are kept and applied once it loads, and a new focused title clears the previous title's layout, state and hiding.
+- **TouchControlsViewModel**: Each title keeps its own touch state (bundle, context, pending patches, layout and hiding), because opening the Xbox Guide moves focus to the shell and back; patches that arrive before a title's bundle are applied once it loads, and a bundle that arrives after focus moved on is kept for its title.
+- **StreamViewModel**: A title's touch bundle is downloaded once per stream; a failed download is retried on a later title message, at most three times, so a broken endpoint is not hit on every message.
 - **TouchControlsViewModel**: Edits apply only to the standard layout because a title layout's positions come from the game's own design.
 - **TouchSticks**: Stick visibility is one setting for both orientations, not part of the per-orientation adjustments, because whether a game needs a stick does not depend on the screen's shape. The plan carries it, so the planner still places every stick and the editor can draw an outline where a hidden stick sits.
 - **Preferences**: Touch layout edits are kept in an observed property as well as `UserDefaults`, so a stream redraws as soon as the editor changes them.
@@ -215,4 +216,5 @@ In `StarfoldiOS/`.
 - **ConsoleCardArt** (iOS): The cover is an overlay, so a `scaledToFill` image cannot widen the card.
 - **TouchPlatform**: `maxTouchPoints` 5 is an assumption about what a phone browser reports to xbox.com; it is not confirmed against the service.
 - **RootView**: Going to the background ends the stream inside a background task, as Apple TV does, because a suspended app cannot delete the host session.
+- **StreamView**: Game input routing is applied again on every appearance, not only when it changes, because a full-screen cover over the stream (the touch editor) makes the stream view disappear, which turns routing off.
 - **RootView**: The stream ends when its full-screen cover is dismissed, not when the stream view disappears, because the touch editor's cover hides the stream without ending it. Both paths go through one `BackgroundStreamEnd`, which ignores a second end while one is running.

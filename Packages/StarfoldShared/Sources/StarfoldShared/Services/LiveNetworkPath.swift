@@ -6,41 +6,32 @@
 //
 
 import Network
-import os
+import Observation
 
+@Observable
 public final class LiveNetworkPath: NetworkPathReading {
-    private let monitor = NWPathMonitor()
-    private let cellular = OSAllocatedUnfairLock(initialState: CellularState())
+    public private(set) var isOnCellular = false
+    public private(set) var hasCellular = false
 
-    public var isOnCellular: Bool {
-        cellular.withLock { $0.isInUse }
-    }
-
-    public var hasCellular: Bool {
-        cellular.withLock { $0.isAvailable }
-    }
+    @ObservationIgnored private let monitor = NWPathMonitor()
 
     public init() {
-        monitor.pathUpdateHandler = { [cellular] path in
-            cellular.withLock { $0 = CellularState(path: path) }
+        monitor.pathUpdateHandler = { [weak self] path in
+            let isOnCellular = path.usesInterfaceType(.cellular)
+            let hasCellular = path.availableInterfaces.contains { $0.type == .cellular }
+
+            Task { @MainActor in self?.apply(isOnCellular: isOnCellular, hasCellular: hasCellular) }
         }
 
         monitor.start(queue: .init(label: "StarfoldShared.networkPath", qos: .utility))
     }
 
-    deinit {
+    isolated deinit {
         monitor.cancel()
     }
-}
 
-private nonisolated struct CellularState: Sendable {
-    var isInUse = false
-    var isAvailable = false
-
-    init() {}
-
-    init(path: NWPath) {
-        isInUse = path.usesInterfaceType(.cellular)
-        isAvailable = path.availableInterfaces.contains { $0.type == .cellular }
+    private func apply(isOnCellular: Bool, hasCellular: Bool) {
+        self.isOnCellular = isOnCellular
+        self.hasCellular = hasCellular
     }
 }
