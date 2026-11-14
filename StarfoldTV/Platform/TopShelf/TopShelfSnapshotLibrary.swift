@@ -11,8 +11,10 @@ import TopShelfKit
 import XboxKit
 
 extension TopShelfSnapshot {
-    init?(app: AppViewModel) {
-        switch (app.sessionState, app.home, app.library) {
+    init?(appViewModel: AppViewModel) {
+        switch (
+            appViewModel.sessionState, appViewModel.homeViewModel, appViewModel.libraryViewModel
+        ) {
         case (.restoring, _, _): return nil
         case (.signedOut, _, _): self.init()
         case (.signedIn, let home?, let library?):

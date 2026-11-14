@@ -10,14 +10,14 @@ import SwiftUI
 import XboxKit
 
 struct AccountMenu: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.dimensions) private var dimensions
     @State private var isConfirmingSignOut = false
 
     let onAddAccount: () -> Void
 
     private var gamertag: String {
-        app.signedInGamertag ?? ""
+        appViewModel.signedInGamertag ?? ""
     }
 
     var body: some View {
@@ -45,23 +45,23 @@ struct AccountMenu: View {
             titleVisibility: .visible
         ) {
             Button("home.account.signOutConfirmation.signOut", role: .destructive) {
-                app.signOut()
+                appViewModel.signOut()
             }
         }
     }
 
     @ViewBuilder
     private var accountSwitcher: some View {
-        if app.accounts.count > 1 {
+        if appViewModel.accounts.count > 1 {
             Section("home.account.switchAccount") {
-                ForEach(app.accounts) { accountButton($0) }
+                ForEach(appViewModel.accounts) { accountButton($0) }
             }
         }
     }
 
     private func accountButton(_ account: AccountSummary) -> some View {
         Button {
-            Task { await app.switchAccount(to: account.id) }
+            Task { await appViewModel.switchAccount(to: account.id) }
         } label: {
             accountLabel(account)
         }
@@ -69,7 +69,7 @@ struct AccountMenu: View {
 
     @ViewBuilder
     private func accountLabel(_ account: AccountSummary) -> some View {
-        switch account.id == app.activeAccountID {
+        switch account.id == appViewModel.activeAccountID {
         case true: Label(account.gamertag, systemImage: "checkmark")
         case false: Text(account.gamertag)
         }
@@ -90,7 +90,7 @@ struct AccountMenu: View {
     }
 
     private var picture: some View {
-        AsyncImage(url: app.profile?.pictureURL) { image in
+        AsyncImage(url: appViewModel.profile?.pictureURL) { image in
             image.resizable().scaledToFill()
         } placeholder: {
             Image(systemName: "person.crop.circle.fill")
@@ -103,7 +103,7 @@ struct AccountMenu: View {
 
     @ViewBuilder
     private var gamerscore: some View {
-        switch app.profile?.gamerscore {
+        switch appViewModel.profile?.gamerscore {
         case let score?:
             Text("home.account.gamerscore \(score.formatted())")
                 .font(.caption.monospacedDigit())

@@ -11,41 +11,41 @@ import SwiftUI
 struct SettingsView: View {
     @State private var isConfirmingSignOut = false
 
-    let settings: SettingsViewModel
+    let settingsViewModel: SettingsViewModel
 
     let onAddAccount: () -> Void
 
     var body: some View {
         Form {
-            QualitySettingsSection(settings: settings)
+            QualitySettingsSection(settingsViewModel: settingsViewModel)
 
-            CloudGamingSettingsSection(settings: settings)
+            CloudGamingSettingsSection(settingsViewModel: settingsViewModel)
 
-            PictureSettingsSection(settings: settings)
+            PictureSettingsSection(settingsViewModel: settingsViewModel)
 
-            ControllerSettingsSection(settings: settings)
+            ControllerSettingsSection(settingsViewModel: settingsViewModel)
 
             AccountSettingsSection(
-                accounts: settings.accountChoices,
+                accounts: settingsViewModel.accountChoices,
                 onSwitch: { switchAccount(to: $0) },
                 onAdd: onAddAccount,
                 onSignOut: { confirmSignOut() }
             )
 
-            AppearanceSettingsSection(settings: settings)
+            AppearanceSettingsSection(settingsViewModel: settingsViewModel)
         }
         .confirmationDialog(
-            "settings.signOut.confirmation \(settings.signOutSubject)",
+            "settings.signOut.confirmation \(settingsViewModel.signOutSubject)",
             isPresented: $isConfirmingSignOut
         ) {
-            Button("settings.signOut.confirm", role: .destructive) { settings.signOut() }
+            Button("settings.signOut.confirm", role: .destructive) { settingsViewModel.signOut() }
 
             Button("common.cancel", role: .cancel) {}
         }
     }
 
     private func switchAccount(to account: AccountChoice) {
-        Task { await settings.switchAccount(to: account) }
+        Task { await settingsViewModel.switchAccount(to: account) }
     }
 
     private func confirmSignOut() {
@@ -56,7 +56,7 @@ struct SettingsView: View {
 #if DEBUG
 #Preview {
     let app = PreviewObjectPool.appViewModel(signedIn: true)
-    SettingsView(settings: app.settings, onAddAccount: {})
+    SettingsView(settingsViewModel: app.settingsViewModel, onAddAccount: {})
         .environment(app)
 }
 #endif

@@ -9,14 +9,14 @@ import StarfoldShared
 import SwiftUI
 
 struct HomeHostView: View {
-    let home: HomeViewModel
-    let library: LibraryViewModel
+    let homeViewModel: HomeViewModel
+    let libraryViewModel: LibraryViewModel
 
     let onAddAccount: () -> Void
 
     var body: some View {
         NavigationStack {
-            HomeView(home: home, library: library)
+            HomeView(homeViewModel: homeViewModel, libraryViewModel: libraryViewModel)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         AccountMenu(onAddAccount: onAddAccount)
@@ -29,8 +29,8 @@ struct HomeHostView: View {
 #if DEBUG
 #Preview("Home") {
     HomeHostView(
-        home: PreviewObjectPool.homeViewModel(),
-        library: PreviewObjectPool.libraryViewModel()
+        homeViewModel: PreviewObjectPool.homeViewModel(),
+        libraryViewModel: PreviewObjectPool.libraryViewModel()
     ) {}
     .environment(PreviewObjectPool.appViewModel(signedIn: true))
 }

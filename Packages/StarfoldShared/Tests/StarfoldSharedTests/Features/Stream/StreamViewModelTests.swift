@@ -97,7 +97,9 @@ struct StreamViewModelTests {
         stream.start()
 
         // Then
-        #expect(await Eventually().holds { stream.dialogs.queue.map(\.id) == ["save"] })
+        #expect(
+            await Eventually().holds { stream.systemDialogsViewModel.queue.map(\.id) == ["save"] }
+        )
     }
 
     @Test
@@ -117,7 +119,9 @@ struct StreamViewModelTests {
         stream.start()
 
         // Then
-        #expect(await Eventually().holds { stream.dialogs.queue.map(\.id) == ["notice"] })
+        #expect(
+            await Eventually().holds { stream.systemDialogsViewModel.queue.map(\.id) == ["notice"] }
+        )
     }
 
     @Test(arguments: [SoundStage.direct, .window])
@@ -330,7 +334,7 @@ struct StreamViewModelTests {
         service.updates = [.phase(.streaming), .dialog(dialog)]
         let stream = makeStream(service: service)
         stream.start()
-        await Eventually().holds { stream.dialogs.presentedDialog != nil }
+        await Eventually().holds { stream.systemDialogsViewModel.presentedDialog != nil }
 
         // Then
         #expect(!stream.canOpenMenu)
@@ -409,6 +413,176 @@ struct StreamViewModelTests {
         #expect(preferences.sharpening == 1)
     }
 
+    @Test(arguments: [(true, StreamQuality.standard), (false, .high)])
+    func startWhenCellularIsKnownThenCapsQualityOnlyOnCellular(
+        isOnCellular: Bool,
+        expected: StreamQuality
+    ) {
+        // Given
+        let network = NetworkPathStub()
+        network.isOnCellular = isOnCellular
+        let stream = makeStream(service: StreamServiceStub(), network: network)
+
+        // When
+        stream.start()
+
+        // Then
+        #expect(stream.quality == expected)
+    }
+
+    @Test
+    func needsControllerWhenTouchControlsExistThenIsFalse() async {
+        // Given / When
+        let stream = await makeStreamingStream(touch: .dummy)
+
+        // Then
+        #expect(!stream.needsController)
+    }
+
+    @Test(
+        .disabled(
+            if: ControllerAvailability().hasConnectedController,
+            "needs no connected controller"
+        )
+    )
+    func needsControllerWhenNoControllerAndNoTouchThenIsTrue() async {
+        // Given / When
+        let stream = await makeStreamingStream()
+
+        // Then
+        #expect(stream.needsController)
+    }
+
+    @Test
+    func runningTitleWhenTheTouchLayoutsFailedToLoadThenTriesAgain() async throws {
+        // Given
+        let service = StreamServiceStub()
+        let title = RunningTitle(titleID: "1717", isFocused: true)
+        service.updates = [.phase(.streaming), .runningTitle(title)]
+        service.touchBundleFailures = [URLError(.timedOut)]
+        let stream = makeStream(service: service, touch: .dummy)
+        stream.start()
+        await Eventually().holds { service.touchBundleRequests.count == 1 }
+
+        // When
+        try #require(service.connection).send(.runningTitle(title))
+
+        // Then
+        #expect(await Eventually().holds { service.touchBundleRequests.count == 2 })
+    }
+
+    @Test
+    func runningTitleWhenATitleRegainsFocusThenKeepsItsTouchLayout() async throws {
+        // Given
+        let service = StreamServiceStub()
+        service.touchBundle = try .dummy()
+        let game = RunningTitle(titleID: "1717", isFocused: true)
+        service.updates = [.phase(.streaming), .runningTitle(game)]
+        let stream = makeStream(service: service, touch: .dummy)
+        stream.start()
+        let touch = try #require(stream.touchControlsViewModel)
+        await Eventually().holds { service.touchBundleRequests == ["1717"] }
+        let connection = try #require(service.connection)
+        connection.send(.touchControls(.showLayout(.titleDefault, statePatch: .hidingTheWheel)))
+        await Eventually().holds { touch.isShowingTitleLayout }
+        connection.send(.runningTitle(RunningTitle(titleID: "750c", isFocused: true)))
+        await Eventually().holds { !touch.isShowingTitleLayout }
+
+        // When
+        connection.send(.runningTitle(game))
+
+        // Then
+        #expect(await Eventually().holds { touch.isShowingTitleLayout })
+        #expect(service.touchBundleRequests == ["1717", "750c"])
+    }
+
+    @Test
+    func runningTitleWhenTheTouchLayoutsKeepFailingThenStopsTryingAfterThreeTries() async throws {
+        // Given
+        let service = StreamServiceStub()
+        let title = RunningTitle(titleID: "1717", isFocused: true)
+        service.updates = [.phase(.streaming), .runningTitle(title)]
+        service.touchBundleFailures = Array(repeating: URLError(.timedOut), count: 5)
+        let stream = makeStream(service: service, touch: .dummy)
+        stream.start()
+        await Eventually().holds { service.connection != nil }
+        let connection = try #require(service.connection)
+
+        // When
+        for attempt in 1...5 {
+            await Eventually().holds { service.touchBundleRequests.count >= min(attempt, 3) }
+            connection.send(.runningTitle(title))
+        }
+        connection.send(.runningTitle(RunningTitle(titleID: "750c", isFocused: true)))
+
+        // Then
+        #expect(await Eventually().holds { service.touchBundleRequests.last == "750c" })
+        #expect(service.touchBundleRequests.filter { $0 == "1717" }.count == 3)
+    }
+
+    @Test
+    func handleKeyWhenTheMenuIsOpenThenLeavesTheKeyToTheMenu() async {
+        // Given
+        let stream = await makeStreamingStream(touch: .dummy)
+        stream.openMenu()
+
+        // When
+        let isHandled = stream.handleKey(KeyboardKey.a.rawValue, isDown: true)
+
+        // Then
+        #expect(!isHandled)
+    }
+
+    @Test
+    func handleKeyWhenStreamingThenPlaysTheKeyAsAGamepad() async {
+        // Given
+        let stream = await makeStreamingStream(touch: .dummy)
+
+        // When
+        let isHandled = stream.handleKey(KeyboardKey.a.rawValue, isDown: true)
+
+        // Then
+        #expect(isHandled)
+    }
+
+    @Test
+    func openMenuThenOpensItAndStopsRoutingInputToTheGame() async {
+        // Given
+        let stream = await makeStreamingStream(touch: .dummy)
+
+        // When
+        stream.openMenu()
+
+        // Then
+        #expect(stream.isMenuOpen)
+        #expect(!stream.isRoutingInputToGame)
+    }
+
+    @Test
+    func closeMenuThenClosesIt() async {
+        // Given
+        let stream = await makeStreamingStream(touch: .dummy)
+        stream.openMenu()
+
+        // When
+        stream.closeMenu()
+
+        // Then
+        #expect(!stream.isMenuOpen)
+    }
+
+    @Test
+    func openMenuWhenNotStreamingThenStaysClosed() {
+        // Given
+        let stream = makeStream(service: StreamServiceStub())
+
+        // When
+        stream.openMenu()
+
+        // Then
+        #expect(!stream.isMenuOpen)
+    }
+
     @Test
     func stopThenEndsAsStoppedByThePlayer() async {
         // Given
@@ -428,11 +602,12 @@ struct StreamViewModelTests {
 
 private extension StreamViewModelTests {
     func makeStreamingStream(
-        preferences: Preferences = .init(defaults: .dummyEmpty)
+        preferences: Preferences = .init(defaults: .dummyEmpty),
+        touch: TouchPlatform? = nil
     ) async -> StreamViewModel {
         let service = StreamServiceStub()
         service.updates = [.phase(.streaming)]
-        let stream = makeStream(service: service, preferences: preferences)
+        let stream = makeStream(service: service, preferences: preferences, touch: touch)
 
         stream.start()
         await Eventually().holds { stream.isStreaming }
@@ -443,14 +618,16 @@ private extension StreamViewModelTests {
     @discardableResult
     func makeStream(
         service: StreamServiceStub,
-        preferences: Preferences = .init(defaults: .dummyEmpty)
+        preferences: Preferences = .init(defaults: .dummyEmpty),
+        touch: TouchPlatform? = nil,
+        network: NetworkPathStub = .init()
     ) -> StreamViewModel {
         .init(
             target: livingRoom,
             backdrop: .console(type: "XboxSeriesX"),
             qualityOverride: nil,
             service: service,
-            dependencies: .dummy(preferences: preferences)
+            dependencies: .dummy(preferences: preferences, touch: touch, network: network)
         )
     }
 }

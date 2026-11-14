@@ -10,32 +10,32 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var home: HomeViewModel
+    @Bindable var homeViewModel: HomeViewModel
 
-    let library: LibraryViewModel
+    let libraryViewModel: LibraryViewModel
 
     var body: some View {
         let recentGameLimit = 8
 
         ScrollView {
             VStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
-                ConsoleShelf(home: home)
+                ConsoleShelf(homeViewModel: homeViewModel)
 
-                if !library.recentGames.isEmpty {
+                if !libraryViewModel.recentGames.isEmpty {
                     RecentGamesShelf(
-                        games: library.recentGames(limit: recentGameLimit),
-                        onPlay: { library.play($0) }
+                        games: libraryViewModel.recentGames(limit: recentGameLimit),
+                        onPlay: { libraryViewModel.play($0) }
                     )
                 }
             }
             .padding(.horizontal, dimensions.spaceXXLarge)
             .padding(.vertical, dimensions.spaceXLarge)
         }
-        .refreshable { await home.refreshAccount() }
+        .refreshable { await homeViewModel.refreshAccount() }
         .alert(
-            home.powerProblemTitle,
-            isPresented: $home.isPowerProblemPresented,
-            presenting: home.powerProblem
+            homeViewModel.powerProblemTitle,
+            isPresented: $homeViewModel.isPowerProblemPresented,
+            presenting: homeViewModel.powerProblem
         ) { _ in
             Button("app.powerProblem.ok") {}
         } message: { problem in
@@ -48,8 +48,8 @@ struct HomeView: View {
 #Preview("Consoles") {
     NavigationStack {
         HomeView(
-            home: PreviewObjectPool.homeViewModel(),
-            library: PreviewObjectPool.libraryViewModel()
+            homeViewModel: PreviewObjectPool.homeViewModel(),
+            libraryViewModel: PreviewObjectPool.libraryViewModel()
         )
     }
 }
@@ -57,8 +57,8 @@ struct HomeView: View {
 #Preview("Loading") {
     NavigationStack {
         HomeView(
-            home: PreviewObjectPool.homeViewModel(state: .loading),
-            library: PreviewObjectPool.libraryViewModel()
+            homeViewModel: PreviewObjectPool.homeViewModel(state: .loading),
+            libraryViewModel: PreviewObjectPool.libraryViewModel()
         )
     }
 }
@@ -66,8 +66,8 @@ struct HomeView: View {
 #Preview("No consoles") {
     NavigationStack {
         HomeView(
-            home: PreviewObjectPool.homeViewModel(consoles: []),
-            library: PreviewObjectPool.libraryViewModel(games: [])
+            homeViewModel: PreviewObjectPool.homeViewModel(consoles: []),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(games: [])
         )
     }
 }
@@ -75,8 +75,10 @@ struct HomeView: View {
 #Preview("Failed") {
     NavigationStack {
         HomeView(
-            home: PreviewObjectPool.homeViewModel(state: PreviewObjectPool.failedLoadState),
-            library: PreviewObjectPool.libraryViewModel()
+            homeViewModel: PreviewObjectPool.homeViewModel(
+                state: PreviewObjectPool.failedLoadState
+            ),
+            libraryViewModel: PreviewObjectPool.libraryViewModel()
         )
     }
 }

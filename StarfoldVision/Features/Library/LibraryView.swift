@@ -10,78 +10,86 @@ import SwiftUI
 
 struct LibraryView: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var library: LibraryViewModel
+    @Bindable var libraryViewModel: LibraryViewModel
 
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
-                if !library.isSearching {
-                    ForEach(library.shelves) { shelf($0) }
+                if !libraryViewModel.isSearching {
+                    ForEach(libraryViewModel.shelves) { shelf($0) }
                 }
 
-                if !library.visibleGames.isEmpty {
+                if !libraryViewModel.visibleGames.isEmpty {
                     GameGrid(
-                        title: library.gamesTitle,
-                        games: library.visibleGames,
-                        onPlay: { library.play($0) }
+                        title: libraryViewModel.gamesTitle,
+                        games: libraryViewModel.visibleGames,
+                        onPlay: { libraryViewModel.play($0) }
                     )
                 }
             }
             .padding(.horizontal, dimensions.spaceXXLarge)
             .padding(.vertical, dimensions.spaceXLarge)
         }
-        .overlay(if: library.placeholder) { placeholderView($0) }
+        .overlay(if: libraryViewModel.placeholder) { placeholderView($0) }
         .navigationTitle("library.title")
-        .searchable(text: $library.searchText, prompt: Text("library.search.prompt"))
+        .searchable(text: $libraryViewModel.searchText, prompt: Text("library.search.prompt"))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                SortPicker(sort: $library.sort, choices: library.sortChoices)
+                SortPicker(sort: $libraryViewModel.sort, choices: libraryViewModel.sortChoices)
             }
         }
-        .refreshable { await library.refresh() }
+        .refreshable { await libraryViewModel.refresh() }
     }
 
     private func shelf(_ shelf: LibraryShelf) -> some View {
-        GameShelf(shelf: shelf, games: library.games(on: shelf), onPlay: { library.play($0) })
+        GameShelf(
+            shelf: shelf,
+            games: libraryViewModel.games(on: shelf),
+            onPlay: { libraryViewModel.play($0) }
+        )
     }
 
     private func placeholderView(_ placeholder: LibraryPlaceholder) -> some View {
         LibraryPlaceholderView(
             placeholder: placeholder,
-            searchText: library.searchText,
+            searchText: libraryViewModel.searchText,
             onRetry: { refresh() }
         )
     }
 
     private func refresh() {
-        Task { await library.refresh() }
+        Task { await libraryViewModel.refresh() }
     }
 }
 
 #if DEBUG
 #Preview("Games") {
     NavigationStack {
-        LibraryView(library: PreviewObjectPool.libraryViewModel())
+        LibraryView(libraryViewModel: PreviewObjectPool.libraryViewModel())
     }
 }
 
 #Preview("Loading") {
     NavigationStack {
-        LibraryView(library: PreviewObjectPool.libraryViewModel(state: .loading))
+        LibraryView(libraryViewModel: PreviewObjectPool.libraryViewModel(state: .loading))
     }
 }
 
 #Preview("Failed") {
     NavigationStack {
         LibraryView(
-            library: PreviewObjectPool.libraryViewModel(state: PreviewObjectPool.failedLoadState)
+            libraryViewModel: PreviewObjectPool.libraryViewModel(
+                state: PreviewObjectPool.failedLoadState
+            )
         )
     }
 }
 
 #Preview("Unavailable") {
     NavigationStack {
-        LibraryView(library: PreviewObjectPool.libraryViewModel(games: [], access: .unavailable))
+        LibraryView(
+            libraryViewModel: PreviewObjectPool.libraryViewModel(games: [], access: .unavailable)
+        )
     }
 }
 #endif

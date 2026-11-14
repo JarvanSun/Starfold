@@ -9,30 +9,30 @@ import StarfoldShared
 import SwiftUI
 
 struct StreamingSettings: View {
-    let settings: SettingsViewModel
+    let settingsViewModel: SettingsViewModel
 
     var body: some View {
         Form {
-            if settings.needsStreamRestart {
+            if settingsViewModel.needsStreamRestart {
                 RestartStreamSection(onRestart: { restartStream() })
             }
 
-            QualitySettingsSection(settings: settings)
+            QualitySettingsSection(settingsViewModel: settingsViewModel)
 
-            CloudGamingSettingsSection(settings: settings)
+            CloudGamingSettingsSection(settingsViewModel: settingsViewModel)
 
-            AppearanceSettingsSection(settings: settings)
+            AppearanceSettingsSection(settingsViewModel: settingsViewModel)
         }
         .formStyle(.grouped)
     }
 
     private func restartStream() {
-        Task { await settings.restartStream() }
+        Task { await settingsViewModel.restartStream() }
     }
 }
 
 #if DEBUG
 #Preview {
-    StreamingSettings(settings: PreviewObjectPool.settingsViewModel)
+    StreamingSettings(settingsViewModel: PreviewObjectPool.settingsViewModel)
 }
 #endif

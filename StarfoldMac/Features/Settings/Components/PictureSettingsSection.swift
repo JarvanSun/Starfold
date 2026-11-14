@@ -9,7 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct PictureSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
@@ -17,7 +17,7 @@ struct PictureSettingsSection: View {
 
             sharpeningSlider
 
-            if settings.canToneMapHDR {
+            if settingsViewModel.canToneMapHDR {
                 toneMappingToggle
             }
 
@@ -25,13 +25,13 @@ struct PictureSettingsSection: View {
 
             Toggle(
                 String(localized: "settings.picture.statistics"),
-                isOn: $settings.shouldShowStatistics
+                isOn: $settingsViewModel.shouldShowStatistics
             )
         }
     }
 
     private var upscalingToggle: some View {
-        Toggle(isOn: $settings.isUpscalingEnabled) {
+        Toggle(isOn: $settingsViewModel.isUpscalingEnabled) {
             Text("settings.picture.upscaling.title")
 
             Text("settings.picture.upscaling.detail")
@@ -40,7 +40,7 @@ struct PictureSettingsSection: View {
 
     private var sharpeningSlider: some View {
         LabeledContent {
-            Slider(value: $settings.sharpening, in: 0...1) {
+            Slider(value: $settingsViewModel.sharpening, in: 0...1) {
                 EmptyView()
             } minimumValueLabel: {
                 Text("settings.picture.sharpening.minimum")
@@ -55,7 +55,7 @@ struct PictureSettingsSection: View {
     }
 
     private var toneMappingToggle: some View {
-        Toggle(isOn: $settings.isHDRToneMappingEnabled) {
+        Toggle(isOn: $settingsViewModel.isHDRToneMappingEnabled) {
             Text("settings.picture.toneMapping.title")
 
             Text("settings.picture.toneMapping.detail")
@@ -63,8 +63,11 @@ struct PictureSettingsSection: View {
     }
 
     private var pictureFitPicker: some View {
-        Picker(String(localized: "settings.picture.pictureMode"), selection: $settings.pictureFit) {
-            ForEach(settings.pictureFits, id: \.self) { fit in
+        Picker(
+            String(localized: "settings.picture.pictureMode"),
+            selection: $settingsViewModel.pictureFit
+        ) {
+            ForEach(settingsViewModel.pictureFits, id: \.self) { fit in
                 Text(fit.title).tag(fit)
             }
         }
@@ -74,7 +77,7 @@ struct PictureSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        PictureSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        PictureSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
     .formStyle(.grouped)
 }

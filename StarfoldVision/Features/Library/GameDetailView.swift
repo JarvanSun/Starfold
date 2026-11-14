@@ -11,18 +11,18 @@ import SwiftUI
 struct GameDetailView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let detail: GameDetailViewModel
+    let gameDetailViewModel: GameDetailViewModel
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
-                GameHero(detail: detail)
+                GameHero(gameDetailViewModel: gameDetailViewModel)
 
-                GameOverview(about: detail.about, facts: detail.facts)
+                GameOverview(about: gameDetailViewModel.about, facts: gameDetailViewModel.facts)
                     .padding(.horizontal, dimensions.spaceXXLarge)
 
-                if !detail.screenshots.isEmpty {
-                    GameScreenshots(screenshots: detail.screenshots)
+                if !gameDetailViewModel.screenshots.isEmpty {
+                    GameScreenshots(screenshots: gameDetailViewModel.screenshots)
                         .padding(.horizontal, dimensions.spaceXXLarge)
                 }
             }
@@ -35,7 +35,7 @@ struct GameDetailView: View {
 #if DEBUG
 #Preview("Game") {
     NavigationStack {
-        GameDetailView(detail: PreviewObjectPool.gameDetailViewModel)
+        GameDetailView(gameDetailViewModel: PreviewObjectPool.gameDetailViewModel)
     }
 }
 #endif

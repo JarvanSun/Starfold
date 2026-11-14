@@ -9,7 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct CloudCard: View {
-    let library: LibraryViewModel
+    let libraryViewModel: LibraryViewModel
     let width: CGFloat
 
     let onBrowse: () -> Void
@@ -20,21 +20,21 @@ struct CloudCard: View {
         HomeCard(
             title: Text("home.sources.cloud.title"),
             subtitle: subtitle,
-            status: Text(library.cloudAccess.statusText),
-            statusColor: library.cloudAccess.statusColor,
+            status: Text(libraryViewModel.cloudAccess.statusText),
+            statusColor: libraryViewModel.cloudAccess.statusColor,
             width: width,
             onSelect: onBrowse
         ) {
             CloudCardArt(
-                covers: library.coverArtwork(limit: coverLimit),
-                access: library.cloudAccess,
+                covers: libraryViewModel.coverArtwork(limit: coverLimit),
+                access: libraryViewModel.cloudAccess,
                 width: width
             )
         }
     }
 
     private var subtitle: Text {
-        switch library.cloudAccess.cardSubtitle(gameCount: library.games.count) {
+        switch libraryViewModel.cloudAccess.cardSubtitle(gameCount: libraryViewModel.games.count) {
         case let subtitle?: Text(subtitle)
         case nil: Text(verbatim: "")
         }
@@ -44,22 +44,22 @@ struct CloudCard: View {
 #if DEBUG
 #Preview {
     HStack {
-        CloudCard(library: PreviewObjectPool.libraryViewModel(), width: 480, onBrowse: {})
+        CloudCard(libraryViewModel: PreviewObjectPool.libraryViewModel(), width: 480, onBrowse: {})
 
         CloudCard(
-            library: PreviewObjectPool.libraryViewModel(access: .freeToPlay),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(access: .freeToPlay),
             width: 480,
             onBrowse: {}
         )
 
         CloudCard(
-            library: PreviewObjectPool.libraryViewModel(games: [], access: .unavailable),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(games: [], access: .unavailable),
             width: 480,
             onBrowse: {}
         )
 
         CloudCard(
-            library: PreviewObjectPool.libraryViewModel(state: .loading),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(state: .loading),
             width: 480,
             onBrowse: {}
         )

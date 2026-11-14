@@ -10,13 +10,13 @@ import StreamKit
 import SwiftUI
 
 struct SystemDialogView: View {
-    let dialogs: SystemDialogsViewModel
+    let systemDialogsViewModel: SystemDialogsViewModel
     let dialog: SystemDialogRequest
 
     var body: some View {
         let draftText: Binding<String> = .init(
-            get: { dialogs.text },
-            set: { dialogs.changeText(to: $0) }
+            get: { systemDialogsViewModel.text },
+            set: { systemDialogsViewModel.changeText(to: $0) }
         )
 
         switch dialog.kind {
@@ -24,13 +24,13 @@ struct SystemDialogView: View {
             GameMessageDialog(
                 title: title,
                 text: text,
-                buttons: dialogs.buttons(of: dialog),
+                buttons: systemDialogsViewModel.buttons(of: dialog),
                 onAnswer: { answer(buttonIndex: $0) }
             )
         case .keyboard(_, let description, _, _):
             GameTextPrompt(
                 text: draftText,
-                title: dialogs.textFieldTitle(of: dialog),
+                title: systemDialogsViewModel.textFieldTitle(of: dialog),
                 description: description,
                 onSubmit: { submitText() },
                 onCancel: { cancel() }
@@ -39,34 +39,40 @@ struct SystemDialogView: View {
     }
 
     private func answer(buttonIndex: Int) {
-        dialogs.answer(dialog, buttonIndex: buttonIndex)
+        systemDialogsViewModel.answer(dialog, buttonIndex: buttonIndex)
     }
 
     private func submitText() {
-        dialogs.submitText(for: dialog)
+        systemDialogsViewModel.submitText(for: dialog)
     }
 
     private func cancel() {
-        dialogs.cancel(dialog)
+        systemDialogsViewModel.cancel(dialog)
     }
 }
 
 #if DEBUG
 #Preview("Message") {
-    @Previewable @State var stream = PreviewObjectPool.streamViewModel(
+    @Previewable @State var streamViewModel = PreviewObjectPool.streamViewModel(
         phase: .streaming,
         dialogs: [PreviewObjectPool.messageDialog]
     )
 
-    SystemDialogView(dialogs: stream.dialogs, dialog: PreviewObjectPool.messageDialog)
+    SystemDialogView(
+        systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
+        dialog: PreviewObjectPool.messageDialog
+    )
 }
 
 #Preview("Text prompt") {
-    @Previewable @State var stream = PreviewObjectPool.streamViewModel(
+    @Previewable @State var streamViewModel = PreviewObjectPool.streamViewModel(
         phase: .streaming,
         dialogs: [PreviewObjectPool.keyboardDialog]
     )
 
-    SystemDialogView(dialogs: stream.dialogs, dialog: PreviewObjectPool.keyboardDialog)
+    SystemDialogView(
+        systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
+        dialog: PreviewObjectPool.keyboardDialog
+    )
 }
 #endif

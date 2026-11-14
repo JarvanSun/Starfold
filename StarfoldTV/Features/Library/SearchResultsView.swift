@@ -11,18 +11,18 @@ import SwiftUI
 struct SearchResultsView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let library: LibraryViewModel
+    let libraryViewModel: LibraryViewModel
 
     var body: some View {
-        switch library.hasNoSearchResults {
-        case true: ContentUnavailableView.search(text: library.searchText)
+        switch libraryViewModel.hasNoSearchResults {
+        case true: ContentUnavailableView.search(text: libraryViewModel.searchText)
         case false: grid
         }
     }
 
     private var grid: some View {
         ScrollView {
-            GameGrid(games: library.searchResults)
+            GameGrid(games: libraryViewModel.searchResults)
                 .padding(.horizontal, dimensions.spaceHuge)
                 .padding(.vertical, dimensions.spaceXXXLarge)
         }
@@ -32,9 +32,9 @@ struct SearchResultsView: View {
 
 #if DEBUG
 #Preview("Search", arguments: ["King", "No such game"]) { searchText in
-    let library = PreviewObjectPool.libraryViewModel()
-    library.searchText = searchText
+    let libraryViewModel = PreviewObjectPool.libraryViewModel()
+    libraryViewModel.searchText = searchText
 
-    return SearchResultsView(library: library)
+    return SearchResultsView(libraryViewModel: libraryViewModel)
 }
 #endif

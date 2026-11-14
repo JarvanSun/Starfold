@@ -326,6 +326,18 @@ struct LibraryViewModelTests {
     }
 
     @Test
+    func sortedGamesWhenSearchingThenIsStillEveryGameInTheChosenSort() async {
+        // Given
+        let library = await makeLoadedLibrary()
+
+        // When
+        library.searchText = "zeta"
+
+        // Then
+        #expect(library.sortedGames.map(\.id) == ["BRAVO", "ALPHA"])
+    }
+
+    @Test
     func isSearchingWhenSearchTextIsOnlySpacesThenIsFalse() async {
         // Given
         let library = await makeLoadedLibrary()

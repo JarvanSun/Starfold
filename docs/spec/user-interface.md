@@ -13,8 +13,12 @@ Shared pieces live in `StarfoldShared/UserInterface/`; views use them by name, n
 
 - Nothing else defines a colour. Text uses the system hierarchy (`.primary`, `.secondary`); errors
   use the system red.
-- `.appPalette()` sets the palette in the environment and, except on Apple TV, the scene tint to
-  its accent.
+- `.appPalette()` sets the palette in the environment. On every platform the palette's accent
+  replaces the system accent only where the system would use its accent (tab and list selection,
+  switches, links, plain buttons, sliders): iPhone, iPad, Apple TV and Vision Pro set it as the
+  window's tint (`windowTint()`), the Mac as its windows' tint (`paletteTint()`). Controls the
+  system draws in neutral colours (menu values, Form text, glass buttons) stay neutral; a SwiftUI
+  `.tint` over a whole iOS scene would recolour them too.
 
 ### Palettes
 
@@ -36,8 +40,8 @@ stored value reads as Nebula.
 |---|---|
 | `sky` | The animated background only |
 | `primaryFill`, `primaryLabelColor` | The one primary action of a card or screen; symbols of empty and error states; a card's keyboard-focus outline |
-| `accent` (the tint) | System controls, links, highlights, the connecting ring |
-| `primaryTint` | Prominent system buttons, badges, the favourite heart |
+| `accent` (the window tint) | Where the system would use its accent, highlights, the connecting ring, the touch editor's selection ring |
+| `primaryTint` | Prominent buttons, badges, the favourite heart |
 | `night`, `nightRaised` | Artwork placeholders, the dim layer over blurred game art |
 
 Brand colour never marks a state, never colours list text, and never appears in stream overlays
@@ -87,6 +91,7 @@ A status colour always comes with words: visible text or the dot's VoiceOver lab
 | Mac | 300 × 356 pt | `cornerRadiusXLarge` | 220 pt tall |
 | Vision Pro | 400 × 360 pt, regular material, highlight hover effect | `cornerRadiusXXLarge` | 16:9 |
 | Apple TV | A third of the screen width, at least 360 pt; system `.card` button | `cornerRadiusXLarge` | 16:9 |
+| iPhone, iPad | Compact width: the readable width, paged sideways; regular width: the Mac's 300 × 356 pt | `cornerRadiusXLarge` | 16:9 |
 
 - Loading, empty, error and real cards in one row have the same size.
 - On the Mac a card lifts `spaceSmall` on hover and its artwork scales 4 %; cards enter with a
@@ -148,17 +153,21 @@ HStack(spacing: dimensions.spaceXLarge) { … }
 - Overlays are neutral and dark in every palette: statistics top-leading (glass, or material on
   Apple TV) and, on the Mac, the control bar centred 24 pt above the bottom, icon-only glass buttons
   in a `GlassEffectContainer`. When controls show and hide is in [product.md](product.md).
+- On iPhone and iPad the stream menu opens from a glass handle centred at the top, and touch
+  controls use Touch Controller's system contents, never the palette. They draw in their own
+  layer above the picture and below the menu and dialogs, inside the safe area and clear of an
+  active fold.
 - The waiting and end pages centre name, status and buttons in the window; the artwork is a
   background, not a layout sibling.
 
 ## Platform exceptions
 
-- **Mac:** the Settings window is system neutral in every palette; the menu bar extra is a
-  standard menu.
-- **visionOS:** no palette: system glass, materials, accent and button styles. Semantic status
-  colours still apply.
-- **tvOS:** the palette only colours the sky and sets no tint; text, buttons and focus use system
-  colours. Cards are system `.card` buttons on `.cardFill`, secondary actions in a context menu.
+- **Mac:** the Settings window uses system colours, with the palette accent only where the system
+  would use its accent; the menu bar extra is a standard menu.
+- **visionOS:** system glass, materials and button styles; the palette (Nebula, as Vision Pro has
+  no colour picker) only replaces the system accent. Semantic status colours still apply.
+- **tvOS:** the palette colours the sky and replaces the system accent; text, buttons and focus
+  otherwise use system colours. Cards are system `.card` buttons on `.cardFill`, secondary actions in a context menu.
   Focus scaling is never clipped by its scroll view.
 
 ## Motion

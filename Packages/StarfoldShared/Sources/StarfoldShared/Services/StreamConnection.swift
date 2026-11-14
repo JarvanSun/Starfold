@@ -17,4 +17,5 @@ public nonisolated protocol StreamConnection: Sendable {
     func requestKeyframe() async
     func answerDialog(id: String, buttonIndex: Int) async
     func answerKeyboard(id: String, text: String?) async
+    func announceTouchBundle(version: String, versionName: String) async
 }

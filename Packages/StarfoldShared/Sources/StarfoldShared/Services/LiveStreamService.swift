@@ -45,6 +45,17 @@ struct LiveStreamService: StreamService {
         }
     }
 
+    func touchBundle(forTitle titleID: String, on target: StreamTarget) async throws -> TouchBundle?
+    {
+        let client = try await streamingClient(for: target)
+        let configurations = try await client.inputConfigurations(xboxTitleIDs: [titleID])
+
+        guard let bundleID = configurations.first?.touchBundleIDs.first else { return nil }
+
+        let archive = try await client.touchBundleArchive(id: bundleID)
+        return try await TouchBundleUnpacker().bundle(from: archive)
+    }
+
     func setDirectStereo(_ isEnabled: Bool) {
         #if !os(macOS)
         runtime.setDirectStereo(isEnabled)

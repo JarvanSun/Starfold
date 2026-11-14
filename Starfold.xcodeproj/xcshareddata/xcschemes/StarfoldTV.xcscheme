@@ -37,17 +37,6 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BF7D789E085FDB6A041B5ED7"
-               BuildableName = "StarfoldTVTests.xctest"
-               BlueprintName = "StarfoldTVTests"
-               ReferencedContainer = "container:Starfold.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

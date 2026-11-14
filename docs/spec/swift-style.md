@@ -61,12 +61,15 @@ succeed.
 | Query method | Noun phrase or `is…(_:)` | `cover(for:)` | `getCover(_:)` |
 | Closure property | What happens | `onRetry` | `callback` |
 | Test double | `Stub` suffix | `XboxServerStub` | `MockStuff` |
+| ViewModel property | The type's name | `homeViewModel: HomeViewModel` | `home: HomeViewModel` |
 
 - No abbreviations except `ID`, `URL`, `API`, `JSON`, `HTTP`, `HDR`, `SDR` and the protocol's terms
   (`xuid`, `GSSV`, `SDP`, `ICE`).
 - Never `data`, `info`, `item`, `object`, `value`, `manager`, `helper`, `handle` or `util` as a
   whole name; as a suffix only in a domain phrase (`DeviceInfoHeader`).
 - Do not repeat the type in member names (`console.name`).
+- A ViewModel property is the exception: it keeps the type's name, and a value it holds is named
+  for what it is (`consoleCover`, not `cover`).
 - Name a value after what it means at that point (`restored`, then `preferred`).
 
 ## Declaration order

@@ -10,28 +10,28 @@ import SwiftUI
 import XboxKit
 
 struct LibraryHostView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @Binding var path: [CloudGame]
 
     var body: some View {
         NavigationStack(path: $path) {
             content
         }
-        .onChange(of: app.activeAccountID) { path.removeAll() }
+        .onChange(of: appViewModel.activeAccountID) { path.removeAll() }
     }
 
     @ViewBuilder
     private var content: some View {
-        switch app.library {
+        switch appViewModel.libraryViewModel {
         case let library?: page(library)
         case nil: LoadingView()
         }
     }
 
     private func page(_ library: LibraryViewModel) -> some View {
-        LibraryView(library: library)
+        LibraryView(libraryViewModel: library)
             .navigationDestination(for: CloudGame.self) { game in
-                GameDetailView(detail: library.detail(for: game))
+                GameDetailView(gameDetailViewModel: library.detail(for: game))
             }
     }
 }

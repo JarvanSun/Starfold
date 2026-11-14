@@ -14,7 +14,7 @@ struct WelcomeView: View {
     @Environment(\.dimensions) private var dimensions
     @State private var hasEntered = false
 
-    let signIn: SignInViewModel
+    let signInViewModel: SignInViewModel
 
     private var isVisible: Bool {
         hasEntered || skipsEntranceAnimations
@@ -28,7 +28,7 @@ struct WelcomeView: View {
             }
         }
         .onAppear { enter() }
-        .task(id: signIn.attempt) { await signIn.run() }
+        .task(id: signInViewModel.attempt) { await signInViewModel.run() }
     }
 
     private func hasRoomSideBySide(in size: CGSize) -> Bool {
@@ -71,7 +71,7 @@ struct WelcomeView: View {
     }
 
     private var pitch: some View {
-        WelcomePitch(features: signIn.welcomeFeatures, isInPlace: isInPlace)
+        WelcomePitch(features: signInViewModel.welcomeFeatures, isInPlace: isInPlace)
             .frame(maxWidth: dimensions.welcomePitchMaxWidth, alignment: .leading)
             .opacity(isVisible ? 1 : 0)
     }
@@ -81,7 +81,7 @@ struct WelcomeView: View {
     }
 
     private var signInCard: some View {
-        WelcomeSignInCard(step: signIn.step, onRetry: { signIn.retry() })
+        WelcomeSignInCard(step: signInViewModel.step, onRetry: { signInViewModel.retry() })
             .opacity(isVisible ? 1 : 0)
     }
 
@@ -95,7 +95,7 @@ struct WelcomeView: View {
 #if DEBUG
 #Preview {
     WelcomeView(
-        signIn: PreviewObjectPool.signInViewModel(
+        signInViewModel: PreviewObjectPool.signInViewModel(
             phase: .waiting(PreviewObjectPool.deviceCodePrompt)
         )
     )
@@ -107,7 +107,7 @@ struct WelcomeView: View {
 
 #Preview("Narrow window") {
     WelcomeView(
-        signIn: PreviewObjectPool.signInViewModel(
+        signInViewModel: PreviewObjectPool.signInViewModel(
             phase: .waiting(PreviewObjectPool.deviceCodePrompt)
         )
     )

@@ -15,8 +15,8 @@ public struct GSSVClient: Sendable {
 
     let kind: Kind
     let baseURL: URL
+    let http: HTTPClient
 
-    private let http: HTTPClient
     private let token: @Sendable (TokenFreshness) async throws -> String
 
     init(
@@ -222,6 +222,7 @@ private extension GSSVClient {
                     hasEntitlement: details.hasEntitlement ?? false,
                     isFreeInStore: details.isFreeInStore ?? false,
                     supportedInputTypes: details.supportedInputTypes ?? [],
+                    touchBundleIDs: details.supportedTabs?.compactMap(\.id) ?? [],
                     lastPlayed: titleHistory?.lastTimePlayed,
                     userSubscriptions: details.userSubscriptions ?? []
                 )
@@ -234,13 +235,19 @@ private extension GSSVClient {
                 case hasEntitlement
                 case isFreeInStore
                 case supportedInputTypes
+                case supportedTabs
                 case userSubscriptions
+            }
+
+            struct Tab: Decodable, Sendable {
+                let id: String?
             }
 
             let productID: String?
             let hasEntitlement: Bool?
             let isFreeInStore: Bool?
             let supportedInputTypes: [String]?
+            let supportedTabs: [Tab]?
             let userSubscriptions: [String]?
         }
 

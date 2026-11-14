@@ -12,27 +12,32 @@ import SwiftUI
 struct StreamView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let stream: StreamViewModel
-    let settings: SettingsViewModel
+    let streamViewModel: StreamViewModel
+    let settingsViewModel: SettingsViewModel
 
     let onClose: () -> Void
 
     var body: some View {
         ZStack {
-            StreamPicture(renderer: stream.renderer, isVisible: stream.hasFirstFrame)
+            StreamPicture(
+                renderer: streamViewModel.renderer,
+                isVisible: streamViewModel.hasFirstFrame
+            )
 
-            if stream.isWaitingForPicture {
+            if streamViewModel.isWaitingForPicture {
                 StreamStatusView(
-                    name: stream.target.name,
-                    status: stream.status,
-                    backdrop: stream.backdrop,
+                    name: streamViewModel.target.name,
+                    status: streamViewModel.status,
+                    backdrop: streamViewModel.backdrop,
+                    isXboxButtonTakenBySystem: streamViewModel.isXboxButtonTakenBySystem,
                     onClose: onClose,
-                    onTryAgain: { stream.tryAgain() }
+                    onTryAgain: { streamViewModel.tryAgain() },
+                    onOpenXboxButtonSettings: { streamViewModel.openXboxButtonSettings() }
                 )
             }
 
-            if stream.isShowingStatistics {
-                StreamStatisticsView(readout: stream.statisticsReadout)
+            if streamViewModel.isShowingStatistics {
+                StreamStatisticsView(readout: streamViewModel.statisticsReadout)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .padding(dimensions.spaceXLarge)
                     .allowsHitTesting(false)
@@ -40,17 +45,26 @@ struct StreamView: View {
         }
         .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXXLarge))
         .ornament(
-            visibility: stream.isShowingControls ? .visible : .hidden,
+            visibility: streamViewModel.isShowingControls ? .visible : .hidden,
             attachmentAnchor: .scene(.bottom),
             contentAlignment: .top
         ) {
-            StreamControlBar(settings: settings, stream: stream, onDisconnect: onClose)
+            StreamControlBar(
+                settingsViewModel: settingsViewModel,
+                streamViewModel: streamViewModel,
+                onDisconnect: onClose
+            )
         }
-        .sheet(item: presentedDialog) { SystemDialogView(dialogs: stream.dialogs, dialog: $0) }
+        .sheet(item: presentedDialog) {
+            SystemDialogView(
+                systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
+                dialog: $0
+            )
+        }
     }
 
     private var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
+        .init(get: { streamViewModel.systemDialogsViewModel.presentedDialog }, set: { _ in })
     }
 }
 
@@ -58,15 +72,21 @@ struct StreamView: View {
 #Preview("Streaming", windowStyle: .plain) {
     let preview = PreviewObjectPool.streamPreview(phase: .streaming)
 
-    StreamView(stream: preview.stream, settings: preview.settings) {}
-        .frame(width: 1280, height: 720)
+    StreamView(
+        streamViewModel: preview.streamViewModel,
+        settingsViewModel: preview.settingsViewModel
+    ) {}
+    .frame(width: 1280, height: 720)
 }
 
 #Preview("Connecting", windowStyle: .plain) {
     let preview = PreviewObjectPool.cloudStreamPreview(phase: .connecting)
 
-    StreamView(stream: preview.stream, settings: preview.settings) {}
-        .frame(width: 1280, height: 720)
+    StreamView(
+        streamViewModel: preview.streamViewModel,
+        settingsViewModel: preview.settingsViewModel
+    ) {}
+    .frame(width: 1280, height: 720)
 }
 
 #Preview("Game dialog", windowStyle: .plain) {
@@ -75,7 +95,10 @@ struct StreamView: View {
         dialogs: [PreviewObjectPool.messageDialog]
     )
 
-    StreamView(stream: preview.stream, settings: preview.settings) {}
-        .frame(width: 1280, height: 720)
+    StreamView(
+        streamViewModel: preview.streamViewModel,
+        settingsViewModel: preview.settingsViewModel
+    ) {}
+    .frame(width: 1280, height: 720)
 }
 #endif

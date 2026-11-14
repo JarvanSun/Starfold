@@ -11,20 +11,20 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dimensions) private var dimensions
 
-    let settings: SettingsViewModel
+    let settingsViewModel: SettingsViewModel
 
     var body: some View {
         TabView {
             Tab(String(localized: "settings.tab.streaming"), systemImage: "play.tv") {
-                StreamingSettings(settings: settings)
+                StreamingSettings(settingsViewModel: settingsViewModel)
             }
 
             Tab(String(localized: "settings.tab.picture"), systemImage: "sparkles.tv") {
-                PictureSettings(settings: settings)
+                PictureSettings(settingsViewModel: settingsViewModel)
             }
 
             Tab(String(localized: "settings.tab.controls"), systemImage: "gamecontroller") {
-                ControlsSettings(settings: settings)
+                ControlsSettings(settingsViewModel: settingsViewModel)
             }
         }
         .frame(width: dimensions.settingsWindowWidth)
@@ -33,6 +33,6 @@ struct SettingsView: View {
 
 #if DEBUG
 #Preview {
-    SettingsView(settings: PreviewObjectPool.settingsViewModel)
+    SettingsView(settingsViewModel: PreviewObjectPool.settingsViewModel)
 }
 #endif

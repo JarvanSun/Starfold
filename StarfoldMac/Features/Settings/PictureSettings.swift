@@ -9,13 +9,13 @@ import StarfoldShared
 import SwiftUI
 
 struct PictureSettings: View {
-    let settings: SettingsViewModel
+    let settingsViewModel: SettingsViewModel
 
     var body: some View {
         Form {
-            PictureSettingsSection(settings: settings)
+            PictureSettingsSection(settingsViewModel: settingsViewModel)
 
-            PacingSettingsSection(settings: settings)
+            PacingSettingsSection(settingsViewModel: settingsViewModel)
         }
         .formStyle(.grouped)
     }
@@ -23,6 +23,6 @@ struct PictureSettings: View {
 
 #if DEBUG
 #Preview {
-    PictureSettings(settings: PreviewObjectPool.settingsViewModel)
+    PictureSettings(settingsViewModel: PreviewObjectPool.settingsViewModel)
 }
 #endif

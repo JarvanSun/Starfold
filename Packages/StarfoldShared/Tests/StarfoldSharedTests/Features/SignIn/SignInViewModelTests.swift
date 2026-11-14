@@ -105,8 +105,8 @@ struct SignInViewModelTests {
         #expect(await Eventually().holds { clock.sleeperCount == 1 })
         #expect(signIn.step == .progress(.signedIn))
         #expect(!signIn.shouldClose)
-        #expect(harness.app.sessionState == .signedIn)
-        #expect(harness.app.accounts.map(\.gamertag) == ["NovaPilot"])
+        #expect(harness.appViewModel.sessionState == .signedIn)
+        #expect(harness.appViewModel.accounts.map(\.gamertag) == ["NovaPilot"])
     }
 
     @Test
@@ -190,7 +190,7 @@ private extension SignInViewModelTests {
     func makeSignIn() -> (AppHarness, ClockStub, SignInViewModel) {
         let harness = AppHarness()
         let clock = ClockStub()
-        return (harness, clock, .init(service: harness.app, clock: clock))
+        return (harness, clock, .init(service: harness.appViewModel, clock: clock))
     }
 
     func qrImage(of signIn: SignInViewModel) -> CGImage? {

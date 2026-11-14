@@ -92,6 +92,21 @@ struct SettingsViewModelTests {
         #expect(settings.effectiveGameLanguage == "ja-JP")
     }
 
+    @Test
+    func editTouchLayoutThenKeepsOneEditorUntilEditingFinishes() throws {
+        // Given
+        let settings = makeSettings()
+
+        // When
+        settings.editTouchLayout()
+
+        // Then
+        let editor = try #require(settings.touchLayoutEditorViewModel)
+        #expect(settings.touchLayoutEditorViewModel === editor)
+        settings.finishEditingTouchLayout()
+        #expect(settings.touchLayoutEditorViewModel == nil)
+    }
+
     @Test(arguments: [true, false])
     func canToneMapHDRThenFollowsTheDisplay(isHDRDisplayAvailable: Bool) {
         // Given
@@ -142,7 +157,12 @@ struct SettingsViewModelTests {
         #expect(settings.batteryLevel(of: controller) == nil)
     }
 
-    @Test
+    @Test(
+        .disabled(
+            if: ControllerAvailability().hasConnectedController,
+            "needs no connected controller"
+        )
+    )
     func isControllerMissingWhenNoneIsConnectedThenIsTrue() {
         // Given
         let settings = makeSettings()
@@ -214,11 +234,11 @@ struct SettingsViewModelTests {
         harness.accountService.savedAccounts = [.dummy(id: "2535", gamertag: "NovaPilot")]
 
         // When
-        await harness.app.restore()
+        await harness.appViewModel.restore()
 
         // Then
-        #expect(harness.app.settings.accountChoices.map(\.id) == ["2535"])
-        #expect(harness.app.settings.accountChoices.first?.isActive == true)
+        #expect(harness.appViewModel.settingsViewModel.accountChoices.map(\.id) == ["2535"])
+        #expect(harness.appViewModel.settingsViewModel.accountChoices.first?.isActive == true)
     }
 
     @Test
@@ -300,7 +320,13 @@ private extension SettingsViewModelTests {
         let settings = SettingsViewModel(
             preferences: .init(defaults: defaults),
             controllers: ControllerHub(routing: .direct),
-            picture: picture
+            platform: .init(
+                controllerRouting: .direct,
+                picture: picture,
+                overlays: .init(statisticsRows: [], controlsHideDelay: nil),
+                touch: nil
+            ),
+            network: NetworkPathStub()
         )
         settings.session = session
         return settings

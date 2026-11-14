@@ -9,7 +9,7 @@
 import StarfoldShared
 
 struct StreamPreview {
-    let stream: StreamViewModel
-    let settings: SettingsViewModel
+    let streamViewModel: StreamViewModel
+    let settingsViewModel: SettingsViewModel
 }
 #endif

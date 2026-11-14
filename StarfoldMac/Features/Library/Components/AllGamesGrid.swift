@@ -11,23 +11,26 @@ import XboxKit
 
 struct AllGamesGrid: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var library: LibraryViewModel
+    @Bindable var libraryViewModel: LibraryViewModel
 
     let onOpenGame: (CloudGame) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceMedium) {
             HStack {
-                LibrarySectionHeader(title: library.gamesTitle, count: library.visibleGames.count)
+                LibrarySectionHeader(
+                    title: libraryViewModel.gamesTitle,
+                    count: libraryViewModel.visibleGames.count
+                )
 
                 Spacer()
 
-                SortPicker(sort: $library.sort, choices: library.sortChoices)
+                SortPicker(sort: $libraryViewModel.sort, choices: libraryViewModel.sortChoices)
                     .padding(.trailing, dimensions.spaceXXLarge)
             }
 
             LazyVGrid(columns: columns, spacing: dimensions.spaceXLarge) {
-                ForEach(library.visibleGames) { tile(for: $0) }
+                ForEach(libraryViewModel.visibleGames) { tile(for: $0) }
             }
             .padding(.horizontal, dimensions.spaceXXLarge)
         }
@@ -48,7 +51,7 @@ struct AllGamesGrid: View {
 
     private func tile(for game: CloudGame) -> some View {
         GameTile(game: game, badge: nil) {
-            library.play(game)
+            libraryViewModel.play(game)
         } onOpen: {
             onOpenGame(game)
         }
@@ -58,7 +61,7 @@ struct AllGamesGrid: View {
 #if DEBUG
 #Preview {
     ScrollView {
-        AllGamesGrid(library: PreviewObjectPool.libraryViewModel()) { _ in }
+        AllGamesGrid(libraryViewModel: PreviewObjectPool.libraryViewModel()) { _ in }
     }
     .frame(width: 900, height: 600)
     .environment(\.colorScheme, .dark)

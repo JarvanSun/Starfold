@@ -18,6 +18,9 @@ public final class Preferences {
     var cloudQuality: QualityChoice {
         didSet { defaults.set(cloudQuality.storageValue, for: .cloudQuality) }
     }
+    var cellularQuality: QualityChoice {
+        didSet { defaults.set(cellularQuality.storageValue, for: .cellularQuality) }
+    }
     var maxBitrateMbps: Int {
         didSet { defaults.set(maxBitrateMbps, for: .maxBitrate) }
     }
@@ -48,6 +51,9 @@ public final class Preferences {
     var isRumbleEnabled: Bool {
         didSet { defaults.set(isRumbleEnabled, for: .rumble) }
     }
+    var isTouchHapticsEnabled: Bool {
+        didSet { defaults.set(isTouchHapticsEnabled, for: .touchHaptics) }
+    }
     var soundStage: SoundStage {
         didSet { defaults.set(soundStage.rawValue, for: .soundStage) }
     }
@@ -60,6 +66,12 @@ public final class Preferences {
     var librarySort: GameSort {
         didSet { defaults.set(librarySort.rawValue, for: .librarySort) }
     }
+
+    var touchSticks = TouchSticks() {
+        didSet { defaults.set(try? JSONEncoder().encode(touchSticks), for: .touchSticks) }
+    }
+
+    private(set) var touchLayouts: [TouchOrientation: TouchLayoutAdjustments] = [:]
 
     private let defaults: UserDefaults
 
@@ -100,6 +112,9 @@ public final class Preferences {
         self.defaults = defaults
         consoleQuality = .init(storageValue: defaults.string(for: .consoleQuality))
         cloudQuality = .init(storageValue: defaults.string(for: .cloudQuality))
+        cellularQuality =
+            defaults.string(for: .cellularQuality).map(QualityChoice.init(storageValue:))
+            ?? factory.cellularQuality
         maxBitrateMbps = defaults.object(for: .maxBitrate) ?? factory.maxBitrateMbps
         isUpscalingEnabled = defaults.object(for: .upscaling) ?? factory.isUpscalingEnabled
         sharpening = defaults.object(for: .sharpening) ?? factory.sharpening
@@ -108,6 +123,7 @@ public final class Preferences {
         isKeyboardControllerEnabled =
             defaults.object(for: .keyboardAsController) ?? factory.isKeyboardControllerEnabled
         isRumbleEnabled = defaults.object(for: .rumble) ?? factory.isRumbleEnabled
+        isTouchHapticsEnabled = defaults.object(for: .touchHaptics) ?? factory.isTouchHapticsEnabled
         shouldShowInMenuBar = defaults.object(for: .showInMenuBar) ?? factory.shouldShowInMenuBar
         pacingMode = .init(storedValue: defaults.string(for: .pacingMode))
         soundStage =
@@ -119,6 +135,42 @@ public final class Preferences {
         librarySort =
             defaults.string(for: .librarySort).flatMap(GameSort.init(rawValue:))
             ?? factory.librarySort
+        touchLayouts = .init(
+            uniqueKeysWithValues: TouchOrientation.allCases.compactMap { orientation in
+                storedTouchLayout(for: orientation).map { (orientation, $0) }
+            }
+        )
+        touchSticks = storedTouchSticks() ?? .init()
+    }
+
+    func touchLayoutAdjustments(for orientation: TouchOrientation) -> TouchLayoutAdjustments {
+        touchLayouts[orientation] ?? .init()
+    }
+
+    func setTouchLayoutAdjustments(
+        _ adjustments: TouchLayoutAdjustments,
+        for orientation: TouchOrientation
+    ) {
+        touchLayouts[orientation] = adjustments
+
+        let encoded = try? JSONEncoder().encode(adjustments)
+        defaults.set(encoded, forKey: touchLayoutKey(for: orientation))
+    }
+
+    private func storedTouchLayout(for orientation: TouchOrientation) -> TouchLayoutAdjustments? {
+        let stored = defaults.data(forKey: touchLayoutKey(for: orientation))
+        return stored.flatMap { try? JSONDecoder().decode(TouchLayoutAdjustments.self, from: $0) }
+    }
+
+    private func storedTouchSticks() -> TouchSticks? {
+        let stored: Data? = defaults.object(for: .touchSticks)
+        return stored.flatMap { try? JSONDecoder().decode(TouchSticks.self, from: $0) }
+    }
+
+    private func touchLayoutKey(for orientation: TouchOrientation) -> String {
+        let touchLayoutKeyPrefix = "touchLayout."
+
+        return touchLayoutKeyPrefix + orientation.rawValue
     }
 
     public func favorites(for xuid: String) -> FavoritesStore {
@@ -136,6 +188,7 @@ private enum PreferenceKey: String {
     case lastAccountID
     case consoleQuality
     case cloudQuality
+    case cellularQuality
     case maxBitrate
     case upscaling
     case sharpening
@@ -143,6 +196,8 @@ private enum PreferenceKey: String {
     case gameLanguage
     case keyboardAsController
     case rumble
+    case touchHaptics
+    case touchSticks
     case showInMenuBar
     case pacingMode
     case soundStage
@@ -154,6 +209,8 @@ private enum PreferenceKey: String {
 }
 
 private struct FactorySettings {
+    var cellularQuality: QualityChoice { .fixed(.standard) }
+
     var maxBitrateMbps: Int { 0 }
 
     var isUpscalingEnabled: Bool { true }
@@ -163,6 +220,8 @@ private struct FactorySettings {
     var isKeyboardControllerEnabled: Bool { true }
 
     var isRumbleEnabled: Bool { true }
+
+    var isTouchHapticsEnabled: Bool { true }
 
     var shouldShowInMenuBar: Bool { true }
 

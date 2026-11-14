@@ -12,7 +12,9 @@ struct StreamProgressStatus: View {
     @Environment(\.dimensions) private var dimensions
 
     let title: LocalizedStringResource
+    let isXboxButtonTakenBySystem: Bool
 
+    let onOpenXboxButtonSettings: () -> Void
     let onCancel: () -> Void
 
     var body: some View {
@@ -30,14 +32,38 @@ struct StreamProgressStatus: View {
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .keyboardShortcut(.cancelAction)
+
+            if isXboxButtonTakenBySystem {
+                xboxButtonNotice
+            }
         }
+    }
+
+    private var xboxButtonNotice: some View {
+        VStack(spacing: dimensions.spaceXSmall) {
+            Text("stream.status.xboxButton.notice")
+                .foregroundStyle(.white.opacity(0.7))
+
+            Button(String(localized: "stream.status.xboxButton.openSettings")) {
+                onOpenXboxButtonSettings()
+            }
+            .buttonStyle(.link)
+        }
+        .font(.callout)
+        .multilineTextAlignment(.center)
+        .padding(.top, dimensions.spaceSmall)
     }
 }
 
 #if DEBUG
 #Preview {
-    StreamProgressStatus(title: StreamStatus.connecting.title) {}
-        .padding()
-        .background(.black)
+    StreamProgressStatus(
+        title: StreamStatus.connecting.title,
+        isXboxButtonTakenBySystem: true,
+        onOpenXboxButtonSettings: {},
+        onCancel: {}
+    )
+    .padding()
+    .background(.black)
 }
 #endif

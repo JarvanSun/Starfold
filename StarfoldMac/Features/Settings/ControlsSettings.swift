@@ -11,13 +11,13 @@ import SwiftUI
 struct ControlsSettings: View {
     @Environment(\.dimensions) private var dimensions
 
-    let settings: SettingsViewModel
+    let settingsViewModel: SettingsViewModel
 
     var body: some View {
         Form {
-            ControllerSettingsSection(settings: settings)
+            ControllerSettingsSection(settingsViewModel: settingsViewModel)
 
-            KeyboardSettingsSection(settings: settings)
+            KeyboardSettingsSection(settingsViewModel: settingsViewModel)
         }
         .formStyle(.grouped)
         .frame(minHeight: dimensions.controlsSettingsMinimumHeight)
@@ -26,6 +26,6 @@ struct ControlsSettings: View {
 
 #if DEBUG
 #Preview {
-    ControlsSettings(settings: PreviewObjectPool.settingsViewModel)
+    ControlsSettings(settingsViewModel: PreviewObjectPool.settingsViewModel)
 }
 #endif

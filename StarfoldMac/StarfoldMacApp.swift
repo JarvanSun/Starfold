@@ -13,7 +13,8 @@ struct StarfoldMacApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dimensions) private var dimensions
-    @State private var app = AppDependencies(streamPlatform: StreamPlatform()).makeAppViewModel()
+    @State private var appViewModel = AppDependencies(streamPlatform: StreamPlatform())
+        .makeAppViewModel()
 
     private var isHostingPreviewsOrTests: Bool {
         let environment = ProcessInfo.processInfo.environment
@@ -27,8 +28,8 @@ struct StarfoldMacApp: App {
             mainWindow
         }
         .defaultSize(width: dimensions.mainWindowWidth, height: dimensions.mainWindowHeight)
-        .commands { StreamCommands(app: app) }
-        .onChange(of: scenePhase, initial: true) { app.setActive(scenePhase == .active) }
+        .commands { StreamCommands(appViewModel: appViewModel) }
+        .onChange(of: scenePhase, initial: true) { appViewModel.setActive(scenePhase == .active) }
 
         Window(String(localized: "app.streamWindow.title"), id: SceneID.stream.rawValue) {
             streamWindow
@@ -53,46 +54,51 @@ struct StarfoldMacApp: App {
     private var mainWindow: some View {
         MainWindowView()
             .opensStreamWindow()
+            .paletteTint()
             .appPalette()
-            .environment(app)
+            .environment(appViewModel)
             .task { await launch() }
     }
 
     private func launch() async {
-        appDelegate.app = app
+        appDelegate.appViewModel = appViewModel
 
         guard !isHostingPreviewsOrTests else { return }
 
-        await app.restore()
+        await appViewModel.restore()
     }
 
     private var streamWindow: some View {
         StreamWindowView()
+            .paletteTint()
             .appPalette()
-            .environment(app)
+            .environment(appViewModel)
     }
 
     private var settingsWindow: some View {
-        SettingsView(settings: app.settings)
+        SettingsView(settingsViewModel: appViewModel.settingsViewModel)
+            .paletteTint()
+            .appPalette()
+            .environment(appViewModel)
     }
 
     private var isMenuBarIconInserted: Binding<Bool> {
         switch isHostingPreviewsOrTests {
         case true: .constant(false)
-        case false: Bindable(app.settings).shouldShowInMenuBar
+        case false: Bindable(appViewModel.settingsViewModel).shouldShowInMenuBar
         }
     }
 
     private var menuBarMenu: some View {
         MenuBarMenu()
-            .environment(app)
+            .environment(appViewModel)
     }
 
     private var menuBarIcon: some View {
         Image(systemName: "gamecontroller.fill")
             .accessibilityLabel(Text(verbatim: AppInfo().displayName))
             .opensStreamWindow()
-            .environment(app)
+            .environment(appViewModel)
     }
 }
 

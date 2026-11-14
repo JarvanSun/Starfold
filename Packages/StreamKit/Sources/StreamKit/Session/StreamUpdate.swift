@@ -12,4 +12,6 @@ public enum StreamUpdate: Sendable, Equatable {
     case dialogDismissed(id: String)
     case vibration(VibrationEffect)
     case videoSize(width: Int, height: Int)
+    case touchControls(TouchControlsCommand)
+    case runningTitle(RunningTitle)
 }

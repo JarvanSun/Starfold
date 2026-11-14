@@ -9,7 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct QualitySettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
@@ -28,9 +28,9 @@ struct QualitySettingsSection: View {
     private var consoleQualityPicker: some View {
         Picker(
             String(localized: "settings.streaming.consoleQuality.title"),
-            selection: $settings.consoleQuality
+            selection: $settingsViewModel.consoleQuality
         ) {
-            ForEach(settings.qualityChoices, id: \.self) { choice in
+            ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
                 Text(choice.consoleTitle).tag(choice)
             }
         }
@@ -39,9 +39,9 @@ struct QualitySettingsSection: View {
     private var cloudQualityPicker: some View {
         Picker(
             String(localized: "settings.streaming.cloudQuality.title"),
-            selection: $settings.cloudQuality
+            selection: $settingsViewModel.cloudQuality
         ) {
-            ForEach(settings.qualityChoices, id: \.self) { choice in
+            ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
                 Text(choice.cloudTitle).tag(choice)
             }
         }
@@ -50,10 +50,10 @@ struct QualitySettingsSection: View {
     private var bitratePicker: some View {
         Picker(
             String(localized: "settings.streaming.bitrate.title"),
-            selection: $settings.maxBitrateMbps
+            selection: $settingsViewModel.maxBitrateMbps
         ) {
-            ForEach(settings.bitrateChoices, id: \.self) { bitrate in
-                Text(settings.title(ofBitrate: bitrate)).tag(bitrate)
+            ForEach(settingsViewModel.bitrateChoices, id: \.self) { bitrate in
+                Text(settingsViewModel.title(ofBitrate: bitrate)).tag(bitrate)
             }
         }
     }
@@ -62,7 +62,7 @@ struct QualitySettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        QualitySettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        QualitySettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
     .formStyle(.grouped)
 }

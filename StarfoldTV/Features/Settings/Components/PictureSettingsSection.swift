@@ -9,17 +9,17 @@ import StarfoldShared
 import SwiftUI
 
 struct PictureSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
-            Picker("settings.picture.buffer.title", selection: $settings.pacingMode) {
-                ForEach(settings.pacingModes, id: \.self) { mode in
+            Picker("settings.picture.buffer.title", selection: $settingsViewModel.pacingMode) {
+                ForEach(settingsViewModel.pacingModes, id: \.self) { mode in
                     Text(mode.title).tag(mode)
                 }
             }
 
-            Toggle("settings.picture.statistics", isOn: $settings.shouldShowStatistics)
+            Toggle("settings.picture.statistics", isOn: $settingsViewModel.shouldShowStatistics)
         } header: {
             Text("settings.picture.header")
         } footer: {
@@ -31,7 +31,7 @@ struct PictureSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        PictureSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        PictureSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

@@ -9,13 +9,13 @@ import AppKit
 import StarfoldShared
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    weak var app: AppViewModel?
+    weak var appViewModel: AppViewModel?
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        guard let app, app.stream != nil else { return .terminateNow }
+        guard let appViewModel, appViewModel.streamViewModel != nil else { return .terminateNow }
 
         Task {
-            await endStream(of: app)
+            await endStream(of: appViewModel)
 
             sender.reply(toApplicationShouldTerminate: true)
         }
@@ -23,11 +23,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return .terminateLater
     }
 
-    private func endStream(of app: AppViewModel) async {
+    private func endStream(of appViewModel: AppViewModel) async {
         let longestWaitForStreamEnd: Duration = .seconds(2)
         let longestWait = longestWaitForStreamEnd
         await withTaskGroup(of: Void.self) { group in
-            group.addTask { await app.endStream() }
+            group.addTask { await appViewModel.endStream() }
             group.addTask { try? await Task.sleep(for: longestWait) }
 
             await group.next()

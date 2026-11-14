@@ -11,19 +11,23 @@ import SwiftUI
 struct SignedInTabView: View {
     @State private var selection = SignedInTab.home
 
-    let home: HomeViewModel
-    let library: LibraryViewModel
+    let homeViewModel: HomeViewModel
+    let libraryViewModel: LibraryViewModel
 
     let onAddAccount: () -> Void
 
     var body: some View {
         TabView(selection: $selection) {
             Tab("app.tab.home", systemImage: "house", value: SignedInTab.home) {
-                HomeHostView(home: home, library: library, onAddAccount: onAddAccount)
+                HomeHostView(
+                    homeViewModel: homeViewModel,
+                    libraryViewModel: libraryViewModel,
+                    onAddAccount: onAddAccount
+                )
             }
 
             Tab("app.tab.cloudGaming", systemImage: "cloud", value: SignedInTab.library) {
-                LibraryHostView(library: library)
+                LibraryHostView(libraryViewModel: libraryViewModel)
             }
 
             Tab("app.tab.settings", systemImage: "gear", value: SignedInTab.settings) {
@@ -36,8 +40,8 @@ struct SignedInTabView: View {
 #if DEBUG
 #Preview("Tabs") {
     SignedInTabView(
-        home: PreviewObjectPool.homeViewModel(),
-        library: PreviewObjectPool.libraryViewModel()
+        homeViewModel: PreviewObjectPool.homeViewModel(),
+        libraryViewModel: PreviewObjectPool.libraryViewModel()
     ) {}
     .environment(PreviewObjectPool.appViewModel(signedIn: true))
 }

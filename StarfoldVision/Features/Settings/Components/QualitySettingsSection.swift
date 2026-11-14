@@ -9,25 +9,25 @@ import StarfoldShared
 import SwiftUI
 
 struct QualitySettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
-            Picker("settings.quality.console", selection: $settings.consoleQuality) {
-                ForEach(settings.qualityChoices, id: \.self) { choice in
+            Picker("settings.quality.console", selection: $settingsViewModel.consoleQuality) {
+                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
                     Text(choice.consoleTitle).tag(choice)
                 }
             }
 
-            Picker("settings.quality.cloud", selection: $settings.cloudQuality) {
-                ForEach(settings.qualityChoices, id: \.self) { choice in
+            Picker("settings.quality.cloud", selection: $settingsViewModel.cloudQuality) {
+                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
                     Text(choice.cloudTitle).tag(choice)
                 }
             }
 
-            Picker("settings.bitrate.title", selection: $settings.maxBitrateMbps) {
-                ForEach(settings.bitrateChoices, id: \.self) { bitrate in
-                    Text(settings.title(ofBitrate: bitrate)).tag(bitrate)
+            Picker("settings.bitrate.title", selection: $settingsViewModel.maxBitrateMbps) {
+                ForEach(settingsViewModel.bitrateChoices, id: \.self) { bitrate in
+                    Text(settingsViewModel.title(ofBitrate: bitrate)).tag(bitrate)
                 }
             }
         } header: {
@@ -41,7 +41,7 @@ struct QualitySettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        QualitySettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        QualitySettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

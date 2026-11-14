@@ -11,16 +11,16 @@ import XboxKit
 
 struct ConsoleCard: View {
     let console: Console
-    let home: HomeViewModel
+    let homeViewModel: HomeViewModel
 
     var body: some View {
         HomeCard(heading: heading, primaryAction: playAction) {
-            ConsoleCardArt(console: console, cover: home.cover(for: console))
+            ConsoleCardArt(console: console, cover: homeViewModel.cover(for: console))
         } actions: {
             SettingsShortcutButton()
 
             ConsolePowerButton(
-                control: home.powerControl(for: console),
+                control: homeViewModel.powerControl(for: console),
                 onToggle: { togglePower() }
             )
 
@@ -31,7 +31,7 @@ struct ConsoleCard: View {
     }
 
     private var heading: HomeCardHeading {
-        let status = home.status(of: console)
+        let status = homeViewModel.status(of: console)
         return .init(
             title: Text(console.name),
             subtitle: Text(console.modelName),
@@ -54,11 +54,11 @@ struct ConsoleCard: View {
     }
 
     private func play() {
-        home.play(console)
+        homeViewModel.play(console)
     }
 
     private func togglePower() {
-        Task { await home.togglePower(of: console) }
+        Task { await homeViewModel.togglePower(of: console) }
     }
 
     private var wirelessHint: some View {
@@ -70,10 +70,10 @@ struct ConsoleCard: View {
 
 #if DEBUG
 #Preview {
-    let home = PreviewObjectPool.homeViewModel()
+    let homeViewModel = PreviewObjectPool.homeViewModel()
     return HStack {
         ForEach(PreviewObjectPool.consoles) { console in
-            ConsoleCard(console: console, home: home)
+            ConsoleCard(console: console, homeViewModel: homeViewModel)
         }
     }
     .padding()

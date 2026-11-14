@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="680" height="494" viewBox="0 0 680 494" role="img">
   <title>Starfold module architecture</title>
-  <desc>Three platform apps depend on the StarfoldShared package, which contains App, Features, Services and UserInterface. StarfoldShared depends on XboxKit and StreamKit; StreamKit depends on XboxKit and LiveKitWebRTC.</desc>
+  <desc>Four platform apps depend on the StarfoldShared package, which contains App, Features, Services and UserInterface. StarfoldShared depends on XboxKit and StreamKit; StreamKit depends on XboxKit and LiveKitWebRTC.</desc>
   <style>
     text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; dominant-baseline: central; }
     .title { font-size: 14px; font-weight: 500; }
@@ -27,24 +27,30 @@
   </defs>
 
   <g class="purple">
-    <rect x="50" y="40" width="180" height="56" rx="8" stroke-width="0.5"/>
-    <text class="title" x="140" y="58" text-anchor="middle">StarfoldMac</text>
-    <text class="sub" x="140" y="78" text-anchor="middle">Views, Navigation</text>
+    <rect x="50" y="40" width="136" height="56" rx="8" stroke-width="0.5"/>
+    <text class="title" x="118" y="58" text-anchor="middle">StarfoldMac</text>
+    <text class="sub" x="118" y="78" text-anchor="middle">Views, Navigation</text>
   </g>
   <g class="purple">
-    <rect x="250" y="40" width="180" height="56" rx="8" stroke-width="0.5"/>
-    <text class="title" x="340" y="58" text-anchor="middle">StarfoldVision</text>
-    <text class="sub" x="340" y="78" text-anchor="middle">Views, Navigation</text>
+    <rect x="198" y="40" width="136" height="56" rx="8" stroke-width="0.5"/>
+    <text class="title" x="266" y="58" text-anchor="middle">StarfoldiOS</text>
+    <text class="sub" x="266" y="78" text-anchor="middle">+ Touch controls</text>
   </g>
   <g class="purple">
-    <rect x="450" y="40" width="180" height="56" rx="8" stroke-width="0.5"/>
-    <text class="title" x="540" y="58" text-anchor="middle">StarfoldTV</text>
-    <text class="sub" x="540" y="78" text-anchor="middle">+ Top Shelf extension</text>
+    <rect x="346" y="40" width="136" height="56" rx="8" stroke-width="0.5"/>
+    <text class="title" x="414" y="58" text-anchor="middle">StarfoldVision</text>
+    <text class="sub" x="414" y="78" text-anchor="middle">Views, Navigation</text>
+  </g>
+  <g class="purple">
+    <rect x="494" y="40" width="136" height="56" rx="8" stroke-width="0.5"/>
+    <text class="title" x="562" y="58" text-anchor="middle">StarfoldTV</text>
+    <text class="sub" x="562" y="78" text-anchor="middle">+ Top Shelf extension</text>
   </g>
 
-  <line class="arrow" x1="140" y1="96" x2="140" y2="138" marker-end="url(#arrow)"/>
-  <line class="arrow" x1="340" y1="96" x2="340" y2="138" marker-end="url(#arrow)"/>
-  <line class="arrow" x1="540" y1="96" x2="540" y2="138" marker-end="url(#arrow)"/>
+  <line class="arrow" x1="118" y1="96" x2="118" y2="138" marker-end="url(#arrow)"/>
+  <line class="arrow" x1="266" y1="96" x2="266" y2="138" marker-end="url(#arrow)"/>
+  <line class="arrow" x1="414" y1="96" x2="414" y2="138" marker-end="url(#arrow)"/>
+  <line class="arrow" x1="562" y1="96" x2="562" y2="138" marker-end="url(#arrow)"/>
 
   <g class="teal">
     <rect x="50" y="140" width="580" height="124" rx="20" stroke-width="0.5"/>

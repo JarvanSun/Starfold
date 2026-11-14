@@ -11,17 +11,17 @@ import SwiftUI
 
 struct KeyboardSettingsSection: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section(String(localized: "settings.controls.keyboard.title")) {
             Toggle(
                 String(localized: "settings.controls.keyboard.asController"),
-                isOn: $settings.isKeyboardControllerEnabled
+                isOn: $settingsViewModel.isKeyboardControllerEnabled
             )
 
             keyBindings
-                .disabled(!settings.isKeyboardControllerEnabled)
+                .disabled(!settingsViewModel.isKeyboardControllerEnabled)
         }
     }
 
@@ -31,7 +31,7 @@ struct KeyboardSettingsSection: View {
             horizontalSpacing: dimensions.spaceLarge,
             verticalSpacing: dimensions.spaceXSmall
         ) {
-            ForEach(settings.keyBindings, id: \.key) { row(for: $0) }
+            ForEach(settingsViewModel.keyBindings, id: \.key) { row(for: $0) }
         }
     }
 
@@ -47,7 +47,7 @@ struct KeyboardSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        KeyboardSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        KeyboardSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
     .formStyle(.grouped)
 }

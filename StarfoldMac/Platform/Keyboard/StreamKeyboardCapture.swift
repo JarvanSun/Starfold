@@ -10,7 +10,7 @@ import StarfoldShared
 import SwiftUI
 
 struct StreamKeyboardCapture: NSViewRepresentable {
-    let stream: StreamViewModel
+    let streamViewModel: StreamViewModel
 
     static func dismantleNSView(_ view: NSView, coordinator: StreamKeyboardMonitor) {
         coordinator.uninstall()
@@ -24,10 +24,10 @@ struct StreamKeyboardCapture: NSViewRepresentable {
     }
 
     func updateNSView(_ view: NSView, context: Context) {
-        context.coordinator.stream = stream
+        context.coordinator.streamViewModel = streamViewModel
     }
 
     func makeCoordinator() -> StreamKeyboardMonitor {
-        .init(stream: stream)
+        .init(streamViewModel: streamViewModel)
     }
 }

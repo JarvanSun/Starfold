@@ -9,7 +9,7 @@ import GameController
 
 enum ControllerInputDestination: Sendable {
     case router(GamepadRouter)
-    case television(TVControllerInput)
+    case gated(GatedControllerInput)
 
     func prepare(_ gamepad: GCExtendedGamepad) {
         switch self {
@@ -17,7 +17,7 @@ enum ControllerInputDestination: Sendable {
             gamepad.buttonHome?.preferredSystemGestureState = .disabled
             gamepad.buttonMenu.preferredSystemGestureState = .disabled
             gamepad.buttonOptions?.preferredSystemGestureState = .disabled
-        case .television:
+        case .gated:
             break
         }
     }
@@ -25,14 +25,28 @@ enum ControllerInputDestination: Sendable {
     func attach(slot: UInt8, gamepad: GCExtendedGamepad) {
         switch self {
         case .router(let router): router.update(slot: slot, state: GamepadState(reading: gamepad))
-        case .television(let input): input.attach(slot: slot, gamepad: gamepad)
+        case .gated(let input): input.attach(slot: slot, gamepad: gamepad)
         }
     }
 
     func update(slot: UInt8, state: GamepadState?) {
         switch self {
         case .router(let router): router.update(slot: slot, state: state)
-        case .television(let input): input.update(slot: slot, state: state)
+        case .gated(let input): input.update(slot: slot, state: state)
+        }
+    }
+
+    func attachTouch(_ profile: GCPhysicalInputProfile) {
+        switch self {
+        case .router(let router): router.updateTouch(GamepadState(reading: profile))
+        case .gated(let input): input.attachTouch(profile)
+        }
+    }
+
+    func updateTouch(_ state: GamepadState?) {
+        switch self {
+        case .router(let router): router.updateTouch(state)
+        case .gated(let input): input.updateTouch(state)
         }
     }
 }

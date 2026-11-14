@@ -11,39 +11,39 @@ import XboxKit
 
 struct LibraryView: View {
     @Environment(\.dimensions) private var dimensions
-    @Bindable var library: LibraryViewModel
+    @Bindable var libraryViewModel: LibraryViewModel
 
     let onOpenGame: (CloudGame) -> Void
 
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: dimensions.spaceXXLarge) {
-                if !library.isSearching {
-                    ForEach(library.shelves) { shelfRow($0) }
+                if !libraryViewModel.isSearching {
+                    ForEach(libraryViewModel.shelves) { shelfRow($0) }
                 }
 
-                if !library.visibleGames.isEmpty {
-                    AllGamesGrid(library: library, onOpenGame: onOpenGame)
+                if !libraryViewModel.visibleGames.isEmpty {
+                    AllGamesGrid(libraryViewModel: libraryViewModel, onOpenGame: onOpenGame)
                 }
             }
             .padding(.vertical, dimensions.spaceXLarge)
-            .animation(.smooth(duration: 0.3), value: library.isSearching)
+            .animation(.smooth(duration: 0.3), value: libraryViewModel.isSearching)
         }
-        .overlay(if: library.placeholder) { placeholderView($0) }
+        .overlay(if: libraryViewModel.placeholder) { placeholderView($0) }
         .searchable(
-            text: $library.searchText,
+            text: $libraryViewModel.searchText,
             placement: .toolbar,
             prompt: Text("library.search.prompt")
         )
         .navigationTitle(Text("library.title"))
-        .refreshable { await library.refresh() }
+        .refreshable { await libraryViewModel.refresh() }
     }
 
     private func shelfRow(_ shelf: LibraryShelf) -> some View {
         ShelfRow(
             shelf: shelf,
-            games: library.games(on: shelf),
-            onPlay: { library.play($0) },
+            games: libraryViewModel.games(on: shelf),
+            onPlay: { libraryViewModel.play($0) },
             onOpen: onOpenGame
         )
     }
@@ -51,13 +51,13 @@ struct LibraryView: View {
     private func placeholderView(_ placeholder: LibraryPlaceholder) -> some View {
         LibraryPlaceholderView(
             placeholder: placeholder,
-            searchText: library.searchText,
+            searchText: libraryViewModel.searchText,
             onRetry: { refresh() }
         )
     }
 
     private func refresh() {
-        Task { await library.refresh() }
+        Task { await libraryViewModel.refresh() }
     }
 }
 
@@ -66,7 +66,7 @@ struct LibraryView: View {
 #Preview("Library", arguments: [LoadState.loaded, .loading, PreviewObjectPool.failedLoadState]) {
     state in
     NavigationStack {
-        LibraryView(library: PreviewObjectPool.libraryViewModel(state: state)) { _ in }
+        LibraryView(libraryViewModel: PreviewObjectPool.libraryViewModel(state: state)) { _ in }
             .background { SkyBackground() }
     }
     .frame(width: 1180, height: 820)
@@ -75,8 +75,10 @@ struct LibraryView: View {
 
 #Preview("No cloud gaming") {
     NavigationStack {
-        LibraryView(library: PreviewObjectPool.libraryViewModel(access: .unavailable)) { _ in }
-            .background { SkyBackground() }
+        LibraryView(libraryViewModel: PreviewObjectPool.libraryViewModel(access: .unavailable)) {
+            _ in
+        }
+        .background { SkyBackground() }
     }
     .frame(width: 1180, height: 820)
     .environment(\.colorScheme, .dark)

@@ -14,7 +14,8 @@ one changes this file first.
 | Data channels, input, rumble parsing | StreamKit `Protocol/`, `Input/` | `MessageChannel`, `ControlMessage`, `InputReport`, `ServerInputPacket`, `InputState`, `InputSender` |
 | Data-channel conversation | StreamKit `Session/` | `HostChannels`, `HostChannelAction` |
 | Orchestration and teardown | StreamKit `Session/` | `StreamController` |
-| Rumble playback | StreamKit `Input/` | `ControllerHub`, `RumblePlayer` |
+| Rumble playback | StreamKit `Input/` | `ControllerHub`, `RumbleTarget`, `RumblePlayer` |
+| Touch controls, running title | StreamKit `Protocol/`, `Input/` | `TouchCapabilities`, `TouchControlsCommand`, `RunningTitle`, `GamepadRouter`, `ActiveInputSwitch` |
 | Failure advice | `StarfoldShared/Features/Stream/Model/` | `StreamFailureAdvice` |
 
 All JSON is sent with `.withoutEscapingSlashes`. Xbox dates carry up to 7 fractional digits,
@@ -205,8 +206,9 @@ Start-up (`HostChannels` returns `HostChannelAction`s; `StreamController` perfor
 
 1. `message` opens → send `Handshake`. `control` opens → send a keyframe request. Both media
    tracks received → another keyframe request.
-2. `HandshakeAck` → `authorizationRequest` on control; `ClientMetadata` (`maxTouchPoints` 0) on
-   input; the six configuration messages on message; `gamepadChanged {0, false}` on control.
+2. `HandshakeAck` → `authorizationRequest` on control; `ClientMetadata` (`maxTouchPoints` from
+   `StreamOptions.touch`, else 0) on input; the six configuration messages on message;
+   `gamepadChanged {0, false}` on control.
 3. 500 ms later → `gamepadChanged {0, true}`, then `InputSender` starts with slot 0 announced. The
    host shows a controller only after this pair.
 
@@ -226,8 +228,8 @@ Message envelope: `type`, `id` (lowercase UUID; replies reuse the id they answer
 | `/streaming/systemUi/configuration` | `{"version":[0,2,0],"systemUis":[10,19]}` (10 virtual keyboard, 19 message dialog) |
 | `/streaming/properties/clientappinstallidchanged` | `{"clientAppInstallId":"<uuid, stable per install>"}` |
 | `/streaming/characteristics/orientationchanged` | `{"orientation":0}` |
-| `/streaming/characteristics/touchinputenabledchanged` | `{"touchInputEnabled":false}` |
-| `/streaming/characteristics/clientdevicecapabilities` | `{}` |
+| `/streaming/characteristics/touchinputenabledchanged` | `{"touchInputEnabled":false}`; `true` with `StreamOptions.touch` |
+| `/streaming/characteristics/clientdevicecapabilities` | `{}`; with `StreamOptions.touch`, `{"maxTouchBundleLayoutVersion":…,"maxTouchBundleManifestVersion":…}` from it (`4.1.0.0`, `2.0.0.0` today) |
 | `/streaming/characteristics/dimensionschanged` | `horizontal`, `vertical`, `preferredWidth`, `preferredHeight` = announced size; `safeAreaLeft`/`Top` 0, `safeAreaRight`/`Bottom` = width/height; `supportsCustomResolution: true` |
 
 | Incoming target (`Message` or `TransactionStart`) | Handling |
@@ -235,8 +237,8 @@ Message envelope: `type`, `id` (lowercase UUID; replies reuse the id they answer
 | `/streaming/systemUi/messages/ShowMessageDialog` | `TitleText`, `ContentText`, non-empty `CommandLabel1…3`, `DefaultIndex`, `CancelIndex` → `SystemDialogRequest`. Reply `TransactionComplete` with `{"Result": <0-based button index>}`. |
 | `/streaming/systemUi/messages/ShowVirtualKeyboard` | `TitleText`, `DescriptionText`, `DefaultText`, `MaxLength`. Reply `TransactionComplete` with `{"Text": …}`, or `ReceiverCancel` on cancel. |
 | `/streaming/sessionLifetimeManagement/serverInitiatedDisconnect` | Reply `TransactionComplete` with `{}` if a transaction, then stop with `.hostEnded`. |
-| `/streaming/properties/titleinfo` | Ignored. |
-| `/streaming/touchcontrols/*` | `ReceiverCancel` for a transaction, else ignored. |
+| `/streaming/properties/titleinfo` | `titleid` (hex string kept as sent; a number is written in uppercase hex) and `focus` (true when absent), keys matched in any case → `StreamUpdate.runningTitle`. No reply. Without a title id, ignored. |
+| `/streaming/touchcontrols/…` | The five targets in [Touch](#touch-iphone-ipad) → `StreamUpdate.touchControls`; a transaction is also answered `ReceiverCancel`. Any other target here: `ReceiverCancel` for a transaction, else ignored. |
 | anything else | Reply `{"type":"Unhandled","id","target","cv"}`. |
 
 A `SenderCancel` withdraws an open dialog (`StreamUpdate.dialogDismissed`), with no reply.
@@ -253,13 +255,13 @@ starting with a u8 count (at most 255 records). All integers little-endian.
 | 6 | f64 | Timestamp in ms, monotonic: `(CACurrentMediaTime() − stream start) × 1000` |
 
 `ClientMetadata` is exactly 15 bytes: header with flags 8 and sequence 0, then u8
-`maxTouchPoints` 0. Pointer, mouse and keyboard sections are never sent; a keyboard plays as a
-gamepad (`KeyboardGamepad`).
+`maxTouchPoints` (0 without touch). Pointer, mouse and keyboard sections are never sent; a keyboard
+plays as a gamepad (`KeyboardGamepad`), and touch controls play as one too.
 
 | Record | Size | Layout (relative offset: type field) |
 |---|---|---|
 | Metadata | 28 | 0 u32 RTP timestamp of the frame; 4 u32 first packet arrival; 8 u32 submitted to decoder; 12 u32 decoded; 16 u32 rendered; 20 u32 packet time; 24 u32 date now |
-| Gamepad | 23 | 0 u8 slot; 1 u16 buttons; 3 i16 left X; 5 i16 left Y; 7 i16 right X; 9 i16 right Y; 11 u16 left trigger; 13 u16 right trigger; 15 u32 physical physicality; 19 u32 virtual physicality (0) |
+| Gamepad | 23 | 0 u8 slot; 1 u16 buttons; 3 i16 left X; 5 i16 left Y; 7 i16 right X; 9 i16 right Y; 11 u16 left trigger; 13 u16 right trigger; 15 u32 physical physicality; 19 u32 virtual physicality (touch controls; else 0) |
 
 - One Metadata record per decoded frame. All four times are when the decoded frame reached the app,
   not a paced display time (the host lowers resolution when frame times grow). Packet time and
@@ -273,6 +275,10 @@ gamepad (`KeyboardGamepad`).
   `0x10`, View `0x20`, left/right stick click `0x40`/`0x80`, LB/RB `0x100`/`0x200`, Nexus `0x400`,
   A/B/X/Y `0x1000`/`0x2000`/`0x4000`/`0x8000`, left/right trigger `0x10000`/`0x20000`, left stick
   X/Y `0x40000`/`0x80000`, right stick X/Y `0x100000`/`0x200000` (each axis when non-zero).
+- Slot 0 merges the player-one controller, the keyboard and the touch controls
+  (`GamepadState.merged(withTouch:)`). The physical field holds what the controller and keyboard
+  engage, the virtual field what touch engages; a control engaged by both sets its flag in both.
+  With touch neutral the record is exactly the controller's.
 
 Sending (`InputState`, `InputSender`):
 
@@ -301,6 +307,74 @@ ServerMetadata, Vibration.
   `repeat + 1` continuous events of `duration`, spaced `duration + delay`. Sharpness 0.8 on the
   right handle, 0.3 elsewhere. A new effect replaces the playing one.
 - Rumble plays only while the preference is on, and stops when the stream ends.
+- `RumbleTarget` picks where an effect plays: on the controllers in its slot; else, for slot 0
+  with no controller connected and `ControllerHub.isDeviceRumbleEnabled`, on the device's own
+  haptics (`RumblePlayer(device:)`, one `.default` engine, only where
+  `CHHapticEngine.capabilitiesForHardware().supportsHaptics`); else nowhere. Connecting a
+  controller stops device rumble.
+
+## Touch (iPhone, iPad)
+
+Read from the xbox.com/play web client and Microsoft's Touch Adaptation Kit (TAK) schemas and
+samples in `microsoft/xbox-game-streaming-tools` (MIT); recheck against the live services before
+relying on a value. Without `StreamOptions.touch` every platform keeps the start-up values in
+[Data channels](#data-channels) (`maxTouchPoints` 0, `touchInputEnabled` false, capabilities `{}`).
+
+Built in StreamKit:
+
+- Start-up: `StreamOptions.touch` (`TouchCapabilities`: `maxTouchPoints`, `maxLayoutVersion`,
+  `maxManifestVersion`) turns on touch in `ClientMetadata`, `touchinputenabledchanged` and
+  `clientdevicecapabilities`. `StreamController.announceTouchBundle(version:versionName:)` sends
+  `touchBundleMetadataChanged`. The session's `inputConfiguration` is XboxKit's.
+- Incoming: the five targets below become `StreamUpdate.touchControls(TouchControlsCommand)`;
+  `titleinfo` becomes `StreamUpdate.runningTitle`. A patch is carried as JSON bytes (a string
+  patch as its UTF-8, an array or object re-serialized); applying it is XboxKit's.
+- Input: the controller whose `productCategory` equals the category passed to
+  `ControllerHub(routing:touchControllerCategory:)` is the touch controller. It is read through
+  its `physicalInputProfile` by element name (`GCInputButtonA`, `GCInputLeftThumbstick`,
+  `GCInputDirectionPad`, `GCInputLeftTrigger`, …), takes no slot, is not in `connected` and does
+  not count as a connected controller. Its state merges into slot 0 with virtual physicality;
+  under `.gated` routing it is gated and quarantined like a controller (`GamepadSource.touch`).
+- `ControllerHub.activeInput` is `.controller` after a deliberate control from a controller or the
+  keyboard (any button, a stick or trigger at 0.3 or more) or when a controller connects, and
+  `.touch` after one from touch, after the last controller disconnects, or on
+  `useTouchControls()`. It changes on the main actor only when it flips.
+- Not sent: Pointer reports (report type 4) and relative mouse.
+
+Built in XboxKit (`Touch/`): `GSSVClient.inputConfigurations(xboxTitleIDs:)` and
+`touchBundleArchive(id:)`, `TouchBundle` (zip, manifest, locale fallback, assets), `TouchLayout`
+(schemas v1–v4.1, `$ref`s, layers) and `TouchContext` with `JSONPatch`. StarfoldShared asks for a
+title's bundle when `titleinfo` names a focused title, sends `touchBundleMetadataChanged` once it
+is loaded, and re-resolves the layout after each `patchstate`.
+
+| What | Where |
+|---|---|
+| Does the title have touch? | `POST /v2/titles/inputconfigs` `{titleIds, titleIdType}` (remote play: `xboxTitleId`, after `/streaming/properties/titleinfo` names the running title); each entry has `supportedTabs` (`[{id}]`) and `supportedInputTypes` (`Controller`, `MKB`, `CustomTouchOverlay`, `GenericTouch`, `NativeTouch`, `NativeSensor`). Cloud titles carry the same two fields. A non-empty `supportedTabs` means a title layout. |
+| Its layout bundle | `GET /v1/sessions/tabs/<tabId>/download?noRedirect=true` with the gssv token returns a URL as plain text; a plain `GET` of that URL, without the token, returns a zip: `takxmanifest.json`, `layouts/<locale>/*.json` (falling back to `neutral`), `assets/<locale>/@Nx/*.png`, optional `context.json`. The URL's host is unconfirmed. |
+| Turning touch on | Session config `inputConfiguration.enableTouchInput` and `maxTouchPoints`; `touchinputenabledchanged {"touchInputEnabled": true}`; `clientdevicecapabilities {"maxTouchBundleLayoutVersion": "4.1.0.0", "maxTouchBundleManifestVersion": "2.0.0.0"}`; `/streaming/characteristics/touchBundleMetadataChanged {version, versionName}` for the loaded bundle. |
+
+| Incoming on `message`, `/streaming/touchcontrols/…` | Means | `TouchControlsCommand` |
+|---|---|---|
+| `showlayoutv2` `{layoutId, patch?}` | Show that layout; `layoutId` "" is the standard layout | `.showLayout(.standard` or `.named(id), statePatch:)`; a missing `layoutId` is "" |
+| `showlayout` (raw id) | Older form of the above | `.showLayout(…, statePatch: nil)`; the id is the raw content, a JSON string's value, or a `layoutId` field |
+| `showtitledefault` | Show the title's default layout | `.showLayout(.titleDefault, statePatch: nil)` |
+| `patchstate` `{patch}` | JSON Patch on the layout's `context.json` state | `.patchState(_:)`; a bare JSON array as content is taken as the patch; without one, ignored |
+| `hide` | Hide the touch layout | `.hide` |
+
+- A transaction on this scope is still answered with `ReceiverCancel`, and its command is still
+  reported.
+- The `titleinfo` and `showlayout` payload shapes are not confirmed; they are decoded defensively
+  as described above.
+- Layout controls (`button`, `joystick`, `directionalPad`, `throttle`, `touchpad`, `arcadeButtons`,
+  wheels, `layer` actions, `turbo`) produce a virtual gamepad: ordinary Gamepad records on `input`,
+  with virtual physicality. On iPhone and iPad the layout becomes Apple Touch Controller controls,
+  whose `GCController` is read like any controller and merged into slot 0; its engaged controls
+  go in the virtual physicality field, never the physical one. A layout may also emit relative
+  mouse, and a `NativeTouch` title takes Pointer reports (report type 4); both need their
+  encodings pinned down here before they are sent.
+- The standard layout matches the MIT sample `standard-controller.json`: left joystick in
+  `left.inner`; D-pad, left stick click, LT and LB in `left.outer`; Y, B, A, X in `right.inner`; RB,
+  RT, right stick click and right joystick in `right.outer`; Menu and View at `upper.right`.
 
 ## Ending a session
 

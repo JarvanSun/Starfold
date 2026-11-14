@@ -19,6 +19,13 @@ In XboxKit.
 - **CatalogClient**: The service sometimes fails a whole batch with 5xx, so a failed batch is retried once, then split in half, and the call throws only when nothing was fetched.
 - **CatalogProduct**: Store image URLs are protocol-relative and get `https:` prepended.
 - **GSSVSession**: On tvOS `stop()` logs the DELETE outcome under `TVSessionCleanup` for the Apple TV background cleanup; with KeychainStore's, it is XboxKit's only `#if os`.
+- **CloudTitle**: It decodes a missing `touchBundleIDs` as empty so library caches written before touch support still load.
+- **GSSVClient**, **TitleInputConfiguration**: A `supportedTabs` entry without an `id` is skipped, so one malformed touch bundle cannot fail the whole cloud library on every platform.
+- **ZipArchive**: Hand-written because Apple platforms have no public unzip API and the app takes no third-party dependency besides WebRTC; Compression's `COMPRESSION_ZLIB` is raw DEFLATE (RFC 1951), which is exactly zip method 8.
+- **ZipArchive**: It reads entries through the central directory, so local headers with data descriptors (sizes written after the data) are read correctly; an entry over 64 MB is refused so a forged size cannot exhaust memory.
+- **TouchJSONDecoder**: The Touch Adaptation Kit's own sample bundles save every JSON file with a UTF-8 byte-order mark, which is skipped before decoding.
+- **TouchLayout**: `$ref`s may point into `context.json` state, which the game patches at runtime, so a layout keeps its JSON and is resolved and decoded again for each context.
+- **TouchControlKind**: A control whose type is unknown, or whose fields do not decode, becomes `unsupported` instead of failing the layout, because newer layout schema versions add controls and fields.
 
 ## The stream
 
@@ -37,18 +44,25 @@ In StreamKit.
 - **StreamController**: The slot-0 reset-then-announce pair runs in its own task so its 500 ms gap does not hold up other messages, and the input sender starts only after it.
 - **InputSender**: Input goes out on its own thread so a press never waits for an actor hop and timers cannot coalesce the 8 ms wake-up.
 - **InputState**: A Guide pulse rides on its slot even with no controller connected.
+- **InputState**: A press latched between two samples takes the physicality of the state it is sent with, so a touch tap shorter than one send round is reported as physical.
 - **GamepadRouter**: Deliveries happen under the lock in change order so an older state never overtakes a newer one; destinations only record and wake the input thread.
 - **GamepadRouter**: Slot 0 always gets a state because the host is told about it at connect, and each stream starts with no keyboard keys held.
-- **GamepadRouter**: Clearing pending input on TV delivers nil even for slot 0, so the sender drops latched taps before neutral states follow.
+- **GamepadRouter**: Clearing pending input under gated routing delivers nil even for slot 0, so the sender drops latched taps before neutral states follow.
+- **GamepadRouter**: Under gated routing player one exists only while a controller, the touch controller or held keys feed it, so Apple TV still reports a disconnected player one as a removal; the keyboard merges in for iPad.
 - **ControllerHub**: `GCController.shouldMonitorBackgroundEvents` stays on so input arrives when the stream window is not key.
 - **ControllerHub**: Connect and disconnect notifications only trigger a diff against `GCController.controllers()`, keeping non-Sendable controllers out of main-actor closures.
 - **ControllerHub**: A new controller's first state goes through the handler queue to stay ordered with its own callbacks and a later disconnect.
-- **ControllerInputDestination**: Direct routing disables the system gesture on Home, Menu and Options so the Xbox / PS button reaches the game; on TV, TVControllerInput toggles it with gameplay.
+- **ControllerHub**: The touch controller is recognised by the product category the app passes, because StreamKit cannot import TouchController; it is read through `physicalInputProfile` because it may have no `extendedGamepad`.
+- **ControllerHub**: The device's own haptics engine is created on the first rumble that needs it, so devices that never play device rumble never start one.
+- **ControllerInputDestination**: Direct routing disables the system gesture on Home, Menu and Options so the Xbox / PS button reaches the game; under gated routing, GatedControllerInput toggles it with gameplay.
+- **XboxButtonSettings**: From OS 27 the user's in-app Home button setting wins over `preferredSystemGestureState` unless it is Defer; an app can only read it (and only while a controller is connected) and open its settings screen, so Starfold says so instead of fixing it.
 - **RumblePlayer**: It uses the standard pattern player because on macOS 27 an advanced player's events are rejected by gamecontrollerd and silence later rumble; a stopped engine is restarted and retried once.
-- **TVControllerInput**: All TV filtering runs on the controller queue; main-actor commands join it rather than add a hop to each input.
-- **TVControllerInput**: UIKit may consume button releases while it has focus, so the held-control barrier is refreshed from the gamepads before gameplay resumes.
-- **TVGamepadPolicy**: Leaving gameplay sends neutral for every player and quarantines held controls until their physical release.
-- **TVGamepadPolicy**: A removed controller is reported only as a removal, because a neutral pad first would re-add the slot.
+- **GatedControllerInput**: All gated filtering runs on the controller queue; main-actor commands join it rather than add a hop to each input.
+- **GatedControllerInput**: UIKit may consume button releases while it has focus, so the held-control barrier is refreshed from the gamepads and the touch controller before gameplay resumes.
+- **GatedGamepadPolicy**: Leaving gameplay sends neutral for every player and quarantines held controls until their physical release.
+- **GatedGamepadPolicy**: A removed controller is reported only as a removal, because a neutral pad first would re-add the slot.
+- **GatedGamepadPolicy**: Touch is a source of its own (`GamepadSource.touch`), so a finger held through Control Center or a game dialog is quarantined without blocking the controller that shares slot 0.
+- **ActiveInputSwitch**: Only a deliberate control (a button, or a stick or trigger at 0.3 or more) flips it, because a resting stick's drift would otherwise hide the touch controls as soon as they are touched; a flip hops to the main actor, a sample never does.
 - **KeyboardGamepad**: Key codes are hardware positions (`kVK_*`) so WASD stays under the left hand on every layout.
 - **StreamRenderer**: Every frame is rendered in order, since dropping burst frames would undo pacing; only a backlog over 6 frames drops the oldest.
 - **StreamRenderer**: At most 12 output buffers live (the layer holds about 8 at 60 fps plus one drawing); past that a frame is dropped, since a 5K buffer is about 59 MB.
@@ -66,6 +80,8 @@ In StreamKit.
 - **AdaptiveQuality**: Cloud 1440p without Game Pass starts the session and ends it at once (measured with Fortnite), so such streams are pinned to 1080p.
 - **StatisticsReport**: Labels are fixed English because the report is read by whoever receives it and compared across runs.
 - **ControlMessage**: JSON keys are sorted only for deterministic tests; the host ignores order.
+- **MessageChannel**: A touch-controls transaction is still cancelled as before, but its command is reported too, since which envelope the host uses for layouts is unconfirmed.
+- **RunningTitleParsing**: The `titleinfo` payload is unconfirmed, so keys match in any case, a numeric id is written in hex and a missing `focus` counts as focused.
 - **PictureGeometry**: Upscaling renders at the picture's on-screen pixel size (never below the stream's); without upscaling the stream's size is used, since the layer scales anyway.
 - **StreamViewModel**: It watches `Preferences` with `withObservationTracking`, so a change from Settings, the menu bar or the stream controls applies the same way, until the stream ends.
 - **StreamViewModel**: The sharpening menu shows the nearest of four levels, because Settings saves any slider strength.
@@ -95,7 +111,19 @@ In StarfoldShared.
 - **LiveAccountService**: It keeps each account's `XboxAccount` by xuid, because the actor holds the cached tokens and re-reading the store would refresh them per request.
 - **Palette**: Nebula matches the app icon's #6652E8; Sunrise keeps the original pre-palette values, including the 85 % black label and coral glow.
 - **PrimaryButtonStyle**: Under Reduce Motion the hover growth is dropped; the hover lightening stays.
-- **AppPalette**: Apple TV uses `untintedAppPalette()` because there the palette only colours the sky.
+- **AppPalette**: On UIKit platforms the palette accent is the window's `tintColor`, not a SwiftUI `.tint`, because an explicit `.tint` also recolours controls the system draws neutral (menu values in a Form, glass buttons), which lowered their contrast; the window tint only replaces the system accent. No target sets a global accent colour.
+- **LiveNetworkPath**: Path updates arrive on the monitor's queue and are applied on the main actor to observable properties, so Settings shows or hides Cellular quality as soon as cellular data appears or goes.
+- **StreamViewModel**: Keys play as a gamepad only while nothing covers the game (no stream menu, no game dialog); a key that arrives otherwise releases every held key, so none stays pressed.
+- **StreamViewModel**: The Cellular quality ceiling caps the quality after the AdaptiveQuality override, so a pinned cloud stream still respects it.
+- **TouchLayoutPlanner**: Microsoft does not publish where its renderer puts TAK slots, so outer slots are spread evenly over a 100° arc around their wheel, the right wheel running from the top towards the centre to match the order of the standard sample.
+- **TouchControlsViewModel**: A title layout is used only when the planner can draw every visible control as the game meant it (`TouchLayer.isDrawable`): each has a Touch Controller counterpart, no slot holds more than one, nothing sits in the centre wheel, and no button toggles or has a pull action. A partly drawn layout could leave out the control a game needs.
+- **TouchControlsViewModel**: Each title keeps its own touch state (bundle, context, pending patches, layout and hiding), because opening the Xbox Guide moves focus to the shell and back; patches that arrive before a title's bundle are applied once it loads, and a bundle that arrives after focus moved on is kept for its title.
+- **StreamViewModel**: A title's touch bundle is downloaded once per stream; a failed download is retried on a later title message, at most three times, so a broken endpoint is not hit on every message.
+- **TouchControlsViewModel**: Edits apply only to the standard layout because a title layout's positions come from the game's own design.
+- **TouchSticks**: Stick visibility is one setting for both orientations, not part of the per-orientation adjustments, because whether a game needs a stick does not depend on the screen's shape. The plan carries it, so the planner still places every stick and the editor can draw an outline where a hidden stick sits.
+- **Preferences**: Touch layout edits are kept in an observed property as well as `UserDefaults`, so a stream redraws as soon as the editor changes them.
+- **TouchBundleUnpacker**: A title's touch bundle is inflated and checked off the main actor (`@concurrent`), because a large bundle arrives while the stream is playing.
+- **StandardTouchLayout**: The standard layout is Microsoft's MIT `standard-controller.json`, decoded like any title layout so both go through one planner.
 
 ## Mac
 
@@ -167,3 +195,26 @@ In `StarfoldTV/`, TopShelfKit and `StarfoldTopShelf/`.
 - **TopShelfSnapshot**: Game items prefer wide art with the title logo so a row of pictures says which game each is.
 - **TopShelfSnapshot**: `rowItemLimit` is 10, enough to span the screen; more is never visible without scrolling.
 - **TopShelfStore**: `save(_:)` returns whether the snapshot changed, so callers nudge the system only then.
+
+## iPhone and iPad
+
+In `StarfoldiOS/`.
+
+- **OrientationLock**: iPhone streams in landscape, so the lock checks the `.phone` idiom; size classes cannot tell an iPhone from an iPad window of the same size. The app delegate reports the lock because SwiftUI has no supported-orientations API. Landscape is held by a count, so the touch editor shown over a stream does not release the stream's landscape when it closes.
+- **TouchControllerView**: Touches reach Touch Controller by a per-finger index because it does not track `UITouch`; `point(inside:with:)` is true only over a control, so taps elsewhere reach the stream and its menu handle.
+- **TouchControllerView**: A stick's half-screen touch area would take the stream menu handle's taps, so touches at the top centre (`streamMenuHandleZone`) pass through when the control under them is a stick.
+- **TouchControllerView**: Controls draw in their own transparent Metal view above the picture, never into video frames.
+- **VideoHostView**: The picture's view takes no touches, so after a rotation UIKit cannot hand it the menu handle's taps; its `GCEventInteraction` gets controller events through the responder chain, not hit-testing.
+- **TouchControllerView**: Rebuilding the controls (a new plan) ends each held finger on the old controls and begins it again at the same point on the new ones, so a held stick keeps working and no removed button stays pressed.
+- **TouchControllerView**: A plan that only moves controls or changes opacity (`TouchControlPlan.isRearrangement(of:)`) moves the existing controls and sets the controller's `size` again to relayout them; rebuilding on every drag step dropped frames.
+- **TouchControllerView**: In the layout editor the Metal view presents with the Core Animation transaction and draws as soon as a control moves, so controls stay under SwiftUI's drag handles; during play it presents on its own clock.
+- **TouchControlBuilder**: Sticks take half the screen as their touch area, and Touch Controller gives an overlapping touch to the higher `zIndex` (at equal `zIndex`, to the control added last), so sticks sit on a lower layer than every button.
+- **TouchControlBuilder**: A stick set to On Touch uses Touch Controller's `hidesWhenNotPressed`; a stick set to Off is not added, so its half of the screen passes touches through to the stream.
+- **TouchLayoutEditorView**: The inspector is placed by `BesideLayout`, which measures it and puts it beside the selected control within the screen, so its position comes from layout rather than from a measurement fed back into state.
+- **TouchLayoutEditorView**: The editor draws the real Touch Controller controls, non-interactive, under transparent drag handles, so what is edited is exactly what is played.
+- **HomeCard** (iOS, Mac): The card surface goes on before the corner clip; clipped first, `.secondary` text could not blend with the material and drew nothing.
+- **ConsoleCardArt** (iOS): The cover is an overlay, so a `scaledToFill` image cannot widen the card.
+- **TouchPlatform**: `maxTouchPoints` 5 is an assumption about what a phone browser reports to xbox.com; it is not confirmed against the service.
+- **RootView**: Going to the background ends the stream inside a background task, as Apple TV does, because a suspended app cannot delete the host session.
+- **StreamView**: Game input routing is applied again on every appearance, not only when it changes, because a full-screen cover over the stream (the touch editor) makes the stream view disappear, which turns routing off.
+- **RootView**: The stream ends when its full-screen cover is dismissed, not when the stream view disappears, because the touch editor's cover hides the stream without ending it. Both paths go through one `BackgroundStreamEnd`, which ignores a second end while one is running.

@@ -29,4 +29,17 @@ struct ClientMetadataTests {
         )
         #expect(packet[14] == 0)
     }
+
+    @Test
+    func encodedWhenTouchSupportedThenLastByteIsMaxTouchPoints() {
+        // Given
+        let metadata = ClientMetadata(maxTouchPoints: 5)
+
+        // When
+        let packet = [UInt8](metadata.encoded(timestamp: 0))
+
+        // Then
+        #expect(packet.count == 15)
+        #expect(packet[14] == 5)
+    }
 }

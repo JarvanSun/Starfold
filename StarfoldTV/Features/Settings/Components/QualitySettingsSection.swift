@@ -9,18 +9,18 @@ import StarfoldShared
 import SwiftUI
 
 struct QualitySettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
-            Picker("settings.quality.console.title", selection: $settings.consoleQuality) {
-                ForEach(settings.qualityChoices, id: \.self) { choice in
+            Picker("settings.quality.console.title", selection: $settingsViewModel.consoleQuality) {
+                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
                     Text(choice.consoleTitle).tag(choice)
                 }
             }
 
-            Picker("settings.quality.cloud.title", selection: $settings.cloudQuality) {
-                ForEach(settings.qualityChoices, id: \.self) { choice in
+            Picker("settings.quality.cloud.title", selection: $settingsViewModel.cloudQuality) {
+                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
                     Text(choice.cloudTitle).tag(choice)
                 }
             }
@@ -35,7 +35,7 @@ struct QualitySettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        QualitySettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        QualitySettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

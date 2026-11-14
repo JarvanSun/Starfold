@@ -11,7 +11,7 @@ import XboxKit
 
 struct ConsoleCard: View {
     let console: Console
-    let home: HomeViewModel
+    let homeViewModel: HomeViewModel
     let width: CGFloat
 
     var body: some View {
@@ -19,7 +19,7 @@ struct ConsoleCard: View {
             title: Text(console.name),
             subtitle: Text(console.modelName),
             status: Text(console.powerStateDescription),
-            statusColor: home.status(of: console).color,
+            statusColor: homeViewModel.status(of: console).color,
             width: width,
             onSelect: { play() }
         ) {
@@ -29,12 +29,12 @@ struct ConsoleCard: View {
     }
 
     private func play() {
-        home.play(console)
+        homeViewModel.play(console)
     }
 
     @ViewBuilder
     private var picture: some View {
-        switch home.cover(for: console) {
+        switch homeViewModel.cover(for: console) {
         case .game(let url): Artwork(url: url)
         case .lastFrame(let image): Image(decorative: image, scale: 1).resizable().scaledToFill()
         case .placeholder: modelName
@@ -51,7 +51,7 @@ struct ConsoleCard: View {
 
     @ViewBuilder
     private var powerButton: some View {
-        switch home.powerControl(for: console) {
+        switch homeViewModel.powerControl(for: console) {
         case .command(let command): powerButton(for: command)
         case .sending(let command): powerButton(for: command).disabled(true)
         case .unavailable: EmptyView()
@@ -67,16 +67,16 @@ struct ConsoleCard: View {
     }
 
     private func togglePower() {
-        Task { await home.togglePower(of: console) }
+        Task { await homeViewModel.togglePower(of: console) }
     }
 }
 
 #if DEBUG
 #Preview {
-    let home = PreviewObjectPool.homeViewModel()
+    let homeViewModel = PreviewObjectPool.homeViewModel()
     HStack {
         ForEach(PreviewObjectPool.consoles) { console in
-            ConsoleCard(console: console, home: home, width: 480)
+            ConsoleCard(console: console, homeViewModel: homeViewModel, width: 480)
         }
     }
 }

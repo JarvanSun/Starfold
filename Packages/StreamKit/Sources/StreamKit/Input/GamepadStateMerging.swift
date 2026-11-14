@@ -15,6 +15,15 @@ extension GamepadState {
             rightTrigger: max(rightTrigger, other.rightTrigger)
         )
     }
+
+    func merged(withTouch touch: GamepadState) -> GamepadState {
+        let touchFlags = touch.engagedControlFlags
+        guard touchFlags != 0 else { return self }
+
+        var merged = merged(with: touch)
+        merged.mergedPhysicality = .init(physical: physicality.physical, virtual: touchFlags)
+        return merged
+    }
 }
 
 private extension GamepadState {

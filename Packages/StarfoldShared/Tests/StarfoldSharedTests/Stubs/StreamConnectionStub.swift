@@ -12,12 +12,18 @@ import StreamKit
 struct StreamConnectionStub: StreamConnection {
     let updates: AsyncStream<StreamUpdate>
 
+    private let continuation: AsyncStream<StreamUpdate>.Continuation
+
     init(updates: [StreamUpdate]) {
-        self.updates = AsyncStream { continuation in
-            for update in updates {
-                continuation.yield(update)
-            }
+        (self.updates, continuation) = AsyncStream.makeStream()
+
+        for update in updates {
+            continuation.yield(update)
         }
+    }
+
+    func send(_ update: StreamUpdate) {
+        continuation.yield(update)
     }
 
     func start(sink: VideoFrameReceiving) async {}
@@ -33,4 +39,6 @@ struct StreamConnectionStub: StreamConnection {
     func answerDialog(id: String, buttonIndex: Int) async {}
 
     func answerKeyboard(id: String, text: String?) async {}
+
+    func announceTouchBundle(version: String, versionName: String) async {}
 }

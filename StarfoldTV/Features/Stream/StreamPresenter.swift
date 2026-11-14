@@ -51,12 +51,12 @@ final class StreamPresenter {
         self.isSignInExpired = isSignInExpired
     }
 
-    convenience init(app: AppViewModel) {
+    convenience init(appViewModel: AppViewModel) {
         self.init(
-            play: { await app.play($0) },
-            stop: { await app.endStream() },
-            isControllerConnected: { !app.controllers.connected.isEmpty },
-            isSignInExpired: { app.isSignInExpired }
+            play: { await appViewModel.play($0) },
+            stop: { await appViewModel.endStream() },
+            isControllerConnected: { !appViewModel.controllers.connected.isEmpty },
+            isSignInExpired: { appViewModel.isSignInExpired }
         )
     }
 

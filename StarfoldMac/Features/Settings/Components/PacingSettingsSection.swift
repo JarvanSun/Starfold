@@ -9,15 +9,15 @@ import StarfoldShared
 import SwiftUI
 
 struct PacingSettingsSection: View {
-    @Bindable var settings: SettingsViewModel
+    @Bindable var settingsViewModel: SettingsViewModel
 
     var body: some View {
         Section {
             Picker(
                 String(localized: "settings.picture.buffer.title"),
-                selection: $settings.pacingMode
+                selection: $settingsViewModel.pacingMode
             ) {
-                ForEach(settings.pacingModes, id: \.self) { mode in
+                ForEach(settingsViewModel.pacingModes, id: \.self) { mode in
                     Text(mode.title).tag(mode)
                 }
             }
@@ -30,7 +30,7 @@ struct PacingSettingsSection: View {
 #if DEBUG
 #Preview {
     Form {
-        PacingSettingsSection(settings: PreviewObjectPool.settingsViewModel)
+        PacingSettingsSection(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
     .formStyle(.grouped)
 }

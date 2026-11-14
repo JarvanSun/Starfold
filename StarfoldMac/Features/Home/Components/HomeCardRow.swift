@@ -12,18 +12,18 @@ import XboxKit
 struct HomeCardRow: View {
     @Environment(\.dimensions) private var dimensions
 
-    let home: HomeViewModel
-    let library: LibraryViewModel
+    let homeViewModel: HomeViewModel
+    let libraryViewModel: LibraryViewModel
 
     let onOpenCloudLibrary: () -> Void
 
     var body: some View {
         ScrollView(.horizontal) {
             HStack(spacing: dimensions.spaceXLarge) {
-                CloudCard(library: library, onOpen: onOpenCloudLibrary)
+                CloudCard(libraryViewModel: libraryViewModel, onOpen: onOpenCloudLibrary)
                     .cardEntrance(index: 0)
 
-                switch home.consolesContent {
+                switch homeViewModel.consolesContent {
                 case .loading: SkeletonCard().cardEntrance(index: 1)
                 case .failed(let message): failedCard(message).cardEntrance(index: 1)
                 case .empty: NoConsolesCard(onRefresh: { refreshConsoles() }).cardEntrance(index: 1)
@@ -44,12 +44,12 @@ struct HomeCardRow: View {
     }
 
     private func refreshConsoles() {
-        Task { await home.refreshConsoles() }
+        Task { await homeViewModel.refreshConsoles() }
     }
 
     private var consoleCards: some View {
-        ForEach(Array(home.consoles.enumerated()), id: \.element.id) { index, console in
-            ConsoleCard(console: console, home: home)
+        ForEach(Array(homeViewModel.consoles.enumerated()), id: \.element.id) { index, console in
+            ConsoleCard(console: console, homeViewModel: homeViewModel)
                 .cardEntrance(index: index + 1)
         }
     }
@@ -59,13 +59,13 @@ struct HomeCardRow: View {
 #Preview {
     VStack {
         HomeCardRow(
-            home: PreviewObjectPool.homeViewModel(),
-            library: PreviewObjectPool.libraryViewModel()
+            homeViewModel: PreviewObjectPool.homeViewModel(),
+            libraryViewModel: PreviewObjectPool.libraryViewModel()
         ) {}
 
         HomeCardRow(
-            home: PreviewObjectPool.homeViewModel(consoles: []),
-            library: PreviewObjectPool.libraryViewModel(state: .loading)
+            homeViewModel: PreviewObjectPool.homeViewModel(consoles: []),
+            libraryViewModel: PreviewObjectPool.libraryViewModel(state: .loading)
         ) {}
     }
     .environment(\.skipsEntranceAnimations, true)

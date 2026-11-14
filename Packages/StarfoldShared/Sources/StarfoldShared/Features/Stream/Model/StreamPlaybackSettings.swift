@@ -19,6 +19,7 @@ struct StreamPlaybackSettings: Equatable, Sendable {
     let canFit: Bool
     let canEnhance: Bool
     let isHDRDisplay: Bool?
+    let isDeviceRumbleEnabled: Bool
 
     var shownFit: PictureFit {
         canFit ? fit : .fit
@@ -57,7 +58,7 @@ struct StreamPlaybackSettings: Equatable, Sendable {
         soundStage == .direct
     }
 
-    init(preferences: Preferences, picture: PictureCapabilities) {
+    init(preferences: Preferences, picture: PictureCapabilities, touch: TouchPlatform?) {
         pacing = preferences.pacingMode
         fit = preferences.pictureFit
         isUpscalingEnabled = preferences.isUpscalingEnabled
@@ -67,5 +68,6 @@ struct StreamPlaybackSettings: Equatable, Sendable {
         canFit = picture.canFit
         canEnhance = picture.canEnhance
         isHDRDisplay = picture.isHDRDisplayAvailable?()
+        isDeviceRumbleEnabled = preferences.isTouchHapticsEnabled && touch?.hasDeviceHaptics == true
     }
 }

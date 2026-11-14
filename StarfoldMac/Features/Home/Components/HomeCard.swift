@@ -30,8 +30,8 @@ struct HomeCard<Artwork: View, Actions: View>: View {
             information
         }
         .frame(width: dimensions.homeCardWidth, height: dimensions.homeCardHeight)
-        .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
         .cardSurface(highlighted: isFocused)
+        .clipShape(.rect(cornerRadius: dimensions.cornerRadiusXLarge))
         .shadow(
             color: .black.opacity(isHovering ? 0.55 : 0.3),
             radius: isHovering ? dimensions.shadowRadiusLarge : dimensions.shadowRadiusMedium,

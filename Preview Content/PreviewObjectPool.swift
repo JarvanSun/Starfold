@@ -37,6 +37,13 @@ enum PreviewObjectPool {
         settingsViewModel(preferences: preferences, controllers: controllers)
     }
 
+    static var touchLayoutEditorViewModel: TouchLayoutEditorViewModel? {
+        let settings = settingsViewModel
+        settings.editTouchLayout()
+
+        return settings.touchLayoutEditorViewModel
+    }
+
     static var failedLoadState: LoadState {
         .failed("The network connection was lost.")
     }
@@ -72,6 +79,10 @@ extension PreviewObjectPool {
         .init(routing: .direct)
     }
 
+    static var streamPlatform: StreamPlatform {
+        .init(controllerRouting: .direct, picture: picture, overlays: streamOverlays, touch: nil)
+    }
+
     static var streamDependencies: StreamDependencies {
         streamDependencies(preferences: preferences, controllers: controllers)
     }
@@ -87,7 +98,10 @@ extension PreviewObjectPool {
         return .init(
             accountService: accountService,
             cache: libraryCache,
-            settings: settingsViewModel(preferences: preferences, controllers: controllers),
+            settingsViewModel: settingsViewModel(
+                preferences: preferences,
+                controllers: controllers
+            ),
             streamDependencies: streamDependencies(
                 preferences: preferences,
                 controllers: controllers
@@ -99,7 +113,12 @@ extension PreviewObjectPool {
         preferences: Preferences,
         controllers: ControllerHub
     ) -> SettingsViewModel {
-        .init(preferences: preferences, controllers: controllers, picture: picture)
+        .init(
+            preferences: preferences,
+            controllers: controllers,
+            platform: streamPlatform,
+            network: PreviewNetworkPath()
+        )
     }
 
     static func streamDependencies(
@@ -109,8 +128,8 @@ extension PreviewObjectPool {
         .init(
             preferences: preferences,
             controllers: controllers,
-            picture: picture,
-            overlays: streamOverlays
+            platform: streamPlatform,
+            network: PreviewNetworkPath()
         )
     }
 

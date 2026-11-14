@@ -9,19 +9,19 @@ import StarfoldShared
 import SwiftUI
 
 struct SettingsView: View {
-    let settings: SettingsViewModel
+    let settingsViewModel: SettingsViewModel
 
     var body: some View {
         Form {
-            QualitySettingsSection(settings: settings)
+            QualitySettingsSection(settingsViewModel: settingsViewModel)
 
-            CloudGamingSettingsSection(settings: settings)
+            CloudGamingSettingsSection(settingsViewModel: settingsViewModel)
 
-            PictureSettingsSection(settings: settings)
+            PictureSettingsSection(settingsViewModel: settingsViewModel)
 
-            SoundSettingsSection(settings: settings)
+            SoundSettingsSection(settingsViewModel: settingsViewModel)
 
-            ControllerSettingsSection(settings: settings)
+            ControllerSettingsSection(settingsViewModel: settingsViewModel)
         }
         .navigationTitle("settings.title")
     }
@@ -30,7 +30,7 @@ struct SettingsView: View {
 #if DEBUG
 #Preview("Settings") {
     NavigationStack {
-        SettingsView(settings: PreviewObjectPool.settingsViewModel)
+        SettingsView(settingsViewModel: PreviewObjectPool.settingsViewModel)
     }
 }
 #endif

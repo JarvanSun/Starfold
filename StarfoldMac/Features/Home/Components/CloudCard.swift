@@ -12,7 +12,7 @@ struct CloudCard: View {
     @Environment(\.palette) private var palette
     @Environment(\.dimensions) private var dimensions
 
-    let library: LibraryViewModel
+    let libraryViewModel: LibraryViewModel
 
     let onOpen: () -> Void
 
@@ -29,8 +29,8 @@ struct CloudCard: View {
             title: Text("home.cloud.title"),
             subtitle: subtitle,
             status: .init(
-                text: Text(library.cloudAccess.statusText),
-                color: library.cloudAccess.statusColor,
+                text: Text(libraryViewModel.cloudAccess.statusText),
+                color: libraryViewModel.cloudAccess.statusColor,
                 isPulsing: false,
                 isTextShown: true
             )
@@ -38,7 +38,7 @@ struct CloudCard: View {
     }
 
     private var subtitle: Text {
-        switch library.cloudAccess.cardSubtitle(gameCount: library.games.count) {
+        switch libraryViewModel.cloudAccess.cardSubtitle(gameCount: libraryViewModel.games.count) {
         case let subtitle?: Text(subtitle)
         case nil: Text(verbatim: "")
         }
@@ -48,7 +48,7 @@ struct CloudCard: View {
         .init(
             title: "home.cloud.browse",
             systemImage: "square.grid.2x2",
-            isEnabled: library.canBrowse,
+            isEnabled: libraryViewModel.canBrowse,
             onPerform: onOpen
         )
     }
@@ -57,9 +57,9 @@ struct CloudCard: View {
         let coverLimit = 3
 
         return CloudCardArt(
-            covers: library.coverArtwork(limit: coverLimit),
-            access: library.cloudAccess,
-            isLoading: library.isLoading
+            covers: libraryViewModel.coverArtwork(limit: coverLimit),
+            access: libraryViewModel.cloudAccess,
+            isLoading: libraryViewModel.isLoading
         )
     }
 }
@@ -67,11 +67,13 @@ struct CloudCard: View {
 #if DEBUG
 #Preview {
     HStack {
-        CloudCard(library: PreviewObjectPool.libraryViewModel()) {}
+        CloudCard(libraryViewModel: PreviewObjectPool.libraryViewModel()) {}
 
-        CloudCard(library: PreviewObjectPool.libraryViewModel(state: .loading)) {}
+        CloudCard(libraryViewModel: PreviewObjectPool.libraryViewModel(state: .loading)) {}
 
-        CloudCard(library: PreviewObjectPool.libraryViewModel(games: [], access: .unavailable)) {}
+        CloudCard(
+            libraryViewModel: PreviewObjectPool.libraryViewModel(games: [], access: .unavailable)
+        ) {}
     }
     .padding()
     .environment(\.colorScheme, .dark)

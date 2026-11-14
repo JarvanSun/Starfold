@@ -35,7 +35,7 @@ struct MessageChannel: Sendable {
         videoWidth: Int,
         videoHeight: Int,
         clientAppInstallID: UUID,
-        isTouchEnabled: Bool
+        touch: TouchCapabilities?
     ) -> [Data] {
         [
             message(
@@ -47,13 +47,29 @@ struct MessageChannel: Sendable {
                 ["clientAppInstallId": clientAppInstallID.uuidString.lowercased()]
             ),
             message(.orientationChanged, ["orientation": 0]),
-            message(.touchInputEnabledChanged, ["touchInputEnabled": isTouchEnabled]),
-            message(.clientDeviceCapabilities, [:]),
+            message(.touchInputEnabledChanged, ["touchInputEnabled": touch != nil]),
+            message(.clientDeviceCapabilities, deviceCapabilities(touch: touch)),
             dimensionsChanged(width: videoWidth, height: videoHeight),
         ]
     }
 
     private var supportedSystemUIs: [Int] { [10, 19] }
+
+    private func deviceCapabilities(touch: TouchCapabilities?) -> [String: Any] {
+        switch touch {
+        case let touch?:
+            [
+                "maxTouchBundleLayoutVersion": touch.maxLayoutVersion,
+                "maxTouchBundleManifestVersion": touch.maxManifestVersion,
+            ]
+        case nil:
+            [:]
+        }
+    }
+
+    mutating func touchBundleMetadataChanged(version: String, versionName: String) -> Data {
+        message(.touchBundleMetadataChanged, ["version": version, "versionName": versionName])
+    }
 
     mutating func completeMessageDialog(id: String, buttonIndex: Int) -> Data {
         transactionComplete(id: id, content: ["Result": buttonIndex])
@@ -89,7 +105,7 @@ struct MessageChannel: Sendable {
             receiveMessage(
                 target: target,
                 id: id,
-                content: content(of: envelope["content"]),
+                content: envelope["content"],
                 isTransaction: type == .transactionStart
             )
         case .handshake, .transactionComplete, .receiverCancel, .unhandled: []
@@ -99,23 +115,54 @@ struct MessageChannel: Sendable {
     private mutating func receiveMessage(
         target: String,
         id: String,
-        content: [String: Any],
+        content: Any?,
         isTransaction: Bool
     ) -> [MessageChannelEvent] {
-        switch MessageTarget(rawValue: target) {
+        guard let messageTarget = MessageTarget(rawValue: target) else {
+            return receiveUnknownMessage(target: target, id: id, isTransaction: isTransaction)
+        }
+
+        let object = self.content(of: content)
+
+        return switch messageTarget {
         case .showMessageDialog:
-            [.dialog(messageDialog(id: id, content: content))]
+            [.dialog(messageDialog(id: id, content: object))]
         case .showVirtualKeyboard:
-            [.dialog(keyboardDialog(id: id, content: content))]
+            [.dialog(keyboardDialog(id: id, content: object))]
         case .serverInitiatedDisconnect where isTransaction:
             [.reply(transactionComplete(id: id, content: [:])), .serverDisconnect]
         case .serverInitiatedDisconnect:
             [.serverDisconnect]
         case .titleInfo:
-            []
+            RunningTitle(content: object).map { [.runningTitle($0)] } ?? []
+        case .showTouchLayoutV2, .showTouchLayout, .showTitleDefaultTouchLayout,
+            .patchTouchLayoutState, .hideTouchLayout:
+            receiveTouchControls(
+                TouchControlsCommand(
+                    target: messageTarget,
+                    object: object,
+                    text: content as? String
+                ),
+                id: id,
+                isTransaction: isTransaction
+            )
         case .systemUIConfiguration, .clientAppInstallIDChanged, .orientationChanged,
-            .touchInputEnabledChanged, .clientDeviceCapabilities, .dimensionsChanged, nil:
+            .touchInputEnabledChanged, .clientDeviceCapabilities, .dimensionsChanged,
+            .touchBundleMetadataChanged:
             receiveUnknownMessage(target: target, id: id, isTransaction: isTransaction)
+        }
+    }
+
+    private mutating func receiveTouchControls(
+        _ command: TouchControlsCommand?,
+        id: String,
+        isTransaction: Bool
+    ) -> [MessageChannelEvent] {
+        let events = command.map { [MessageChannelEvent.touchControls($0)] } ?? []
+
+        return switch isTransaction {
+        case true: [.reply(cancel(id: id))] + events
+        case false: events
         }
     }
 

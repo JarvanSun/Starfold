@@ -18,7 +18,7 @@ let appSettings: [SwiftSetting] = [
 let package = Package(
     name: "StarfoldShared",
     defaultLocalization: "en",
-    platforms: [.macOS(.v26), .visionOS(.v26), .tvOS(.v26)],
+    platforms: [.macOS(.v26), .iOS(.v26), .visionOS(.v26), .tvOS(.v26)],
     products: [
         .library(name: "StarfoldShared", targets: ["StarfoldShared"]),
         .library(name: "TopShelfKit", targets: ["TopShelfKit"]),

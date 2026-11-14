@@ -4,8 +4,8 @@ Talks to Microsoft and Xbox Live, so the rest of Starfold never sees a URL, a to
 shape.
 
 **Responsibility:** sign a person in, keep their tokens fresh, and answer what an app needs to
-know: who they are, which consoles they have, which cloud games they can play, and how to start a
-streaming session. It knows nothing about the apps: no strings, no views, no settings.
+know: who they are, which consoles they have, which cloud games they can play, how to start a
+streaming session, and which touch layout a game brings. It knows nothing about the apps: no strings, no views, no settings.
 
 | Folder | Contains |
 |---|---|
@@ -14,6 +14,7 @@ streaming session. It knows nothing about the apps: no strings, no views, no set
 | `Library/` | Profile, consoles and their power commands (`XboxLiveClient`), cloud titles, the store catalogue (`CatalogClient`) |
 | `Storage/` | Where tokens are kept: the Keychain (`KeychainStore`) or memory (`InMemorySecretStore`) |
 | `Streaming/` | The streaming session REST API (`GSSVClient`, `GSSVSession`): start, provisioning, SDP and ICE exchange, keep-alive |
+| `Touch/` | Which titles have their own touch layout (`TitleInputConfiguration`), downloading and unzipping a title's layout bundle (`TouchBundle`), its layouts as values (`TouchLayout`), and the game's state patches (`TouchContext`, `JSONPatch`) |
 
 ```swift
 let store = AccountStore(

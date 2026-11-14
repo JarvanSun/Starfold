@@ -9,6 +9,6 @@ import StarfoldShared
 import SwiftUI
 
 extension FocusedValues {
-    @Entry var activeStream: StreamViewModel?
+    @Entry var activeStreamViewModel: StreamViewModel?
     @Entry var activePictureInPicture: StreamPictureInPicture?
 }

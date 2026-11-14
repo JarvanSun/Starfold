@@ -9,20 +9,20 @@ import StarfoldShared
 import SwiftUI
 
 struct LibraryShelves: View {
-    let library: LibraryViewModel
+    let libraryViewModel: LibraryViewModel
 
     var body: some View {
-        if library.isLimitedToFreeToPlay {
+        if libraryViewModel.isLimitedToFreeToPlay {
             Text("library.freeToPlay.notice").foregroundStyle(.secondary)
         }
 
-        ForEach(library.shelves) { shelf in
-            GameShelf(title: shelf.title, games: library.games(on: shelf))
+        ForEach(libraryViewModel.shelves) { shelf in
+            GameShelf(title: shelf.title, games: libraryViewModel.games(on: shelf))
         }
 
         Text("library.allGames.title").font(.title2.bold())
 
-        GameGrid(games: library.games)
+        GameGrid(games: libraryViewModel.games)
     }
 }
 
@@ -30,7 +30,7 @@ struct LibraryShelves: View {
 #Preview(arguments: [CloudAccess.gamePass, .freeToPlay]) { access in
     ScrollView {
         VStack(alignment: .leading) {
-            LibraryShelves(library: PreviewObjectPool.libraryViewModel(access: access))
+            LibraryShelves(libraryViewModel: PreviewObjectPool.libraryViewModel(access: access))
         }
     }
 }

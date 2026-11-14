@@ -52,6 +52,8 @@ struct HostChannels {
         case .dialog(let request): [.update(.dialog(request))]
         case .dialogCancelled(let id): [.update(.dialogDismissed(id: id))]
         case .serverDisconnect: [.end(.hostEnded)]
+        case .touchControls(let command): [.update(.touchControls(command))]
+        case .runningTitle(let title): [.update(.runningTitle(title))]
         }
     }
 
@@ -65,12 +67,13 @@ struct HostChannels {
             videoWidth: size.width,
             videoHeight: size.height,
             clientAppInstallID: options.clientAppInstallID,
-            isTouchEnabled: false
+            touch: options.touch
         )
+        let metadata = ClientMetadata(maxTouchPoints: options.touch?.maxTouchPoints ?? 0)
 
         let authorization: [HostChannelAction] = [
             .send(ControlMessage.authorizationRequest.json, on: .control),
-            .send(ClientMetadata(maxTouchPoints: 0).encoded(timestamp: timestamp), on: .input),
+            .send(metadata.encoded(timestamp: timestamp), on: .input),
         ]
         let firstGamepad: [HostChannelAction] = [
             .send(ControlMessage.gamepadChanged(index: 0, isAdded: false).json, on: .control),
@@ -99,5 +102,13 @@ struct HostChannels {
             }
 
         return .send(reply, on: .message)
+    }
+
+    mutating func announceTouchBundle(version: String, versionName: String) -> HostChannelAction {
+        let announcement = messageChannel.touchBundleMetadataChanged(
+            version: version,
+            versionName: versionName
+        )
+        return .send(announcement, on: .message)
     }
 }

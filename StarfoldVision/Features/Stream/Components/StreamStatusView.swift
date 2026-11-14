@@ -15,9 +15,11 @@ struct StreamStatusView: View {
     let name: String
     let status: StreamStatus
     let backdrop: StreamBackdrop
+    let isXboxButtonTakenBySystem: Bool
 
     let onClose: () -> Void
     let onTryAgain: () -> Void
+    let onOpenXboxButtonSettings: () -> Void
 
     var body: some View {
         VStack(spacing: dimensions.spaceXLarge) {
@@ -26,7 +28,13 @@ struct StreamStatusView: View {
                 .multilineTextAlignment(.center)
 
             switch status {
-            case .connecting, .queued: StreamProgressStatus(title: status.title, onCancel: onClose)
+            case .connecting, .queued:
+                StreamProgressStatus(
+                    title: status.title,
+                    isXboxButtonTakenBySystem: isXboxButtonTakenBySystem,
+                    onOpenXboxButtonSettings: onOpenXboxButtonSettings,
+                    onCancel: onClose
+                )
             case .ended(let reason, let advice):
                 StreamEndedStatus(
                     reason: reason,
@@ -48,49 +56,59 @@ struct StreamStatusView: View {
 
 #if DEBUG
 #Preview("Connecting", windowStyle: .plain) {
-    let stream = PreviewObjectPool.streamViewModel(phase: .connecting)
+    let streamViewModel = PreviewObjectPool.streamViewModel(phase: .connecting)
     StreamStatusView(
-        name: stream.target.name,
+        name: streamViewModel.target.name,
         status: .connecting,
-        backdrop: stream.backdrop,
+        backdrop: streamViewModel.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }
 
 #Preview("In line", windowStyle: .plain) {
-    let stream = PreviewObjectPool.cloudStreamViewModel(phase: PreviewObjectPool.queuedPhase)
+    let streamViewModel = PreviewObjectPool.cloudStreamViewModel(
+        phase: PreviewObjectPool.queuedPhase
+    )
     StreamStatusView(
-        name: stream.target.name,
+        name: streamViewModel.target.name,
         status: .queued(estimatedWait: nil),
-        backdrop: stream.backdrop,
+        backdrop: streamViewModel.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }
 
 #Preview("Failed", windowStyle: .plain) {
-    let stream = PreviewObjectPool.streamViewModel(phase: .connecting)
+    let streamViewModel = PreviewObjectPool.streamViewModel(phase: .connecting)
     StreamStatusView(
-        name: stream.target.name,
+        name: streamViewModel.target.name,
         status: .ended(.failed(""), advice: .consoleOffline),
-        backdrop: stream.backdrop,
+        backdrop: streamViewModel.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }
 
 #Preview("Ended", windowStyle: .plain) {
-    let stream = PreviewObjectPool.streamViewModel(phase: .connecting)
+    let streamViewModel = PreviewObjectPool.streamViewModel(phase: .connecting)
     StreamStatusView(
-        name: stream.target.name,
+        name: streamViewModel.target.name,
         status: .ended(.userStopped, advice: nil),
-        backdrop: stream.backdrop,
+        backdrop: streamViewModel.backdrop,
+        isXboxButtonTakenBySystem: false,
         onClose: {},
-        onTryAgain: {}
+        onTryAgain: {},
+        onOpenXboxButtonSettings: {}
     )
     .frame(width: 1280, height: 720)
 }

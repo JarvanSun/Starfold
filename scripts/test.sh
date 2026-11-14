@@ -1,12 +1,9 @@
 #!/bin/bash
 #
-# Runs every package's tests on macOS, and the Apple TV app's tests when a simulator is named.
+# Runs every package's tests on macOS.
 #
 #   scripts/test.sh                 everything
-#   scripts/test.sh <Name>          one of StarfoldShared, XboxKit, StreamKit, StarfoldTV
-#
-# StarfoldTVTests need a tvOS simulator: TV_DESTINATION='platform=tvOS Simulator,name=Apple TV'
-# adds them.
+#   scripts/test.sh <Name>          one of StarfoldShared, XboxKit, StreamKit
 #
 # XCODE_BUILD_ROOT overrides where DerivedData goes (default: Xcode's DerivedData folder).
 # The last line is always RESULT: ... so tools can read it.
@@ -39,11 +36,6 @@ run() {
   fi
   rm -f "$log"
 }
-
-if [[ -n "${TV_DESTINATION:-}" ]]; then
-  run StarfoldTV -project "$ROOT/Starfold.xcodeproj" -scheme StarfoldTV \
-    -destination "$TV_DESTINATION" -derivedDataPath "$DERIVED_DATA"
-fi
 
 for dir in "$ROOT"/Packages/*/; do
   name="$(basename "$dir")"

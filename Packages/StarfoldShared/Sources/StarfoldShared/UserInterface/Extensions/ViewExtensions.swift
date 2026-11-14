@@ -22,10 +22,6 @@ extension View {
     }
 
     public func palette(_ palette: Palette) -> some View {
-        environment(\.palette, palette).tint(palette.accent.color)
-    }
-
-    func untintedPalette(_ palette: Palette) -> some View {
         environment(\.palette, palette)
     }
 }

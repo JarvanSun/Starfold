@@ -78,4 +78,35 @@ struct InputReportTests {
     func encodedWhenNothingToSendThenIsNil() {
         #expect(InputReport().encoded(sequence: 1, timestamp: 0) == nil)
     }
+
+    @Test
+    func encodedWhenPhysicalPadOnlyThenVirtualPhysicalityIsZero() throws {
+        // Given
+        let report = InputReport(gamepads: [(0, GamepadState(buttons: [.a]))])
+
+        // When
+        let bytes = [UInt8](try #require(report.encoded(sequence: 1, timestamp: 0)))
+
+        // Then
+        let record = ByteDecoding(bytes: Array(bytes[15...]))
+        #expect(record.uint32(at: 15) == 0x1000)
+        #expect(record.uint32(at: 19) == 0)
+    }
+
+    @Test
+    func encodedWhenTouchMergedThenWritesTouchControlsInVirtualPhysicality() throws {
+        // Given
+        let pad = GamepadState(buttons: [.a])
+        let touch = GamepadState(buttons: [.b], leftStick: SIMD2(0, 1))
+        let report = InputReport(gamepads: [(0, pad.merged(withTouch: touch))])
+
+        // When
+        let bytes = [UInt8](try #require(report.encoded(sequence: 1, timestamp: 0)))
+
+        // Then
+        let record = ByteDecoding(bytes: Array(bytes[15...]))
+        #expect(record.uint16(at: 1) == 0x0030)
+        #expect(record.uint32(at: 15) == 0x1000)
+        #expect(record.uint32(at: 19) == 0x2000 | 0x80000)
+    }
 }

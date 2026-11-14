@@ -11,6 +11,7 @@ public struct GamepadState: Equatable, Sendable {
     var rightStick: SIMD2<Float>
     var leftTrigger: Float
     var rightTrigger: Float
+    var mergedPhysicality: GamepadPhysicality?
 
     init(
         buttons: GamepadButtons = [],

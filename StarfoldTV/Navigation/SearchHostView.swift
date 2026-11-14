@@ -10,29 +10,29 @@ import SwiftUI
 import XboxKit
 
 struct SearchHostView: View {
-    @Environment(AppViewModel.self) private var app
+    @Environment(AppViewModel.self) private var appViewModel
     @State private var path: [CloudGame] = []
 
     var body: some View {
         NavigationStack(path: $path) {
             content
         }
-        .onChange(of: app.activeAccountID) { path.removeAll() }
+        .onChange(of: appViewModel.activeAccountID) { path.removeAll() }
     }
 
     @ViewBuilder
     private var content: some View {
-        switch app.library {
+        switch appViewModel.libraryViewModel {
         case let library?: results(in: library)
         case nil: LoadingView()
         }
     }
 
     private func results(in library: LibraryViewModel) -> some View {
-        SearchResultsView(library: library)
+        SearchResultsView(libraryViewModel: library)
             .searchable(text: Bindable(library).searchText, prompt: Text("search.field.prompt"))
             .navigationDestination(for: CloudGame.self) { game in
-                GameDetailView(detail: library.detail(for: game))
+                GameDetailView(gameDetailViewModel: library.detail(for: game))
             }
     }
 }

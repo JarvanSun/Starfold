@@ -12,12 +12,15 @@ import SwiftUI
 struct StarfoldVisionApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dimensions) private var dimensions
-    @State private var app = AppDependencies(streamPlatform: StreamPlatform()).makeAppViewModel()
+    @State private var appViewModel = AppDependencies(streamPlatform: StreamPlatform())
+        .makeAppViewModel()
 
     var body: some Scene {
         WindowGroup(id: SceneID.main.rawValue) {
             RootView()
-                .environment(app)
+                .windowTint()
+                .appPalette()
+                .environment(appViewModel)
                 .frame(
                     minWidth: dimensions.mainWindowMinimumWidth,
                     idealWidth: dimensions.mainWindowWidth,
@@ -26,15 +29,17 @@ struct StarfoldVisionApp: App {
                     idealHeight: dimensions.mainWindowHeight,
                     maxHeight: dimensions.mainWindowMaximumHeight
                 )
-                .task { await app.restore() }
+                .task { await appViewModel.restore() }
         }
         .defaultSize(width: dimensions.mainWindowWidth, height: dimensions.mainWindowHeight)
         .windowResizability(.contentSize)
-        .onChange(of: scenePhase, initial: true) { app.setActive(scenePhase == .active) }
+        .onChange(of: scenePhase, initial: true) { appViewModel.setActive(scenePhase == .active) }
 
         WindowGroup(id: SceneID.stream.rawValue) {
             StreamWindowView()
-                .environment(app)
+                .windowTint()
+                .appPalette()
+                .environment(appViewModel)
         }
         .windowStyle(.plain)
         .defaultSize(width: dimensions.streamWindowWidth, height: dimensions.streamWindowHeight)

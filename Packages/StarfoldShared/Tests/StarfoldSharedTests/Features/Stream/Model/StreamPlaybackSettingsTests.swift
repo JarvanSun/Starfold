@@ -23,10 +23,40 @@ struct StreamPlaybackSettingsTests {
         preferences.pictureFit = fit
 
         // When
-        let settings = StreamPlaybackSettings(preferences: preferences, picture: picture())
+        let settings = StreamPlaybackSettings(
+            preferences: preferences,
+            picture: picture(),
+            touch: nil
+        )
 
         // Then
         #expect(settings.videoGravity == gravity)
+    }
+
+    @Test(arguments: [(true, true, true), (true, false, false), (false, true, false)])
+    func isDeviceRumbleEnabledThenNeedsTouchHapticsAndDeviceHaptics(
+        isTouchHapticsEnabled: Bool,
+        hasDeviceHaptics: Bool,
+        isEnabled: Bool
+    ) {
+        // Given
+        let preferences = Preferences(defaults: .dummyEmpty)
+        preferences.isTouchHapticsEnabled = isTouchHapticsEnabled
+        let touch = TouchPlatform(
+            controllerCategory: "Touch Controller",
+            hasDeviceHaptics: hasDeviceHaptics,
+            capabilities: TouchPlatform.dummy.capabilities
+        )
+
+        // When
+        let settings = StreamPlaybackSettings(
+            preferences: preferences,
+            picture: picture(),
+            touch: touch
+        )
+
+        // Then
+        #expect(settings.isDeviceRumbleEnabled == isEnabled)
     }
 
     @Test
@@ -38,7 +68,8 @@ struct StreamPlaybackSettingsTests {
         // When
         let settings = StreamPlaybackSettings(
             preferences: preferences,
-            picture: picture(canFit: false)
+            picture: picture(canFit: false),
+            touch: nil
         )
 
         // Then
@@ -58,7 +89,8 @@ struct StreamPlaybackSettingsTests {
         // When
         let settings = StreamPlaybackSettings(
             preferences: preferences,
-            picture: picture(isHDRDisplayAvailable: { isHDRDisplay })
+            picture: picture(isHDRDisplayAvailable: { isHDRDisplay }),
+            touch: nil
         )
 
         // Then
@@ -79,7 +111,8 @@ struct StreamPlaybackSettingsTests {
         // When
         let settings = StreamPlaybackSettings(
             preferences: Preferences(defaults: .dummyEmpty),
-            picture: picture(isHDRDisplayAvailable: nil)
+            picture: picture(isHDRDisplayAvailable: nil),
+            touch: nil
         )
 
         // Then
@@ -94,7 +127,11 @@ struct StreamPlaybackSettingsTests {
         preferences.sharpening = 0.5
 
         // When
-        let settings = StreamPlaybackSettings(preferences: preferences, picture: picture())
+        let settings = StreamPlaybackSettings(
+            preferences: preferences,
+            picture: picture(),
+            touch: nil
+        )
 
         // Then
         #expect(
@@ -113,7 +150,8 @@ struct StreamPlaybackSettingsTests {
         // When
         let settings = StreamPlaybackSettings(
             preferences: Preferences(defaults: .dummyEmpty),
-            picture: picture(canEnhance: false)
+            picture: picture(canEnhance: false),
+            touch: nil
         )
 
         // Then
@@ -127,7 +165,11 @@ struct StreamPlaybackSettingsTests {
         preferences.soundStage = stage
 
         // When
-        let settings = StreamPlaybackSettings(preferences: preferences, picture: picture())
+        let settings = StreamPlaybackSettings(
+            preferences: preferences,
+            picture: picture(),
+            touch: nil
+        )
 
         // Then
         #expect(settings.isDirectStereo == isDirect)

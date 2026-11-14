@@ -11,14 +11,14 @@ import SwiftUI
 struct ConsoleShelf: View {
     @Environment(\.dimensions) private var dimensions
 
-    let home: HomeViewModel
+    let homeViewModel: HomeViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceLarge) {
             Text("home.consoles.title")
                 .font(.title2.bold())
 
-            switch home.consolesContent {
+            switch homeViewModel.consolesContent {
             case .loading: ConsoleSkeletons()
             case .failed(let message):
                 ConsolesFailedMessage(message: message, onRetry: { refresh() })
@@ -29,14 +29,14 @@ struct ConsoleShelf: View {
     }
 
     private func refresh() {
-        Task { await home.refreshConsoles() }
+        Task { await homeViewModel.refreshConsoles() }
     }
 
     private var cards: some View {
         ScrollView(.horizontal) {
             HStack(spacing: dimensions.spaceXLarge) {
-                ForEach(home.consoles) { console in
-                    ConsoleCard(console: console, home: home)
+                ForEach(homeViewModel.consoles) { console in
+                    ConsoleCard(console: console, homeViewModel: homeViewModel)
                 }
             }
         }
@@ -48,9 +48,9 @@ struct ConsoleShelf: View {
 #if DEBUG
 #Preview("Console shelf") {
     VStack(alignment: .leading) {
-        ConsoleShelf(home: PreviewObjectPool.homeViewModel())
+        ConsoleShelf(homeViewModel: PreviewObjectPool.homeViewModel())
 
-        ConsoleShelf(home: PreviewObjectPool.homeViewModel(state: .loading))
+        ConsoleShelf(homeViewModel: PreviewObjectPool.homeViewModel(state: .loading))
     }
     .padding()
 }

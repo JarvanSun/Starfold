@@ -11,7 +11,7 @@ import StreamKit
 extension StreamPlatform {
     init() {
         self.init(
-            controllerRouting: .television,
+            controllerRouting: .gated,
             picture: .init(
                 canFit: true,
                 canEnhance: false,
@@ -21,7 +21,8 @@ extension StreamPlatform {
             overlays: .init(
                 statisticsRows: [.resolution, .frameRate, .bitrate, .codec, .lowered],
                 controlsHideDelay: nil
-            )
+            ),
+            touch: nil
         )
     }
 }

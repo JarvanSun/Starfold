@@ -90,6 +90,10 @@ public final class LibraryViewModel {
         games(matching: searchText)
     }
 
+    public var sortedGames: [CloudGame] {
+        games(matching: "")
+    }
+
     public var searchResults: [CloudGame] {
         switch isSearching {
         case true: visibleGames

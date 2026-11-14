@@ -16,8 +16,8 @@ struct StreamView: View {
     @State private var pictureInPicture: StreamPictureInPicture?
     @State private var isFullScreen = false
 
-    let stream: StreamViewModel
-    let settings: SettingsViewModel
+    let streamViewModel: StreamViewModel
+    let settingsViewModel: SettingsViewModel
 
     let onClose: () -> Void
 
@@ -27,12 +27,12 @@ struct StreamView: View {
                 .ignoresSafeArea()
 
             StreamPicture(
-                renderer: stream.renderer,
-                isVisible: stream.hasFirstFrame,
+                renderer: streamViewModel.renderer,
+                isVisible: streamViewModel.hasFirstFrame,
                 pictureInPicture: pictureInPicture
             )
 
-            StreamKeyboardCapture(stream: stream)
+            StreamKeyboardCapture(streamViewModel: streamViewModel)
                 .frame(width: 0, height: 0)
                 .allowsHitTesting(false)
 
@@ -40,28 +40,30 @@ struct StreamView: View {
                 .frame(width: 0, height: 0)
                 .allowsHitTesting(false)
 
-            if stream.isWaitingForPicture {
+            if streamViewModel.isWaitingForPicture {
                 StreamStatusView(
-                    name: stream.target.name,
-                    status: stream.status,
-                    backdrop: stream.backdrop,
+                    name: streamViewModel.target.name,
+                    status: streamViewModel.status,
+                    backdrop: streamViewModel.backdrop,
+                    isXboxButtonTakenBySystem: streamViewModel.isXboxButtonTakenBySystem,
                     onClose: onClose,
-                    onTryAgain: { stream.tryAgain() }
+                    onTryAgain: { streamViewModel.tryAgain() },
+                    onOpenXboxButtonSettings: { streamViewModel.openXboxButtonSettings() }
                 )
                 .ignoresSafeArea()
             }
 
-            if stream.isShowingStatistics {
-                StreamStatisticsView(readout: stream.statisticsReadout)
+            if streamViewModel.isShowingStatistics {
+                StreamStatisticsView(readout: streamViewModel.statisticsReadout)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .padding(dimensions.spaceLarge)
                     .allowsHitTesting(false)
             }
 
-            if stream.isShowingControls {
+            if streamViewModel.isShowingControls {
                 StreamControlBar(
-                    settings: settings,
-                    stream: stream,
+                    settingsViewModel: settingsViewModel,
+                    streamViewModel: streamViewModel,
                     pictureInPicture: pictureInPicture,
                     isFullScreen: isFullScreen,
                     onClose: onClose
@@ -71,22 +73,27 @@ struct StreamView: View {
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
         }
-        .animation(.easeOut(duration: 0.25), value: stream.isShowingControls)
+        .animation(.easeOut(duration: 0.25), value: streamViewModel.isShowingControls)
         .onContinuousHover { movePointer($0) }
-        .onChange(of: stream.areControlsRevealed) { _, areRevealed in
+        .onChange(of: streamViewModel.areControlsRevealed) { _, areRevealed in
             hidePointer(whenControlsAreHidden: areRevealed)
         }
         .onChange(of: activeState) { _, state in releaseKeyboard(unlessKey: state) }
-        .sheet(item: presentedDialog) { SystemDialogView(dialogs: stream.dialogs, dialog: $0) }
-        .focusedSceneValue(\.activeStream, stream)
+        .sheet(item: presentedDialog) {
+            SystemDialogView(
+                systemDialogsViewModel: streamViewModel.systemDialogsViewModel,
+                dialog: $0
+            )
+        }
+        .focusedSceneValue(\.activeStreamViewModel, streamViewModel)
         .focusedSceneValue(\.activePictureInPicture, pictureInPicture)
         .onAppear { preparePictureInPicture() }
-        .navigationTitle(stream.target.name)
+        .navigationTitle(streamViewModel.target.name)
     }
 
     private func movePointer(_ phase: HoverPhase) {
         switch phase {
-        case .active: stream.revealControls()
+        case .active: streamViewModel.revealControls()
         case .ended: break
         }
     }
@@ -100,19 +107,19 @@ struct StreamView: View {
     private func releaseKeyboard(unlessKey state: ControlActiveState) {
         guard state != .key else { return }
 
-        stream.releaseKeyboard()
+        streamViewModel.releaseKeyboard()
     }
 
     private var presentedDialog: Binding<SystemDialogRequest?> {
-        .init(get: { stream.dialogs.presentedDialog }, set: { _ in })
+        .init(get: { streamViewModel.systemDialogsViewModel.presentedDialog }, set: { _ in })
     }
 
     private func preparePictureInPicture() {
-        guard let renderer = stream.renderer else { return }
+        guard let renderer = streamViewModel.renderer else { return }
 
         let pictureInPicture = StreamPictureInPicture(renderer: renderer, dimensions: dimensions)
-        stream.onStop = { pictureInPicture.dismiss() }
-        stream.onEnd = { pictureInPicture.stop() }
+        streamViewModel.onStop = { pictureInPicture.dismiss() }
+        streamViewModel.onEnd = { pictureInPicture.stop() }
         self.pictureInPicture = pictureInPicture
     }
 }
@@ -124,14 +131,20 @@ struct StreamView: View {
         dialogs: [PreviewObjectPool.messageDialog]
     )
 
-    StreamView(stream: preview.stream, settings: preview.settings) {}
-        .frame(width: 1280, height: 720)
+    StreamView(
+        streamViewModel: preview.streamViewModel,
+        settingsViewModel: preview.settingsViewModel
+    ) {}
+    .frame(width: 1280, height: 720)
 }
 
 #Preview("Connecting") {
     let preview = PreviewObjectPool.cloudStreamPreview(phase: .connecting)
 
-    StreamView(stream: preview.stream, settings: preview.settings) {}
-        .frame(width: 1280, height: 720)
+    StreamView(
+        streamViewModel: preview.streamViewModel,
+        settingsViewModel: preview.settingsViewModel
+    ) {}
+    .frame(width: 1280, height: 720)
 }
 #endif

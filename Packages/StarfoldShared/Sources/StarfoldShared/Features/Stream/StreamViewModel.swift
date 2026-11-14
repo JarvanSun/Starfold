@@ -18,7 +18,8 @@ public final class StreamViewModel {
     public let target: StreamTarget
     public let backdrop: StreamBackdrop
     public let renderer: StreamRenderer?
-    public let dialogs = SystemDialogsViewModel()
+    public let systemDialogsViewModel = SystemDialogsViewModel()
+    public let touchControlsViewModel: TouchControlsViewModel?
 
     public var onStop: () -> Void = {}
     public var onEnd: () -> Void = {}
@@ -28,6 +29,7 @@ public final class StreamViewModel {
     public private(set) var phase: StreamPhase = .provisioning
     public private(set) var hasFirstFrame = false
     public private(set) var areControlsRevealed = true
+    public private(set) var isMenuOpen = false
 
     private(set) var statistics = StreamStatistics()
     private(set) var startedSettings: StreamSettings?
@@ -50,6 +52,10 @@ public final class StreamViewModel {
     private var keyboard = KeyboardGamepad()
     private var hasLoggedFirstRumble = false
     private var statisticsTicks = 0
+    private var isInForeground = true
+    private var touchBundleTasks: [String: Task<Void, Never>] = [:]
+    private var touchBundleAttempts: [String: Int] = [:]
+    private var touchBundleTitles: Set<String> = []
     private var startedAt = ContinuousClock.now
 
     public var sharpeningLevel: SharpeningLevel {
@@ -88,15 +94,36 @@ public final class StreamViewModel {
     }
 
     public var canOpenMenu: Bool {
-        isStreaming && dialogs.queue.isEmpty
+        isStreaming && systemDialogsViewModel.queue.isEmpty
     }
 
     public var isPlayable: Bool {
-        !isWaitingForPicture && dialogs.queue.isEmpty && !controllers.connected.isEmpty
+        !isWaitingForPicture && systemDialogsViewModel.queue.isEmpty && hasInput
     }
 
     public var needsController: Bool {
-        isStreaming && controllers.connected.isEmpty
+        isStreaming && !hasInput
+    }
+
+    private var hasInput: Bool {
+        dependencies.touch != nil || !controllers.connected.isEmpty
+    }
+
+    public var isShowingMenuHandle: Bool {
+        isStreaming && !isMenuOpen
+            && (areControlsRevealed || touchControlsViewModel?.isShowing == true)
+    }
+
+    public var isShowingTouchControls: Bool {
+        isStreaming && hasFirstFrame && !isMenuOpen && touchControlsViewModel?.isShowing == true
+    }
+
+    public var isRoutingInputToGame: Bool {
+        isPlayable && !isMenuOpen && isInForeground
+    }
+
+    public var isXboxButtonTakenBySystem: Bool {
+        controllers.xboxButton.owner == .system
     }
 
     public var isShowingStatistics: Bool {
@@ -138,7 +165,7 @@ public final class StreamViewModel {
     }
 
     private var playbackSettings: StreamPlaybackSettings {
-        .init(preferences: preferences, picture: dependencies.picture)
+        .init(preferences: preferences, picture: dependencies.picture, touch: dependencies.touch)
     }
 
     public init(
@@ -154,6 +181,9 @@ public final class StreamViewModel {
         self.service = service
         self.dependencies = dependencies
         renderer = StreamRenderer(keepsLastFrame: dependencies.picture.shouldKeepLastFrame)
+        touchControlsViewModel = dependencies.touch.map { _ in
+            .init(controllers: dependencies.controllers, preferences: dependencies.preferences)
+        }
 
         apply(playbackSettings)
 
@@ -176,6 +206,8 @@ public final class StreamViewModel {
         appliedSettings = settings
 
         service.setDirectStereo(settings.isDirectStereo)
+
+        controllers.isDeviceRumbleEnabled = settings.isDeviceRumbleEnabled
 
         guard let renderer else { return }
 
@@ -201,18 +233,26 @@ public final class StreamViewModel {
         let settings = StreamSettings(target: target, preferences: preferences)
         startedSettings = settings
 
-        let quality = qualityOverride ?? settings.choice.requestedQuality
+        let quality = networkQuality(for: qualityOverride ?? settings.choice.requestedQuality)
         self.quality = quality
 
         let options = StreamOptions(
             quality: quality,
             maxBitrateKbps: settings.maxBitrateKbps,
             gameLocale: preferences.effectiveGameLanguage,
-            clientAppInstallID: preferences.clientAppInstallID
+            clientAppInstallID: preferences.clientAppInstallID,
+            touch: dependencies.touch?.capabilities
         )
 
         startedAt = .now
         connectTask = Task { await connect(with: options) }
+    }
+
+    private func networkQuality(for requested: StreamQuality) -> StreamQuality {
+        switch dependencies.network.isOnCellular {
+        case true: requested.capped(at: preferences.cellularQuality)
+        case false: requested
+        }
     }
 
     private func connect(with options: StreamOptions) async {
@@ -245,7 +285,7 @@ public final class StreamViewModel {
             }
         }
 
-        dialogs.attach(connection)
+        systemDialogsViewModel.attach(connection)
 
         wireInput(to: connection)
 
@@ -265,10 +305,69 @@ public final class StreamViewModel {
         switch update {
         case .phase(let phase): apply(phase)
         case .statistics(let statistics): apply(statistics)
-        case .dialog(let request): dialogs.add(request)
-        case .dialogDismissed(let id): dialogs.remove(id: id)
+        case .dialog(let request): systemDialogsViewModel.add(request)
+        case .dialogDismissed(let id): systemDialogsViewModel.remove(id: id)
         case .vibration(let effect): play(effect)
         case .videoSize: break
+        case .touchControls(let command): touchControlsViewModel?.apply(command)
+        case .runningTitle(let title): loadTouchLayouts(for: title)
+        }
+    }
+
+    private func loadTouchLayouts(for title: RunningTitle) {
+        guard let touchControlsViewModel, title.isFocused else { return }
+
+        let id = title.titleID
+        let isNewlyFocused = !touchControlsViewModel.isFocused(onTitle: id)
+        touchControlsViewModel.focus(onTitle: id)
+        if isNewlyFocused { announceTouchBundle(touchControlsViewModel.titleBundleManifest) }
+        guard needsTouchBundle(for: id) else { return }
+
+        touchBundleAttempts[id, default: 0] += 1
+        touchBundleTasks[id] = Task {
+            await loadTouchBundle(for: id, into: touchControlsViewModel)
+        }
+    }
+
+    private func needsTouchBundle(for titleID: String) -> Bool {
+        let maximumAttempts = 3
+
+        return !touchBundleTitles.contains(titleID) && touchBundleTasks[titleID] == nil
+            && touchBundleAttempts[titleID, default: 0] < maximumAttempts
+    }
+
+    private func loadTouchBundle(
+        for titleID: String,
+        into touchControlsViewModel: TouchControlsViewModel
+    ) async {
+        defer { touchBundleTasks[titleID] = nil }
+
+        do {
+            let bundle = try await service.touchBundle(forTitle: titleID, on: target)
+            guard !Task.isCancelled else { return }
+
+            touchBundleTitles.insert(titleID)
+            guard let bundle else { return }
+
+            touchControlsViewModel.load(bundle, forTitle: titleID)
+            if touchControlsViewModel.isFocused(onTitle: titleID) {
+                announceTouchBundle(bundle.manifest)
+            }
+        } catch {
+            log.error(
+                "Touch layouts for \(titleID, privacy: .public) could not be loaded: \(error)"
+            )
+        }
+    }
+
+    private func announceTouchBundle(_ manifest: TouchBundleManifest?) {
+        guard let manifest, let connection else { return }
+
+        Task {
+            await connection.announceTouchBundle(
+                version: manifest.version,
+                versionName: manifest.versionName ?? manifest.version
+            )
         }
     }
 
@@ -360,6 +459,7 @@ public final class StreamViewModel {
         runTask?.cancel()
         hideControlsTask?.cancel()
         settingsTask?.cancel()
+        for task in touchBundleTasks.values { task.cancel() }
 
         if let connection {
             await connection.stop(reason: .userStopped)
@@ -398,10 +498,34 @@ public final class StreamViewModel {
         areControlsRevealed = false
     }
 
+    public func openMenu() {
+        guard canOpenMenu else { return }
+
+        isMenuOpen = true
+        releaseKeyboard()
+    }
+
+    public func closeMenu() {
+        isMenuOpen = false
+    }
+
+    public func enterForeground() {
+        isInForeground = true
+    }
+
+    public func enterBackground() {
+        isInForeground = false
+        releaseKeyboard()
+    }
+
     public func openGuide() {
         guard let connection else { return }
 
         Task { await connection.pressGuide() }
+    }
+
+    public func openXboxButtonSettings() {
+        controllers.xboxButton.openSettings()
     }
 
     public func requestKeyframe() {
@@ -420,6 +544,10 @@ public final class StreamViewModel {
     @discardableResult
     public func handleKey(_ keyCode: UInt16, isDown: Bool) -> Bool {
         guard preferences.isKeyboardControllerEnabled, isStreaming else { return false }
+        guard isAcceptingKeyboard else {
+            releaseKeyboard()
+            return false
+        }
 
         let isHandled = keyboard.setKey(keyCode, isDown: isDown)
 
@@ -428,6 +556,10 @@ public final class StreamViewModel {
         }
 
         return isHandled
+    }
+
+    private var isAcceptingKeyboard: Bool {
+        !isMenuOpen && systemDialogsViewModel.queue.isEmpty
     }
 
     public func releaseKeyboard() {

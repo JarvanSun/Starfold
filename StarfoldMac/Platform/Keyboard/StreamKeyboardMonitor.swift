@@ -11,13 +11,13 @@ import StarfoldShared
 final class StreamKeyboardMonitor {
     private let leftShiftKeyCode: UInt16 = 56
 
-    var stream: StreamViewModel
+    var streamViewModel: StreamViewModel
 
     private var monitor: Any?
     private weak var view: NSView?
 
-    init(stream: StreamViewModel) {
-        self.stream = stream
+    init(streamViewModel: StreamViewModel) {
+        self.streamViewModel = streamViewModel
     }
 
     func install(for view: NSView) {
@@ -44,11 +44,11 @@ final class StreamKeyboardMonitor {
         guard !key.isCommandPressed else { return false }
 
         switch key.kind {
-        case .down: return stream.handleKey(key.keyCode, isDown: true)
-        case .up: return stream.handleKey(key.keyCode, isDown: false)
+        case .down: return streamViewModel.handleKey(key.keyCode, isDown: true)
+        case .up: return streamViewModel.handleKey(key.keyCode, isDown: false)
         case .modifiers(let isShiftPressed):
             if key.keyCode == leftShiftKeyCode {
-                stream.handleKey(leftShiftKeyCode, isDown: isShiftPressed)
+                streamViewModel.handleKey(leftShiftKeyCode, isDown: isShiftPressed)
             }
 
             return false
