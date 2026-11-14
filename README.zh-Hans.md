@@ -32,10 +32,13 @@
 
 - **主机串流**：串流你自己的 Xbox Series X|S 或 Xbox One。
 - **云游戏**：不需要主机，直接玩 Xbox 云游戏。
+- **多账号**：可登录多个微软账户并随时切换。
+- **游戏库**：继续游玩、收藏、搜索和排序。
 - **平台**：Mac、iPhone、iPad、Apple Vision Pro 和 Apple TV，均为原生应用。
 - **画面**：最高 80 Mbps，支持低延迟模式；Mac 上有 MetalFX 超分和 HDR 色调映射。
+- **画中画**：Mac 上可在悬浮窗口中继续游玩。
 - **输入**：所有平台都支持手柄；Mac、iPhone 和 iPad 上可以用键盘。
-- **触控操作**：iPhone 和 iPad 上使用 Apple 的 [Touch Controller](https://developer.apple.com/documentation/touchcontroller)，标准布局可以自定义。
+- **触控操作**：iPhone 和 iPad 上使用 Apple 的 [Touch Controller](https://developer.apple.com/documentation/touchcontroller)，支持游戏自带的触控布局，标准布局可以自定义。
 
 ## Mac
 
@@ -47,6 +50,28 @@
   <tr>
     <td><img src=".github/assets/zh-Hans/mac-metalfx.jpg" alt="MetalFX 让画面更清晰"></td>
     <td><img src=".github/assets/zh-Hans/mac-picture-in-picture.jpg" alt="画中画"></td>
+  </tr>
+</table>
+
+## iPhone
+
+<table>
+  <tr>
+    <td width="19.4%"><img src=".github/assets/en/iphone-home.jpg" alt="iPhone 上的首页"></td>
+    <td width="80.6%"><img src=".github/assets/en/iphone-touch.jpg" alt="iPhone 上的触控操作"></td>
+  </tr>
+  <tr>
+    <td width="80.6%"><img src=".github/assets/en/iphone-layout.jpg" alt="自定义触控布局"></td>
+    <td width="19.4%"><img src=".github/assets/en/iphone-cloud.jpg" alt="iPhone 上的云游戏"></td>
+  </tr>
+</table>
+
+## iPad
+
+<table>
+  <tr>
+    <td><img src=".github/assets/en/ipad-welcome.jpg" alt="iPad 上的欢迎页"></td>
+    <td><img src=".github/assets/en/ipad-game.jpg" alt="iPad 上的游戏详情"></td>
   </tr>
 </table>
 
