@@ -86,8 +86,8 @@ In StreamKit.
 - **GamepadRouter**: Under gated routing, player one exists only while a controller, the touch
   controller or held keys feed it, so Apple TV still reports a disconnected player one as a
   removal; the keyboard merges in for iPad.
-- **ControllerHub**: It turns on `GCController.shouldMonitorBackgroundEvents`, so input arrives
-  when the stream window is not key.
+- **ControllerHub**: It turns on `GCController.shouldMonitorBackgroundEvents` for the app's life,
+  so input arrives when the stream window is not key or the picture floats over another app.
 - **ControllerHub**: Connect and disconnect notifications only trigger a diff against
   `GCController.controllers()`, keeping non-Sendable controllers out of main-actor closures.
 - **ControllerHub**: A new controller's first state goes through the handler queue, in order with
@@ -298,8 +298,6 @@ In `StarfoldMac/`.
 - **StreamPictureInPicture**: It is a floating panel holding the stream's own layer, not
   AVPictureInPictureController, because on macOS 27 the system window cropped a sample-buffer
   layer.
-- **StreamPictureInPicture**: While the picture floats, controllers are monitored in the
-  background, because the player is likely in another app.
 - **StreamPictureInPicture**: `dismiss()` removes the panel and leaves the window alone (another
   stream is starting); `stop()` returns to the window so its end page can speak.
 - **PictureInPictureView**: MetalFX upscales to the panel's pixels, not the hidden window's.

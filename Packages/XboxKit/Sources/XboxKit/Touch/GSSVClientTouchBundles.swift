@@ -12,10 +12,12 @@ extension GSSVClient {
         xboxTitleIDs: [String]
     ) async throws -> [TitleInputConfiguration] {
         let request = InputConfigurationsRequest(titleIDs: xboxTitleIDs, titleIDType: "xboxTitleId")
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .withoutEscapingSlashes
         let response = try await send(
             to: baseURL.appending(path: "v2/titles/inputconfigs"),
             method: "POST",
-            body: try JSONEncoder().encode(request)
+            body: try encoder.encode(request)
         )
         return try JSONDecoder().decode([TitleInputConfiguration].self, from: response.body)
     }

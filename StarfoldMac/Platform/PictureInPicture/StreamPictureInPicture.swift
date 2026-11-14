@@ -6,7 +6,6 @@
 //
 
 import AppKit
-import GameController
 import StarfoldShared
 import StreamKit
 
@@ -56,8 +55,6 @@ final class StreamPictureInPicture {
 
         videoHostView?.reattachVideo()
 
-        GCController.shouldMonitorBackgroundEvents = false
-
         isActive = false
     }
 
@@ -67,8 +64,6 @@ final class StreamPictureInPicture {
         self.panel = panel
 
         window?.orderOut(nil)
-
-        GCController.shouldMonitorBackgroundEvents = true
 
         isActive = true
     }
