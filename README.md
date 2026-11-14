@@ -59,12 +59,15 @@
 
 <table>
   <tr>
-    <td width="19.4%"><img src=".github/assets/en/iphone-home.jpg" alt="Home on iPhone"></td>
-    <td width="80.6%"><img src=".github/assets/en/iphone-touch.jpg" alt="Touch controls on iPhone"></td>
+    <td width="19.6%"><img src=".github/assets/en/iphone-home.jpg" alt="Home on iPhone"></td>
+    <td width="80.4%"><img src=".github/assets/en/iphone-touch.jpg" alt="Touch controls on iPhone"></td>
   </tr>
+</table>
+
+<table>
   <tr>
-    <td width="80.6%"><img src=".github/assets/en/iphone-layout.jpg" alt="Customizing the touch layout"></td>
-    <td width="19.4%"><img src=".github/assets/en/iphone-cloud.jpg" alt="Cloud Gaming on iPhone"></td>
+    <td width="80.4%"><img src=".github/assets/en/iphone-layout.jpg" alt="Customizing the touch layout"></td>
+    <td width="19.6%"><img src=".github/assets/en/iphone-cloud.jpg" alt="Cloud Gaming on iPhone"></td>
   </tr>
 </table>
 

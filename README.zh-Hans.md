@@ -57,12 +57,15 @@
 
 <table>
   <tr>
-    <td width="19.4%"><img src=".github/assets/en/iphone-home.jpg" alt="iPhone 上的首页"></td>
-    <td width="80.6%"><img src=".github/assets/en/iphone-touch.jpg" alt="iPhone 上的触控操作"></td>
+    <td width="19.6%"><img src=".github/assets/en/iphone-home.jpg" alt="iPhone 上的首页"></td>
+    <td width="80.4%"><img src=".github/assets/en/iphone-touch.jpg" alt="iPhone 上的触控操作"></td>
   </tr>
+</table>
+
+<table>
   <tr>
-    <td width="80.6%"><img src=".github/assets/en/iphone-layout.jpg" alt="自定义触控布局"></td>
-    <td width="19.4%"><img src=".github/assets/en/iphone-cloud.jpg" alt="iPhone 上的云游戏"></td>
+    <td width="80.4%"><img src=".github/assets/en/iphone-layout.jpg" alt="自定义触控布局"></td>
+    <td width="19.6%"><img src=".github/assets/en/iphone-cloud.jpg" alt="iPhone 上的云游戏"></td>
   </tr>
 </table>
 
