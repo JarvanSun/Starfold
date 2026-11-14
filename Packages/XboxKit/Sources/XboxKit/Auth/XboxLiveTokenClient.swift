@@ -106,22 +106,7 @@ struct XboxLiveTokenClient: Sendable {
             token: response.gameStreamingToken,
             expiresAt: now().addingTimeInterval(TimeInterval(response.durationInSeconds)),
             market: response.market,
-            regions: response.offeringSettings.regions.compactMap(streamingRegion)
-        )
-    }
-
-    private func streamingRegion(_ region: StreamingLoginResponse.Region) -> StreamingRegion? {
-        guard let baseURL = URL(string: region.baseURI) else {
-            return nil
-        }
-
-        let unrankedFallbackPriority = -1
-
-        return .init(
-            name: region.name,
-            baseURL: baseURL,
-            isDefault: region.isDefault ?? false,
-            fallbackPriority: region.fallbackPriority ?? unrankedFallbackPriority
+            regions: response.offeringSettings.regions.compactMap(\.streamingRegion)
         )
     }
 
@@ -222,6 +207,21 @@ private extension XboxLiveTokenClient {
             let baseURI: String
             let isDefault: Bool?
             let fallbackPriority: Int?
+
+            var streamingRegion: StreamingRegion? {
+                guard let baseURL = URL(string: baseURI) else {
+                    return nil
+                }
+
+                let unrankedFallbackPriority = -1
+
+                return .init(
+                    name: name,
+                    baseURL: baseURL,
+                    isDefault: isDefault ?? false,
+                    fallbackPriority: fallbackPriority ?? unrankedFallbackPriority
+                )
+            }
         }
 
         let offeringSettings: OfferingSettings

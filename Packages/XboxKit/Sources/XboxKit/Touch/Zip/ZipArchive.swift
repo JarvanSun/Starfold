@@ -85,6 +85,18 @@ private struct ZipEntry: Sendable {
         case stored
         case deflated
         case other(Int)
+
+        init(code: UInt16) {
+            let storedCode: UInt16 = 0
+            let deflatedCode: UInt16 = 8
+
+            self =
+                switch code {
+                case storedCode: .stored
+                case deflatedCode: .deflated
+                default: .other(Int(code))
+                }
+        }
     }
 
     let name: String
@@ -200,7 +212,7 @@ private struct ZipBytes: Sendable {
         let name = try slice(from: offset + centralDirectoryHeaderLength, count: nameLength)
         let entry = ZipEntry(
             name: String(decoding: name, as: UTF8.self),
-            method: method(try uint16(field: .method, of: offset)),
+            method: .init(code: try uint16(field: .method, of: offset)),
             isEncrypted: try uint16(field: .flags, of: offset) & encryptedFlag != 0,
             checksum: try uint32(field: .checksum, of: offset),
             compressedSize: Int(compressedSize),
@@ -214,17 +226,6 @@ private struct ZipBytes: Sendable {
         guard offset >= 0, count >= 0, offset <= contents.count - count else { throw .truncated }
 
         return contents[offset..<(offset + count)]
-    }
-
-    private func method(_ code: UInt16) -> ZipEntry.Method {
-        let storedCode: UInt16 = 0
-        let deflatedCode: UInt16 = 8
-
-        return switch code {
-        case storedCode: .stored
-        case deflatedCode: .deflated
-        default: .other(Int(code))
-        }
     }
 
     private func uint16(field: CentralDirectoryField, of header: Int) throws(ZipArchiveError)

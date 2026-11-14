@@ -48,7 +48,7 @@ public struct XboxLiveClient: Sendable {
             throw URLError(.cannotParseResponse)
         }
 
-        return profile(of: user)
+        return user.profile
     }
 
     private func headers(
@@ -66,17 +66,6 @@ public struct XboxLiveClient: Sendable {
         ]
         headers.merge(extraHeaders) { _, new in new }
         return headers
-    }
-
-    private func profile(of user: ProfileResponse.User) -> XboxProfile {
-        let settings = Dictionary(user.settings.map { ($0.id, $0.value) }) { first, _ in first }
-        let modernGamertag = settings["ModernGamertag"].flatMap { $0.isEmpty ? nil : $0 }
-        return .init(
-            xuid: user.id,
-            gamertag: modernGamertag ?? settings["Gamertag"] ?? user.id,
-            gamerscore: settings["Gamerscore"].flatMap(Int.init),
-            pictureURL: settings["GameDisplayPicRaw"].flatMap(URL.init(upgradingXboxImageToHTTPS:))
-        )
     }
 
     public func consoleActivity(xuid: String) async throws -> ConsoleActivity? {
@@ -108,7 +97,7 @@ public struct XboxLiveClient: Sendable {
 
         let consoleDeviceTypes: Set<String> = ["Scarlett", "XboxOne"]
         let consoles = (response.devices ?? []).filter { consoleDeviceTypes.contains($0.type) }
-        let titles = consoles.flatMap { $0.titles ?? [] }.filter(isActiveGame)
+        let titles = consoles.flatMap { $0.titles ?? [] }.filter(\.isActiveGame)
         return titles.first { $0.placement == "Full" } ?? titles.first
     }
 
@@ -124,12 +113,6 @@ public struct XboxLiveClient: Sendable {
             )
         )
         return response.titles
-    }
-
-    private func isActiveGame(_ title: PresenceResponse.Title) -> Bool {
-        let dashboardTitleID = "750323071"
-
-        return title.id != dashboardTitleID && title.state != "Inactive"
     }
 
     public func consoles() async throws -> [Console] {
@@ -209,6 +192,18 @@ private extension XboxLiveClient {
         struct User: Decodable, Sendable {
             let id: String
             let settings: [Setting]
+
+            var profile: XboxProfile {
+                let settings = Dictionary(settings.map { ($0.id, $0.value) }) { first, _ in first }
+                let modernGamertag = settings["ModernGamertag"].flatMap { $0.isEmpty ? nil : $0 }
+                return .init(
+                    xuid: id,
+                    gamertag: modernGamertag ?? settings["Gamertag"] ?? id,
+                    gamerscore: settings["Gamerscore"].flatMap(Int.init),
+                    pictureURL: settings["GameDisplayPicRaw"]
+                        .flatMap(URL.init(upgradingXboxImageToHTTPS:))
+                )
+            }
         }
 
         struct Setting: Decodable, Sendable {
@@ -230,6 +225,12 @@ private extension XboxLiveClient {
             let name: String
             let placement: String?
             let state: String?
+
+            var isActiveGame: Bool {
+                let dashboardTitleID = "750323071"
+
+                return id != dashboardTitleID && state != "Inactive"
+            }
         }
 
         let devices: [Device]?

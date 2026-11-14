@@ -105,7 +105,7 @@ struct DeviceCodeFlow: Sendable {
             case (nil, "expired_token"): throw DeviceCodeError.expired
             case (nil, "authorization_declined"), (nil, "access_denied"):
                 throw DeviceCodeError.declined
-            case (nil, _): throw serverError(from: response)
+            case (nil, _): throw response.serverError
             }
         }
 
@@ -139,10 +139,6 @@ struct DeviceCodeFlow: Sendable {
         return now().addingTimeInterval(TimeInterval(response.expiresIn ?? defaultTokenLifetime))
     }
 
-    private func serverError(from response: TokenResponse) -> DeviceCodeError {
-        .server(code: response.error ?? "unknown", description: response.errorDescription ?? "")
-    }
-
     func refresh(_ token: MicrosoftAccountToken) async throws -> MicrosoftAccountToken {
         guard let refreshToken = token.refreshToken else {
             throw DeviceCodeError.expired
@@ -159,7 +155,7 @@ struct DeviceCodeFlow: Sendable {
             for: request(to: configuration.tokenURL, form: form)
         )
         guard let accessToken = response.accessToken else {
-            throw serverError(from: response)
+            throw response.serverError
         }
 
         return .init(
@@ -208,5 +204,9 @@ private extension DeviceCodeFlow {
         let userID: String?
         let error: String?
         let errorDescription: String?
+
+        var serverError: DeviceCodeError {
+            .server(code: error ?? "unknown", description: errorDescription ?? "")
+        }
     }
 }
