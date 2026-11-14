@@ -1,43 +1,35 @@
 # Workflow
 
-The Xcode project is committed and its folders are synchronized: add, move and delete files in
-the file system.
+The Xcode project's folders are synchronized: add, move and delete files in the file system.
 
 ## Commands
 
-- Open `Starfold.xcodeproj` and run the `StarfoldMac`, `StarfoldVision` or `StarfoldTV` scheme.
-  No signing team is set; choose your own to run on a device.
-- `scripts/format.sh` after editing Swift; `scripts/format.sh --lint` must succeed.
-- `scripts/build.sh` builds every app; `scripts/build.sh <Scheme>` builds one.
-- `scripts/test.sh` runs every package's tests on macOS; `scripts/test.sh <Name>` runs one
-  (`StarfoldShared`, `XboxKit`, `StreamKit`).
+- `scripts/format.sh` after editing Swift; `scripts/format.sh --lint` must pass.
+- `scripts/build.sh [Scheme]` builds every app or one.
+- `scripts/test.sh [Package]` runs the package tests on macOS.
 - DerivedData never goes inside the repository; set `XCODE_BUILD_ROOT` to move it.
+- No signing team is set; choose your own to run on a device.
 
 ## Adding a feature
 
-1. **Spec first:** the feature and its platforms in [product.md](product.md), protocol facts in
+1. Spec first: behaviour in [product.md](product.md), protocol facts in
    [streaming.md](streaming.md), any missing rule.
-2. **Packages:** requests and responses in XboxKit, anything on the live stream in StreamKit, with
-   tests. A package API takes plain values.
-3. **ViewModel:** state and decisions in the ViewModel that owns them, or a new one in
-   `StarfoldShared/Features/<Feature>/`, tested before the views. A new service or exchanged value
-   goes in `Services/` or `Model/` with tests.
-4. **Platform views** in `Starfold<Platform>/Features/<Feature>/` for each platform that shows it.
-5. **Strings** in the catalog of the code that shows them, English, Chinese and a comment
-   ([localization.md](localization.md)).
-6. **Previews** from `PreviewObjectPool`.
+2. Packages: XboxKit for requests, StreamKit for the live stream, with tests.
+3. ViewModel in StarfoldShared, tested before the views.
+4. Views for each platform that shows it.
+5. Strings in both languages with comments.
+6. Previews from `PreviewObjectPool`.
 
-## Definition of done
+## Done means
 
-- [ ] Builds without warnings for macOS, visionOS and tvOS.
-- [ ] `scripts/format.sh --lint` succeeds and `scripts/test.sh` passes.
-- [ ] Checked in the running app on every platform it changes: light and dark where the platform
-      has both, Dynamic Type, Reduce Motion, VoiceOver.
-- [ ] The spec still describes the code.
+- Builds without warnings on every platform; lint and tests pass.
+- Checked in the running app on every platform it changes: light and dark, Dynamic Type, Reduce
+  Motion, VoiceOver.
+- The spec still describes the code, and nothing in it is left stale.
 
 ## Git
 
 - Commit messages are imperative and say what changed and why.
-- Commit `Starfold.xcodeproj` with its shared schemes and `Package.resolved`; never `xcuserdata`,
-  `DerivedData`, `.build` or a package's own `Package.resolved`.
-- No large binaries: test media, recordings and screenshots stay outside the repository.
+- Commit the project, shared schemes and `Package.resolved`; never `xcuserdata`, DerivedData or
+  `.build`.
+- No large binaries; media, recordings and screenshots stay outside the repository.
