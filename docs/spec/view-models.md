@@ -1,79 +1,59 @@
 # ViewModels
 
-A View lays out values and forwards what the person does; its ViewModel holds the state and every
-decision. ViewModels are shared by all platforms, one per feature, in
-`StarfoldShared/Features/<Feature>/`.
+A ViewModel holds a screen's state and every decision; the View only shows it. ViewModels are
+shared by all platforms, one per feature, in `StarfoldShared/Features/<Feature>/`.
 
-## Ownership and services
+## Ownership
 
-- `AppViewModel` lives for the app, one per app, in the environment. It creates the per-account
-  ViewModels (switching accounts replaces them), the per-stream one (a restart replaces it) and
-  each `SignInViewModel`.
-- A feature's View never creates a ViewModel: `Navigation/` hands it one.
-- A ViewModel reaches the outside world only through services it is given: protocols in
-  `StarfoldShared/Services/`, each with a `Live…` implementation beside it. Live services hold
-  protocol quirks; ViewModels hold state, order and saved snapshots.
-- Services throw XboxKit's errors; a ViewModel turns `XboxAccountError.signInRequired` into
-  `onSignInRequired`.
-- A ViewModel that needs the app sees only a narrow protocol `AppViewModel` conforms to
-  (`SigningIn`, `SessionControlling`), so tests give a stub.
-- Storage is plain types given in (`Preferences`, `FavoritesStore`, `LibraryCache`).
-- `AppDependencies` is the composition root: it builds the live services once and hands them to
-  `AppViewModel`. No ViewModel has a preview-only or debug-only entry point.
-- A screen never forwards a setting: the ViewModel that needs it applies it when `Preferences`
-  changes (`StreamViewModel` computes `StreamPlaybackSettings` from them).
+- `AppViewModel` lives for the app, in the environment. It creates the per-account ViewModels,
+  the per-stream one and each `SignInViewModel`, and replaces them when the account or stream
+  changes.
+- Views never create ViewModels; `Navigation/` hands them one. Every page has one, including pages
+  reached from another (`makeGameDetailViewModel(for:)`).
+- `AppDependencies` is the composition root: it builds the live services once.
+
+## Dependencies
+
+- Everything a ViewModel uses comes through its initializer, stored as `private let`; no default
+  arguments for services or data.
+- The outside world is reached only through service protocols in `Services/`, each with a `Live…`
+  implementation. Live services hold protocol quirks; ViewModels hold state.
+- A ViewModel that needs the app sees a narrow protocol `AppViewModel` conforms to (`SigningIn`,
+  `SessionControlling`).
+- Platform differences arrive as values (`StreamPlatform`, `PictureCapabilities`).
+- `XboxAccountError.signInRequired` becomes `onSignInRequired`.
+- A ViewModel applies settings itself when `Preferences` changes; screens never forward them.
 
 ## Shape
 
-- `@Observable public final class <Feature>ViewModel` at the top of its feature folder, with
-  `Model/` and `Presentation/` beside it.
-- `public` on what the apps and `Preview Content/` use (initializer, state and queries a View
-  reads, intents a View calls); `internal` for the package and its tests; everything else
-  `private`.
-- Imports Foundation, Observation, XboxKit and StreamKit as needed; never SwiftUI, AppKit, UIKit
-  or RealityKit; never reads the environment; no `#if os(…)`, no `#if DEBUG`.
-- Its strings are in StarfoldShared's catalog ([localization.md](localization.md)).
-- Every dependency is an `init` parameter stored as `private let`; no default arguments holding
-  services or data.
-- Platform differences arrive as values (`StreamPlatform`, `PictureCapabilities`).
-
-## State
-
-- Stored state is `private(set) var` (`public private(set)` when a View reads it). The only
-  writable `var`s are values a View binds to (`isSignInExpired`, `powerProblem`, a setting).
-- What something is doing is one enum (`SessionState`, `LoadState`: `idle`, `loading`, `loaded`,
-  `failed`), never a set of booleans and optionals.
-- Lists a View renders are derived (`shelves`, `visibleGames`), never a second stored copy.
-- `@ObservationIgnored` appears only where the compiler requires it (a property wrapper, a
-  `lazy var`) or where a value is deliberately kept from refreshing Views, with the reason in
-  [decisions.md](decisions.md).
+- `@Observable public final class <Feature>ViewModel`, with the feature's `Model/` and
+  `Presentation/` beside it.
+- `public` for what the apps and previews use, `internal` for its tests, the rest `private`.
+- Never imports SwiftUI or a platform UI framework, never reads the environment, no `#if`.
+- State is `private(set)`; a writable `var` only for what a View binds to.
+- What something is doing is one enum (`LoadState`), not several Booleans and optionals.
+- Lists a View shows are computed, never a second stored copy.
+- `@ObservationIgnored` only where the compiler needs it or a value must not refresh Views (reason
+  in [decisions.md](decisions.md)).
 
 ## Intents and queries
 
-- Every user action is one method named for what the person does (`play(_:)`,
-  `switchAccount(to:)`, `togglePower(of:)`). An intent guards its precondition, changes state,
-  then starts work.
-- The View asks; it never computes ([views.md](views.md#what-a-view-may-decide)). Every page has a
-  ViewModel, including a page reached from another
-  (`LibraryViewModel.makeGameDetailViewModel(for:)`). A question about an element is a method
-  (`cover(for:)`), about the whole a property (`isStreaming`).
-- An action that needs the app is still an intent of the page's ViewModel, calling a closure
-  `AppViewModel` sets: `play(_:)` calls `onPlay` with the `StreamTarget`, `refreshAccount()` calls
-  `onRefreshAccount`; `GameDetailViewModel.play()` goes through its library. `AppViewModel`
-  starts the stream unless the platform set `onPlayRequest` (Apple TV's `StreamPresenter`).
+- Each thing the person does is one method named for it (`play(_:)`, `togglePower(of:)`): guard
+  the precondition, change state, start work.
+- An action that needs the app is still the page's intent, calling a closure `AppViewModel` sets
+  (`onPlay`, `onRefreshAccount`).
+- A question about one element is a method (`cover(for:)`); about the whole, a property
+  (`isStreaming`).
 
 ## Async work
 
-- Work a screen owns runs from the View's `.task` / `.task(id:)` as an `async` ViewModel method
-  (`refresh()`, `SignInViewModel.run()`), so SwiftUI cancels it.
-- Work that outlives a View is a `Task` the ViewModel stores and cancels (the account's initial
-  load, the console refresh, a stream's update loop).
-- Loads that run together use `async let` in the ViewModel.
-- Cancellation is checked after each `await`; a cancelled load changes nothing.
-- Old content stays visible during a refresh; the saved snapshot shows until the first refresh.
+- Work a screen owns is an `async` method the View calls from `.task`, so SwiftUI cancels it.
+- Work that outlives a View is a `Task` the ViewModel stores and cancels.
+- Parallel loads use `async let`. After each `await`, a cancelled load changes nothing.
+- Old content stays during a refresh; the saved snapshot shows until the first one finishes.
 
 ## Previews
 
-`PreviewObjectPool` builds real ViewModels on preview services that answer at once (`loaded`),
-never (`loading`) or fail (`failed`); the View's own `.task` does the rest
-([swift-style.md](swift-style.md#preview-data)). A stream preview never shows a first frame.
+Preview services answer at once (`loaded`), never (`loading`) or fail (`failed`), so the View's
+own `.task` drives the preview ([testing.md](testing.md#previews)). A stream preview never shows a
+first frame.
