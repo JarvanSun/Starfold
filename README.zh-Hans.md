@@ -5,8 +5,7 @@
 <h1 align="center">Starfold — 适用于 Apple 平台的 Xbox 游戏串流应用</h1>
 
 <p align="center">
-  串流你自己的 Xbox 主机，或畅玩 Xbox 云游戏。原生 SwiftUI 应用，不是网页套壳。
-  MIT 开源，免费使用，免费游戏无需订阅。
+  串流你自己的 Xbox 主机，或畅玩 Xbox 云游戏。原生 SwiftUI 应用。
 </p>
 
 <p align="center">
@@ -16,17 +15,27 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/macOS-26-black" alt="macOS 26">
+  <img src="https://img.shields.io/badge/iOS-26-black" alt="iOS 26">
+  <img src="https://img.shields.io/badge/iPadOS-26-black" alt="iPadOS 26">
+  <img src="https://img.shields.io/badge/visionOS-26-black" alt="visionOS 26">
+  <img src="https://img.shields.io/badge/tvOS-26-black" alt="tvOS 26">
+  <img src="https://img.shields.io/badge/Swift-6-F05138" alt="Swift 6">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT 许可证">
+</p>
+
+<p align="center">
   <img src=".github/assets/zh-Hans/mac-hero.jpg" alt="Mac 上的 Starfold：主机串流与云游戏" width="100%">
 </p>
 
 ## 功能
 
-- **主机远程游玩**：在家里的局域网中串流你自己的 Xbox Series X|S 或 Xbox One，外出时也能远程连接。可以唤醒、休眠主机，并从上次游玩的画面接着开始。
-- **云游戏**：无需主机即可游玩 Xbox Cloud Gaming 游戏。免费游戏无需订阅，其他云游戏需要你自己的 Game Pass 会员。
-- **为每个 Apple 平台打造**：不是网页套壳，而是 Mac、iPhone、iPad、Apple Vision Pro 和 Apple TV 上的原生应用，各自遵循平台的设计习惯。
-- **清晰、跟手**：最高 80 Mbps 码率、低延迟模式；Mac 上还有 MetalFX 超分与锐化、HDR 色调映射和帧节奏控制。
-- **你的手柄**：所有平台都支持游戏手柄；Mac 上，以及接了实体键盘的 iPhone 和 iPad 上，还可以把键盘当手柄用。
-- **触控操作**：iPhone 和 iPad 上没有手柄也能玩，屏幕按键由 Apple 的 [Touch Controller](https://developer.apple.com/documentation/touchcontroller) 提供。自带触控布局的游戏会自动使用它；标准布局可以自己调整位置、大小和透明度，每个摇杆还能设为一直显示、触摸时显示或隐藏。
+- **主机串流**：串流你自己的 Xbox Series X|S 或 Xbox One。
+- **云游戏**：不需要主机，直接玩 Xbox 云游戏。
+- **平台**：Mac、iPhone、iPad、Apple Vision Pro 和 Apple TV，均为原生应用。
+- **画面**：最高 80 Mbps，支持低延迟模式；Mac 上有 MetalFX 超分和 HDR 色调映射。
+- **输入**：所有平台都支持手柄；Mac、iPhone 和 iPad 上可以用键盘。
+- **触控操作**：iPhone 和 iPad 上使用 Apple 的 [Touch Controller](https://developer.apple.com/documentation/touchcontroller)，标准布局可以自定义。
 
 ## Mac
 
@@ -62,7 +71,7 @@
 
 ## 使用要求
 
-需要 macOS 26、iOS 26、iPadOS 26、visionOS 26 或 tvOS 26 及以上版本，一个微软账户和快速稳定的网络；远程游玩还需要已开启远程功能的 Xbox Series X|S 或 Xbox One。
+macOS 26、iOS 26、iPadOS 26、visionOS 26 或 tvOS 26 及以上版本。
 
 ## 从源码构建
 

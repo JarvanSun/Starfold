@@ -5,8 +5,7 @@
 <h1 align="center">Starfold — Xbox Remote Play and Cloud Gaming for Apple platforms</h1>
 
 <p align="center">
-  Stream your own Xbox console, or play Xbox Cloud Gaming — a native SwiftUI app, not a browser wrapper.
-  Free and MIT-licensed, with no subscription needed for free-to-play titles.
+  Stream your own Xbox console or play Xbox Cloud Gaming, in a native SwiftUI app.
 </p>
 
 <p align="center">
@@ -16,26 +15,29 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/macOS-26-black" alt="macOS 26">
+  <img src="https://img.shields.io/badge/iOS-26-black" alt="iOS 26">
+  <img src="https://img.shields.io/badge/iPadOS-26-black" alt="iPadOS 26">
+  <img src="https://img.shields.io/badge/visionOS-26-black" alt="visionOS 26">
+  <img src="https://img.shields.io/badge/tvOS-26-black" alt="tvOS 26">
+  <img src="https://img.shields.io/badge/Swift-6-F05138" alt="Swift 6">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License">
+</p>
+
+<p align="center">
   <img src=".github/assets/en/mac-hero.jpg" alt="Starfold on Mac: Remote Play and Cloud Gaming" width="100%">
 </p>
 
 ## What it does
 
-- **Remote Play.** Stream your own Xbox Series X|S or Xbox One over your home network, or from
-  anywhere when you're away. Wake and sleep your console, and pick up from the last frame you
-  played.
-- **Cloud Gaming.** Play Xbox Cloud Gaming titles with no console. Free-to-play games need no
-  subscription; other cloud games need your own Game Pass membership.
-- **Built for each Apple platform.** Not a web wrapper: a native app for Mac, iPhone, iPad, Apple
-  Vision Pro and Apple TV, each in its platform's own idiom.
-- **Sharp and responsive.** Up to 80 Mbps, a low-latency mode, MetalFX upscaling and sharpening,
-  HDR tone mapping and frame pacing on Mac.
-- **Your controller.** Game controllers on every platform, and the keyboard as a controller on
-  Mac, and on iPhone and iPad with a hardware keyboard.
-- **Touch controls.** No controller on iPhone or iPad? Play with on-screen controls from Apple's
-  [Touch Controller](https://developer.apple.com/documentation/touchcontroller). Games with their
-  own touch layout get it automatically; the standard layout can be rearranged, resized and faded,
-  and each stick can show always, only on touch, or not at all.
+- **Remote Play**: stream your own Xbox Series X|S or Xbox One.
+- **Cloud Gaming**: play Xbox Cloud Gaming without a console.
+- **Platforms**: Mac, iPhone, iPad, Apple Vision Pro and Apple TV, all native.
+- **Video**: up to 80 Mbps, low-latency mode; MetalFX upscaling and HDR tone mapping on Mac.
+- **Input**: game controllers on every platform; keyboard on Mac, iPhone and iPad.
+- **Touch controls**: on iPhone and iPad, with Apple's
+  [Touch Controller](https://developer.apple.com/documentation/touchcontroller); the standard layout
+  can be customized.
 
 ## Mac
 
@@ -71,9 +73,7 @@
 
 ## Requirements
 
-macOS 26, iOS 26, iPadOS 26, visionOS 26 or tvOS 26 or later, a Microsoft account and a fast,
-stable network. Remote Play also needs an Xbox Series X|S or Xbox One with remote features turned
-on.
+macOS 26, iOS 26, iPadOS 26, visionOS 26 or tvOS 26 or later.
 
 ## Build from source
 
