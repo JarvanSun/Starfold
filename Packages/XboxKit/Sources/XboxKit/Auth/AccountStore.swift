@@ -69,7 +69,7 @@ public struct AccountStore: Sendable {
         )
         try save(stored)
 
-        return account(for: stored)
+        return makeXboxAccount(from: stored)
     }
 
     private func save(_ stored: StoredAccount) throws {
@@ -80,9 +80,9 @@ public struct AccountStore: Sendable {
         accountKeyPrefix + xuid
     }
 
-    private func account(for stored: StoredAccount) -> XboxAccount {
+    private func makeXboxAccount(from storedAccount: StoredAccount) -> XboxAccount {
         .init(
-            storedAccount: stored,
+            storedAccount: storedAccount,
             deviceCodeFlow: deviceCodeFlow,
             tokenClient: tokenClient,
             persist: { account in try save(account) },
@@ -105,7 +105,7 @@ public struct AccountStore: Sendable {
             return nil
         }
 
-        return account(for: stored)
+        return makeXboxAccount(from: stored)
     }
 
     private func isAccountKey(_ key: String) -> Bool {

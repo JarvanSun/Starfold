@@ -25,16 +25,15 @@ final class LiveAccountService: AccountService {
         var accounts: [SignedInAccount] = []
 
         for xboxAccount in accountStore.restoreAccounts() {
-            accounts.append(await signedIn(xboxAccount))
+            xboxAccounts[xboxAccount.xuid] = xboxAccount
+            accounts.append(await makeSignedInAccount(for: xboxAccount))
         }
 
         return accounts
     }
 
-    private func signedIn(_ xboxAccount: XboxAccount) async -> SignedInAccount {
-        xboxAccounts[xboxAccount.xuid] = xboxAccount
-
-        return .init(
+    private func makeSignedInAccount(for xboxAccount: XboxAccount) async -> SignedInAccount {
+        .init(
             summary: .init(id: xboxAccount.xuid, gamertag: await xboxAccount.gamertag),
             consoleService: LiveConsoleService(xboxAccount: xboxAccount, httpClient: httpClient),
             cloudLibraryService: LiveCloudLibraryService(
@@ -58,7 +57,9 @@ final class LiveAccountService: AccountService {
         onAuthorized: @escaping @MainActor () -> Void
     ) async throws -> SignedInAccount {
         let xboxAccount = try await accountStore.completeSignIn(prompt) { await onAuthorized() }
-        return await signedIn(xboxAccount)
+        xboxAccounts[xboxAccount.xuid] = xboxAccount
+
+        return await makeSignedInAccount(for: xboxAccount)
     }
 
     func profile(of account: SignedInAccount) async throws -> XboxProfile {
