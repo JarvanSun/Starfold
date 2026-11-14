@@ -23,9 +23,8 @@ struct StreamEndedStatus: View {
             Text(reason.title)
                 .font(.title2)
 
-            switch advice {
-            case let advice?: adviceText(advice)
-            case nil: EmptyView()
+            if let advice {
+                adviceText(advice)
             }
 
             Button("stream.ended.retry") { onRetry() }

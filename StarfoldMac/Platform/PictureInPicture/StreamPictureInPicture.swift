@@ -34,9 +34,10 @@ final class StreamPictureInPicture {
     }
 
     func toggle() {
-        switch isActive {
-        case true: returnToWindow()
-        case false: start()
+        if isActive {
+            returnToWindow()
+        } else {
+            start()
         }
     }
 

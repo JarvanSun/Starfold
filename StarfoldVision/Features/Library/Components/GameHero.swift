@@ -46,9 +46,8 @@ struct GameHero: View {
 
     private var badges: some View {
         HStack(spacing: dimensions.spaceLarge) {
-            switch gameDetailViewModel.publisher {
-            case let publisher?: Text(publisher)
-            case nil: EmptyView()
+            if let publisher = gameDetailViewModel.publisher {
+                Text(publisher)
             }
 
             ForEach(gameDetailViewModel.inputs) { input in

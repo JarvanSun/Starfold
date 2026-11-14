@@ -84,9 +84,6 @@ private struct TouchControlsPayload {
     }
 
     func layout(id: String) -> TouchLayoutReference {
-        switch id.isEmpty {
-        case true: .standard
-        case false: .named(id)
-        }
+        id.isEmpty ? .standard : .named(id)
     }
 }

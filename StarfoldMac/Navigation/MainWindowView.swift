@@ -46,9 +46,8 @@ struct MainWindowView: View {
 
     @ViewBuilder
     private func destination(for route: HomeRoute) -> some View {
-        switch appViewModel.libraryViewModel {
-        case let library?: page(for: route, in: library).background { SkyBackground() }
-        case nil: EmptyView()
+        if let library = appViewModel.libraryViewModel {
+            page(for: route, in: library).background { SkyBackground() }
         }
     }
 

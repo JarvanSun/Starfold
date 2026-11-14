@@ -34,11 +34,8 @@ private struct TouchLayoutEditorCover: ViewModifier {
 
     @ViewBuilder
     private var editor: some View {
-        switch settingsViewModel.touchLayoutEditorViewModel {
-        case let touchLayoutEditorViewModel?:
+        if let touchLayoutEditorViewModel = settingsViewModel.touchLayoutEditorViewModel {
             TouchLayoutEditorView(touchLayoutEditorViewModel: touchLayoutEditorViewModel)
-        case nil:
-            EmptyView()
         }
     }
 }

@@ -14,9 +14,8 @@ struct GameAbout: View {
     let about: String?
 
     var body: some View {
-        switch about {
-        case let about?: section(about)
-        case nil: EmptyView()
+        if let about {
+            section(about)
         }
     }
 

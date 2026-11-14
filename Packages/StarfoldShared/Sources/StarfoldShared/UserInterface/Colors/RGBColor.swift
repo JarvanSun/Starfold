@@ -22,10 +22,7 @@ public struct RGBColor: Equatable, Sendable {
     }
 
     private func linear(_ component: Double) -> Double {
-        switch component <= 0.04045 {
-        case true: component / 12.92
-        case false: pow((component + 0.055) / 1.055, 2.4)
-        }
+        component <= 0.04045 ? component / 12.92 : pow((component + 0.055) / 1.055, 2.4)
     }
 
     init(red: Double, green: Double, blue: Double) {

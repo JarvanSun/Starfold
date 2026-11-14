@@ -134,9 +134,10 @@ public final class ControllerHub {
     private func attach(_ controller: GCController) {
         let isTouchController = controller.productCategory == touchControllerCategory
 
-        switch isTouchController {
-        case true: attachTouchController(controller)
-        case false: attachPhysicalController(controller)
+        if isTouchController {
+            attachTouchController(controller)
+        } else {
+            attachPhysicalController(controller)
         }
     }
 

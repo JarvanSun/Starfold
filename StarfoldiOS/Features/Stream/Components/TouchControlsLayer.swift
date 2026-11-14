@@ -31,9 +31,6 @@ struct TouchControlsLayer: View {
     }
 
     private var mode: TouchControlsMode {
-        switch isActive {
-        case true: .playing(isHapticsEnabled: touchControlsViewModel.isHapticsEnabled)
-        case false: .hidden
-        }
+        isActive ? .playing(isHapticsEnabled: touchControlsViewModel.isHapticsEnabled) : .hidden
     }
 }

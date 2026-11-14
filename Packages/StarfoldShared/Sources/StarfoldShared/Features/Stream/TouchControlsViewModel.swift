@@ -127,11 +127,10 @@ public final class TouchControlsViewModel {
     }
 
     func load(_ bundle: TouchBundle, forTitle id: String) {
-        switch id == titleID {
-        case true:
+        if id == titleID {
             title = loaded(bundle, into: title)
             resolveTitleLayout()
-        case false:
+        } else {
             otherTitles[id] = loaded(bundle, into: otherTitles[id] ?? TouchTitleState())
         }
     }

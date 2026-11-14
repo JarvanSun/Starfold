@@ -29,9 +29,8 @@ struct StreamControlBar: View {
 
                 PictureMenu(settingsViewModel: settingsViewModel, streamViewModel: streamViewModel)
 
-                switch pictureInPicture {
-                case let pictureInPicture?: pictureInPictureButton(pictureInPicture)
-                case nil: EmptyView()
+                if let pictureInPicture {
+                    pictureInPictureButton(pictureInPicture)
                 }
 
                 fullScreenButton
@@ -92,13 +91,12 @@ struct StreamControlBar: View {
 
     @ViewBuilder
     private var fullScreenLabel: some View {
-        switch isFullScreen {
-        case true:
+        if isFullScreen {
             Label(
                 String(localized: "stream.controlBar.fullScreen.exit"),
                 systemImage: "arrow.down.right.and.arrow.up.left"
             )
-        case false:
+        } else {
             Label(
                 String(localized: "stream.controlBar.fullScreen.enter"),
                 systemImage: "arrow.up.left.and.arrow.down.right"

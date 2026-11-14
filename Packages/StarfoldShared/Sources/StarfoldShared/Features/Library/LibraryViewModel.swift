@@ -80,10 +80,9 @@ public final class LibraryViewModel {
     }
 
     public var gamesTitle: LocalizedStringResource {
-        switch isSearching {
-        case true: .init("library.games.results.title", bundle: .module)
-        case false: .init("library.games.all.title", bundle: .module)
-        }
+        isSearching
+            ? .init("library.games.results.title", bundle: .module)
+            : .init("library.games.all.title", bundle: .module)
     }
 
     public var visibleGames: [CloudGame] {
@@ -95,10 +94,7 @@ public final class LibraryViewModel {
     }
 
     public var searchResults: [CloudGame] {
-        switch isSearching {
-        case true: visibleGames
-        case false: []
-        }
+        isSearching ? visibleGames : []
     }
 
     var favoriteGames: [CloudGame] {

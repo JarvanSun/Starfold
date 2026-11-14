@@ -22,9 +22,10 @@ struct WelcomeView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            switch hasRoomSideBySide(in: geometry.size) {
-            case true: sideBySide
-            case false: stacked
+            if hasRoomSideBySide(in: geometry.size) {
+                sideBySide
+            } else {
+                stacked
             }
         }
         .onAppear { enter() }

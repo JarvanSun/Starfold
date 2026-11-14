@@ -22,9 +22,8 @@ struct ProfileBadge: View {
             VStack(alignment: .leading, spacing: 0) {
                 name
 
-                switch profile?.gamerscore {
-                case let gamerscore?: gamerscoreLabel(gamerscore)
-                case nil: EmptyView()
+                if let gamerscore = profile?.gamerscore {
+                    gamerscoreLabel(gamerscore)
                 }
             }
         }

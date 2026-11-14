@@ -81,10 +81,7 @@ public final class Preferences {
     }
 
     var effectiveGameLanguage: String {
-        switch gameLanguage.isEmpty {
-        case true: systemGameLanguage
-        case false: gameLanguage
-        }
+        gameLanguage.isEmpty ? systemGameLanguage : gameLanguage
     }
 
     private var systemGameLanguage: String {

@@ -416,10 +416,9 @@ final class StereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendable {
 
         stopUnlessReplaced(current, recovery: recovery)
 
-        switch startEngine() {
-        case true:
+        if startEngine() {
             log.info("Audio engine rebuilt: \(recovery.description, privacy: .public)")
-        case false:
+        } else {
             log.error(
                 "Audio still unavailable after \(recovery.description, privacy: .public); will retry"
             )

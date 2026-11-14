@@ -27,12 +27,11 @@ final class StreamEventViewController<Content: View>: GCEventViewController {
     private func applyRawInput() {
         controllerUserInteractionEnabled = !isRawInputEnabled
 
-        switch isRawInputEnabled {
-        case true:
+        if isRawInputEnabled {
             installRemoteHandlers()
 
             becomeFirstResponder()
-        case false:
+        } else {
             removeRemoteHandlers()
 
             resignFirstResponder()

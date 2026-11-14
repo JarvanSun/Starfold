@@ -15,9 +15,8 @@ struct StreamStatisticsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: dimensions.spaceSmall) {
-            switch readout.latency {
-            case let latency?: latencyLine(latency)
-            case nil: EmptyView()
+            if let latency = readout.latency {
+                latencyLine(latency)
             }
 
             ForEach(readout.rows) { row in

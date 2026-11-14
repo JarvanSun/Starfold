@@ -67,10 +67,10 @@ struct HomeHostView: View {
 
     @ViewBuilder
     private var cloudGamingContent: some View {
-        switch libraryViewModel.isSearching {
-        case true:
+        if libraryViewModel.isSearching {
             SearchResultsView(libraryViewModel: libraryViewModel, onOpenGame: { openGame($0) })
-        case false: LibraryView(libraryViewModel: libraryViewModel, onOpenGame: { openGame($0) })
+        } else {
+            LibraryView(libraryViewModel: libraryViewModel, onOpenGame: { openGame($0) })
         }
     }
 

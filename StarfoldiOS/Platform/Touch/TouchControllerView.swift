@@ -220,12 +220,11 @@ extension TouchControllerView: MTKViewDelegate {
         touchController.render(using: encoder)
         encoder.endEncoding()
 
-        switch presentsWithTransaction {
-        case true:
+        if presentsWithTransaction {
             commands.commit()
             commands.waitUntilScheduled()
             drawable.present()
-        case false:
+        } else {
             commands.present(drawable)
             commands.commit()
         }

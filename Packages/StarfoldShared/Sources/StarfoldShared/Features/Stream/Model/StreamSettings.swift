@@ -14,10 +14,7 @@ struct StreamSettings: Equatable {
     var maxBitrateKbps: Int? {
         let kilobitsPerMegabit = 1000
 
-        return switch maxBitrateMbps > 0 {
-        case true: maxBitrateMbps * kilobitsPerMegabit
-        case false: nil
-        }
+        return maxBitrateMbps > 0 ? maxBitrateMbps * kilobitsPerMegabit : nil
     }
 
     init(target: StreamTarget, preferences: Preferences) {

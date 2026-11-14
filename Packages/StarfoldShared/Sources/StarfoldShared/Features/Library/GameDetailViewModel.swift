@@ -78,10 +78,7 @@ public final class GameDetailViewModel {
     }
 
     public var favoriteAction: FavoriteAction {
-        switch isFavorite {
-        case true: .remove
-        case false: .add
-        }
+        isFavorite ? .remove : .add
     }
 
     init(game: CloudGame, favoritesStore: FavoritesStore, onPlay: @escaping () -> Void) {

@@ -35,9 +35,8 @@ struct ConsoleCardArt: View {
     private func gameArtwork(_ url: URL) -> some View {
         AsyncImage(url: url, transaction: .init(animation: .easeOut(duration: 0.4))) {
             phase in
-            switch phase.image {
-            case let image?: image.resizable().scaledToFill().transition(.opacity)
-            case nil: EmptyView()
+            if let image = phase.image {
+                image.resizable().scaledToFill().transition(.opacity)
             }
         }
     }

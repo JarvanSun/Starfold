@@ -113,9 +113,9 @@ final class MacStereoAudioDevice: NSObject, LKRTCAudioDevice, @unchecked Sendabl
         }
         current?.stop()
 
-        switch startEngine() {
-        case true: log.info("Audio engine rebuilt: \(reason, privacy: .public)")
-        case false:
+        if startEngine() {
+            log.info("Audio engine rebuilt: \(reason, privacy: .public)")
+        } else {
             log.error("Audio still unavailable after \(reason, privacy: .public); will retry")
         }
     }

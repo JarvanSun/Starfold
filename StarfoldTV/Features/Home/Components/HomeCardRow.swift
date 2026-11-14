@@ -21,9 +21,8 @@ struct HomeCardRow: View {
     var body: some View {
         ScrollView(.horizontal) {
             HStack(alignment: .top, spacing: dimensions.spaceXXLarge) {
-                switch homeViewModel.firstConsole {
-                case let console?: consoleCard(console)
-                case nil: EmptyView()
+                if let console = homeViewModel.firstConsole {
+                    consoleCard(console)
                 }
 
                 CloudCard(libraryViewModel: libraryViewModel, width: cardWidth, onBrowse: onBrowse)

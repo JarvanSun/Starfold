@@ -65,9 +65,10 @@ final class StreamPresenter {
 
         self.target = target
 
-        switch isControllerConnected() {
-        case true: present(target)
-        case false: isControllerPromptPresented = true
+        if isControllerConnected() {
+            present(target)
+        } else {
+            isControllerPromptPresented = true
         }
     }
 
@@ -104,9 +105,10 @@ final class StreamPresenter {
 
         guard !isEnding else { return }
 
-        switch isMenuPresented {
-        case true: isMenuPresented = false
-        case false: await end()
+        if isMenuPresented {
+            isMenuPresented = false
+        } else {
+            await end()
         }
     }
 
