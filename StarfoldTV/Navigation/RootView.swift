@@ -20,7 +20,7 @@ struct RootView: View {
     @State private var libraryPath: [CloudGame] = []
     @State private var pendingLink: TopShelfLink?
     @State private var isSignInPresented = false
-    @State private var backgroundCleanup = BackgroundStreamCleanup()
+    @State private var backgroundStreamCleanup = BackgroundStreamCleanup()
 
     var body: some View {
         content
@@ -206,7 +206,7 @@ struct RootView: View {
 
         if phase != .active { appViewModel.controllerHub.routeInput(toGame: false) }
 
-        if phase == .background { backgroundCleanup.end(presenter) }
+        if phase == .background { backgroundStreamCleanup.end(presenter) }
     }
 }
 

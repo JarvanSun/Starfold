@@ -108,33 +108,36 @@ public final class Preferences {
     }
 
     public init(defaults: UserDefaults) {
-        let factory = FactorySettings()
+        let factorySettings = FactorySettings()
         self.defaults = defaults
         consoleQuality = .init(storageValue: defaults.string(for: .consoleQuality))
         cloudQuality = .init(storageValue: defaults.string(for: .cloudQuality))
         cellularQuality =
             defaults.string(for: .cellularQuality).map(QualityChoice.init(storageValue:))
-            ?? factory.cellularQuality
-        maxBitrateMbps = defaults.object(for: .maxBitrate) ?? factory.maxBitrateMbps
-        isUpscalingEnabled = defaults.object(for: .upscaling) ?? factory.isUpscalingEnabled
-        sharpening = defaults.object(for: .sharpening) ?? factory.sharpening
+            ?? factorySettings.cellularQuality
+        maxBitrateMbps = defaults.object(for: .maxBitrate) ?? factorySettings.maxBitrateMbps
+        isUpscalingEnabled = defaults.object(for: .upscaling) ?? factorySettings.isUpscalingEnabled
+        sharpening = defaults.object(for: .sharpening) ?? factorySettings.sharpening
         shouldShowStatistics = defaults.bool(for: .showStatistics)
         gameLanguage = defaults.string(for: .gameLanguage) ?? ""
         isKeyboardControllerEnabled =
-            defaults.object(for: .keyboardAsController) ?? factory.isKeyboardControllerEnabled
-        isRumbleEnabled = defaults.object(for: .rumble) ?? factory.isRumbleEnabled
-        isTouchHapticsEnabled = defaults.object(for: .touchHaptics) ?? factory.isTouchHapticsEnabled
-        shouldShowInMenuBar = defaults.object(for: .showInMenuBar) ?? factory.shouldShowInMenuBar
+            defaults.object(for: .keyboardAsController)
+            ?? factorySettings.isKeyboardControllerEnabled
+        isRumbleEnabled = defaults.object(for: .rumble) ?? factorySettings.isRumbleEnabled
+        isTouchHapticsEnabled =
+            defaults.object(for: .touchHaptics) ?? factorySettings.isTouchHapticsEnabled
+        shouldShowInMenuBar =
+            defaults.object(for: .showInMenuBar) ?? factorySettings.shouldShowInMenuBar
         pacingMode = .init(storedValue: defaults.string(for: .pacingMode))
         soundStage =
             defaults.string(for: .soundStage).flatMap(SoundStage.init(rawValue:))
-            ?? factory.soundStage
+            ?? factorySettings.soundStage
         palette = .init(storedValue: defaults.string(for: .palette))
         pictureFit = .init(storedValue: defaults.string(for: .pictureFit))
         isHDRToneMappingEnabled = defaults.bool(for: .hdrToneMapping)
         librarySort =
             defaults.string(for: .librarySort).flatMap(GameSort.init(rawValue:))
-            ?? factory.librarySort
+            ?? factorySettings.librarySort
         touchLayouts = .init(
             uniqueKeysWithValues: TouchOrientation.allCases.compactMap { orientation in
                 storedTouchLayout(for: orientation).map { (orientation, $0) }

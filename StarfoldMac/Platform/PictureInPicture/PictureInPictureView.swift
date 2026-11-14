@@ -47,7 +47,7 @@ final class PictureInPictureView: NSView {
         layer?.cornerRadius = dimensions.cornerRadiusMedium
         layer?.masksToBounds = true
 
-        layer?.addSublayer(renderer.systemVideo.layer)
+        layer?.addSublayer(renderer.systemVideoPresenter.layer)
     }
 
     private func addControls() {
@@ -74,7 +74,7 @@ final class PictureInPictureView: NSView {
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        renderer.systemVideo.layer.frame = bounds
+        renderer.systemVideoPresenter.layer.frame = bounds
         CATransaction.commit()
 
         placeControls()

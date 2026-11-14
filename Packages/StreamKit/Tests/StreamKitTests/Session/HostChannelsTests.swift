@@ -115,12 +115,12 @@ struct HostChannelsTests {
     @Test
     func receivedWhenHandshakeAcknowledgedWithTouchThenAnnouncesTouchPointsAndTouchInput() throws {
         // Given
-        let touch = TouchCapabilities(
+        let touchCapabilities = TouchCapabilities(
             maxTouchPoints: 5,
             maxLayoutVersion: "4.1.0.0",
             maxManifestVersion: "2.0.0.0"
         )
-        var channels = makeChannels(touch: touch)
+        var channels = makeChannels(touchCapabilities: touchCapabilities)
 
         // When
         let actions = channels.received(
@@ -187,9 +187,9 @@ struct HostChannelsTests {
 }
 
 private extension HostChannelsTests {
-    func makeChannels(touch: TouchCapabilities? = nil) -> HostChannels {
+    func makeChannels(touchCapabilities: TouchCapabilities? = nil) -> HostChannels {
         .init(
-            options: .init(clientAppInstallID: UUID(), touchCapabilities: touch),
+            options: .init(clientAppInstallID: UUID(), touchCapabilities: touchCapabilities),
             messageChannel: .init(correlationBase: "abc")
         )
     }

@@ -149,7 +149,7 @@ private extension XboxAccountTests {
         let store = AccountStore(
             microsoftClientID: .dummyClientID,
             secretStore: secrets,
-            httpClient: server.client,
+            httpClient: server.httpClient,
             now: clock.nowProvider
         )
         let stored = StoredAccount(

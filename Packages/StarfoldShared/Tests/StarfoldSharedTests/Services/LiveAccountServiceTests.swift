@@ -64,9 +64,9 @@ private extension LiveAccountServiceTests {
             accountStore: .init(
                 microsoftClientID: .dummyClientID,
                 secretStore: InMemorySecretStore(),
-                httpClient: server.client
+                httpClient: server.httpClient
             ),
-            httpClient: server.client,
+            httpClient: server.httpClient,
             streamRuntime: StreamRuntime()
         )
         return (server, service)

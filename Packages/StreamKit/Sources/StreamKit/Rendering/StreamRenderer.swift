@@ -30,7 +30,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         var lastFrame: LastFrame?
     }
 
-    public let systemVideo: SystemVideoPresenter
+    public let systemVideoPresenter: SystemVideoPresenter
 
     private let keepsLastFrame: Bool
     private let frameEnhancer: FrameEnhancer
@@ -55,7 +55,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
             let frameEnhancer = FrameEnhancer(metalDevice: device)
         else { return nil }
 
-        systemVideo = SystemVideoPresenter()
+        systemVideoPresenter = SystemVideoPresenter()
         self.keepsLastFrame = keepsLastFrame
         self.frameEnhancer = frameEnhancer
     }
@@ -81,7 +81,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
         }
 
         #if os(visionOS) || os(tvOS)
-        let shownAt = systemVideo.enqueue(pixelBuffer, timing: timing)
+        let shownAt = systemVideoPresenter.enqueue(pixelBuffer, timing: timing)
         recordDisplayLatency((shownAt - timing.arrival) * 1000)
 
         fireFirstFrame()
@@ -169,7 +169,7 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
             rtpTimestamp: frame.timing.rtpTimestamp,
             arrival: CACurrentMediaTime()
         )
-        let shownAt = systemVideo.enqueue(output, timing: ready)
+        let shownAt = systemVideoPresenter.enqueue(output, timing: ready)
         recordDisplayLatency((shownAt - frame.timing.arrival) * 1000)
 
         fireFirstFrame()
@@ -220,12 +220,12 @@ public final class StreamRenderer: VideoFrameReceiving, @unchecked Sendable {
     public func clear() {
         lock.withLock { $0.lastFrame = nil }
         #if os(visionOS) || os(tvOS)
-        systemVideo.clear()
+        systemVideoPresenter.clear()
         #else
         lock.withLock { $0.frames.removeAll() }
 
         queue.async { [self] in
-            systemVideo.clear()
+            systemVideoPresenter.clear()
             frameEnhancer.clear()
         }
         #endif

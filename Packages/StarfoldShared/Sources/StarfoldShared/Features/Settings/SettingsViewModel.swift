@@ -179,7 +179,7 @@ public final class SettingsViewModel {
     }
 
     public var isXboxButtonTakenBySystem: Bool {
-        controllerHub.xboxButton.owner == .system
+        controllerHub.xboxButtonSettings.owner == .system
     }
 
     public var keyBindings: [KeyBinding] {
@@ -247,7 +247,7 @@ public final class SettingsViewModel {
     }
 
     public func openXboxButtonSettings() {
-        controllerHub.xboxButton.openSettings()
+        controllerHub.xboxButtonSettings.openSettings()
     }
 
     public func switchAccount(to choice: AccountChoice) async {

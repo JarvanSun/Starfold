@@ -147,11 +147,12 @@ final class TouchControllerView: MTKView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            let tracked = TrackedTouch(index: nextFreeIndex(), point: touch.location(in: self))
-            self.touches[ObjectIdentifier(touch)] = tracked
+            let trackedTouch = TrackedTouch(index: nextFreeIndex(), point: touch.location(in: self))
+            self.touches[ObjectIdentifier(touch)] = trackedTouch
 
             let isOnControl =
-                touchController?.handleTouchBegan(at: tracked.point, index: tracked.index) ?? false
+                touchController?.handleTouchBegan(at: trackedTouch.point, index: trackedTouch.index)
+                ?? false
             if isOnControl { tapFeedback() }
         }
     }
@@ -183,13 +184,14 @@ final class TouchControllerView: MTKView {
 
     private func end(_ touches: Set<UITouch>) {
         for touch in touches {
-            guard let tracked = self.touches.removeValue(forKey: ObjectIdentifier(touch)) else {
+            guard let trackedTouch = self.touches.removeValue(forKey: ObjectIdentifier(touch))
+            else {
                 continue
             }
 
             _ = touchController?.handleTouchEnded(
                 at: touch.location(in: self),
-                index: tracked.index
+                index: trackedTouch.index
             )
         }
     }

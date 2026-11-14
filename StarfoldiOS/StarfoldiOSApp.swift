@@ -21,7 +21,7 @@ struct StarfoldiOSApp: App {
                 .windowTint()
                 .appPalette()
                 .environment(appViewModel)
-                .environment(appDelegate.orientation)
+                .environment(appDelegate.orientationLock)
                 .task { await appViewModel.restore() }
         }
         .onChange(of: scenePhase, initial: true) { appViewModel.setActive(scenePhase == .active) }

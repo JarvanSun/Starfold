@@ -68,9 +68,13 @@ succeed.
   (`xuid`, `GSSV`, `SDP`, `ICE`).
 - Never `data`, `info`, `item`, `object`, `value`, `manager`, `helper`, `handle` or `util` as a
   whole name; as a suffix only in a domain phrase (`DeviceInfoHeader`).
-- Do not repeat the type in member names (`console.name`).
-- A ViewModel property is the exception: it keeps the type's name, and a value it holds is named
-  for what it is (`consoleCover`, not `cover`).
+- Do not prefix a member with its owner's name just to say whose it is (`console.name`, not
+  `console.consoleName`). A word the owner also uses is fine when the member is named after its own
+  type or contents (`controllerHub.connectedControllers`, `streamViewModel.streamService`), or when
+  it turns a broad word into a specific one (`KeychainStore.keychainService`; `service` alone says
+  nothing).
+- A ViewModel property keeps the type's name, and a value it holds is named for what it is
+  (`consoleCover`, not `cover`).
 - Name a value after what it means at that point (`restored`, then `preferred`).
 - A stored property says what it is and what it is for, read without its type:
   - one holding a dependency (a service, store, cache, client, hub, runtime or platform) takes its
@@ -80,9 +84,13 @@ succeed.
   - a collection or a piece of state names what it holds (`connectedControllers`, not
     `connected`; `inputState`, not `state`);
   - a word that could mean two things in the module gets its qualifier (`keyboardGamepad`, not
-    `keyboard`; `backgroundTask`, not `task`; `audioEngine`, not `engine`).
+    `keyboard`; `backgroundTask`, not `task`; `audioEngine`, not `engine`);
+  - it keeps the word of its type that says what kind of thing it is (`homePath`, not `path`;
+    `xboxButtonSettings`, not `xboxButton`; `orientationLock`, not `orientation`;
+    `selectedTab`, not `selection`), unless it is that value itself (`palette: PaletteID`,
+    `pacing: PacingMode`).
 - Methods that do different jobs do not share one generic verb as overloads: `receive(_ update:)`,
-  `enter(_ phase:)`, `record(_ statistics:)`, not four `apply(_:)`.
+  `move(to phase:)`, `record(_ statistics:)`, not four `apply(_:)`.
 - Short names stay where one meaning is certain: `log` (the type's one `Logger`), `lock`, `body`,
   `id`, `defaults` (`UserDefaults`), and a property already named after its type (`renderer:
   StreamRenderer`, `preferences: Preferences`).
@@ -106,7 +114,26 @@ Inside a type, one blank line between groups:
 
 A private helper sits right below the member it serves, in call order: a step one method uses
 follows that method, a part of `body` follows `body`. A helper several members share follows the
-first of them; a private computed property several members share joins the computed properties.
+first of them and stays there when a later member calls it too; a private computed property several
+members share joins the computed properties.
+
+```swift
+func connect() {
+    prepare()
+    open()
+}
+
+private func prepare() { … }
+
+private func open() { … }
+
+func reconnect() {
+    close()
+    open()
+}
+
+private func close() { … }
+```
 Extensions group protocol conformances, members of a type declared in another file, and private
 decoding types, never members by access level.
 

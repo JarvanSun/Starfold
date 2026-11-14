@@ -178,7 +178,7 @@ struct StreamView: View {
     StreamView(
         streamViewModel: preview.streamViewModel,
         settingsViewModel: preview.settingsViewModel,
-        controllerHub: .init(routing: .direct)
+        controllerHub: .init(controllerRouting: .direct)
     ) {}
 }
 
@@ -188,7 +188,7 @@ struct StreamView: View {
     StreamView(
         streamViewModel: preview.streamViewModel,
         settingsViewModel: preview.settingsViewModel,
-        controllerHub: .init(routing: .direct)
+        controllerHub: .init(controllerRouting: .direct)
     ) {}
 }
 #endif

@@ -40,8 +40,8 @@ struct LiveStreamService: StreamService {
 
     private func streamingClient(for target: StreamTarget) async throws -> GSSVClient {
         switch target {
-        case .console: try await xboxAccount.homeClient(http: httpClient)
-        case .cloud: try await xboxAccount.cloudClient(http: httpClient)
+        case .console: try await xboxAccount.homeClient(httpClient: httpClient)
+        case .cloud: try await xboxAccount.cloudClient(httpClient: httpClient)
         }
     }
 

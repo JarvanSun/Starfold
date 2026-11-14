@@ -19,7 +19,7 @@ public final class GamepadRouter: @unchecked Sendable {
     private var gamepadStates: [UInt8: GamepadState] = [:]
     private var touchGamepadState: GamepadState?
     private var keyboardGamepadState = GamepadState()
-    private var activeInput = ActiveInputSwitch()
+    private var activeInputSwitch = ActiveInputSwitch()
 
     init(controllerRouting: ControllerRouting) {
         self.controllerRouting = controllerRouting
@@ -77,7 +77,7 @@ public final class GamepadRouter: @unchecked Sendable {
     }
 
     private func record(_ state: GamepadState, from input: ActiveInput) {
-        if let flipped = activeInput.record(state, from: input) {
+        if let flipped = activeInputSwitch.record(state, from: input) {
             onActiveInputChange?(flipped)
         }
     }
@@ -88,7 +88,7 @@ public final class GamepadRouter: @unchecked Sendable {
 
     func use(_ input: ActiveInput) {
         lock.withLock {
-            if let flipped = activeInput.use(input) {
+            if let flipped = activeInputSwitch.use(input) {
                 onActiveInputChange?(flipped)
             }
         }

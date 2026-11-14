@@ -9,7 +9,7 @@ import StarfoldShared
 import SwiftUI
 
 struct SignedInTabView: View {
-    @State private var selection = SignedInTab.home
+    @State private var selectedTab = SignedInTab.home
 
     let homeViewModel: HomeViewModel
     let libraryViewModel: LibraryViewModel
@@ -17,7 +17,7 @@ struct SignedInTabView: View {
     let onAddAccount: () -> Void
 
     var body: some View {
-        TabView(selection: $selection) {
+        TabView(selection: $selectedTab) {
             Tab("app.tab.home", systemImage: "house", value: SignedInTab.home) {
                 HomeHostView(
                     homeViewModel: homeViewModel,

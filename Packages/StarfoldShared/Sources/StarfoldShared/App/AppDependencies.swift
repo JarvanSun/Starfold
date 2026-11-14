@@ -17,10 +17,10 @@ public struct AppDependencies {
     }
 
     public func makeAppViewModel() -> AppViewModel {
-        let http = HTTPClient()
+        let httpClient = HTTPClient()
         let preferences = Preferences(defaults: .standard)
         let controllers = ControllerHub(
-            routing: streamPlatform.controllerRouting,
+            controllerRouting: streamPlatform.controllerRouting,
             touchControllerCategory: streamPlatform.touchPlatform?.controllerCategory
         )
         let network = LiveNetworkPath()
@@ -29,9 +29,9 @@ public struct AppDependencies {
             accountStore: .init(
                 microsoftClientID: microsoftClientID,
                 secretStore: KeychainStore(keychainService: accountsKeychainService),
-                httpClient: http
+                httpClient: httpClient
             ),
-            httpClient: http,
+            httpClient: httpClient,
             streamRuntime: StreamRuntime()
         )
         return .init(

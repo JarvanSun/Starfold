@@ -11,7 +11,7 @@ struct LiveConsoleService: ConsoleService {
     private let xboxAccount: XboxAccount
     private let httpClient: HTTPClient
 
-    private var xboxLive: XboxLiveClient {
+    private var xboxLiveClient: XboxLiveClient {
         .init(account: xboxAccount, httpClient: httpClient)
     }
 
@@ -21,17 +21,17 @@ struct LiveConsoleService: ConsoleService {
     }
 
     func consoles() async throws -> [Console] {
-        let remotePlayConsoles = try await xboxAccount.homeClient(http: httpClient).consoles()
+        let remotePlayConsoles = try await xboxAccount.homeClient(httpClient: httpClient).consoles()
         guard remotePlayConsoles.isEmpty else { return remotePlayConsoles }
 
-        return try await xboxLive.consoles()
+        return try await xboxLiveClient.consoles()
     }
 
     func activity() async throws -> ConsoleActivity? {
-        try await xboxLive.consoleActivity(xuid: xboxAccount.xuid)
+        try await xboxLiveClient.consoleActivity(xuid: xboxAccount.xuid)
     }
 
     func send(_ command: XboxLiveClient.PowerCommand, to consoleID: String) async throws {
-        try await xboxLive.send(command, to: consoleID)
+        try await xboxLiveClient.send(command, to: consoleID)
     }
 }

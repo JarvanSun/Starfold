@@ -62,6 +62,6 @@ struct XboxLiveTokenClientTests {
 
 private extension XboxLiveTokenClientTests {
     func makeClient(server: XboxServerStub) -> XboxLiveTokenClient {
-        .init(microsoftIdentity: .init(clientID: .dummyClientID), httpClient: server.client)
+        .init(microsoftIdentity: .init(clientID: .dummyClientID), httpClient: server.httpClient)
     }
 }

@@ -42,7 +42,7 @@ struct StreamPlaybackSettingsTests {
         // Given
         let preferences = Preferences(defaults: .dummyEmpty)
         preferences.isTouchHapticsEnabled = isTouchHapticsEnabled
-        let touch = TouchPlatform(
+        let touchPlatform = TouchPlatform(
             controllerCategory: "Touch Controller",
             hasDeviceHaptics: hasDeviceHaptics,
             capabilities: TouchPlatform.dummy.capabilities
@@ -52,7 +52,7 @@ struct StreamPlaybackSettingsTests {
         let settings = StreamPlaybackSettings(
             preferences: preferences,
             picture: picture(),
-            touch: touch
+            touch: touchPlatform
         )
 
         // Then

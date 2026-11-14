@@ -22,7 +22,7 @@ final class XboxServerStub: Sendable {
         state.withLock { $0.requests }
     }
 
-    var client: HTTPClient {
+    var httpClient: HTTPClient {
         HTTPClient { [self] request in
             try respond(to: request)
         }

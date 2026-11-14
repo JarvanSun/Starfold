@@ -142,7 +142,7 @@ private extension GSSVSessionTests {
         let client = GSSVClient(
             kind: .cloud,
             baseURL: URL(string: XboxEndpoint.cloudRegion.rawValue)!,
-            httpClient: server.client
+            httpClient: server.httpClient
         ) { _ in "gs" }
         return .init(gssvClient: client, url: URL(string: sessionURL)!, titleID: "FORTNITE")
     }

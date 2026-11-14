@@ -99,7 +99,7 @@ public actor XboxAccount {
         }
     }
 
-    public func homeClient(http: HTTPClient) async throws -> GSSVClient {
+    public func homeClient(httpClient: HTTPClient) async throws -> GSSVClient {
         let token = try await homeStreamingToken()
         guard let region = token.defaultRegion else {
             throw XboxHTTPError(
@@ -110,7 +110,8 @@ public actor XboxAccount {
             )
         }
 
-        return .init(kind: .home, baseURL: region.baseURL, httpClient: http) { [self] freshness in
+        return .init(kind: .home, baseURL: region.baseURL, httpClient: httpClient) {
+            [self] freshness in
             if freshness == .refreshRequired {
                 await invalidateStreamingToken(.home)
             }
@@ -125,14 +126,15 @@ public actor XboxAccount {
         save()
     }
 
-    public func cloudClient(http: HTTPClient) async throws -> GSSVClient {
+    public func cloudClient(httpClient: HTTPClient) async throws -> GSSVClient {
         let token = try await cloudStreamingToken()
         guard let region = token.defaultRegion else {
             throw XboxAccountError.cloudGamingUnavailable
         }
 
         let offering = token.offering
-        return .init(kind: .cloud, baseURL: region.baseURL, httpClient: http) { [self] freshness in
+        return .init(kind: .cloud, baseURL: region.baseURL, httpClient: httpClient) {
+            [self] freshness in
             if freshness == .refreshRequired {
                 await invalidateStreamingToken(offering)
             }

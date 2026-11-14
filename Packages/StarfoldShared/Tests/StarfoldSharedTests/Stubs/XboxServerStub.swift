@@ -18,7 +18,7 @@ final class XboxServerStub: Sendable {
 
     private let state = Mutex(State())
 
-    var client: HTTPClient {
+    var httpClient: HTTPClient {
         HTTPClient { [self] request in
             try await respond(to: request)
         }
@@ -73,7 +73,7 @@ extension XboxServerStub {
         let store = AccountStore(
             microsoftClientID: .dummyClientID,
             secretStore: InMemorySecretStore(),
-            httpClient: client
+            httpClient: httpClient
         )
         return try await store.completeSignIn(try await store.beginSignIn())
     }

@@ -17,7 +17,7 @@ extension StreamDependencies {
     ) -> StreamDependencies {
         .init(
             preferences: preferences,
-            controllerHub: ControllerHub(routing: .direct),
+            controllerHub: ControllerHub(controllerRouting: .direct),
             streamPlatform: .init(
                 controllerRouting: .direct,
                 pictureCapabilities: .init(

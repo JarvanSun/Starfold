@@ -15,7 +15,7 @@ import os
 @Observable
 public final class ControllerHub {
     public let gamepadRouter: GamepadRouter
-    public let xboxButton: XboxButtonSettings
+    public let xboxButtonSettings: XboxButtonSettings
 
     public var isDeviceRumbleEnabled = false
 
@@ -34,15 +34,15 @@ public final class ControllerHub {
     private var deviceRumble: RumblePlayer?
     private var observers: [NSObjectProtocol] = []
 
-    public init(routing: ControllerRouting, touchControllerCategory: String? = nil) {
-        let gamepadRouter = GamepadRouter(controllerRouting: routing)
+    public init(controllerRouting: ControllerRouting, touchControllerCategory: String? = nil) {
+        let gamepadRouter = GamepadRouter(controllerRouting: controllerRouting)
         let inputQueue = DispatchQueue(label: "StreamKit.controllers", qos: .userInteractive)
         self.gamepadRouter = gamepadRouter
-        xboxButton = XboxButtonSettings()
+        xboxButtonSettings = XboxButtonSettings()
         self.inputQueue = inputQueue
         self.touchControllerCategory = touchControllerCategory
 
-        switch routing {
+        switch controllerRouting {
         case .direct:
             inputDestination = .router(gamepadRouter)
             isRoutingToGame = true
@@ -101,7 +101,7 @@ public final class ControllerHub {
             attach(controller)
         }
 
-        xboxButton.setControllerConnected(!controllerSlots.isEmpty)
+        xboxButtonSettings.setControllerConnected(!controllerSlots.isEmpty)
     }
 
     private func detach(_ id: ObjectIdentifier) {

@@ -119,7 +119,7 @@ private extension GSSVClientTouchBundlesTests {
         .init(
             kind: .home,
             baseURL: URL(string: XboxEndpoint.homeRegion.rawValue)!,
-            httpClient: server.client
+            httpClient: server.httpClient
         ) { _ in "gs" }
     }
 }

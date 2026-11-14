@@ -11,11 +11,11 @@ import SwiftUI
 struct MainWindowView: View {
     @Environment(AppViewModel.self) private var appViewModel
     @Environment(\.dimensions) private var dimensions
-    @State private var path: [HomeRoute] = []
+    @State private var homePath: [HomeRoute] = []
     @State private var isShowingSignIn = false
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $homePath) {
             sessionContent
                 .navigationDestination(for: HomeRoute.self) { destination(for: $0) }
                 .background { SkyBackground() }
@@ -24,7 +24,7 @@ struct MainWindowView: View {
         .preferredColorScheme(.dark)
         .hiddenTitleWindowChrome()
         .sheet(isPresented: $isShowingSignIn) { SignInHostView { SignInView(signInViewModel: $0) } }
-        .onChange(of: appViewModel.activeAccountID) { path.removeAll() }
+        .onChange(of: appViewModel.activeAccountID) { homePath.removeAll() }
         .alert(
             String(localized: "mainWindow.signInExpired.title"),
             isPresented: Bindable(appViewModel).isSignInExpired
@@ -55,7 +55,7 @@ struct MainWindowView: View {
     @ViewBuilder
     private func page(for route: HomeRoute, in library: LibraryViewModel) -> some View {
         switch route {
-        case .cloudLibrary: LibraryView(libraryViewModel: library) { path.append(.game($0)) }
+        case .cloudLibrary: LibraryView(libraryViewModel: library) { homePath.append(.game($0)) }
         case .game(let game): GameDetailView(gameDetailViewModel: library.detail(for: game))
         }
     }
@@ -86,7 +86,9 @@ struct MainWindowView: View {
     private var signedInHome: some View {
         switch (appViewModel.homeViewModel, appViewModel.libraryViewModel) {
         case (let home?, let library?):
-            HomeView(homeViewModel: home, libraryViewModel: library) { path.append(.cloudLibrary) }
+            HomeView(homeViewModel: home, libraryViewModel: library) {
+                homePath.append(.cloudLibrary)
+            }
         default: EmptyView()
         }
     }

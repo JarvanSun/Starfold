@@ -8,21 +8,21 @@
 import Foundation
 
 struct TouchBundleFiles: Sendable {
-    private let zip: ZipArchive
+    private let zipArchive: ZipArchive
     private let entryNamesByKey: [String: String]
     private let paths: [BundlePath]
     private let manifestPath = "takxmanifest.json"
 
     init(archive: Data) throws(TouchBundleError) {
         do throws(ZipArchiveError) {
-            zip = try ZipArchive(archive)
+            zipArchive = try ZipArchive(archive)
         } catch {
             throw .invalidArchive(error)
         }
 
-        paths = zip.entryNames.map(BundlePath.init)
+        paths = zipArchive.entryNames.map(BundlePath.init)
         entryNamesByKey = Dictionary(
-            zip.entryNames.map { (BundlePath($0).key, $0) },
+            zipArchive.entryNames.map { (BundlePath($0).key, $0) },
             uniquingKeysWith: { first, _ in first }
         )
     }
@@ -56,7 +56,7 @@ struct TouchBundleFiles: Sendable {
     }
 
     func contents(at path: String) -> Data? {
-        entryNamesByKey[BundlePath(path).key].flatMap { try? zip.contents(of: $0) }
+        entryNamesByKey[BundlePath(path).key].flatMap { try? zipArchive.contents(of: $0) }
     }
 
     func relativePaths(under folder: String) -> [[String]] {

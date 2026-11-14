@@ -10,7 +10,7 @@ import SwiftUI
 import XboxKit
 
 struct HomeHostView: View {
-    @State private var path: [HomeRoute] = []
+    @State private var homePath: [HomeRoute] = []
 
     let homeViewModel: HomeViewModel
     @Bindable var libraryViewModel: LibraryViewModel
@@ -18,9 +18,9 @@ struct HomeHostView: View {
     let onAddAccount: () -> Void
 
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack(path: $homePath) {
             HomeView(homeViewModel: homeViewModel, libraryViewModel: libraryViewModel) {
-                path.append(.cloudGaming)
+                homePath.append(.cloudGaming)
             }
             .background { SkyBackground() }
             .navigationTitle(Text("app.tab.home"))
@@ -75,7 +75,7 @@ struct HomeHostView: View {
     }
 
     private func openGame(_ game: CloudGame) {
-        path.append(.game(game))
+        homePath.append(.game(game))
     }
 }
 

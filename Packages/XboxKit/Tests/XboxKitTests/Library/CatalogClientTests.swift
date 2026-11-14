@@ -105,6 +105,6 @@ struct CatalogClientTests {
 
 private extension CatalogClientTests {
     func makeClient(server: XboxServerStub, market: String = "US") -> CatalogClient {
-        .init(httpClient: server.client, market: market, language: "en-US")
+        .init(httpClient: server.httpClient, market: market, language: "en-US")
     }
 }

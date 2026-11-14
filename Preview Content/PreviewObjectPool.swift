@@ -48,7 +48,7 @@ enum PreviewObjectPool {
         .failed("The network connection was lost.")
     }
 
-    fileprivate static var picture: PictureCapabilities {
+    fileprivate static var pictureCapabilities: PictureCapabilities {
         .init(
             canFit: true,
             canEnhance: true,
@@ -76,13 +76,13 @@ extension PreviewObjectPool {
     }
 
     static var controllers: ControllerHub {
-        .init(routing: .direct)
+        .init(controllerRouting: .direct)
     }
 
     static var streamPlatform: StreamPlatform {
         .init(
             controllerRouting: .direct,
-            pictureCapabilities: picture,
+            pictureCapabilities: pictureCapabilities,
             overlays: streamOverlays,
             touchPlatform: nil
         )

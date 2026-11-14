@@ -123,7 +123,7 @@ public final class StreamViewModel {
     }
 
     public var isXboxButtonTakenBySystem: Bool {
-        controllerHub.xboxButton.owner == .system
+        controllerHub.xboxButtonSettings.owner == .system
     }
 
     public var isShowingStatistics: Bool {
@@ -210,11 +210,11 @@ public final class StreamViewModel {
 
         guard let renderer else { return }
 
-        renderer.systemVideo.setPacing(settings.pacing)
-        renderer.systemVideo.layer.videoGravity = settings.videoGravity
+        renderer.systemVideoPresenter.setPacing(settings.pacing)
+        renderer.systemVideoPresenter.layer.videoGravity = settings.videoGravity
 
         if let dynamicRange = settings.dynamicRange {
-            renderer.systemVideo.layer.preferredDynamicRange = dynamicRange
+            renderer.systemVideoPresenter.layer.preferredDynamicRange = dynamicRange
         }
 
         if let enhancements = settings.enhancements {
@@ -316,7 +316,7 @@ public final class StreamViewModel {
 
     private func receive(_ update: StreamUpdate) {
         switch update {
-        case .phase(let phase): enter(phase)
+        case .phase(let phase): move(to: phase)
         case .statistics(let statistics): record(statistics)
         case .dialog(let request): systemDialogsViewModel.add(request)
         case .dialogDismissed(let id): systemDialogsViewModel.remove(id: id)
@@ -327,7 +327,7 @@ public final class StreamViewModel {
         }
     }
 
-    private func enter(_ phase: StreamPhase) {
+    private func move(to phase: StreamPhase) {
         self.phase = phase
 
         switch phase {
@@ -365,7 +365,7 @@ public final class StreamViewModel {
 
         guard statisticsTicks.isMultiple(of: pacingLogInterval), let renderer else { return }
 
-        let pacing = renderer.systemVideo.takeCounters()
+        let pacing = renderer.systemVideoPresenter.takeCounters()
         log.info(
             "Pacing 5s: \(String(describing: self.preferences.pacingMode), privacy: .public) \(Int(pacing.pacingDelayMs.rounded())) ms, late \(pacing.lateFrames) frames"
         )
@@ -536,7 +536,7 @@ public final class StreamViewModel {
     }
 
     public func openXboxButtonSettings() {
-        controllerHub.xboxButton.openSettings()
+        controllerHub.xboxButtonSettings.openSettings()
     }
 
     public func requestKeyframe() {

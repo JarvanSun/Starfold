@@ -28,7 +28,7 @@ struct LiveCloudLibraryService: CloudLibraryService {
     }
 
     private func loadLibrary(started: ContinuousClock.Instant) async throws -> CloudLibrary {
-        let client = try await xboxAccount.cloudClient(http: httpClient)
+        let client = try await xboxAccount.cloudClient(httpClient: httpClient)
         log.info("Cloud signed in +\(self.elapsed(since: started), privacy: .public)")
 
         async let titlesFetch = client.titles()

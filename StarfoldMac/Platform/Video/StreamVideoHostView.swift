@@ -21,7 +21,7 @@ final class StreamVideoHostView: NSView {
         wantsLayer = true
         layer?.backgroundColor = NSColor.black.cgColor
 
-        layer?.addSublayer(renderer.systemVideo.layer)
+        layer?.addSublayer(renderer.systemVideoPresenter.layer)
 
         layerContentsRedrawPolicy = .never
     }
@@ -58,7 +58,7 @@ final class StreamVideoHostView: NSView {
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        renderer.systemVideo.layer.frame = bounds
+        renderer.systemVideoPresenter.layer.frame = bounds
         CATransaction.commit()
 
         updateDrawableSize()
@@ -77,7 +77,7 @@ final class StreamVideoHostView: NSView {
     }
 
     func reattachVideo() {
-        layer?.addSublayer(renderer.systemVideo.layer)
+        layer?.addSublayer(renderer.systemVideoPresenter.layer)
 
         needsLayout = true
         layoutSubtreeIfNeeded()

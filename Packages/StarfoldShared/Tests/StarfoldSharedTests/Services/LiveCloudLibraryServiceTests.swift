@@ -99,6 +99,8 @@ private extension LiveCloudLibraryServiceTests {
     ) async throws -> (XboxServerStub, LiveCloudLibraryService) {
         let server = XboxServerStub()
         let account = try await server.signedInAccount(cloud: cloud)
-        return (server, LiveCloudLibraryService(xboxAccount: account, httpClient: server.client))
+        return (
+            server, LiveCloudLibraryService(xboxAccount: account, httpClient: server.httpClient)
+        )
     }
 }

@@ -142,6 +142,6 @@ struct XboxLiveClientTests {
 
 private extension XboxLiveClientTests {
     func makeClient(server: XboxServerStub) -> XboxLiveClient {
-        .init(httpClient: server.client) { "XBL3.0 x=1;t" }
+        .init(httpClient: server.httpClient) { "XBL3.0 x=1;t" }
     }
 }

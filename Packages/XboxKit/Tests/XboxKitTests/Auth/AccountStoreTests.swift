@@ -60,7 +60,7 @@ private extension AccountStoreTests {
         .init(
             microsoftClientID: .dummyClientID,
             secretStore: InMemorySecretStore(),
-            httpClient: server.client
+            httpClient: server.httpClient
         )
     }
 }

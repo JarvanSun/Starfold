@@ -27,16 +27,16 @@ extension PreviewObjectPool {
         state: LoadState = .loaded,
         consoles: [Console] = PreviewObjectPool.consoles
     ) -> HomeViewModel {
-        let home = HomeViewModel(
+        let homeViewModel = HomeViewModel(
             accountID: profile.xuid,
             consoleService: consoleService(state: state, consoles: consoles),
             libraryCache: libraryCache,
             clock: ContinuousClock()
         )
 
-        Task { await home.refresh() }
+        Task { await homeViewModel.refresh() }
 
-        return home
+        return homeViewModel
     }
 
     static func consoleService(state: LoadState, consoles: [Console]) -> PreviewConsoleService {

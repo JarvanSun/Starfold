@@ -13,29 +13,29 @@ struct ActiveInputSwitchTests {
     @Test
     func recordWhenControllerPressesRepeatedlyThenFlipsOnce() {
         // Given
-        var activeInput = ActiveInputSwitch()
+        var activeInputSwitch = ActiveInputSwitch()
         let press = GamepadState(buttons: [.a])
 
         // When
-        let flips = (0..<5).compactMap { _ in activeInput.record(press, from: .controller) }
+        let flips = (0..<5).compactMap { _ in activeInputSwitch.record(press, from: .controller) }
 
         // Then
         #expect(flips == [.controller])
-        #expect(activeInput.currentInput == .controller)
+        #expect(activeInputSwitch.currentInput == .controller)
     }
 
     @Test
     func recordWhenTouchFollowsControllerThenFlipsBack() {
         // Given
-        var activeInput = ActiveInputSwitch()
-        activeInput.record(GamepadState(rightTrigger: 1), from: .controller)
+        var activeInputSwitch = ActiveInputSwitch()
+        activeInputSwitch.record(GamepadState(rightTrigger: 1), from: .controller)
 
         // When
-        let flip = activeInput.record(GamepadState(buttons: [.b]), from: .touch)
+        let flip = activeInputSwitch.record(GamepadState(buttons: [.b]), from: .touch)
 
         // Then
         #expect(flip == .touch)
-        #expect(activeInput.currentInput == .touch)
+        #expect(activeInputSwitch.currentInput == .touch)
     }
 
     @Test(arguments: [
@@ -46,23 +46,23 @@ struct ActiveInputSwitchTests {
     ])
     func recordWhenControllerOnlyDriftsThenKeepsTouch(state: GamepadState) {
         // Given
-        var activeInput = ActiveInputSwitch()
+        var activeInputSwitch = ActiveInputSwitch()
 
         // When
-        let flip = activeInput.record(state, from: .controller)
+        let flip = activeInputSwitch.record(state, from: .controller)
 
         // Then
         #expect(flip == nil)
-        #expect(activeInput.currentInput == .touch)
+        #expect(activeInputSwitch.currentInput == .touch)
     }
 
     @Test
     func useWhenAlreadyCurrentThenReportsNoFlip() {
         // Given
-        var activeInput = ActiveInputSwitch()
+        var activeInputSwitch = ActiveInputSwitch()
 
         // When / Then
-        #expect(activeInput.use(.touch) == nil)
-        #expect(activeInput.use(.controller) == .controller)
+        #expect(activeInputSwitch.use(.touch) == nil)
+        #expect(activeInputSwitch.use(.controller) == .controller)
     }
 }

@@ -19,7 +19,7 @@ final class VideoSurface: UIView {
 
         backgroundColor = .black
 
-        layer.addSublayer(renderer.systemVideo.layer)
+        layer.addSublayer(renderer.systemVideoPresenter.layer)
     }
 
     @available(*, unavailable)
@@ -32,7 +32,7 @@ final class VideoSurface: UIView {
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        renderer.systemVideo.layer.frame = bounds
+        renderer.systemVideoPresenter.layer.frame = bounds
         CATransaction.commit()
     }
 }

@@ -158,7 +158,7 @@ private extension GSSVClientTests {
         .init(
             kind: kind,
             baseURL: URL(string: region.rawValue)!,
-            httpClient: server.client,
+            httpClient: server.httpClient,
             token: token
         )
     }
