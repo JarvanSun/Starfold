@@ -13,7 +13,10 @@ struct AppearanceSettingsSection: View {
 
     var body: some View {
         Section {
-            PalettePicker(selection: $settingsViewModel.palette)
+            PalettePicker(
+                selection: $settingsViewModel.palette,
+                palettes: settingsViewModel.palettes
+            )
 
             Toggle(
                 String(localized: "settings.streaming.menuBarIcon \(AppInfo().displayName)"),

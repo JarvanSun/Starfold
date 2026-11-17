@@ -13,17 +13,17 @@ struct QualitySettingsSection: View {
 
     var body: some View {
         Section {
-            Picker("settings.quality.console.title", selection: $settingsViewModel.consoleQuality) {
-                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
-                    Text(choice.consoleTitle).tag(choice)
-                }
-            }
+            ChoiceLink(
+                "settings.quality.console.title",
+                selection: $settingsViewModel.consoleQuality,
+                choices: settingsViewModel.qualityChoices
+            ) { Text($0.consoleTitle) }
 
-            Picker("settings.quality.cloud.title", selection: $settingsViewModel.cloudQuality) {
-                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
-                    Text(choice.cloudTitle).tag(choice)
-                }
-            }
+            ChoiceLink(
+                "settings.quality.cloud.title",
+                selection: $settingsViewModel.cloudQuality,
+                choices: settingsViewModel.qualityChoices
+            ) { Text($0.cloudTitle) }
         } header: {
             Text("settings.quality.header")
         } footer: {

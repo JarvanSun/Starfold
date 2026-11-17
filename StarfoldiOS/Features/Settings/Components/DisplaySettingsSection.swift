@@ -21,7 +21,10 @@ struct DisplaySettingsSection: View {
 
             Toggle("settings.picture.statistics", isOn: $settingsViewModel.shouldShowStatistics)
 
-            PalettePicker(selection: $settingsViewModel.palette)
+            PalettePicker(
+                selection: $settingsViewModel.palette,
+                palettes: settingsViewModel.palettes
+            )
         }
     }
 }

@@ -13,11 +13,11 @@ struct CloudGamingSettingsSection: View {
 
     var body: some View {
         Section {
-            Picker("settings.cloud.language.title", selection: $settingsViewModel.gameLanguage) {
-                ForEach(settingsViewModel.gameLanguages, id: \.self) { code in
-                    Text(verbatim: settingsViewModel.name(ofGameLanguage: code)).tag(code)
-                }
-            }
+            ChoiceLink(
+                "settings.cloud.language.title",
+                selection: $settingsViewModel.gameLanguage,
+                choices: settingsViewModel.gameLanguages
+            ) { Text(verbatim: settingsViewModel.name(ofGameLanguage: $0)) }
         } header: {
             Text("settings.cloud.header")
         } footer: {

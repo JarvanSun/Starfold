@@ -13,11 +13,11 @@ struct PictureSettingsSection: View {
 
     var body: some View {
         Section {
-            Picker("settings.picture.buffer.title", selection: $settingsViewModel.pacingMode) {
-                ForEach(settingsViewModel.pacingModes, id: \.self) { mode in
-                    Text(mode.title).tag(mode)
-                }
-            }
+            ChoiceLink(
+                "settings.picture.buffer.title",
+                selection: $settingsViewModel.pacingMode,
+                choices: settingsViewModel.pacingModes
+            ) { Text($0.title) }
 
             Toggle("settings.picture.statistics", isOn: $settingsViewModel.shouldShowStatistics)
         } header: {

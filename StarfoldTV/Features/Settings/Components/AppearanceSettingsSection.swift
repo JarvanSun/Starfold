@@ -13,7 +13,11 @@ struct AppearanceSettingsSection: View {
 
     var body: some View {
         Section {
-            PalettePicker(selection: $settingsViewModel.palette)
+            ChoiceLink(
+                "settings.appearance.palette",
+                selection: $settingsViewModel.palette,
+                choices: settingsViewModel.palettes
+            ) { PaletteLabel($0) }
         } header: {
             Text("settings.appearance.header")
         }

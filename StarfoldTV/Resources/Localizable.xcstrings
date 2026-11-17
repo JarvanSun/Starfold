@@ -511,6 +511,23 @@
         }
       }
     },
+    "settings.appearance.palette" : {
+      "comment" : "Settings: row that opens the list of colour palettes",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配色"
+          }
+        }
+      }
+    },
     "settings.cloud.footer" : {
       "comment" : "Settings: footnote under the game language picker",
       "localizations" : {

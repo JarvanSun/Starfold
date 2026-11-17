@@ -308,6 +308,9 @@ In `StarfoldTV/`, TopShelfKit and `StarfoldTopShelf/`.
 - **RootView**: A Top Shelf link arriving while the account restores waits in `pendingLink`.
 - **LibraryHostView**: RootView owns the library's navigation path, so a Top Shelf link can open a
   game.
+- **ChoiceLink**: Settings choices push their own option list, because on tvOS 27 a `Picker` that
+  pushes its options (the default in a `Form`) opens an empty page and loses Settings; a menu
+  picker hides the row's title.
 - **StreamPresenter**: An earlier presentation's work never acts on a later one. Ending waits for
   a cancelled start, so an old token request cannot open a session after returning to the
   library; any explicit end bumps `restartRequest`, dropping a restart that waits for cleanup;
