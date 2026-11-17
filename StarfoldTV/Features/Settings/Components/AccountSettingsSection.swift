@@ -17,23 +17,15 @@ struct AccountSettingsSection: View {
 
     var body: some View {
         Section("settings.account.header") {
-            ForEach(accounts) { accountButton($0) }
+            ForEach(accounts) { account in
+                CheckmarkButton(isChecked: account.isActive, onSelect: { onSwitch(account) }) {
+                    Text(verbatim: account.gamertag)
+                }
+            }
 
             Button("settings.account.add") { onAdd() }
 
             Button("settings.account.signOut", role: .destructive) { onSignOut() }
-        }
-    }
-
-    private func accountButton(_ account: AccountChoice) -> some View {
-        Button {
-            onSwitch(account)
-        } label: {
-            HStack {
-                Text(verbatim: account.gamertag)
-
-                Image(systemName: "checkmark").opacity(account.isActive ? 1 : 0)
-            }
         }
     }
 }

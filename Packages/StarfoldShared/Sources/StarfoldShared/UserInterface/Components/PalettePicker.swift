@@ -8,34 +8,21 @@
 import SwiftUI
 
 public struct PalettePicker: View {
-    @Environment(\.dimensions) private var dimensions
     @Binding private var selection: PaletteID
 
-    public init(selection: Binding<PaletteID>) {
+    private let palettes: [PaletteID]
+
+    public init(selection: Binding<PaletteID>, palettes: [PaletteID]) {
         _selection = selection
+        self.palettes = palettes
     }
 
     public var body: some View {
         Picker(selection: $selection) {
-            ForEach(palettes) { option(for: $0) }
+            ForEach(palettes, id: \.self) { PaletteLabel($0).tag($0) }
         } label: {
             Text("palette.picker.title", bundle: .module)
         }
-    }
-
-    private func option(for palette: Palette) -> some View {
-        Label {
-            Text(palette.name)
-        } icon: {
-            Circle()
-                .fill(palette.primaryFill)
-                .frame(width: dimensions.paletteSwatchSize, height: dimensions.paletteSwatchSize)
-        }
-        .tag(palette.id)
-    }
-
-    private var palettes: [Palette] {
-        PaletteID.allCases.map(Palette.init)
     }
 }
 
@@ -43,7 +30,7 @@ public struct PalettePicker: View {
 #Preview {
     @Previewable @State var selection = PaletteID.nebula
 
-    PalettePicker(selection: $selection)
+    PalettePicker(selection: $selection, palettes: PaletteID.allCases)
         .padding()
 }
 #endif

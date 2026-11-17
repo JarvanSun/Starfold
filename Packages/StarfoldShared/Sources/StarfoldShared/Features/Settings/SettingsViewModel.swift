@@ -146,6 +146,10 @@ public final class SettingsViewModel {
         PacingMode.allCases
     }
 
+    public var palettes: [PaletteID] {
+        PaletteID.allCases
+    }
+
     public var soundStages: [SoundStage] {
         SoundStage.allCases
     }
