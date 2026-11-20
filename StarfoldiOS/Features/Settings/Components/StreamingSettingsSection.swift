@@ -14,13 +14,13 @@ struct StreamingSettingsSection: View {
     var body: some View {
         Section("settings.streaming.header") {
             Picker("settings.quality.console.title", selection: $settingsViewModel.consoleQuality) {
-                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
+                ForEach(settingsViewModel.consoleQualityChoices, id: \.self) { choice in
                     Text(choice.consoleTitle).tag(choice)
                 }
             }
 
             Picker("settings.quality.cloud.title", selection: $settingsViewModel.cloudQuality) {
-                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
+                ForEach(settingsViewModel.cloudQualityChoices, id: \.self) { choice in
                     Text(choice.cloudTitle).tag(choice)
                 }
             }

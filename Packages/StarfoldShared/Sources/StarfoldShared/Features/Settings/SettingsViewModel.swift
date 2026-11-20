@@ -33,11 +33,6 @@ public final class SettingsViewModel {
         set { preferences.cloudQuality = newValue }
     }
 
-    public var requestsConsole1440p: Bool {
-        get { preferences.requestsConsole1440p }
-        set { preferences.requestsConsole1440p = newValue }
-    }
-
     public var cellularQuality: QualityChoice {
         get { preferences.cellularQuality }
         set { preferences.cellularQuality = newValue }
@@ -113,7 +108,11 @@ public final class SettingsViewModel {
         set { preferences.shouldShowInMenuBar = newValue }
     }
 
-    public var qualityChoices: [QualityChoice] {
+    public var consoleQualityChoices: [QualityChoice] {
+        [.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest), .fixed(.quadHD)]
+    }
+
+    public var cloudQualityChoices: [QualityChoice] {
         [.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest)]
     }
 

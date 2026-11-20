@@ -12,7 +12,7 @@ extension StreamQuality {
         switch self {
         case .standard: "720p"
         case .high: "1080p"
-        case .highest: "1440p"
+        case .highest, .quadHD: "1440p"
         }
     }
 }

@@ -250,8 +250,7 @@ public final class StreamViewModel {
             maxBitrateKbps: settings.maxBitrateKbps,
             gameLocale: preferences.effectiveGameLanguage,
             clientAppInstallID: preferences.clientAppInstallID,
-            touchCapabilities: streamDependencies.touchPlatform?.capabilities,
-            requestsConsole1440p: settings.requestsConsole1440p && quality == .highest
+            touchCapabilities: streamDependencies.touchPlatform?.capabilities
         )
 
         startedAt = .now
@@ -373,12 +372,8 @@ public final class StreamViewModel {
     private func noteResolution(_ received: CGSize?) {
         guard let received, let quality else { return }
 
-        if startedSettings?.requestsConsole1440p == true, quality == .highest {
-            isResolutionLowered = received.height < 1440
-        } else {
-            isResolutionLowered = AdaptiveQuality(target: target)
-                .isLoweredByHost(received: received, requested: quality)
-        }
+        isResolutionLowered = AdaptiveQuality(target: target)
+            .isLoweredByHost(received: received, requested: quality)
     }
 
     private func play(_ effect: VibrationEffect) {

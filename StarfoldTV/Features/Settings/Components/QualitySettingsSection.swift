@@ -16,19 +16,13 @@ struct QualitySettingsSection: View {
             ChoiceLink(
                 "settings.quality.console.title",
                 selection: $settingsViewModel.consoleQuality,
-                choices: settingsViewModel.qualityChoices
+                choices: settingsViewModel.consoleQualityChoices
             ) { Text($0.consoleTitle) }
-            .disabled(settingsViewModel.requestsConsole1440p)
-
-            Toggle(
-                "settings.quality.console.request1440p",
-                isOn: $settingsViewModel.requestsConsole1440p
-            )
 
             ChoiceLink(
                 "settings.quality.cloud.title",
                 selection: $settingsViewModel.cloudQuality,
-                choices: settingsViewModel.qualityChoices
+                choices: settingsViewModel.cloudQualityChoices
             ) { Text($0.cloudTitle) }
 
             ChoiceLink(

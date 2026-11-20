@@ -10,7 +10,14 @@ import Testing
 @testable import XboxKit
 
 struct StreamQualityTests {
-    @Test(arguments: [(StreamQuality.standard, "android"), (.high, "windows"), (.highest, "tizen")])
+    @Test(
+        arguments: [
+            (StreamQuality.standard, "android"),
+            (.high, "windows"),
+            (.highest, "tizen"),
+            (.quadHD, "tizen"),
+        ]
+    )
     func operatingSystemNameThenPicksTierTheServiceOffers(quality: StreamQuality, expected: String)
     {
         #expect(quality.operatingSystemName == expected)

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import XboxKit
 
 struct HostChannels {
     private let options: StreamOptions
@@ -14,8 +15,6 @@ struct HostChannels {
     private var hasStartedHandshake = false
     private var isControlOpen = false
 
-    private let qhdSize = (width: 2560, height: 1440)
-
     init(options: StreamOptions, messageChannel: MessageChannel = .init()) {
         self.options = options
         self.messageChannel = messageChannel
@@ -23,20 +22,41 @@ struct HostChannels {
 
     mutating func opened(_ label: DataChannelLabel) -> [HostChannelAction] {
         switch label {
-        case .message:
-            return [.send(messageChannel.handshake(), on: .message)]
-        case .control:
-            let request = options.requestsConsole1440p && hasStartedHandshake && !isControlOpen
-            isControlOpen = true
-            let keyframe: HostChannelAction = .send(
-                ControlMessage.keyframeRequest.json,
-                on: .control
-            )
-            return request
-                ? authorizationActions() + [keyframe] + firstGamepadActions() : [keyframe]
-        case .input, .chat:
-            return []
+        case .message: [.send(messageChannel.handshake(), on: .message)]
+        case .control: openControl()
+        case .input, .chat: []
         }
+    }
+
+    private mutating func openControl() -> [HostChannelAction] {
+        let keyframe: HostChannelAction = .send(ControlMessage.keyframeRequest.json, on: .control)
+        let isLateForHandshake = hasStartedHandshake && !isControlOpen
+
+        isControlOpen = true
+
+        return isLateForHandshake ? [keyframe] + authorization() + firstGamepad() : [keyframe]
+    }
+
+    private func authorization() -> [HostChannelAction] {
+        let size = options.quality.nominalSize
+        let resolutionRequest: [ControlMessage] =
+            switch options.quality {
+            case .quadHD:
+                [
+                    .videoPreference(width: size.width, height: size.height),
+                    .requestedResolution(height: size.height),
+                ]
+            case .standard, .high, .highest: []
+            }
+
+        return ([.authorizationRequest] + resolutionRequest).map { .send($0.json, on: .control) }
+    }
+
+    private func firstGamepad() -> [HostChannelAction] {
+        [
+            .send(ControlMessage.gamepadChanged(index: 0, isAdded: false).json, on: .control),
+            .announceGamepad,
+        ]
     }
 
     @discardableResult
@@ -75,7 +95,7 @@ struct HostChannels {
 
         hasStartedHandshake = true
 
-        let size = options.requestsConsole1440p ? qhdSize : options.quality.nominalSize
+        let size = options.quality.nominalSize
         let configuration = messageChannel.initialConfiguration(
             videoWidth: size.width,
             videoHeight: size.height,
@@ -86,32 +106,11 @@ struct HostChannels {
             maxTouchPoints: options.touchCapabilities?.maxTouchPoints ?? 0
         )
 
-        let canInitializeControl = !options.requestsConsole1440p || isControlOpen
-        let authorization = canInitializeControl ? authorizationActions() : []
-        let inputMetadata: [HostChannelAction] = [
-            .send(metadata.encoded(timestamp: timestamp), on: .input)
-        ]
-        let firstGamepad = canInitializeControl ? firstGamepadActions() : []
+        let clientSetup: [HostChannelAction] =
+            [.send(metadata.encoded(timestamp: timestamp), on: .input)]
+            + configuration.map { .send($0, on: .message) }
 
-        return authorization + inputMetadata + configuration.map { .send($0, on: .message) }
-            + firstGamepad
-    }
-
-    private func authorizationActions() -> [HostChannelAction] {
-        var messages: [ControlMessage] = [.authorizationRequest]
-        if options.requestsConsole1440p {
-            // The Remote Play control messages are also documented in Greenlight PR #1752.
-            messages.append(.videoPreference(width: qhdSize.width, height: qhdSize.height))
-            messages.append(.requestedResolution(height: qhdSize.height))
-        }
-        return messages.map { .send($0.json, on: .control) }
-    }
-
-    private func firstGamepadActions() -> [HostChannelAction] {
-        [
-            .send(ControlMessage.gamepadChanged(index: 0, isAdded: false).json, on: .control),
-            .announceGamepad,
-        ]
+        return isControlOpen ? authorization() + clientSetup + firstGamepad() : clientSetup
     }
 
     private func action(for event: ServerInputEvent) -> HostChannelAction {

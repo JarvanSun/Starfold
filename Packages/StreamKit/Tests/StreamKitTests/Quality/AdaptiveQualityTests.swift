@@ -19,6 +19,8 @@ struct AdaptiveQualityTests {
             (.dummyConsole, CGSize(width: 1280, height: 720), .standard, false),
             (.dummyConsole, CGSize(width: 1920, height: 1080), .highest, false),
             (.dummyCloudGame, CGSize(width: 1920, height: 1080), .highest, true),
+            (.dummyConsole, CGSize(width: 1920, height: 1080), .quadHD, true),
+            (.dummyConsole, CGSize(width: 2560, height: 1440), .quadHD, false),
         ]
     )
     func isLoweredByHostThenComparesWithTheTiersFullHeight(
@@ -39,6 +41,9 @@ struct AdaptiveQualityTests {
             (StreamTarget.dummyCloudGame, QualityChoice.fixed(.highest), false, StreamQuality.high),
             (.dummyCloudGame, .fixed(.highest), true, .highest),
             (.dummyConsole, .fixed(.highest), false, .highest),
+            (.dummyConsole, .fixed(.quadHD), false, .quadHD),
+            (.dummyCloudGame, .fixed(.quadHD), true, .highest),
+            (.dummyCloudGame, .fixed(.quadHD), false, .high),
             (.dummyCloudGame, .automatic, false, .high),
         ]
     )

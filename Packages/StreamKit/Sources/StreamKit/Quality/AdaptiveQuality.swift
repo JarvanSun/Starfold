@@ -19,7 +19,8 @@ public struct AdaptiveQuality: Sendable {
         let requested = choice.requestedQuality
 
         return switch (target, requested, hasGamePass) {
-        case (.cloud, .highest, false): .high
+        case (.cloud, .highest, false), (.cloud, .quadHD, false): .high
+        case (.cloud, .quadHD, true): .highest
         default: requested
         }
     }
@@ -32,7 +33,7 @@ public struct AdaptiveQuality: Sendable {
         switch (quality, target) {
         case (.standard, _): 720
         case (.high, _), (.highest, .console): 1080
-        case (.highest, .cloud): 1440
+        case (.highest, .cloud), (.quadHD, _): 1440
         }
     }
 }

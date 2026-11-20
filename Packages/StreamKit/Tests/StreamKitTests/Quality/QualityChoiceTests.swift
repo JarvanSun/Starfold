@@ -25,7 +25,12 @@ struct QualityChoiceTests {
         #expect(choice.requestedQuality == expected)
     }
 
-    @Test(arguments: [QualityChoice.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest)])
+    @Test(
+        arguments: [
+            QualityChoice.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest),
+            .fixed(.quadHD),
+        ]
+    )
     func storageValueThenRoundTrips(choice: QualityChoice) {
         #expect(QualityChoice(storageValue: choice.storageValue) == choice)
     }

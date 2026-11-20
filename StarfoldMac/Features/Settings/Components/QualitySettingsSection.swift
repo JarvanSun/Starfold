@@ -30,7 +30,7 @@ struct QualitySettingsSection: View {
             String(localized: "settings.streaming.consoleQuality.title"),
             selection: $settingsViewModel.consoleQuality
         ) {
-            ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
+            ForEach(settingsViewModel.consoleQualityChoices, id: \.self) { choice in
                 Text(choice.consoleTitle).tag(choice)
             }
         }
@@ -41,7 +41,7 @@ struct QualitySettingsSection: View {
             String(localized: "settings.streaming.cloudQuality.title"),
             selection: $settingsViewModel.cloudQuality
         ) {
-            ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
+            ForEach(settingsViewModel.cloudQualityChoices, id: \.self) { choice in
                 Text(choice.cloudTitle).tag(choice)
             }
         }

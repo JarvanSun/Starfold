@@ -769,6 +769,24 @@
         }
       }
     },
+    "settings.quality.console.quadHD" : {
+      "comment" : "Settings: 1440p option of the console stream quality picker; the Xbox may send less",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1440p"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1440p"
+          }
+        }
+      }
+    },
     "settings.quality.high" : {
       "comment" : "Settings: 1080p option of both stream quality pickers",
       "extractionState" : "manual",

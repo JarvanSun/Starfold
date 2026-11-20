@@ -29,12 +29,28 @@ struct SettingsViewModelTests {
     }
 
     @Test
-    func qualityChoicesThenOfferAutomaticFirstAndEveryFixedQuality() {
+    func consoleQualityChoicesThenOfferAutomaticFirstAndUpToFourteenForty() {
         // Given
         let settingsViewModel = makeSettings()
 
         // When
-        let choices = settingsViewModel.qualityChoices
+        let choices = settingsViewModel.consoleQualityChoices
+
+        // Then
+        #expect(
+            choices == [
+                .automatic, .fixed(.standard), .fixed(.high), .fixed(.highest), .fixed(.quadHD),
+            ]
+        )
+    }
+
+    @Test
+    func cloudQualityChoicesThenOfferAutomaticFirstAndEveryCloudTier() {
+        // Given
+        let settingsViewModel = makeSettings()
+
+        // When
+        let choices = settingsViewModel.cloudQualityChoices
 
         // Then
         #expect(choices == [.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest)])
