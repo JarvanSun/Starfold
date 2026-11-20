@@ -17,7 +17,7 @@ public final class LiveNetworkPath: NetworkPathReading {
 
     public init() {
         monitor.pathUpdateHandler = { [weak self] path in
-            let isOnCellular = path.usesInterfaceType(.cellular)
+            let isOnCellular = path.availableInterfaces.first?.type == .cellular
             let hasCellular = path.availableInterfaces.contains { $0.type == .cellular }
 
             Task { @MainActor in self?.apply(isOnCellular: isOnCellular, hasCellular: hasCellular) }

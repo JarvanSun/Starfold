@@ -195,6 +195,9 @@ In StarfoldShared.
 - **LiveNetworkPath**: Path updates arrive on the monitor's queue and land on the main actor in
   observable properties, so Settings shows or hides Cellular quality as soon as cellular data
   comes or goes.
+- **LiveNetworkPath**: A stream counts as on cellular only when the path's preferred interface
+  is cellular. `usesInterfaceType(.cellular)` is true whenever the path may use cellular, which
+  on an iPhone on Wi-Fi capped a 1440p console stream to 720p.
 - **StatisticsReadout**: The stream's own size has its own row above the upscaled size, because
   what shows as 4K is upscaled.
 - **SharpeningLevel**: The sharpening menu shows the nearest of four levels, because Settings
