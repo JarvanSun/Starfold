@@ -247,6 +247,8 @@ public final class StreamViewModel {
 
         let options = StreamOptions(
             quality: quality,
+            isResolutionFixed: AdaptiveQuality(target: target)
+                .isResolutionFixed(for: settings.choice, streaming: quality),
             maxBitrateKbps: settings.maxBitrateKbps,
             gameLocale: preferences.effectiveGameLanguage,
             clientAppInstallID: preferences.clientAppInstallID,

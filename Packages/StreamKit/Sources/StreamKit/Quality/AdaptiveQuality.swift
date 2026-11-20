@@ -25,6 +25,15 @@ public struct AdaptiveQuality: Sendable {
         }
     }
 
+    public func isResolutionFixed(for choice: QualityChoice, streaming quality: StreamQuality)
+        -> Bool
+    {
+        switch target {
+        case .console: choice != .automatic || quality != choice.requestedQuality
+        case .cloud: false
+        }
+    }
+
     public func isLoweredByHost(received: CGSize, requested: StreamQuality) -> Bool {
         Int(received.height) < fullHeight(of: requested)
     }

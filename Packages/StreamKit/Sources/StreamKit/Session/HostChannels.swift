@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import XboxKit
 
 struct HostChannels {
     private let options: StreamOptions
@@ -40,14 +39,11 @@ struct HostChannels {
     private func authorization() -> [HostChannelAction] {
         let size = options.quality.nominalSize
         let resolutionRequest: [ControlMessage] =
-            switch options.quality {
-            case .quadHD:
-                [
-                    .videoPreference(width: size.width, height: size.height),
-                    .requestedResolution(height: size.height),
-                ]
-            case .standard, .high, .highest: []
-            }
+            options.isResolutionFixed
+            ? [
+                .videoPreference(width: size.width, height: size.height),
+                .requestedResolution(height: size.height),
+            ] : []
 
         return ([.authorizationRequest] + resolutionRequest).map { .send($0.json, on: .control) }
     }

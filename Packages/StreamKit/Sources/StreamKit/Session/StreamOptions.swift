@@ -10,6 +10,7 @@ import XboxKit
 
 public struct StreamOptions: Sendable, Equatable {
     var quality: StreamQuality
+    var isResolutionFixed: Bool
     var maxBitrateKbps: Int?
     var gameLocale: String
     var stunServers: [String]
@@ -18,6 +19,7 @@ public struct StreamOptions: Sendable, Equatable {
 
     public init(
         quality: StreamQuality = .high,
+        isResolutionFixed: Bool,
         maxBitrateKbps: Int? = nil,
         gameLocale: String = "en-US",
         stunServers: [String] = ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"],
@@ -25,6 +27,7 @@ public struct StreamOptions: Sendable, Equatable {
         touchCapabilities: TouchCapabilities? = nil
     ) {
         self.quality = quality
+        self.isResolutionFixed = isResolutionFixed
         self.maxBitrateKbps = maxBitrateKbps
         self.gameLocale = gameLocale
         self.stunServers = stunServers

@@ -83,7 +83,6 @@ endorsed by Microsoft.
 | Setting | Default | Where |
 |---|---|---|
 | Console quality | Automatic | All |
-| Request 1440p for Remote Play | Off | Apple TV |
 | Cloud quality | Automatic | All |
 | Cellular quality | 720p | iPhone, iPad with cellular |
 | Maximum bitrate | Automatic | All |
@@ -98,18 +97,15 @@ endorsed by Microsoft.
 | Rumble | On | All |
 | Touch haptics | On | iPhone |
 
-- Automatic asks for 1080p; when bandwidth runs short the Xbox lowers the resolution mid-stream
-  and keeps the frame rate. A fixed tier is a ceiling. Without Game Pass, cloud streams at 1080p,
-  never 1440p.
+- On a console, Automatic leaves the resolution to the Xbox and a fixed tier asks for exactly that
+  resolution. In the cloud, Automatic asks for 1080p and a fixed tier is a ceiling. When bandwidth
+  runs short the Xbox lowers the resolution mid-stream and keeps the frame rate. Without Game
+  Pass, cloud streams at 1080p, never 1440p.
 - Cellular quality caps both qualities for the whole of a stream that starts on cellular data.
 - Quality and bitrate are fixed per session: changing one mid-stream offers to restart the stream
   (Mac). Every other setting applies at once; a Buffer switch keeps queued frames.
-- On Apple TV, the 1440p Remote Play option uses the highest console quality tier and requests
-  2560×1440 on the next connection. The Xbox can deliver a lower resolution. The maximum bitrate
-  picker offers Automatic or 10, 20, 30, 40, 60 and 80 Mbps as limits for the next connection.
-- The statistics show the received stream resolution. Upscaling renders the stream at the
-  picture's size on screen. HDR tone mapping spreads it over the screen's HDR range and says it is
-  not native HDR.
+- The stream is at most 1440p; upscaling renders it at the picture's size on screen. HDR tone
+  mapping spreads it over the screen's HDR range and says it is not native HDR.
 - Touch haptics: a tap on a touch control and, with no controller, host rumble play on the device.
 
 ### Statistics

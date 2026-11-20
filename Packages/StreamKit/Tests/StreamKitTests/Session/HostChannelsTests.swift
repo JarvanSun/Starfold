@@ -90,12 +90,21 @@ struct HostChannelsTests {
         )
     }
 
-    @Test
-    func receivedWhenHandshakeAcknowledgedAtQuadHDThenRequestsFourteenFortyAfterAuthorizing()
-        throws
-    {
+    @Test(
+        arguments: [
+            (StreamQuality.standard, 1280, 720),
+            (.high, 1920, 1080),
+            (.highest, 1920, 1080),
+            (.quadHD, 2560, 1440),
+        ]
+    )
+    func receivedWhenResolutionFixedThenRequestsItRightAfterAuthorizing(
+        quality: StreamQuality,
+        width: Int,
+        height: Int
+    ) throws {
         // Given
-        var channels = makeChannels(quality: .quadHD)
+        var channels = makeChannels(quality: quality, isResolutionFixed: true)
         channels.opened(.control)
 
         // When
@@ -110,18 +119,19 @@ struct HostChannelsTests {
         let dimensions = try #require(sentData(in: actions, on: .message).last)
         let content = try #require(try object(dimensions)["content"] as? String)
         let announced = try object(Data(content.utf8))
+        let size = ["width": width, "height": height]
         #expect(
             control.compactMap { $0["message"] as? String } == [
                 "authorizationRequest", "VideoPreference", "userRequestedResolutionUpdate",
                 "gamepadChanged",
             ]
         )
-        #expect(control[1]["resolution"] as? [String: Int] == ["width": 2560, "height": 1440])
-        #expect(control[1]["dimensions"] as? [String: Int] == ["width": 2560, "height": 1440])
+        #expect(control[1]["resolution"] as? [String: Int] == size)
+        #expect(control[1]["dimensions"] as? [String: Int] == size)
         #expect(control[1]["maxFPS"] as? Int == 60)
-        #expect(control[2]["resolutionAlias"] as? String == "1440")
-        #expect(announced["preferredWidth"] as? Int == 2560)
-        #expect(announced["preferredHeight"] as? Int == 1440)
+        #expect(control[2]["resolutionAlias"] as? String == String(height))
+        #expect(announced["preferredWidth"] as? Int == width)
+        #expect(announced["preferredHeight"] as? Int == height)
     }
 
     @Test
@@ -260,11 +270,13 @@ struct HostChannelsTests {
 private extension HostChannelsTests {
     func makeChannels(
         quality: StreamQuality = .high,
+        isResolutionFixed: Bool = false,
         touchCapabilities: TouchCapabilities? = nil
     ) -> HostChannels {
         .init(
             options: .init(
                 quality: quality,
+                isResolutionFixed: isResolutionFixed,
                 clientAppInstallID: UUID(),
                 touchCapabilities: touchCapabilities
             ),
