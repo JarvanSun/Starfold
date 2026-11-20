@@ -15,6 +15,7 @@ public struct StreamOptions: Sendable, Equatable {
     var stunServers: [String]
     var clientAppInstallID: UUID
     var touchCapabilities: TouchCapabilities?
+    var requestsConsole1440p: Bool
 
     public init(
         quality: StreamQuality = .high,
@@ -22,7 +23,8 @@ public struct StreamOptions: Sendable, Equatable {
         gameLocale: String = "en-US",
         stunServers: [String] = ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"],
         clientAppInstallID: UUID,
-        touchCapabilities: TouchCapabilities? = nil
+        touchCapabilities: TouchCapabilities? = nil,
+        requestsConsole1440p: Bool = false
     ) {
         self.quality = quality
         self.maxBitrateKbps = maxBitrateKbps
@@ -30,5 +32,6 @@ public struct StreamOptions: Sendable, Equatable {
         self.stunServers = stunServers
         self.clientAppInstallID = clientAppInstallID
         self.touchCapabilities = touchCapabilities
+        self.requestsConsole1440p = requestsConsole1440p
     }
 }

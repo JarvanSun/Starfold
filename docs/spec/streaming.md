@@ -110,6 +110,9 @@ The host picks the quality tier from `osName`, sent in both `dev.os.name` and `s
 | `.high` | `windows` | 1080p | 1920×1080 |
 | `.highest` | `tizen` | Console: 1080p at a higher bitrate. Cloud: 1440p where the title supports it. | 1920×1080 |
 
+Apple TV's optional 1440p Remote Play request uses `.highest` and announces 2560×1440 over the
+data channels. The actual resolution is chosen by the Xbox.
+
 A free-to-play cloud account never asks for more than `.high`. The reply (200 or 202) carries
 `sessionPath` (no leading slash); the session URL is `<baseUri>/<sessionPath>`, or `sessionPath`
 itself when it starts with `http`. Paths below are relative to it.
@@ -208,11 +211,18 @@ Start-up:
 3. 500 ms later → `gamepadChanged {0, true}`, then input starts with slot 0 announced. The host
    shows a controller only after this pair.
 
+For an explicit 1440p Remote Play request, send `VideoPreference` and
+`userRequestedResolutionUpdate` just after `authorizationRequest`. Wait for both the first
+`HandshakeAck` and the control channel to open before sending these control messages or
+announcing the gamepad. The `dimensionschanged` message advertises 2560×1440.
+
 | Control message | Fields |
 |---|---|
 | `authorizationRequest` | `accessKey: "4BDB3609-C1F1-4195-9B37-FEFF45DA8B8E"` (constant) |
 | `gamepadChanged` | `gamepadIndex` 0…3, `wasAdded`. A slot is announced before records use it. |
 | `videoKeyframeRequested` | `ifrRequested: false`. At start-up and when the app asks (`StreamController.requestKeyframe()`), never periodically. |
+| `VideoPreference` | `type: "VideoPreference"`, `resolution` and `dimensions` with `width: 2560` and `height: 1440`, `maxFPS: 60`. |
+| `userRequestedResolutionUpdate` | `resolutionAlias: "1440"`. |
 
 Message envelope: `type`, `id` (lowercase UUID; replies reuse the id they answer), `target`,
 `content` (payload as a JSON string; a raw object is accepted on receipt), `cv`

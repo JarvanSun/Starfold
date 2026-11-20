@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+import XboxKit
 
 @testable import StreamKit
 
@@ -65,6 +66,48 @@ struct HostChannelsTests {
 
         // Then
         #expect(actions.isEmpty)
+    }
+
+    @Test(arguments: [true, false])
+    func console1440pRequestWaitsForControlAndHandshake(controlOpensFirst: Bool) throws {
+        var channels = HostChannels(
+            options: .init(
+                quality: .highest,
+                clientAppInstallID: UUID(),
+                requestsConsole1440p: true
+            )
+        )
+        let acknowledgement = try envelope(type: "HandshakeAck")
+        let requestActions: [HostChannelAction]
+        let handshakeActions: [HostChannelAction]
+        if controlOpensFirst {
+            #expect(
+                channels.opened(.control) == [
+                    .send(ControlMessage.keyframeRequest.json, on: .control)
+                ]
+            )
+            handshakeActions = channels.received(acknowledgement, on: .message, timestamp: 0)
+            requestActions = handshakeActions
+        } else {
+            handshakeActions = channels.received(acknowledgement, on: .message, timestamp: 0)
+            #expect(sentData(in: handshakeActions, on: .control).isEmpty)
+            requestActions = channels.opened(.control)
+        }
+
+        let control = try sentData(in: requestActions, on: .control).map(object)
+        #expect(
+            control.prefix(3).compactMap { $0["message"] as? String } == [
+                "authorizationRequest", "VideoPreference", "userRequestedResolutionUpdate",
+            ]
+        )
+        #expect(control[1]["resolution"] as? [String: Int] == ["width": 2560, "height": 1440])
+        #expect(control[2]["resolutionAlias"] as? String == "1440")
+        let dimensions = try #require(sentData(in: handshakeActions, on: .message).last)
+        let content = try #require(try object(dimensions)["content"] as? String)
+        let size = try object(Data(content.utf8))
+        #expect(size["preferredWidth"] as? Int == 2560)
+        #expect(size["preferredHeight"] as? Int == 1440)
+        #expect(channels.received(acknowledgement, on: .message, timestamp: 0).isEmpty)
     }
 
     @Test

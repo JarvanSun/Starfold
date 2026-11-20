@@ -33,6 +33,11 @@ public final class SettingsViewModel {
         set { preferences.cloudQuality = newValue }
     }
 
+    public var requestsConsole1440p: Bool {
+        get { preferences.requestsConsole1440p }
+        set { preferences.requestsConsole1440p = newValue }
+    }
+
     public var cellularQuality: QualityChoice {
         get { preferences.cellularQuality }
         set { preferences.cellularQuality = newValue }

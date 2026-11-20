@@ -11,6 +11,8 @@ enum ControlMessage: Equatable, Sendable {
     case authorizationRequest
     case gamepadChanged(index: Int, isAdded: Bool)
     case keyframeRequest
+    case videoPreference(width: Int, height: Int)
+    case requestedResolution(height: Int)
 
     var json: Data {
         let object: [String: Any] =
@@ -21,6 +23,16 @@ enum ControlMessage: Equatable, Sendable {
                 ["message": "gamepadChanged", "gamepadIndex": index, "wasAdded": isAdded]
             case .keyframeRequest:
                 ["message": "videoKeyframeRequested", "ifrRequested": false]
+            case .videoPreference(let width, let height):
+                [
+                    "message": "VideoPreference",
+                    "type": "VideoPreference",
+                    "resolution": ["width": width, "height": height],
+                    "dimensions": ["width": width, "height": height],
+                    "maxFPS": 60,
+                ]
+            case .requestedResolution(let height):
+                ["message": "userRequestedResolutionUpdate", "resolutionAlias": String(height)]
             }
         return (try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]))
             ?? Data()

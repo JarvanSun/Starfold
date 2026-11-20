@@ -698,6 +698,23 @@
         }
       }
     },
+    "settings.quality.bitrate.title" : {
+      "comment" : "Settings: picker for maximum streaming bitrate",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum Bitrate"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最高码率"
+          }
+        }
+      }
+    },
     "settings.quality.cloud.title" : {
       "comment" : "Settings: picker for the cloud stream quality",
       "localizations" : {
@@ -711,6 +728,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "云游戏画质"
+          }
+        }
+      }
+    },
+    "settings.quality.console.request1440p" : {
+      "comment" : "Settings: whether to request 1440p from the Xbox console for Remote Play",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request 1440p for Remote Play"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主机串流请求 1440p"
           }
         }
       }
@@ -738,13 +772,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Automatic lowers the resolution when the network can’t keep up. Changes apply to the next stream."
+            "value" : "Changes apply to the next stream. 1440p Remote Play depends on the Xbox and its display settings. The sender can use a lower resolution or bitrate."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "网络跟不上时自动降低分辨率。更改在下次串流时生效。"
+            "value" : "更改在下次串流时生效。主机串流能否达到 1440p 取决于 Xbox 和主机显示设置。发送端可能采用更低的分辨率或码率。"
           }
         }
       }
