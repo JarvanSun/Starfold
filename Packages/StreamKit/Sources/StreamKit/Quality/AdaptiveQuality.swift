@@ -25,11 +25,9 @@ public struct AdaptiveQuality: Sendable {
         }
     }
 
-    public func isResolutionFixed(for choice: QualityChoice, streaming quality: StreamQuality)
-        -> Bool
-    {
+    public func isResolutionFixed(for choice: QualityChoice, ceiling: QualityChoice) -> Bool {
         switch target {
-        case .console: choice != .automatic || quality != choice.requestedQuality
+        case .console: choice != .automatic || ceiling != .automatic
         case .cloud: false
         }
     }

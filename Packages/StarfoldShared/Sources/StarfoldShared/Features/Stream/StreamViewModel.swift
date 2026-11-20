@@ -164,6 +164,10 @@ public final class StreamViewModel {
         streamDependencies.controllerHub
     }
 
+    private var networkCeiling: QualityChoice {
+        streamDependencies.networkPath.isOnCellular ? preferences.cellularQuality : .automatic
+    }
+
     private var playbackSettings: StreamPlaybackSettings {
         .init(
             preferences: preferences,
@@ -248,7 +252,7 @@ public final class StreamViewModel {
         let options = StreamOptions(
             quality: quality,
             isResolutionFixed: AdaptiveQuality(target: target)
-                .isResolutionFixed(for: settings.choice, streaming: quality),
+                .isResolutionFixed(for: settings.choice, ceiling: networkCeiling),
             maxBitrateKbps: settings.maxBitrateKbps,
             gameLocale: preferences.effectiveGameLanguage,
             clientAppInstallID: preferences.clientAppInstallID,
@@ -264,8 +268,7 @@ public final class StreamViewModel {
     }
 
     private func networkQuality(for requested: StreamQuality) -> StreamQuality {
-        streamDependencies.networkPath.isOnCellular
-            ? requested.capped(at: preferences.cellularQuality) : requested
+        requested.capped(at: networkCeiling)
     }
 
     private func connect(with options: StreamOptions) async {

@@ -19,6 +19,7 @@ struct HostChannels {
         self.messageChannel = messageChannel
     }
 
+    @discardableResult
     mutating func opened(_ label: DataChannelLabel) -> [HostChannelAction] {
         switch label {
         case .message: [.send(messageChannel.handshake(), on: .message)]

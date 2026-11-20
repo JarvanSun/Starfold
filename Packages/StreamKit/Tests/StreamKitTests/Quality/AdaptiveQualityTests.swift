@@ -62,24 +62,24 @@ struct AdaptiveQualityTests {
 
     @Test(
         arguments: [
-            (StreamTarget.dummyConsole, QualityChoice.automatic, StreamQuality.high, false),
-            (.dummyConsole, .automatic, .standard, true),
-            (.dummyConsole, .fixed(.high), .high, true),
-            (.dummyConsole, .fixed(.quadHD), .standard, true),
-            (.dummyCloudGame, .fixed(.highest), .highest, false),
-            (.dummyCloudGame, .automatic, .standard, false),
+            (StreamTarget.dummyConsole, QualityChoice.automatic, QualityChoice.automatic, false),
+            (.dummyConsole, .automatic, .fixed(.high), true),
+            (.dummyConsole, .automatic, .fixed(.standard), true),
+            (.dummyConsole, .fixed(.quadHD), .automatic, true),
+            (.dummyCloudGame, .fixed(.highest), .automatic, false),
+            (.dummyCloudGame, .automatic, .fixed(.standard), false),
         ]
     )
-    func isResolutionFixedWhenConsoleThenOnlyAutomaticAtItsOwnQualityLetsTheHostChoose(
+    func isResolutionFixedWhenConsoleThenOnlyAutomaticWithoutCeilingLetsTheHostChoose(
         target: StreamTarget,
         choice: QualityChoice,
-        quality: StreamQuality,
+        ceiling: QualityChoice,
         isFixed: Bool
     ) {
         // Given
         let adaptiveQuality = AdaptiveQuality(target: target)
 
         // When / Then
-        #expect(adaptiveQuality.isResolutionFixed(for: choice, streaming: quality) == isFixed)
+        #expect(adaptiveQuality.isResolutionFixed(for: choice, ceiling: ceiling) == isFixed)
     }
 }
