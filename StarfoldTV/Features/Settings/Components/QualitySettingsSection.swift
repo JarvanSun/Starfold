@@ -18,12 +18,24 @@ struct QualitySettingsSection: View {
                 selection: $settingsViewModel.consoleQuality,
                 choices: settingsViewModel.qualityChoices
             ) { Text($0.consoleTitle) }
+            .disabled(settingsViewModel.requestsConsole1440p)
+
+            Toggle(
+                "settings.quality.console.request1440p",
+                isOn: $settingsViewModel.requestsConsole1440p
+            )
 
             ChoiceLink(
                 "settings.quality.cloud.title",
                 selection: $settingsViewModel.cloudQuality,
                 choices: settingsViewModel.qualityChoices
             ) { Text($0.cloudTitle) }
+
+            ChoiceLink(
+                "settings.quality.bitrate.title",
+                selection: $settingsViewModel.maxBitrateMbps,
+                choices: settingsViewModel.bitrateChoices
+            ) { Text(settingsViewModel.title(ofBitrate: $0)) }
         } header: {
             Text("settings.quality.header")
         } footer: {

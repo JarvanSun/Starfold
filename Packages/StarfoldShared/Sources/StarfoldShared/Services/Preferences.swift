@@ -15,6 +15,9 @@ public final class Preferences {
     var consoleQuality: QualityChoice {
         didSet { defaults.set(consoleQuality.storageValue, for: .consoleQuality) }
     }
+    var requestsConsole1440p: Bool {
+        didSet { defaults.set(requestsConsole1440p, for: .console1440p) }
+    }
     var cloudQuality: QualityChoice {
         didSet { defaults.set(cloudQuality.storageValue, for: .cloudQuality) }
     }
@@ -108,6 +111,7 @@ public final class Preferences {
         let factorySettings = FactorySettings()
         self.defaults = defaults
         consoleQuality = .init(storageValue: defaults.string(for: .consoleQuality))
+        requestsConsole1440p = defaults.bool(for: .console1440p)
         cloudQuality = .init(storageValue: defaults.string(for: .cloudQuality))
         cellularQuality =
             defaults.string(for: .cellularQuality).map(QualityChoice.init(storageValue:))
@@ -187,6 +191,7 @@ public final class Preferences {
 private enum PreferenceKey: String {
     case lastAccountID
     case consoleQuality
+    case console1440p
     case cloudQuality
     case cellularQuality
     case maxBitrate
