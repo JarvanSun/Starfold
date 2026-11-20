@@ -126,7 +126,7 @@ public actor StreamController {
         case .connectionState(let state):
             await handleConnectionState(state)
         case .channelOpen(let label):
-            await perform(hostChannels.opened(label))
+            await perform(hostChannels.opened(label, timestamp: currentTimestamp))
         case .channelMessage(let label, let data):
             await perform(hostChannels.received(data, on: label, timestamp: currentTimestamp))
         case .channelClosed(let label):

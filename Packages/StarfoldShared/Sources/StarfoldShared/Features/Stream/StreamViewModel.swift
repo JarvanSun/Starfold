@@ -164,6 +164,10 @@ public final class StreamViewModel {
         streamDependencies.controllerHub
     }
 
+    private var networkCeiling: QualityChoice {
+        streamDependencies.networkPath.isOnCellular ? preferences.cellularQuality : .automatic
+    }
+
     private var playbackSettings: StreamPlaybackSettings {
         .init(
             preferences: preferences,
@@ -247,11 +251,12 @@ public final class StreamViewModel {
 
         let options = StreamOptions(
             quality: quality,
+            isResolutionFixed: AdaptiveQuality(target: target)
+                .isResolutionFixed(for: settings.choice, ceiling: networkCeiling),
             maxBitrateKbps: settings.maxBitrateKbps,
             gameLocale: preferences.effectiveGameLanguage,
             clientAppInstallID: preferences.clientAppInstallID,
-            touchCapabilities: streamDependencies.touchPlatform?.capabilities,
-            requestsConsole1440p: settings.requestsConsole1440p && quality == .highest
+            touchCapabilities: streamDependencies.touchPlatform?.capabilities
         )
 
         startedAt = .now
@@ -263,8 +268,7 @@ public final class StreamViewModel {
     }
 
     private func networkQuality(for requested: StreamQuality) -> StreamQuality {
-        streamDependencies.networkPath.isOnCellular
-            ? requested.capped(at: preferences.cellularQuality) : requested
+        requested.capped(at: networkCeiling)
     }
 
     private func connect(with options: StreamOptions) async {
@@ -373,12 +377,8 @@ public final class StreamViewModel {
     private func noteResolution(_ received: CGSize?) {
         guard let received, let quality else { return }
 
-        if startedSettings?.requestsConsole1440p == true, quality == .highest {
-            isResolutionLowered = received.height < 1440
-        } else {
-            isResolutionLowered = AdaptiveQuality(target: target)
-                .isLoweredByHost(received: received, requested: quality)
-        }
+        isResolutionLowered = AdaptiveQuality(target: target)
+            .isLoweredByHost(received: received, requested: quality)
     }
 
     private func play(_ effect: VibrationEffect) {

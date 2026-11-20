@@ -142,6 +142,11 @@ In StreamKit.
   highlights towards 600 nits; sharpening is contrast-adaptive, weaker where contrast is high.
 - **AdaptiveQuality**: The Xbox lowers resolution itself when bandwidth runs short (measured:
   1080p at 3 Mbps became 720p60 after 9 s), so Automatic asks for 1080p and only explains.
+- **AdaptiveQuality**: A console streams at its own output resolution whatever `osName` and the
+  announced size say (measured: 1080p and 1080p High Bitrate both arrived at 2560×1440 from an
+  Xbox Series X), so a fixed console tier sends the resolution request the xbox.com client sends
+  (then 720p, 1080p and 1440p arrive as asked), and Automatic sends none. With the request, 1080p
+  High Bitrate streamed like 1080p, so `.highest` is 1440p on a console too.
 - **AdaptiveQuality**: Cloud 1440p without Game Pass starts the session and ends it at once
   (measured with Fortnite), so those streams are pinned to 1080p.
 - **PictureGeometry**: Upscaling renders at the picture's on-screen pixel size, never below the
@@ -190,6 +195,9 @@ In StarfoldShared.
 - **LiveNetworkPath**: Path updates arrive on the monitor's queue and land on the main actor in
   observable properties, so Settings shows or hides Cellular quality as soon as cellular data
   comes or goes.
+- **LiveNetworkPath**: A stream counts as on cellular only when the path's preferred interface
+  is cellular. `usesInterfaceType(.cellular)` is true whenever the path may use cellular, which
+  on an iPhone on Wi-Fi capped a 1440p console stream to 720p.
 - **StatisticsReadout**: The stream's own size has its own row above the upscaled size, because
   what shows as 4K is upscaled.
 - **SharpeningLevel**: The sharpening menu shows the nearest of four levels, because Settings

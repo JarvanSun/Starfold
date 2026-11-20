@@ -12,7 +12,7 @@ extension StreamQuality {
         switch self {
         case .standard: (1280, 720)
         case .high: (1920, 1080)
-        case .highest: (1920, 1080)
+        case .highest: (2560, 1440)
         }
     }
 }

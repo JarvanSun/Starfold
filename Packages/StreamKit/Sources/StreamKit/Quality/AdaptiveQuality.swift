@@ -24,15 +24,14 @@ public struct AdaptiveQuality: Sendable {
         }
     }
 
-    public func isLoweredByHost(received: CGSize, requested: StreamQuality) -> Bool {
-        Int(received.height) < fullHeight(of: requested)
+    public func isResolutionFixed(for choice: QualityChoice, ceiling: QualityChoice) -> Bool {
+        switch target {
+        case .console: choice != .automatic || ceiling != .automatic
+        case .cloud: false
+        }
     }
 
-    private func fullHeight(of quality: StreamQuality) -> Int {
-        switch (quality, target) {
-        case (.standard, _): 720
-        case (.high, _), (.highest, .console): 1080
-        case (.highest, .cloud): 1440
-        }
+    public func isLoweredByHost(received: CGSize, requested: StreamQuality) -> Bool {
+        Int(received.height) < requested.nominalSize.height
     }
 }

@@ -17,7 +17,8 @@ struct AdaptiveQualityTests {
             (StreamTarget.dummyConsole, CGSize(width: 1280, height: 720), StreamQuality.high, true),
             (.dummyConsole, CGSize(width: 1920, height: 1080), .high, false),
             (.dummyConsole, CGSize(width: 1280, height: 720), .standard, false),
-            (.dummyConsole, CGSize(width: 1920, height: 1080), .highest, false),
+            (.dummyConsole, CGSize(width: 1920, height: 1080), .highest, true),
+            (.dummyConsole, CGSize(width: 2560, height: 1440), .highest, false),
             (.dummyCloudGame, CGSize(width: 1920, height: 1080), .highest, true),
         ]
     )
@@ -53,5 +54,28 @@ struct AdaptiveQualityTests {
 
         // When / Then
         #expect(quality.requestedQuality(for: choice, hasGamePass: hasGamePass) == expected)
+    }
+
+    @Test(
+        arguments: [
+            (StreamTarget.dummyConsole, QualityChoice.automatic, QualityChoice.automatic, false),
+            (.dummyConsole, .automatic, .fixed(.high), true),
+            (.dummyConsole, .automatic, .fixed(.standard), true),
+            (.dummyConsole, .fixed(.highest), .automatic, true),
+            (.dummyCloudGame, .fixed(.highest), .automatic, false),
+            (.dummyCloudGame, .automatic, .fixed(.standard), false),
+        ]
+    )
+    func isResolutionFixedWhenConsoleThenOnlyAutomaticWithoutCeilingLetsTheHostChoose(
+        target: StreamTarget,
+        choice: QualityChoice,
+        ceiling: QualityChoice,
+        isFixed: Bool
+    ) {
+        // Given
+        let adaptiveQuality = AdaptiveQuality(target: target)
+
+        // When / Then
+        #expect(adaptiveQuality.isResolutionFixed(for: choice, ceiling: ceiling) == isFixed)
     }
 }

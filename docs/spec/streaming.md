@@ -104,14 +104,14 @@ does not.
 
 The host picks the quality tier from `osName`, sent in both `dev.os.name` and `settings.osName`:
 
-| `StreamQuality` | `osName` | Stream | Announced size until the host reports its own |
+| `StreamQuality` | `osName` | Cloud stream | Announced and requested size |
 |---|---|---|---|
 | `.standard` | `android` | 720p | 1280×720 |
 | `.high` | `windows` | 1080p | 1920×1080 |
-| `.highest` | `tizen` | Console: 1080p at a higher bitrate. Cloud: 1440p where the title supports it. | 1920×1080 |
+| `.highest` | `tizen` | 1440p where the title supports it | 2560×1440 |
 
-Apple TV's optional 1440p Remote Play request uses `.highest` and announces 2560×1440 over the
-data channels. The actual resolution is chosen by the Xbox.
+A console ignores `osName` and the announced size and streams at its own output resolution. Only
+the resolution request at start-up (below) sets it.
 
 A free-to-play cloud account never asks for more than `.high`. The reply (200 or 202) carries
 `sessionPath` (no leading slash); the session URL is `<baseUri>/<sessionPath>`, or `sessionPath`
@@ -206,23 +206,20 @@ Start-up:
 
 1. `message` opens → send `Handshake`. `control` opens → send a keyframe request. Both media
    tracks received → another keyframe request.
-2. First `HandshakeAck` → on control `authorizationRequest`; on input `ClientMetadata`; on
-   message the six configuration messages; on control `gamepadChanged {0, false}`.
+2. First `HandshakeAck` → on message the six configuration messages. A channel drops what is sent
+   before it opens, so the rest also waits for its channel: on input `ClientMetadata`; on control
+   `authorizationRequest`, then a fixed console tier's resolution request (`VideoPreference`,
+   `userRequestedResolutionUpdate`); with both open, on control `gamepadChanged {0, false}`.
 3. 500 ms later → `gamepadChanged {0, true}`, then input starts with slot 0 announced. The host
    shows a controller only after this pair.
-
-For an explicit 1440p Remote Play request, send `VideoPreference` and
-`userRequestedResolutionUpdate` just after `authorizationRequest`. Wait for both the first
-`HandshakeAck` and the control channel to open before sending these control messages or
-announcing the gamepad. The `dimensionschanged` message advertises 2560×1440.
 
 | Control message | Fields |
 |---|---|
 | `authorizationRequest` | `accessKey: "4BDB3609-C1F1-4195-9B37-FEFF45DA8B8E"` (constant) |
 | `gamepadChanged` | `gamepadIndex` 0…3, `wasAdded`. A slot is announced before records use it. |
 | `videoKeyframeRequested` | `ifrRequested: false`. At start-up and when the app asks (`StreamController.requestKeyframe()`), never periodically. |
-| `VideoPreference` | `type: "VideoPreference"`, `resolution` and `dimensions` with `width: 2560` and `height: 1440`, `maxFPS: 60`. |
-| `userRequestedResolutionUpdate` | `resolutionAlias: "1440"`. |
+| `VideoPreference` | `type: "VideoPreference"`; `resolution` and `dimensions`, both the tier's `width` and `height`; `maxFPS: 60`. |
+| `userRequestedResolutionUpdate` | `resolutionAlias`: the tier's height as a string (`"1080"`). |
 
 Message envelope: `type`, `id` (lowercase UUID; replies reuse the id they answer), `target`,
 `content` (payload as a JSON string; a raw object is accepted on receipt), `cv`

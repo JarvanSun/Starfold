@@ -758,13 +758,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1080p High Bitrate"
+            "value" : "1440p"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1080p 高码率"
+            "value" : "1440p"
           }
         }
       }
