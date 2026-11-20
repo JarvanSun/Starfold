@@ -19,8 +19,7 @@ public struct AdaptiveQuality: Sendable {
         let requested = choice.requestedQuality
 
         return switch (target, requested, hasGamePass) {
-        case (.cloud, .highest, false), (.cloud, .quadHD, false): .high
-        case (.cloud, .quadHD, true): .highest
+        case (.cloud, .highest, false): .high
         default: requested
         }
     }
@@ -33,14 +32,6 @@ public struct AdaptiveQuality: Sendable {
     }
 
     public func isLoweredByHost(received: CGSize, requested: StreamQuality) -> Bool {
-        Int(received.height) < fullHeight(of: requested)
-    }
-
-    private func fullHeight(of quality: StreamQuality) -> Int {
-        switch (quality, target) {
-        case (.standard, _): 720
-        case (.high, _), (.highest, .console): 1080
-        case (.highest, .cloud), (.quadHD, _): 1440
-        }
+        Int(received.height) < requested.nominalSize.height
     }
 }

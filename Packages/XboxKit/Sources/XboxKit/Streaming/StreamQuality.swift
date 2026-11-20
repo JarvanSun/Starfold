@@ -9,13 +9,12 @@ public enum StreamQuality: String, Codable, Sendable, CaseIterable {
     case standard
     case high
     case highest
-    case quadHD
 
     var operatingSystemName: String {
         switch self {
         case .standard: "android"
         case .high: "windows"
-        case .highest, .quadHD: "tizen"
+        case .highest: "tizen"
         }
     }
 }

@@ -108,8 +108,7 @@ The host picks the quality tier from `osName`, sent in both `dev.os.name` and `s
 |---|---|---|---|
 | `.standard` | `android` | 720p | 1280×720 |
 | `.high` | `windows` | 1080p | 1920×1080 |
-| `.highest` | `tizen` | 1440p where the title supports it | 1920×1080 |
-| `.quadHD` | `tizen` | Not offered | 2560×1440 |
+| `.highest` | `tizen` | 1440p where the title supports it | 2560×1440 |
 
 A console ignores `osName` and the announced size and streams at its own output resolution. Only
 the resolution request at start-up (below) sets it.
@@ -207,10 +206,10 @@ Start-up:
 
 1. `message` opens → send `Handshake`. `control` opens → send a keyframe request. Both media
    tracks received → another keyframe request.
-2. First `HandshakeAck` → on input `ClientMetadata`; on message the six configuration messages.
-   Once `control` is open too (a channel drops what is sent before it opens): on control
+2. First `HandshakeAck` → on message the six configuration messages. A channel drops what is sent
+   before it opens, so the rest also waits for its channel: on input `ClientMetadata`; on control
    `authorizationRequest`, then a fixed console tier's resolution request (`VideoPreference`,
-   `userRequestedResolutionUpdate`), then `gamepadChanged {0, false}`.
+   `userRequestedResolutionUpdate`); with both open, on control `gamepadChanged {0, false}`.
 3. 500 ms later → `gamepadChanged {0, true}`, then input starts with slot 0 announced. The host
    shows a controller only after this pair.
 

@@ -145,7 +145,8 @@ In StreamKit.
 - **AdaptiveQuality**: A console streams at its own output resolution whatever `osName` and the
   announced size say (measured: 1080p and 1080p High Bitrate both arrived at 2560×1440 from an
   Xbox Series X), so a fixed console tier sends the resolution request the xbox.com client sends
-  (then 720p, 1080p and 1440p arrive as asked), and Automatic sends none.
+  (then 720p, 1080p and 1440p arrive as asked), and Automatic sends none. With the request, 1080p
+  High Bitrate streamed like 1080p, so `.highest` is 1440p on a console too.
 - **AdaptiveQuality**: Cloud 1440p without Game Pass starts the session and ends it at once
   (measured with Fortnite), so those streams are pinned to 1080p.
 - **PictureGeometry**: Upscaling renders at the picture's on-screen pixel size, never below the

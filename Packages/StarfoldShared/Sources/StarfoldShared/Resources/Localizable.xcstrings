@@ -758,24 +758,6 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1080p High Bitrate"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1080p 高码率"
-          }
-        }
-      }
-    },
-    "settings.quality.console.quadHD" : {
-      "comment" : "Settings: 1440p option of the console stream quality picker; the Xbox may send less",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
             "value" : "1440p"
           }
         },

@@ -18,7 +18,6 @@ struct StreamQualityExtensionsTests {
             (.highest, .fixed(.standard), .standard),
             (.high, .fixed(.high), .high),
             (.standard, .fixed(.high), .standard),
-            (.quadHD, .fixed(.high), .high),
         ]
     )
     func cappedThenNeverExceedsTheCeiling(

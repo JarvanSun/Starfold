@@ -14,13 +14,13 @@ struct QualitySettingsSection: View {
     var body: some View {
         Section {
             Picker("settings.quality.console", selection: $settingsViewModel.consoleQuality) {
-                ForEach(settingsViewModel.consoleQualityChoices, id: \.self) { choice in
+                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
                     Text(choice.consoleTitle).tag(choice)
                 }
             }
 
             Picker("settings.quality.cloud", selection: $settingsViewModel.cloudQuality) {
-                ForEach(settingsViewModel.cloudQualityChoices, id: \.self) { choice in
+                ForEach(settingsViewModel.qualityChoices, id: \.self) { choice in
                     Text(choice.cloudTitle).tag(choice)
                 }
             }

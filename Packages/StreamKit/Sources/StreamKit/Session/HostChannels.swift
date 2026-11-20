@@ -12,7 +12,7 @@ struct HostChannels {
 
     private var messageChannel: MessageChannel
     private var hasStartedHandshake = false
-    private var isControlOpen = false
+    private var openChannels: Set<DataChannelLabel> = []
 
     init(options: StreamOptions, messageChannel: MessageChannel = .init()) {
         self.options = options
@@ -20,21 +20,23 @@ struct HostChannels {
     }
 
     @discardableResult
-    mutating func opened(_ label: DataChannelLabel) -> [HostChannelAction] {
+    mutating func opened(_ label: DataChannelLabel, timestamp: Double) -> [HostChannelAction] {
+        guard openChannels.insert(label).inserted else { return [] }
+
         switch label {
-        case .message: [.send(messageChannel.handshake(), on: .message)]
-        case .control: openControl()
-        case .input, .chat: []
+        case .message:
+            return [.send(messageChannel.handshake(), on: .message)]
+        case .control:
+            let keyframe: HostChannelAction =
+                .send(ControlMessage.keyframeRequest.json, on: .control)
+            return hasStartedHandshake
+                ? [keyframe] + authorization() + firstGamepadIfReady() : [keyframe]
+        case .input:
+            return hasStartedHandshake
+                ? clientMetadata(timestamp: timestamp) + firstGamepadIfReady() : []
+        case .chat:
+            return []
         }
-    }
-
-    private mutating func openControl() -> [HostChannelAction] {
-        let keyframe: HostChannelAction = .send(ControlMessage.keyframeRequest.json, on: .control)
-        let isLateForHandshake = hasStartedHandshake && !isControlOpen
-
-        isControlOpen = true
-
-        return isLateForHandshake ? [keyframe] + authorization() + firstGamepad() : [keyframe]
     }
 
     private func authorization() -> [HostChannelAction] {
@@ -49,11 +51,21 @@ struct HostChannels {
         return ([.authorizationRequest] + resolutionRequest).map { .send($0.json, on: .control) }
     }
 
-    private func firstGamepad() -> [HostChannelAction] {
-        [
+    private func firstGamepadIfReady() -> [HostChannelAction] {
+        guard openChannels.isSuperset(of: [.control, .input]) else { return [] }
+
+        return [
             .send(ControlMessage.gamepadChanged(index: 0, isAdded: false).json, on: .control),
             .announceGamepad,
         ]
+    }
+
+    private func clientMetadata(timestamp: Double) -> [HostChannelAction] {
+        let metadata = ClientMetadata(
+            maxTouchPoints: options.touchCapabilities?.maxTouchPoints ?? 0
+        )
+
+        return [.send(metadata.encoded(timestamp: timestamp), on: .input)]
     }
 
     @discardableResult
@@ -99,15 +111,11 @@ struct HostChannels {
             clientAppInstallID: options.clientAppInstallID,
             touch: options.touchCapabilities
         )
-        let metadata = ClientMetadata(
-            maxTouchPoints: options.touchCapabilities?.maxTouchPoints ?? 0
-        )
+        let control = openChannels.contains(.control) ? authorization() : []
+        let input = openChannels.contains(.input) ? clientMetadata(timestamp: timestamp) : []
 
-        let clientSetup: [HostChannelAction] =
-            [.send(metadata.encoded(timestamp: timestamp), on: .input)]
-            + configuration.map { .send($0, on: .message) }
-
-        return isControlOpen ? authorization() + clientSetup + firstGamepad() : clientSetup
+        return control + input + configuration.map { .send($0, on: .message) }
+            + firstGamepadIfReady()
     }
 
     private func action(for event: ServerInputEvent) -> HostChannelAction {

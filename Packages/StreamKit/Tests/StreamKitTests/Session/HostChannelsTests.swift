@@ -18,7 +18,7 @@ struct HostChannelsTests {
         var channels = makeChannels()
 
         // When
-        let actions = channels.opened(.message)
+        let actions = channels.opened(.message, timestamp: 0)
 
         // Then
         let data = try #require(sentData(in: actions, on: .message).first)
@@ -32,7 +32,7 @@ struct HostChannelsTests {
         var channels = makeChannels()
 
         // When
-        let actions = channels.opened(.control)
+        let actions = channels.opened(.control, timestamp: 0)
 
         // Then
         #expect(actions == [.send(ControlMessage.keyframeRequest.json, on: .control)])
@@ -41,9 +41,8 @@ struct HostChannelsTests {
     @Test
     func receivedWhenHandshakeAcknowledgedThenAuthorizesConfiguresAndAnnouncesGamepad() throws {
         // Given
-        var channels = makeChannels()
+        var channels = makeChannels(opening: [.control, .input])
         let acknowledgement = try envelope(type: "HandshakeAck")
-        channels.opened(.control)
 
         // When
         let actions = channels.received(acknowledgement, on: .message, timestamp: 0)
@@ -58,7 +57,7 @@ struct HostChannelsTests {
     @Test
     func receivedWhenHandshakeAcknowledgedBeforeControlOpensThenWaitsToAuthorize() throws {
         // Given
-        var channels = makeChannels()
+        var channels = makeChannels(opening: [.input])
         let acknowledgement = try envelope(type: "HandshakeAck")
 
         // When
@@ -73,11 +72,11 @@ struct HostChannelsTests {
     @Test
     func openedWhenControlOpensAfterHandshakeThenAuthorizesAndAnnouncesGamepad() throws {
         // Given
-        var channels = makeChannels()
+        var channels = makeChannels(opening: [.input])
         channels.received(try envelope(type: "HandshakeAck"), on: .message, timestamp: 0)
 
         // When
-        let actions = channels.opened(.control)
+        let actions = channels.opened(.control, timestamp: 0)
 
         // Then
         #expect(
@@ -90,12 +89,31 @@ struct HostChannelsTests {
         )
     }
 
+    @Test
+    func openedWhenInputOpensAfterHandshakeThenSendsClientMetadataAndAnnouncesGamepad() throws {
+        // Given
+        var channels = makeChannels(opening: [.control])
+        let handshakeActions = channels.received(
+            try envelope(type: "HandshakeAck"),
+            on: .message,
+            timestamp: 0
+        )
+
+        // When
+        let actions = channels.opened(.input, timestamp: 0)
+
+        // Then
+        #expect(sentData(in: handshakeActions, on: .input).isEmpty)
+        #expect(!handshakeActions.contains(.announceGamepad))
+        #expect(labels(of: actions) == [.input, .control])
+        #expect(actions.last == .announceGamepad)
+    }
+
     @Test(
         arguments: [
             (StreamQuality.standard, 1280, 720),
             (.high, 1920, 1080),
-            (.highest, 1920, 1080),
-            (.quadHD, 2560, 1440),
+            (.highest, 2560, 1440),
         ]
     )
     func receivedWhenResolutionFixedThenRequestsItRightAfterAuthorizing(
@@ -104,8 +122,11 @@ struct HostChannelsTests {
         height: Int
     ) throws {
         // Given
-        var channels = makeChannels(quality: quality, isResolutionFixed: true)
-        channels.opened(.control)
+        var channels = makeChannels(
+            quality: quality,
+            isResolutionFixed: true,
+            opening: [.control, .input]
+        )
 
         // When
         let actions = channels.received(
@@ -179,7 +200,7 @@ struct HostChannelsTests {
     @Test
     func receivedWhenHandshakeAcknowledgedWithoutTouchThenAnnouncesNoTouchPoints() throws {
         // Given
-        var channels = makeChannels()
+        var channels = makeChannels(opening: [.input])
 
         // When
         let actions = channels.received(
@@ -201,7 +222,7 @@ struct HostChannelsTests {
             maxLayoutVersion: "4.1.0.0",
             maxManifestVersion: "2.0.0.0"
         )
-        var channels = makeChannels(touchCapabilities: touchCapabilities)
+        var channels = makeChannels(touchCapabilities: touchCapabilities, opening: [.input])
 
         // When
         let actions = channels.received(
@@ -271,9 +292,10 @@ private extension HostChannelsTests {
     func makeChannels(
         quality: StreamQuality = .high,
         isResolutionFixed: Bool = false,
-        touchCapabilities: TouchCapabilities? = nil
+        touchCapabilities: TouchCapabilities? = nil,
+        opening labels: [DataChannelLabel] = []
     ) -> HostChannels {
-        .init(
+        var channels = HostChannels(
             options: .init(
                 quality: quality,
                 isResolutionFixed: isResolutionFixed,
@@ -282,6 +304,12 @@ private extension HostChannelsTests {
             ),
             messageChannel: .init(correlationBase: "abc")
         )
+
+        for label in labels {
+            channels.opened(label, timestamp: 0)
+        }
+
+        return channels
     }
 
     func envelope(type: String, target: String = "", content: String = "{}") throws -> Data {

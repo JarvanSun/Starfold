@@ -108,11 +108,7 @@ public final class SettingsViewModel {
         set { preferences.shouldShowInMenuBar = newValue }
     }
 
-    public var consoleQualityChoices: [QualityChoice] {
-        [.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest), .fixed(.quadHD)]
-    }
-
-    public var cloudQualityChoices: [QualityChoice] {
+    public var qualityChoices: [QualityChoice] {
         [.automatic, .fixed(.standard), .fixed(.high), .fixed(.highest)]
     }
 

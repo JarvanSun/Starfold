@@ -16,13 +16,13 @@ struct QualitySettingsSection: View {
             ChoiceLink(
                 "settings.quality.console.title",
                 selection: $settingsViewModel.consoleQuality,
-                choices: settingsViewModel.consoleQualityChoices
+                choices: settingsViewModel.qualityChoices
             ) { Text($0.consoleTitle) }
 
             ChoiceLink(
                 "settings.quality.cloud.title",
                 selection: $settingsViewModel.cloudQuality,
-                choices: settingsViewModel.cloudQualityChoices
+                choices: settingsViewModel.qualityChoices
             ) { Text($0.cloudTitle) }
 
             ChoiceLink(

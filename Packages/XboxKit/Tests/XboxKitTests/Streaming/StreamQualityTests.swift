@@ -15,7 +15,6 @@ struct StreamQualityTests {
             (StreamQuality.standard, "android"),
             (.high, "windows"),
             (.highest, "tizen"),
-            (.quadHD, "tizen"),
         ]
     )
     func operatingSystemNameThenPicksTierTheServiceOffers(quality: StreamQuality, expected: String)
