@@ -704,7 +704,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Maximum Bitrate"
+            "value" : "Maximum bitrate"
           }
         },
         "zh-Hans" : {
